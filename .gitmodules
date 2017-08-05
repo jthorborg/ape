@@ -2,3 +2,7 @@
 	path = external/libconfig
 	url = https://github.com/hyperrealm/libconfig.git
 	branch = master
+[submodule "external/tinycc"]
+	path = external/tinycc
+	url = git://repo.or.cz/tinycc.git
+	branch = mob
