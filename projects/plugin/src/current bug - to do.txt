@@ -1,0 +1,168 @@
+
+
+----- bugs -- old
+
+If plugin code crashes, and exception is NOT trapped by runprotected code, deadlock occurs: processReplacing will not reset mutex variables.
+
+Similar, if plugin code calls api functions that might throw system-level exceptions (most common is fpu-exceptions), system can deadlock:
+mutexvariables will not be released. Either a top-level SEH handler should be installed, all mutex variables __finally released, all locks should have a max wait time or 
+all api code must be so good written it will never throw, or all safe exceptions should be disabled while inside api code (considerably overhead).
+
+^---- this has somewhat been fixed by redirecting all mutex locks to Misc::Spinlock, which will timeout and ask user what to do (although the inherit problem persists)
+
+If plugin code calls setStatus / requestStatusChange with status = status.disabled while processing, code will deadlock: disablePlugin will wait for processing() to return (from which it is called from) 
+
+the thread spawned in scilexer.cpp keeps running even when the dll is unloaded.
+
+----- todo
+
+replace console constant line length to CDrawContext::GetStringWidth
+current fuckups/tobefixed:
+
+
+scilexer::saveas::cfileselector::~cfiileselector crashes for unknown reasons
+
+version 1.5
+cross platform support.
+
+version 2:
+projects
+implement double/single precision audio paths
+projects can be compiled to stand-alone plugins
+
+
+APE AIMS TO BE:
+A host and platform independent virtual studio development enviroment
+The engine should be independent of hosted languages (obviously language should implement a C-bridge)
+The engine should be independent of the GUI.
+The core engine (including the GUI) should be platform independent, everything else should be modularized and
+abstracted through virtual base classes and conditional inclusion.
+
+The program should be able to export/compile the project to a stand-alone plugin, with a minimum of features and size
+
+
+----- Coding style
+
+These are mostly provided to give an idea, and help keeping the code clear. You are not forced to follow all of these,
+but please do as they greatly increase readability and consistency!
+I realize i dont follow this always, but at this state i dont always have the time to format it correctly, i will do it later.
+
+Types:
+	- All exposed types use CamelCasing.
+	- By any means use typedefs (not defines!) for common types, so you can change them all at once.
+
+Scope:
+	- Always precisely resolve the scope of what you want (except inside member functions), 
+	  ie. always use std::free instead of free().
+	- Feel free to prefix with "this->field" if in doubt.
+	- Same goes for enums, specify Enumname::enumfield.
+	- Never use "using namespace ...;" at file level, do it in functions only if you must.
+	- No purely global functions and variables, always keep anything inside namespaces.
+	- Refrain from using globals, if you must make them constant and remember they are shared between all
+	  instances of this plugin.
+
+Platform specific:
+	- Refrain from this, although it obviously has to be used sometimes.
+	- Never #include a platform specific file in a code file, add these into "PlatformSpecific.h" and #include
+	  this file instead.
+	- If you implement something using a platform specific method, you should always guard the code using #ifdefs
+	  and a else clause with an #error directive, so the implementation wont compile unless the code is implemented.
+	- The core of the program (ie. "APE.h APE.cpp GUI.h GUI.cpp") should never use platform specific stuff, create helper
+	  classes for this and put this in seperate files.
+	- Modules that might change (ie. text editor and compiler) should be visible only as an abstract interface to the core.
+	  The actual, platformspecific implementation should be in a seperate file that derives from this interface. A typedef
+	  in "PlatformSpecific.h" should denote the correct class to be used.
+
+Files:
+	- All filenames are CamelCasing.
+	- All files should include a legal, compatible notice with author and year denoted. 
+	- All files should include a small description.
+	- All source files is of type .cpp, while headers are .h
+	- All headers should include a compatible multiple inclusion guard, for example #ifdef _FILENAME_H idiom.
+	- Files should always be as modularized and seperated as possible, ie. dont mix class definitions and global functions
+	  unless it's needed.
+	- Files that only hold class definitions should be name after their class.
+	- Functions should be seperated by nice ascii art (not kidding!) - it helps to differentiate unrelated code.
+
+Formatting:
+	- Unlike others, i indent preprocessor directives. If you have a lot, it's impossible to read without.
+	- Use K&R style.
+	- Definitions of functions include their prototype, newline, start curly brace and code thereafter. Example:
+		int myFunction(float input)
+		{
+			....
+		}
+	- Everything else includes the curly brace at the end of the line, ie:
+		while(!object.isFinished()) {
+			doIdleStuff();
+		}
+	- Templates include their argument list on its own line and indents a space more, ie:
+		template <typename T>
+			T myFunction(T input)
+			{
+				...
+			}
+	- Never put multiple statements on one line. Exceptions include common declarations, ie:
+		float x, y, z, * fArray;
+	- Unlike others, i like to do:
+		Type * variableName;
+	  But i realize this is a religious subject, so feel free to place the symbol where you want.
+	- Give variables descriptive names, except for loop counters etc.
+	- Indentation is a tab. It saves space and can be changed to represent x amount of spaces.
+
+Variables:
+	- Unless global or field, all variables should be first word lowercase, rest uppercase.
+		float poleFilter;
+
+Classes:
+	- Never expose fields, only methods. Use a struct instead.
+	- Only make something public if it's a part of the interface.
+	- Only make something protected if the class at some point could be derived.
+	- Everything else should be private.
+	- Types that are only used inside the class (helper structs, weird typedefs) 
+	  should be defined inside the class definition, and not 'global' inside the namespace.
+	- Fields are not required to have specific prefixes or anything, only to be consistent.
+	  If you want to, use either m_ or _ as prefixes (the former has the neat feature of putting itself low in the
+	  bottom of the autocomplete list)
+	- All methods should be defined in separate .cpp files, unless they are under a line of code.
+	- Classes should start with "C"
+
+Structs:
+	- Shall always be compilable to POD-types, ie. no virtual or abstract structs. Structs are not intended to be
+	  inherited from, use classes for this.
+	- Structs may use small helper functions and constructors to initialize itself, however destructors should not
+	  be implemented, since structs shouldn't control resources in the first case.
+
+Exceptions:
+	- Only throw them if you are gonna catch them up later. There is no way to properly terminate this program and 
+	  you should always try to save the user's ass. Also, there is no common entrypoint, the same code may be called 
+	  from multiple places and threads.
+
+Multithreading:
+	- Every piece of code should be considered multithreaded, inherently because our host may be calling different functions 
+	  concurrently. Guard your resources with spinlocks (and preferably, Misc::SpinLock()).
+
+Other stuff:
+	- Everything that can be invoked from the outside should include calling convention in its typestring.
+	- Do NOT use floats, shorts or char's for performance reasons. Use <stdint> and it's types, if you must.
+	- Everything you call from the outside should be guarded with try ... catch and CState::RunProtectedCode()
+	- Do NOT use magical numbers. Either make them static const or include a precise desciption of what they represent.
+
+Preprocessor:
+	- Avoid using this, if you must put it in "MacroConstants.h"
+
+DSP related:
+	- Inside processing loops, several of the beforementioned rules doesn't apply because performance is critical.
+	  Do therefore not use virtual method calls on each sample 96000 times a second (use common sense). Anywhere else,
+	  do not try to do premature optimizations.
+
+Comments:
+	- Use /* */ for multiline comments.
+	- Put as many comments you need to explain the code well, but ideally it should explain itself.
+
+Casts:
+	- Only use C++ casts.
+
+Strings:
+	- You can use char arrays for passing stuff around (although do consider "const std::string &"), but if you ever
+	  need to modify/copy/store/change strings, use std::string.

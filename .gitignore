@@ -1,1 +1,8 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
+projects/plugin/builds/VisualStudio/.vs/
+projects/plugin/builds/VisualStudio/Debug/
+projects/plugin/builds/VisualStudio/Release/Audio Programming Environment.iobj
+projects/plugin/builds/VisualStudio/Release/
+projects/plugin/builds/VisualStudio/x64/
+projects/plugin/builds/VisualStudio/Win32/
+.vs/
