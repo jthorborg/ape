@@ -9,4 +9,4 @@
 [submodule "external/cpl"]
 	path = external/cpl
 	url = https://bitbucket.org/Mayae/cpl.git
-	branch = master
+	branch = dev/stable

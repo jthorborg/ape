@@ -19,61 +19,51 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\external\tinycc\i386-asm.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    <ClInclude Include="..\..\..\..\external\tinycc\i386-asm.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\external\tinycc\i386-gen.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\i386-tok.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\external\tinycc\i386-link.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\external\tinycc\libtcc.c" />
-    <ClCompile Include="..\..\external\tinycc\tccasm.c" />
-    <ClCompile Include="..\..\external\tinycc\tccelf.c" />
-    <ClCompile Include="..\..\external\tinycc\tccgen.c" />
-    <ClCompile Include="..\..\external\tinycc\tccpp.c" />
-    <ClCompile Include="..\..\external\tinycc\tccrun.c" />
-    <ClCompile Include="..\..\external\tinycc\tcctools.c" />
-    <ClCompile Include="..\..\external\tinycc\x86_64-gen.c">
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\tcc.h" />
+    <ClInclude Include="..\..\..\..\external\tinycc\tcctok.h" />
+    <ClInclude Include="..\..\..\..\external\tinycc\x86_64-asm.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\external\tinycc\x86_64-link.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    </ClInclude>
+    <ClInclude Include="..\..\src\config.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\external\tinycc\config.h" />
-    <ClInclude Include="..\..\external\tinycc\i386-asm.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    <ClCompile Include="..\..\..\..\external\tinycc\i386-asm.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\external\tinycc\i386-tok.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\i386-gen.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\external\tinycc\libtcc.h" />
-    <ClInclude Include="..\..\external\tinycc\tcc.h" />
-    <ClInclude Include="..\..\external\tinycc\tcctok.h" />
-    <ClInclude Include="..\..\external\tinycc\x86_64-asm.h">
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\i386-link.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\libtcc.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tccasm.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tccelf.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tccgen.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tccpe.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tccpp.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tccrun.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\tcctools.c" />
+    <ClCompile Include="..\..\..\..\external\tinycc\x86_64-gen.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\x86_64-link.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -150,7 +140,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <PreBuildEvent>
-      <Command>copy $(ProjectDir)src\config.h $(ProjectDir)..\..\external\tinycc\config.h</Command>
+      <Command>copy $(ProjectDir)..\..\src\config.h $(ProjectDir)..\..\..\..\external\tinycc\config.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -160,7 +150,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <PreBuildEvent>
-      <Command>copy $(ProjectDir)src\config.h $(ProjectDir)..\..\external\tinycc\config.h</Command>
+      <Command>copy $(ProjectDir)..\..\src\config.h $(ProjectDir)..\..\..\..\external\tinycc\config.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
