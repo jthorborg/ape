@@ -6,3 +6,5 @@ projects/plugin/builds/VisualStudio/Release/
 projects/plugin/builds/VisualStudio/x64/
 projects/plugin/builds/VisualStudio/Win32/
 .vs/
+projects/tinycc/Release/
+projects/tinycc/x64/
