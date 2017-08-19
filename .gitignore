@@ -15,3 +15,8 @@ projects/tcc4ape/builds/VisualStudio/x64/
 solutions/VisualStudio/Debug/
 solutions/VisualStudio/Win32/
 solutions/VisualStudio/x64/
+projects/syswrap/builds/VisualStudio/Debug/
+projects/syswrap/builds/VisualStudio/Release/
+projects/tinycc/builds/VisualStudio/Release/
+projects/tcc4ape/builds/VisualStudio/Release/
+solutions/VisualStudio/Release/

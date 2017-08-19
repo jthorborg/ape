@@ -10,13 +10,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinycc", "..\..\projects\ti
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tcc4APE", "..\..\projects\tcc4ape\builds\VisualStudio\Tcc4APE.vcxproj", "{C8A8AA6A-EDD3-4728-8E5D-D7804960FB77}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "syswrap", "..\..\projects\syswrap\builds\VisualStudio\syswrap.vcxproj", "{46DD2FE0-78BC-489B-B114-4945451E446C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		DebugStatic|x64 = DebugStatic|x64
 		DebugStatic|x86 = DebugStatic|x86
-
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 		ReleaseStatic|x64 = ReleaseStatic|x64
@@ -87,6 +88,22 @@ Global
 		{C8A8AA6A-EDD3-4728-8E5D-D7804960FB77}.ReleaseStatic|x64.Build.0 = Release|x64
 		{C8A8AA6A-EDD3-4728-8E5D-D7804960FB77}.ReleaseStatic|x86.ActiveCfg = Release|Win32
 		{C8A8AA6A-EDD3-4728-8E5D-D7804960FB77}.ReleaseStatic|x86.Build.0 = Release|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Debug|x64.ActiveCfg = Debug|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Debug|x64.Build.0 = Debug|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Debug|x86.ActiveCfg = Debug|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Debug|x86.Build.0 = Debug|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.DebugStatic|x64.ActiveCfg = Debug|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.DebugStatic|x64.Build.0 = Debug|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.DebugStatic|x86.ActiveCfg = Debug|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.DebugStatic|x86.Build.0 = Debug|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Release|x64.ActiveCfg = Release|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Release|x64.Build.0 = Release|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Release|x86.ActiveCfg = Release|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.Release|x86.Build.0 = Release|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.ReleaseStatic|x64.ActiveCfg = Release|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.ReleaseStatic|x64.Build.0 = Release|x64
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.ReleaseStatic|x86.ActiveCfg = Release|Win32
+		{46DD2FE0-78BC-489B-B114-4945451E446C}.ReleaseStatic|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
