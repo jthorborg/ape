@@ -275,6 +275,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp" />
+    <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
+    <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
+    <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp" />
     <ClCompile Include="..\..\src\APE.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
     <ClCompile Include="..\..\src\CApi.cpp" />
@@ -1889,6 +1892,15 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\external\libconfig\lib\libconfig++.vcxproj">
       <Project>{a0c36ce7-d908-4573-8b69-249eeeb7d2be}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\syswrap\builds\VisualStudio\syswrap.vcxproj">
+      <Project>{46dd2fe0-78bc-489b-b114-4945451e446c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tcc4ape\builds\VisualStudio\Tcc4APE.vcxproj">
+      <Project>{c8a8aa6a-edd3-4728-8e5d-d7804960fb77}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tinycc\builds\VisualStudio\tinycc.vcxproj">
+      <Project>{49b2c525-7c50-453d-99e9-65dde637c78f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -139,6 +139,7 @@ namespace TCC4Ape
 			tcc.setOptions(state, project->arguments);
 
 		tcc.addIncludePath(state, (std::string(project->rootPath) + "/includes").c_str());
+		tcc.addIncludePath(state, (std::string(project->rootPath) + "/includes/tcc").c_str());
 		tcc.setOutputType(state, TCC_OUTPUT_MEMORY);
 		tcc.setErrorFunc(state, op, errorFunc);
 

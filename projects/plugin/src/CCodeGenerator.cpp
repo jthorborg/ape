@@ -58,7 +58,8 @@ namespace APE
 			for(unsigned i = 0; i < EExports::eDummy; ++i) {
 				name = nullptr;
 				// see if we can get a valid name out of our settings
-				if(settingsIsValid) {
+				if(settingsIsValid && exportSettings.exists(g_sExports[i]))
+				{
 					name  = exportSettings[g_sExports[i]].c_str();
 				}
 				// shortcircuiting avoids null-dereferencing
