@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4EF9CB9D-0725-4644-5087-E4881FC85FEB}</ProjectGuid>
     <ProjectName>Plugin</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -53,12 +54,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Audio Programming Environment</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Audio Programming Environment</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Audio Programming Environment</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Audio Programming Environment</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
@@ -67,18 +68,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>C:\SDKs\vstsdk2.4\public.sdk\samples\vst2.x\minihost\win\Debug\minihost.exe "C:\Code\Audio Programming Environment\Builds\VisualStudio2010\Debug\Audio Programming Environment.dll"</CustomBuildAfterTargets>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>C:\SDKs\vstsdk2.4\public.sdk\samples\vst2.x\minihost\win\Debug\minihost.exe "C:\Code\Audio Programming Environment\Builds\VisualStudio2010\Debug\Audio Programming Environment.dll"</CustomBuildAfterTargets>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -124,7 +129,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)\$(TargetFileName)" "$(OutDir)\$(TargetName).vst3"</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -171,7 +176,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)\$(TargetFileName)" "$(OutDir)\$(TargetName).vst3"</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -218,7 +223,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)\$(TargetFileName)" "$(OutDir)\$(TargetName).vst3"</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -265,7 +270,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)\$(TargetFileName)" "$(OutDir)\$(TargetName).vst3"</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

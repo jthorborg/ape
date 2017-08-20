@@ -3,7 +3,7 @@
 	#include <stdlib.h>
 	#include <assert.h>
 	#ifndef _MACROCONSTANTS_H
-		#ifdef WIN32
+		#ifdef _WIN32
 			#define __WINDOWS__
 			#define EXPORTED __declspec(dllexport)
 		#elif (__MACH__) && (__APPLE__)

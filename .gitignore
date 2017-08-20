@@ -20,3 +20,8 @@ projects/syswrap/builds/VisualStudio/Release/
 projects/tinycc/builds/VisualStudio/Release/
 projects/tcc4ape/builds/VisualStudio/Release/
 solutions/VisualStudio/Release/
+projects/syswrap/builds/VisualStudio/Win32/
+projects/tcc4ape/builds/VisualStudio/Win32/
+make/config.ini
+projects/syswrap/builds/VisualStudio/x64/
+projects/tinycc/builds/VisualStudio/Win32/
