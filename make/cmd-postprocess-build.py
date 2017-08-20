@@ -1,8 +1,13 @@
 import os
 import configparser
 import sys
+import shutil as sh
+import distutils.dir_util as du
 
 config = configparser.ConfigParser()
+temp_output = "temp"
+
+# check configurations
 
 if not os.path.isfile("config.ini"):
 	print(">> Error: Run python prepare.py firstly")
@@ -11,11 +16,57 @@ if not os.path.isfile("config.ini"):
 
 config.read("config.ini")
 
+def cleanup():
+	if os.path.isdir(temp_output):
+		sh.rmtree(temp_output)
+
+
+# check build output
+
 if not len(sys.argv) == 3:
 	print(">> Invalid number of post processing arguments")
 
+
 output_dir = sys.argv[1]
 
+for file in os.listdir(output_dir):
+    if file.endswith(".dll"):
+        print(os.path.join(output_dir, file))
 
-print('Number of arguments:', len(sys.argv), 'arguments.')
-print('Argument List:', str(sys.argv))
+# cleanup earlier stuff
+cleanup()
+
+# build skeleton
+
+
+sh.copytree("skeleton", temp_output)
+sh.copytree("../external/tinycc/win32/include", os.path.join(temp_output, "includes", "tcc"))
+
+# copy build files
+
+sh.copyfile(os.path.join(output_dir, "Audio Programming Environment.dll"), os.path.join(temp_output, "Audio Programming Environment.dll"))
+sh.copyfile(os.path.join(output_dir, "syswrap.dll"), os.path.join(temp_output, "compilers", "syswrap", "syswrap.dll"))
+sh.copyfile(os.path.join(output_dir, "Tcc4APE.dll"), os.path.join(temp_output, "compilers", "Tcc4APE", "Tcc4APE.dll"))
+
+# copy into vst folder
+
+dest_dir = ""
+
+if sys.argv[2] == "Win32":
+	dest_dir = config.get("local", "vst-x86-output")
+elif sys.argv[2] == "x64":
+	dest_dir = config.get("local", "vst-x64-output")
+else:
+	print("Unknown binary target: " + sys.argv[1])
+	cleanup()
+	exit(1)
+
+dest_dir = os.path.join(dest_dir, "Audio Programming Environment")
+
+print("\nInstalling into: " + dest_dir)
+
+du.copy_tree(temp_output, dest_dir)
+
+cleanup()
+
+print("Postprocess finished succesfully.\n")

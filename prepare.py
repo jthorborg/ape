@@ -19,5 +19,4 @@ if not os.path.isfile("make/config.ini"):
 else:
 	print(">> Reading configuration...")
 
-
 print(">> Dev environment setup without errors.")
