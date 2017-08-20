@@ -9,3 +9,6 @@
 	path = external/cpl
 	url = https://bitbucket.org/Mayae/cpl.git
 	branch = dev/stable
+[submodule "external/ape-snippets"]
+	path = external/ape-snippets
+	url = https://bitbucket.org/Mayae/ape-snippets.git
