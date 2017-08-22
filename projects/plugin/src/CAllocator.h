@@ -54,7 +54,7 @@
 
 			typedef std::list<mem_block*>::iterator mem_it;
 
-			struct __alignas(APE_DEF_ALIGN) mem_block
+			struct mem_block
 			{
 				struct mem_end
 				{

@@ -28,12 +28,14 @@
 
 *************************************************************************************/
 
-#ifndef _JUCEEDITOR_H
-	#define _JUCEEDITOR_H
+#ifndef APE_JUCEEDITOR_H
+	#define APE_JUCEEDITOR_H
+
 	#include "MacroConstants.h"
 	#include "Common.h"
 	#include "CCodeEditor.h"
 	#include "CExclusiveFile.h"
+	#include "ProjectEx.h"
 	#include <string>
 	#include <map>
 
@@ -192,7 +194,7 @@
 			bool closeEditor() override;
 			bool exists() override { return true; }
 			bool openFile(const std::string & fileName) override;
-			CProject * getProject() override;
+			ProjectEx * getProject() override;
 			std::string getDocumentName() override;
 			std::string getDocumentPath() override;
 			void autoSave() override;

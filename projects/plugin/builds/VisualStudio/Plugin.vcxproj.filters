@@ -328,6 +328,9 @@
     <Filter Include="Audio Programming Environment\Juce Wrappers">
       <UniqueIdentifier>{94b60c50-5ea9-4cbd-8ce4-5c55b3507407}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio Programming Environment\Shared">
+      <UniqueIdentifier>{cd474b71-cbd2-423d-9e8d-ca082268a72d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1461,9 +1464,6 @@
     <ClCompile Include="..\..\src\Misc.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\APE.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CApi.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1488,15 +1488,6 @@
     <ClCompile Include="..\..\src\CControlManager.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\AAX\juce_AAX_Wrapper.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode1.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode2.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode3.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_WinUtilities.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_Wrapper.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\AAX\juce_AAX_Wrapper.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode1.cpp" />
@@ -1685,6 +1676,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp">
       <Filter>Audio Programming Environment\Juce Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Engine.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
+      <Filter>Audio Programming Environment\Shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3050,9 +3047,6 @@
     <ClInclude Include="..\..\src\CState.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Project.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CValueLabel.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -3075,12 +3069,6 @@
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GraphicComponents.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\APE\APE\CCodeGenerator.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\APE.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GraphicUI.h">
@@ -3124,6 +3112,30 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ProjectEx.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Engine.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\ape\Project.h">
+      <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp">
+      <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h">
+      <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CCodeGenerator.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\ape\Events.h">
+      <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\ape\APE.h">
+      <Filter>Audio Programming Environment\Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

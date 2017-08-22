@@ -29,8 +29,8 @@
 
 *************************************************************************************/
 
-#ifndef _MACROCONSTANTS_H
-	#define _MACROCONSTANTS_H
+#ifndef APE_MACROCONSTANTS_H
+	#define APE_MACROCONSTANTS_H
 
 	#include <stdint.h>
 
@@ -96,10 +96,7 @@
 		#define isDebugged() Misc::IsBeingDebugged()
 		#define debug_out(x) (void*) 0
 	#endif
-	// intrinsic only to capi.cpp
-	#define CAPI_SANITY_CHECK() \
-		if(!iface || !iface->engine) \
-			throw CState::CSystemException(CState::CSystemException::status::nullptr_from_plugin, true);
+
 	#ifdef _DEBUG
 		#define BreakIfDebugged() if(isDebugged()) DBG_BREAK()
 	#else

@@ -66,22 +66,22 @@
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>C:\SDKs\vstsdk2.4\public.sdk\samples\vst2.x\minihost\win\Debug\minihost.exe "C:\Code\Audio Programming Environment\Builds\VisualStudio2010\Debug\Audio Programming Environment.dll"</CustomBuildAfterTargets>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
     <CustomBuildAfterTargets>C:\SDKs\vstsdk2.4\public.sdk\samples\vst2.x\minihost\win\Debug\minihost.exe "C:\Code\Audio Programming Environment\Builds\VisualStudio2010\Debug\Audio Programming Environment.dll"</CustomBuildAfterTargets>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external\;$(ProjectDir)..\..\..\..\external\libconfig\lib;$(ProjectDir)..\..\..\..\..\SDKs\VST3 SDK;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -278,7 +278,13 @@
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp" />
-    <ClCompile Include="..\..\src\APE.cpp" />
+    <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Engine.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
     <ClCompile Include="..\..\src\CApi.cpp" />
     <ClCompile Include="..\..\src\CCodeGenerator.cpp" />
@@ -1387,8 +1393,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh" />
-    <ClInclude Include="..\..\..\APE\APE\CCodeGenerator.h" />
-    <ClInclude Include="..\..\src\APE.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\Events.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\Project.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
+    <ClInclude Include="..\..\src\CCodeGenerator.h" />
+    <ClInclude Include="..\..\src\Engine.h" />
     <ClInclude Include="..\..\src\ButtonDefinitions.h" />
     <ClInclude Include="..\..\src\CAllocator.h" />
     <ClInclude Include="..\..\src\CApi.h" />
@@ -1859,8 +1870,8 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.h" />
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h" />
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h" />
+    <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\UserControls.h" />
-    <ClInclude Include="..\..\src\Project.h" />
     <ClInclude Include="..\..\src\resource.h" />
     <ClInclude Include="..\..\src\Settings.h" />
     <ClInclude Include="..\..\src\VSTGUISupport.h" />

@@ -29,17 +29,20 @@
 
 #include "MacroConstants.h"
 #include "CApi.h"
-#include "APE.h"
+#include <ape/SharedInterface.h>
 #include "GraphicUI.h"
 #include <cstdarg>
 #include <string>
 #include "CConsole.h"
 #include "CState.h"
 #include "Misc.h"
+#include "Engine.h"
 
 namespace APE 
 {
-
+	#define CAPI_SANITY_CHECK() \
+		if(!iface || !iface->engine) \
+			throw CState::CSystemException(CState::CSystemException::status::nullptr_from_plugin, true);
 	/*********************************************************************************************
 
 	 	Returns sample rate of the current instance.
@@ -57,7 +60,7 @@ namespace APE
 		accepted, return value is always the (possible changed) state of APE.
 
 	 *********************************************************************************************/
-	enum Status APE_API setStatus(CSharedInterface * iface, enum Status status) 
+	Status APE_API setStatus(CSharedInterface * iface, Status status) 
 	{
 		CAPI_SANITY_CHECK();
 		return iface->engine->requestStatusChange(status);

@@ -199,7 +199,7 @@
 						bVal = !bVal; // flipping val, and it's a reference so should release resource.
 						return false;
 					case MsgButton::bCancel:
-	#pragma cwarn("Find a more gentle way to exit...")
+	#pragma message cwarn("Find a more gentle way to exit...")
 						exit(-1);
 					}
 					// not needed (except for warns)

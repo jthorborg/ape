@@ -27,14 +27,14 @@
 
 *************************************************************************************/
 
-#include "APE.h"
+#include "Engine.h"
 #include "CApi.h"
 #include "CState.h"
 #include "MacroConstants.h"
 #include "GraphicUI.h"
 #include "CConsole.h"
 #include "Settings.h"
-#include "Project.h"
+#include <ape/Project.h>
 #include "Misc.h"
 #include "CSerializer.h"
 
@@ -77,7 +77,7 @@ namespace APE
 		Engine::Engine() :
 	#endif
 		 
-		numBuffers(2), status(), state(Status::STATUS_DISABLED), delay(), // should according to standard zero-initialize
+		numBuffers(2), status(), state(STATUS_DISABLED), delay(), // should according to standard zero-initialize
 		programName("Default"), uiRefreshInterval(80), clocksPerSample(0), autoSaveInterval(0)
 	{
 		// some variables...
@@ -324,16 +324,16 @@ namespace APE
 		// create general event
 		CEvent e;
 		// set type to a change of ctrl value.
-		e.event_type = CEvent::ctrlValueChanged;
+		e.eventType = CtrlValueChanged;
 		// construct ctrlValueChange event object
-		event_ctrlValueChanged aevent;
+		APE_Event_CtrlValueChanged aevent;
 		::memset(&aevent, 0, sizeof aevent);
 		// set new values
 		aevent.value = base->bGetValue();
 		aevent.tag = base->bGetTag();
 		e.event.eCtrlValueChanged = &aevent;
 		// run plugin's event handler
-		Status ret = Status::STATUS_OK;
+		Status ret = STATUS_OK;
 		try {
 			ret = csys->onEvent(&e); 
 		} 
@@ -341,14 +341,14 @@ namespace APE
 			gui->console->printLine(CColours::red, 
 				"[Engine] : Exception 0x%X occured while calling eventHandler code: %s Plugin disabled.", 
 				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
-			state = Status::STATUS_ERROR;
+			state = STATUS_ERROR;
 			gui->setStatusText("Plugin crashed!", CColours::red);
 			disablePlugin(false);
 			pluginCrashed();
 			csys->projectCrashed();
 		};
 		// update event.
-		if(ret == Status::STATUS_HANDLED) {
+		if(ret == STATUS_HANDLED) {
 			if(aevent.value != base->bGetValue()) 
 				base->bSetValue(aevent.value);
 			if(aevent.text[0])
@@ -368,7 +368,7 @@ namespace APE
 	 *********************************************************************************************/
 	void Engine::disablePlugin(bool fromEditor)
 	{
-		if(state == Status::STATUS_READY) {
+		if(state == STATUS_READY) {
 			// else the processor might start while we are doing this
 			CMutex lockGuard(this);
 			status.bActivated = false;
@@ -380,7 +380,7 @@ namespace APE
 					"[Engine] : Exception 0x%X occured while disabling plugin: %s Plugin disabled.",
 					e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
 				gui->setStatusText("Plugin crashed!", CColours::red);
-				state = Status::STATUS_ERROR;
+				state = STATUS_ERROR;
 				pluginCrashed();
 			};
 			gui->console->printLine(CColours::black, state == STATUS_OK ?
@@ -390,9 +390,9 @@ namespace APE
 		status.bActivated = false;
 		if(!fromEditor)
 			gui->setParameter(kActiveStateButton, 0.f);
-		if (state == Status::STATUS_OK)
+		if (state == STATUS_OK)
 			gui->setStatusText("Plugin disabled", CColours::lightgoldenrodyellow);
-		state = Status::STATUS_DISABLED;
+		state = STATUS_DISABLED;
 		// clear all allocations made by plugin.
 		// called twice?
 		csys->getPluginAllocator().clear();
@@ -406,7 +406,7 @@ namespace APE
 	 *********************************************************************************************/
 	bool Engine::activatePlugin()
 	{
-		if(state != Status::STATUS_DISABLED)
+		if(state != STATUS_DISABLED)
 			return false;
 		status.bActivated = false;
 
@@ -417,7 +417,7 @@ namespace APE
 			gui->console->printLine(CColours::red,
 				"[Engine] : Exception 0x%X occured while activating plugin: %s Plugin disabled.",
 				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
-			state = Status::STATUS_ERROR;
+			state = STATUS_ERROR;
 			gui->setStatusText("Plugin crashed!", CColours::red);
 			disablePlugin(false);
 			pluginCrashed();
@@ -425,22 +425,22 @@ namespace APE
 		};
 		switch(state)
 		{
-		case Status::STATUS_DISABLED:
-		case Status::STATUS_ERROR:
+		case STATUS_DISABLED:
+		case STATUS_ERROR:
 			gui->console->printLine(CColours::red, "[Engine] : An error occured while loading the plugin.");
 			break;
-		case Status::STATUS_SILENT:
-		case Status::STATUS_WAIT:
+		case STATUS_SILENT:
+		case STATUS_WAIT:
 			gui->console->printLine(CColours::red, "[Engine] : Plugin is not ready or is silent.");
 			break;
-		case Status::STATUS_READY:
+		case STATUS_READY:
 			gui->console->printLine(CColours::black, "[Engine] : Plugin is loaded and reports no error.");
 			status.bActivated = true;
 			break;
 		default:
 			gui->console->printLine(CColours::red,
 				"[APE] : Unexpected return value from onLoad (%d), assuming plugin is ready.", state);
-			state = Status::STATUS_READY;
+			state = STATUS_READY;
 			status.bActivated = true;
 		}
 		return status.bActivated;
@@ -452,7 +452,7 @@ namespace APE
 		to bypass activation and disabling (ie. to bypass onLoad and onUnload, useful when plugin is threaded).
 
 	 *********************************************************************************************/
-	enum Status Engine::requestStatusChange(enum Status status) 
+	Status Engine::requestStatusChange(Status status) 
 	{
 
 		// not really done yet and can crash (see notes), therefore we just do this so far:
@@ -461,12 +461,12 @@ namespace APE
 		/*
 			If we are in a error state, we cannot recover from this function.
 		*/
-		if(state == Status::STATUS_ERROR)
+		if(state == STATUS_ERROR)
 			return STATUS_ERROR;
 
 		switch(status) 
 		{
-		case Status::STATUS_DISABLED:
+		case STATUS_DISABLED:
 			disablePlugin(false);
 			break;
 
@@ -474,34 +474,34 @@ namespace APE
 			STATUS_SILENT and -Wait overrides the standard activation and disabling methods,
 			setting the plugin in a metastate until the csys reports READY back.
 		*/
-		case Status::STATUS_SILENT:
-		case Status::STATUS_WAIT:
+		case STATUS_SILENT:
+		case STATUS_WAIT:
 			this->status.bActivated = false;
 			state = status;
 			break;
 
-		case Status::STATUS_READY:
-		case Status::STATUS_OK:
+		case STATUS_READY:
+		case STATUS_OK:
 			switch(state)
 			{
-			case Status::STATUS_DISABLED:
+			case STATUS_DISABLED:
 				activatePlugin();
 				break;
 			/*
 				Again, this should be where the plugin reports READY back.
 			*/
-			case Status::STATUS_SILENT:
-			case Status::STATUS_WAIT:
+			case STATUS_SILENT:
+			case STATUS_WAIT:
 				this->status.bActivated = true;
 				state = status;
 				break;
 
-			case Status::STATUS_READY:
-			case Status::STATUS_OK:
+			case STATUS_READY:
+			case STATUS_OK:
 
 				break;
 
-			case Status::STATUS_ERROR:
+			case STATUS_ERROR:
 				state = STATUS_ERROR;
 				disablePlugin(false);
 				break;
@@ -554,7 +554,7 @@ namespace APE
 					csys->useFPUExceptions(false);
 				switch (e.data.exceptCode) 
 				{
-				case CState::CSystemException::status::access_violation:
+				case CState::CSystemException::access_violation:
 					// plugin code tried to access memory out of bounds - that is inside of our guarded code.
 					if (e.data.aVInProtectedMemory) 
 					{
@@ -577,7 +577,7 @@ namespace APE
 				// release lock of this, disablePlugin() needs to acquire it
 				lockGuard.release();
 				// release plugin code
-				state = Status::STATUS_ERROR;
+				state = STATUS_ERROR;
 				disablePlugin(false);
 				gui->setStatusText("Plugin crashed!", CColours::red);
 				// report crash to cstate

@@ -47,7 +47,7 @@
 
 		class Engine;
 		class CConsole;
-		class CCompiler;
+		struct CCompiler;
 		class CCodeEditor;
 		class CSerializer;
 		class CQueueLabel;

@@ -27,11 +27,12 @@
 
 *************************************************************************************/
 
-#ifndef _CAPI_H
-	#define _CAPI_H
+#ifndef APE_CAPI_H
+	#define APE_CAPI_H
 
 	#include "MacroConstants.h"
 	#include <exception>
+	#include <ape/APE.h>
 
 	namespace APE
 	{
@@ -39,60 +40,18 @@
 		class Engine;
 		struct CSharedInterface;
 
-		// Status definitions for operation and states.
-		enum Status {
-			STATUS_OK = 0,		// operation completed succesfully
-			STATUS_ERROR = 1,	// operation failed, state errornous
-			STATUS_WAIT = 2,	// operation not completed yet
-			STATUS_SILENT = 3,	// the plugin should not process data
-			STATUS_READY = 4,	// ready for any operation
-			STATUS_DISABLED = 5,// plugin is disabled
-			STATUS_HANDLED = 6, // plugin handled request, host shouldn't do anything.
-			STATUS_NOT_IMPLEMENTED = 7 // requested service is not yet implemented.
-		};
-		/*
-			the c-state's function pointers.
-		*/
-		struct event_ctrlValueChanged {
-			float value;
-			char text[64];
-			char title[64];
-			int tag;
-			bool unused;
-		};
-
 		struct SLine
 		{
 			int x1, x2, y1, y2;
 		};
-		
-		typedef float(APE_API * ScaleFunc)(float value, float _min, float _max);
 
-		struct CEvent
-		{
-			// poor attempt at c polymorphism
-			enum event_type_t
-			{
-				ctrlValueChanged = 0
-
-
-
-			} event_type;
-
-			union 
-			{
-				event_ctrlValueChanged * eCtrlValueChanged;
-
-			} event;
-
-		};
 		/*
 			This programs exposed functions to the c subsystem
 		*/
 		float		APE_API			getSampleRate(CSharedInterface * iface);
 		int			APE_API_VARI	printLine(CSharedInterface * iface, unsigned nColor, const char * fmt, ... );
 		int			APE_API			msgBox(CSharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);
-		enum Status APE_API			setStatus(CSharedInterface * iface, enum Status status);
+		Status		APE_API			setStatus(CSharedInterface * iface, Status status);
 		int			APE_API			createKnob(CSharedInterface * iface, const char * name, float * extVal, int type);
 		long long	APE_API			timerGet(CSharedInterface * iface);
 		double		APE_API			timerDiff(CSharedInterface * iface, long long time);

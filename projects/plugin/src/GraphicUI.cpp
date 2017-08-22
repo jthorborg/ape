@@ -30,13 +30,13 @@
 #include "GraphicUI.h"
 #include "ButtonDefinitions.h"
 #include "Misc.h"
-#include "APE.h"
+#include "Engine.h"
 #include "CState.h"
 #include "CConsole.h"
 #include "PlatformSpecific.h"
 #include "MacroConstants.h"
 #include "CThread.h"
-#include "Project.h"
+#include "ProjectEx.h"
 #include <stdio.h>
 #include "CQueueLabel.h"
 
@@ -588,7 +588,7 @@ namespace APE
 			return 0;
 		APE::GraphicUI * _gui = _this->getGraphicUI();
 	
-		APE::CProject * project = _gui->externEditor->getProject();
+		APE::ProjectEx * project = _gui->externEditor->getProject();
 		if(!project)
 		{
 			_gui->console->printLine(CColours::red, "[GUI] : Compilation error - "
@@ -632,12 +632,15 @@ namespace APE
 	 *********************************************************************************************/
 	bool GraphicUI::CCtrlDelegateListener::valueChanged(CBaseControl * control)
 	{
-		if(!control) {
+		if(!control) 
+		{
 			parent->console->printLine(CColours::red,
 				"[GUI::ctrlNotifier] Error: ctrlNotifier was notified of an event, it couldn't handle (control isn't owned!)");
 			return false;
 		}
-		if(APE::STATUS_HANDLED != parent->engine->onCtrlEvent(control)) {
+
+		if(STATUS_HANDLED != parent->engine->onCtrlEvent(control)) 
+		{
 			// event was not handled by core/plugin, default to controls' own handler.
 			return false;
 		}

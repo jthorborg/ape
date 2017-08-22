@@ -47,7 +47,9 @@
 	#include <exception>
 	#include <signal.h>
 	#include "CAllocator.h"
-	#include "Project.h"
+	#include <ape/Project.h>
+	#include <ape/SharedInterface.h>
+	#include <ape/Events.h>
 	#include <thread>
 	#include "CMutex.h"
 
@@ -96,32 +98,10 @@
 			The shared interface that the C subsystem holds a copy of and is used for communication
 		*/
 		
-		struct __alignas(APE_DEF_ALIGN) CSharedInterface
+		struct CSharedInterface
 		{
 			union {
-				struct {
-					decltype(getSampleRate) * p_getSampleRate;
-					decltype(printLine) * p_printLine;
-					decltype(msgBox) * p_msgBox;
-					decltype(setStatus) * p_setStatus;
-					decltype(createKnob) * p_createKnob;
-					decltype(timerGet) * p_timerGet;
-					decltype(timerDiff) * p_timerDiff;
-					decltype(alloc) * p_alloc;
-					decltype(free) * p_free;
-					decltype(createKnobEx) * p_createKnobEx;
-					decltype(setInitialDelay) * p_setInitialDelay;
-					decltype(createLabel) * p_createLabel;
-					decltype(getNumInputs) * p_getNumInputs;
-					decltype(getNumOutputs) * p_getNumOutputs;
-					decltype(createMeter) * p_createMeter;
-					decltype(createToggle) * p_createToggle;
-					decltype(getBPM) * p_getBPM;
-					decltype(getCtrlValue) * p_getCtrlValue;
-					decltype(setCtrlValue) * p_setCtrlValue;
-					decltype(createPlot) * p_createPlot;
-					decltype(createRangeKnob) * p_createRangeKnob;
-				};
+				SharedInterface iface;
 				RawFunctionPtr _vtbl[ArraySize(ApiFunctions)];
 			};
 			void * plugin_data;
@@ -154,7 +134,7 @@
 
 			*/
 			bool compileCurrentProject();
-			void setNewProject(APE::CProject *);
+			void setNewProject(ProjectEx *);
 			static void useFPUExceptions(bool b);
 			static std::string formatExceptionMessage(const CSystemException &);
 			void projectCrashed();
@@ -361,7 +341,7 @@
 			Engine * engine;
 			CAllocator pluginAllocator;
 			std::vector<CMemoryGuard> protectedMemory;
-			CProject * curProject;
+			ProjectEx * curProject;
 
 
 			XWORD structuredExceptionHandler(XWORD _code, CSystemException::eStorage & e, void * _systemInformation);

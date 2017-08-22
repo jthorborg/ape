@@ -28,7 +28,7 @@
 
 #include "CCodeGenerator.h"
 #include "PlatformSpecific.h"
-#include "APE.h"
+#include "Engine.h"
 #include "Misc.h"
 #include "Settings.h"
 
@@ -128,16 +128,19 @@ namespace APE
 		}
 
 
-		Status CCodeGenerator::activateProject(CProject * project)
+		Status CCodeGenerator::activateProject(ProjectEx * project)
 		{
-			if(!project) {
+			if(!project) 
+			{
 				printError("Nullptr passed to activateProject");
 			}
-			else if(project->state > CodeState::Disabled) {
+			else if(project->state > CodeState::Disabled)
+			{
 				Misc::CStringFormatter fmt;
-				fmt << "Cannot activate project when state is higher than initialized (" << project->state << ").";
+				fmt << "Cannot activate project when state is higher than initialized (" << static_cast<int>(project->state) << ").";
 				printError(fmt.str());
-			} else {
+			} else 
+			{
 				auto status = project->compiler->bindings.activateProject(project);
 				if(status != Status::STATUS_ERROR)
 					project->state = CodeState::Activated;
@@ -152,7 +155,7 @@ namespace APE
 
 		}
 
-		void CCodeGenerator::setErrorFunc(errorFunc_t f, void * op)
+		void CCodeGenerator::setErrorFunc(ErrorFunc f, void * op)
 		{
 			opaque = op;
 			errorPrinter = f;
@@ -163,7 +166,7 @@ namespace APE
 				errorPrinter(opaque, std::string("[Generator] : " + message).c_str());
 
 		}
-		Status CCodeGenerator::disableProject(CProject * project)
+		Status CCodeGenerator::disableProject(ProjectEx * project)
 		{
 			if(!project) {
 				printError("Nullptr passed to disableProject!");
@@ -183,7 +186,7 @@ namespace APE
 			return Status::STATUS_ERROR;
 		}
 
-		Status CCodeGenerator::processReplacing(CProject * project, Float ** in, Float ** out, Int sampleFrames)
+		Status CCodeGenerator::processReplacing(ProjectEx * project, Float ** in, Float ** out, Int sampleFrames)
 		{
 			if(!project) 
 			{
@@ -206,7 +209,7 @@ namespace APE
 			return Status::STATUS_ERROR;
 		}
 
-		Status CCodeGenerator::onEvent(CProject * project, CEvent * e)
+		Status CCodeGenerator::onEvent(ProjectEx * project, CEvent * e)
 		{
 
 			if(!project) {
@@ -225,7 +228,7 @@ namespace APE
 
 		}
 
-		bool CCodeGenerator::compileProject(CProject * project)
+		bool CCodeGenerator::compileProject(ProjectEx * project)
 		{
 			if(!project) 
 			{
@@ -259,10 +262,10 @@ namespace APE
 							}
 						}
 						std::string const args = langstts["arguments"].c_str();
-						project->arguments = new APE::char_t[args.length() + 1];
-						std::copy(args.begin(), args.end(), project->arguments);
-						project->arguments[args.length()] = '\0';
-
+						auto argString = new char[args.length() + 1];
+						std::copy(args.begin(), args.end(), argString);
+						argString[args.length()] = '\0';
+						project->arguments = argString;
 						project->compiler = compiler;
 					}
 					catch(libconfig::ParseException & e)
@@ -304,7 +307,7 @@ namespace APE
 			}
 			return false;
 		}
-		bool CCodeGenerator::initProject(CProject * project)
+		bool CCodeGenerator::initProject(ProjectEx * project)
 		{
 			if(!project) 
 			{
@@ -328,7 +331,7 @@ namespace APE
 			}
 			return false;
 		}
-		bool CCodeGenerator::releaseProject(CProject * project)
+		bool CCodeGenerator::releaseProject(ProjectEx * project)
 		{
 			if(!project) {
 				printError("Nullptr passed to releaseProject!");

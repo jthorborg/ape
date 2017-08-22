@@ -34,14 +34,15 @@
 
 *************************************************************************************/
 
-#ifndef _CCODEEDITOR_H
-	#define _CCODEEDITOR_H
+#ifndef APE_CCODEEDITOR_H
+	#define APE_CCODEEDITOR_H
 
 	#include <string>
 
 	namespace APE
 	{
-		struct CProject;
+#pragma message("fix")
+		struct ProjectEx;
 		// ideally the editor should not know about the engine, but library design doesn't
 		// really allow this.
 		class Engine;
@@ -55,7 +56,7 @@
 			virtual ~CCodeEditor() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual CProject * getProject() { return nullptr; }
+			virtual ProjectEx * getProject() { return nullptr; }
 			virtual void quit() = 0;
 			virtual bool initEditor() { return false; }
 			virtual bool openEditor(bool initialVisibility = true) { return false; }

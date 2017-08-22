@@ -29,8 +29,8 @@
 
 *************************************************************************************/
 
-#ifndef _APE_H
-	#define _APE_H
+#ifndef APE_ENGINE_H
+	#define APE_ENGINE_H
 
 	#include "Common.h"
 	#include "CApi.h"
@@ -43,7 +43,6 @@
 
 		// forward declaration of the GUI class.
 		class GraphicUI;
-		struct CProject;
 		class CState;
 		class CBaseControl;
 		class CSerializer;
@@ -155,7 +154,7 @@
 			Status onCtrlEvent(CBaseControl * base);
 
 			void changeInitialDelay(long samples);
-			enum Status requestStatusChange(enum Status);
+			Status requestStatusChange(Status);
 			void about();
 			void disablePlugin(bool fromEditor = true);
 			Status requestLinkage();
@@ -192,7 +191,7 @@
 			unsigned autoSaveInterval;
 			unsigned numBuffers;
 			
-			union __alignas(1)
+			union
 			{
 				unsigned int ID;
 				struct

@@ -30,10 +30,10 @@
 
 #include "CJuceEditor.h"
 #include "Misc.h"
-#include "APE.h"
+#include "Engine.h"
 #include "GraphicUI.h"
 #include "CConsole.h"
-#include "Project.h"
+#include "ProjectEx.h"
 #include <ctime>
 #include <cstdio>
 
@@ -95,9 +95,9 @@ namespace APE
 
 	*********************************************************************************************/
 	#ifdef __MAC__
-		#define ctrlCommandKey juce::ModifierKeys::Flags::commandModifier
+		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::commandModifier
 	#else
-		#define ctrlCommandKey juce::ModifierKeys::Flags::ctrlModifier
+		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::ctrlModifier
 	#endif
 
 	const MenuEntry CommandTable[][6] =
@@ -105,9 +105,9 @@ namespace APE
 		// File
 		{
 			{"",0,0,Command::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
-			{ "New File",	'n', ctrlCommandKey, Command::FileNew },
-			{ "Open...",	'o', ctrlCommandKey, Command::FileOpen },
-			{ "Save",		's', ctrlCommandKey,Command::FileSave },
+			{ "New File",	'n', CTRLCOMMANDKEY, Command::FileNew },
+			{ "Open...",	'o', CTRLCOMMANDKEY, Command::FileOpen },
+			{ "Save",		's', CTRLCOMMANDKEY,Command::FileSave },
 			{ "Save As...", 0, 0, Command::FileSaveAs },
 			{ "Exit", 0, 0, Command::FileExit}
 		},
@@ -547,70 +547,52 @@ namespace APE
 		APE::FreeProjectStruct() when done with it.
 
 	*********************************************************************************************/
-	CProject * CJuceEditor::getProject()
+	ProjectEx * CJuceEditor::getProject()
 	{
 		/*
 		Implement a proper interface instead of passing shitty c strings around.
 		Consider the implementation of this.
 		*/
-		APE::CProject * project = nullptr;
+		ProjectEx * project = nullptr;
 		// for now we only support single files. 
 		// we set the appropiate values in the project struct and fill it.
-		if (isSingleFile) {
+		if (isSingleFile) 
+		{
 			project = APE::CreateProjectStruct();
 			project->files = nullptr;
 			project->nFiles = 0;
 			project->uniqueID = (unsigned)-1;
 			project->isSingleString = true;
-			std::string tstring;
+			std::string text;
 			// Copy strings here. We have to do it this tedious way to stay c-compatible.
 			// only FreeProjectStruct is supposed to free this stuff.
 			// copy document text
-			getDocumentText(tstring);
-			auto len = tstring.length();
-			if (len > 0) {
-				project->sourceString = new APE::char_t[len + 1];
-				std::copy(tstring.begin(), tstring.end(), project->sourceString);
-				project->sourceString[len] = '\0';
-				// copy project name
-				tstring = getProjectName();
-				len = tstring.length();
-				if (len > 0) {
-					project->projectName = new APE::char_t[len + 1];
-					std::copy(tstring.begin(), tstring.end(), project->projectName);
-					project->projectName[len] = '\0';
-					// copy path of program
-					tstring = APE::Misc::DirectoryPath();
-					len = tstring.length();
-					if (len > 0) {
-						project->rootPath = new APE::char_t[len + 1];
-						std::copy(tstring.begin(), tstring.end(), project->rootPath);
-						project->rootPath[len] = '\0';
-						// copy extension
-						tstring = getExtension();
-						len = tstring.length();
-						if (len > 0) {
-							project->languageID = new APE::char_t[len + 1];
-							std::copy(tstring.begin(), tstring.end(), project->languageID);
-							project->languageID[len] = '\0';
+			;
+			auto len = text.length();
 
-							// copy filenames
-							tstring = fullPath;
-							len = tstring.length();
-							if (len > 0) {
-								project->files = new APE::char_t*[5];
-								project->files[0] = new APE::char_t[len + 1];
-								std::copy(tstring.begin(), tstring.end(), project->files[0]);
-								project->files[0][len] = '\0';
-								project->nFiles = 1;
-								project->state = APE::CodeState::None;
-								return project;
-							}
-						}
-
-					}
-				}
-
+			auto assignCStr = [] (const std::string & orig, auto & location)
+			{
+				auto length = std::size(orig);
+				if (!length)
+					return false;
+				auto pointer = new char[length + 1];
+				std::copy(std::begin(orig), std::end(orig), pointer);
+				pointer[length] = '\0';
+				location = pointer;
+				return true;
+			};
+			auto fileLocations = new char *[1];
+			project->files = fileLocations;
+			if (getDocumentText(text) && text.length() != 0 && 
+				assignCStr(text, project->sourceString) &&
+				assignCStr(getProjectName(), project->projectName) &&
+				assignCStr(Misc::DirectoryPath(), project->rootPath) &&
+				assignCStr(getExtension(), project->languageID) &&
+				assignCStr(fullPath, fileLocations[0]))
+			{
+				project->nFiles = 1;
+				project->state = CodeState::None;
+				return project;
 			}
 		}
 		// some error occured.

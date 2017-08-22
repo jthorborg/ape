@@ -24,21 +24,22 @@
 	file:Project.cpp
 		
 		Implementation of Project.h, more specifically: constructors and destructors
-		for CProject
+		for ProjectEx
 
 *************************************************************************************/
 
-#include "Project.h"
+#include "ProjectEx.h"
+#include <cstring>
 
 namespace APE 
 {
-	CProject * CreateProjectStruct()
+	ProjectEx * CreateProjectStruct()
 	{ 
-		CProject * p = new CProject; 
-		std::memset(p, 0, sizeof (CProject));
+		ProjectEx * p = new ProjectEx; 
+		std::memset(p, 0, sizeof (ProjectEx));
 		return p; 
 	}
-	void FreeProjectStruct(CProject * project)
+	void FreeProjectStruct(ProjectEx * project)
 	{ 
 		/*
 			Nullptr check is apparantly not needed, but why not.

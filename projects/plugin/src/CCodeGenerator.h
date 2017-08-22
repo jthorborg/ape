@@ -36,15 +36,14 @@
 	#include <map>
 	#include <vector>
 	#include "Settings.h"
-	#include "Project.h"
+	#include "ProjectEx.h"
 	#include <cassert>
 	#include "Misc.h"
 	#include "CModule.h"
+	#include <ape/Events.h>
 
 	namespace APE
 	{
-		typedef void	(APE_STD_API * errorFunc_t)		(void*, const char *);
-		struct CEvent;
 		class Engine;
 		class CCodeGenerator;
 
@@ -85,14 +84,13 @@
 		/*
 			A compiler instance.
 		*/
-		class CCompiler
+		struct CCompiler
 		{
 			friend class CCodeGenerator;
-			struct CBindings;
 
 		public:
 			bool isInitialized() { return initialized; }
-			bool compileProject(CProject * project);
+			bool compileProject(ProjectEx * project);
 			// calls loadBindings() with settings
 			bool initialize(const libconfig::Setting & languageSettings);
 			virtual ~CCompiler() {};
@@ -102,17 +100,18 @@
 
 			struct CBindings
 			{
+#pragma message("fix")
 				// c-bindings
-				typedef void *	(APE_STD_API * getSymbol_t)		(CProject * project, const char * symbol);
-				typedef Status	(APE_STD_API * compileProject_t)(CProject * project, const void * opaque, errorFunc_t errorFunc);
-				typedef Status	(APE_STD_API * releaseProject_t)(CProject * project);
-				typedef Status	(APE_STD_API * initProject_t)	(CProject * project);
-				typedef Status	(APE_STD_API * activateProject_t)(CProject * project);
-				typedef Status	(APE_STD_API * disableProject_t)(CProject * project);
-				typedef Status	(APE_STD_API * getState_t)		(CProject * project);
-				typedef Status	(APE_STD_API * addSymbol_t)		(CProject * project, const char * symbol, const void * mem);
-				typedef Status	(APE_STD_API * processReplacing_t)(CProject * project,Float ** in, Float ** out, Int sampleFrames);
-				typedef Status	(APE_STD_API * onEvent_t)		(CProject * project, CEvent * );
+				typedef void *	(APE_STD_API * getSymbol_t)		(APE_Project * project, const char * symbol);
+				typedef Status	(APE_STD_API * compileProject_t)(APE_Project * project, const void * opaque, ErrorFunc errorFunc);
+				typedef Status	(APE_STD_API * releaseProject_t)(APE_Project * project);
+				typedef Status	(APE_STD_API * initProject_t)	(APE_Project * project);
+				typedef Status	(APE_STD_API * activateProject_t)(APE_Project * project);
+				typedef Status	(APE_STD_API * disableProject_t)(APE_Project * project);
+				typedef Status	(APE_STD_API * getState_t)		(APE_Project * project);
+				typedef Status	(APE_STD_API * addSymbol_t)		(APE_Project * project, const char * symbol, const void * mem);
+				typedef Status	(APE_STD_API * processReplacing_t)(APE_Project * project, Float ** in, Float ** out, Int sampleFrames);
+				typedef Status	(APE_STD_API * onEvent_t)		(APE_Project * project, APE_Event * );
 
 				bool valid;
 
@@ -153,7 +152,7 @@
 		*/
 		class CCodeGenerator
 		{
-			errorFunc_t  errorPrinter;
+			ErrorFunc errorPrinter;
 			void * opaque;
 			std::map<std::string, CCompiler> compilers;
 			APE::Engine * engine;
@@ -161,17 +160,18 @@
 		public:
 
 			CCodeGenerator(APE::Engine * engine);
-			void setErrorFunc(errorFunc_t f, void * op);
+			void setErrorFunc(ErrorFunc f, void * op);
 			void printError(const std::string & message);
 
+#pragma message("wtf")
 			template <typename type>
-				type getSymbol(CProject * project, const std::string & name)
+				type getSymbol(ProjectEx * project, const std::string & name)
 				{
 					assert(0 && "Shouldn't reach this point (deprecated)");
 					return (type)nullptr;
 				}
 			template <typename type>
-				int addSymbol(CProject * project, const std::string & name, type symbol) {
+				int addSymbol(ProjectEx * project, const std::string & name, type symbol) {
 					assert(0 && "Shouldn't reach this point (deprecated)");
 					return (type)nullptr;
 				}
@@ -182,14 +182,14 @@
 				system exceptions anywhere in these functions.
 				They are caught in the CState wrapper.
 			*/
-			Status activateProject(CProject * project);
-			Status processReplacing(CProject * project, Float ** in, Float ** out, Int sampleFrames);
-			Status disableProject(CProject * project);
-			Status onEvent(CProject * project, CEvent * e);
+			Status activateProject(ProjectEx * project);
+			Status processReplacing(ProjectEx * project, Float ** in, Float ** out, Int sampleFrames);
+			Status disableProject(ProjectEx * project);
+			Status onEvent(ProjectEx * project, CEvent * e);
 
-			bool compileProject(CProject * project);
-			bool initProject(CProject * project);
-			bool releaseProject(CProject * project);
+			bool compileProject(ProjectEx * project);
+			bool initProject(ProjectEx * project);
+			bool releaseProject(ProjectEx * project);
 
 		};
 	};

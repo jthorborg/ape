@@ -30,7 +30,7 @@
 *************************************************************************************/
 
 #include "CState.h"
-#include "APE.h"
+#include "Engine.h"
 #include "CCodeGenerator.h"
 #include "PlatformSpecific.h"
 #include "MacroConstants.h"
@@ -72,10 +72,12 @@ namespace APE
 		Deconstructor
 
 	 *********************************************************************************************/
-	CState::~CState() {
-		if (curProject)  {
+	CState::~CState() 
+	{
+		if (curProject)  
+		{
 			generator->releaseProject(curProject);
-			APE::FreeProjectStruct(curProject);
+			FreeProjectStruct(curProject);
 		}
 		if(generator)
 			delete generator;
@@ -209,7 +211,7 @@ namespace APE
 		Releases old project and updates it to new one. Does not check whether project is used!!
 
 	 *********************************************************************************************/
-	void CState::setNewProject(APE::CProject * project)
+	void CState::setNewProject(APE::ProjectEx * project)
 	{
 		if(curProject)  
 		{
