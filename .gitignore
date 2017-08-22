@@ -25,3 +25,5 @@ projects/tcc4ape/builds/VisualStudio/Win32/
 make/config.ini
 projects/syswrap/builds/VisualStudio/x64/
 projects/tinycc/builds/VisualStudio/Win32/
+projects/tests/builds/VisualStudio/Debug/
+projects/tests/builds/VisualStudio/x64/
