@@ -34,8 +34,8 @@
 
 *************************************************************************************/
 
-#ifndef _CSTATE_H
-	#define _CSTATE_H
+#ifndef APE_CSTATE_H
+	#define APE_CSTATE_H
 
 	#include "PlatformSpecific.h"
 	#include "Misc.h"
@@ -52,6 +52,7 @@
 	#include <ape/Events.h>
 	#include <thread>
 	#include "CMutex.h"
+	#include "SharedInterfaceEx.h"
 
 	namespace APE
 	{
@@ -59,56 +60,11 @@
 		typedef void * RawFunctionPtr;
 		typedef int VstInt32;
 
-		// forward declarations
 		class Engine;
 		struct Module;
 		class CState;
 		class CCodeGenerator;
-
-		/*
-			The functions that is exported and visible to the C subsystem
-		*/
-		static RawFunctionPtr ApiFunctions[] =
-		{
-			reinterpret_cast<RawFunctionPtr> (getSampleRate),
-			reinterpret_cast<RawFunctionPtr> (printLine),
-			reinterpret_cast<RawFunctionPtr> (msgBox),
-			reinterpret_cast<RawFunctionPtr> (setStatus),
-			reinterpret_cast<RawFunctionPtr> (createKnob),
-			reinterpret_cast<RawFunctionPtr> (timerGet),
-			reinterpret_cast<RawFunctionPtr> (timerDiff),
-			reinterpret_cast<RawFunctionPtr> (alloc),
-			reinterpret_cast<RawFunctionPtr> (free),
-			reinterpret_cast<RawFunctionPtr> (createKnobEx),
-			reinterpret_cast<RawFunctionPtr> (setInitialDelay),
-			reinterpret_cast<RawFunctionPtr> (createLabel),
-			reinterpret_cast<RawFunctionPtr> (getNumInputs),
-			reinterpret_cast<RawFunctionPtr> (getNumOutputs),
-			reinterpret_cast<RawFunctionPtr> (createMeter),
-			reinterpret_cast<RawFunctionPtr> (createToggle),
-			reinterpret_cast<RawFunctionPtr> (getBPM),
-			reinterpret_cast<RawFunctionPtr> (getCtrlValue),
-			reinterpret_cast<RawFunctionPtr> (setCtrlValue),
-			reinterpret_cast<RawFunctionPtr> (createPlot),
-			reinterpret_cast<RawFunctionPtr> (createRangeKnob)
-		};
-
-
-		/*
-			The shared interface that the C subsystem holds a copy of and is used for communication
-		*/
 		
-		struct CSharedInterface
-		{
-			union {
-				SharedInterface iface;
-				RawFunctionPtr _vtbl[ArraySize(ApiFunctions)];
-			};
-			void * plugin_data;
-			APE::Engine * engine;
-			CState * csys;
-		};
-	
 		/*
 			This class is responsible for interconnecting the C and C++ systems, dispatch calls correctly and hold the state of the C-system
 		*/			
@@ -123,7 +79,6 @@
 			*/
 			CAllocator & getPluginAllocator();
 			std::vector<CMemoryGuard> & getPMemory();
-			CSharedInterface * getSharedObject() { return sharedObject; }
 			/*
 				constructors / destructors
 			*/
@@ -336,7 +291,7 @@
 				unsigned fpuMask;
 			} threadData;
 			 
-			CSharedInterface * sharedObject;
+			std::unique_ptr<SharedInterfaceEx> sharedObject;
 			CCodeGenerator * generator;
 			Engine * engine;
 			CAllocator pluginAllocator;
@@ -346,7 +301,6 @@
 
 			XWORD structuredExceptionHandler(XWORD _code, CSystemException::eStorage & e, void * _systemInformation);
 			void createSharedObject();
-			void freeSharedObject();
 			static void signalHandler(int some_number);
 			static void signalActionHandler(int signal, siginfo_t * siginfo, void * extraData);
 			static bool registerHandlers();

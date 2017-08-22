@@ -249,7 +249,7 @@ namespace APE
 		delete[] fmtd_str;
 		if (cont)
 		{
-#pragma cwarn("acquire messagemanagerlock here.")
+#pragma message cwarn("acquire messagemanagerlock here.")
 			cont->repaint();
 			cont->setDirty();
 		}

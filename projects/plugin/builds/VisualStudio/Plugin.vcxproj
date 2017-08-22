@@ -284,6 +284,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\CState.cpp" />
     <ClCompile Include="..\..\src\Engine.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
     <ClCompile Include="..\..\src\CApi.cpp" />
@@ -293,7 +294,6 @@
     <ClCompile Include="..\..\src\CExclusiveFile.cpp" />
     <ClCompile Include="..\..\src\CJuceEditor.cpp" />
     <ClCompile Include="..\..\src\CModule.cpp" />
-    <ClCompile Include="..\..\src\CState.cpp" />
     <ClCompile Include="..\..\src\CValueLabel.cpp" />
     <ClCompile Include="..\..\src\GraphicComponents.cpp" />
     <ClCompile Include="..\..\src\GraphicUI.cpp" />
@@ -1399,6 +1399,7 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
+    <ClInclude Include="..\..\src\CState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
     <ClInclude Include="..\..\src\ButtonDefinitions.h" />
     <ClInclude Include="..\..\src\CAllocator.h" />
@@ -1415,7 +1416,6 @@
     <ClInclude Include="..\..\src\Common.h" />
     <ClInclude Include="..\..\src\CQueueLabel.h" />
     <ClInclude Include="..\..\src\CSerializer.h" />
-    <ClInclude Include="..\..\src\CState.h" />
     <ClInclude Include="..\..\src\CThread.h" />
     <ClInclude Include="..\..\src\CValueLabel.h" />
     <ClInclude Include="..\..\src\EditorMenu.h" />
@@ -1871,6 +1871,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h" />
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h" />
     <ClInclude Include="..\..\src\ProjectEx.h" />
+    <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
     <ClInclude Include="..\..\src\UserControls.h" />
     <ClInclude Include="..\..\src\resource.h" />
     <ClInclude Include="..\..\src\Settings.h" />

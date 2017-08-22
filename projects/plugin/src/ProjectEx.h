@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:Project.h
+	file:ProjectEx.h
 	
 		Defines the common POD-struct ProjectEx, that is used for transferring information
 		about current project, compilers, settings and state around.

@@ -29,7 +29,7 @@
 
 #include "MacroConstants.h"
 #include "CApi.h"
-#include <ape/SharedInterface.h>
+#include "SharedInterfaceEx.h"
 #include "GraphicUI.h"
 #include <cstdarg>
 #include <string>
@@ -40,156 +40,116 @@
 
 namespace APE 
 {
+	using IEx = SharedInterfaceEx;
+
 	#define CAPI_SANITY_CHECK() \
-		if(!iface || !iface->engine) \
+		if(!iface) \
 			throw CState::CSystemException(CState::CSystemException::status::nullptr_from_plugin, true);
-	/*********************************************************************************************
 
-	 	Returns sample rate of the current instance.
-
-	 *********************************************************************************************/
-	float APE_API getSampleRate(CSharedInterface * iface)
+	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
 		CAPI_SANITY_CHECK();
-		return static_cast<float>(iface->engine->getSampleRate());
+		auto& engine = IEx::upcast(*iface).getEngine();
+		return static_cast<float>(engine.getSampleRate());
 	}
 
-	/*********************************************************************************************
-
-		The c-subsystem can here request a change to it's status, it may or may not be 
-		accepted, return value is always the (possible changed) state of APE.
-
-	 *********************************************************************************************/
-	Status APE_API setStatus(CSharedInterface * iface, Status status) 
+	Status APE_API setStatus(APE_SharedInterface * iface, Status status) 
 	{
 		CAPI_SANITY_CHECK();
-		return iface->engine->requestStatusChange(status);
+		auto& engine = IEx::upcast(*iface).getEngine();
+		return engine.requestStatusChange(status);
 	}
 
-	/*********************************************************************************************
-
-		Prints a line with the color nColor in the console in the APE window associated with 
-		the C script.
-
-	 *********************************************************************************************/
-	int APE_API_VARI printLine(CSharedInterface * iface, unsigned nColor, const char * fmt, ... ) 
+	int APE_API_VARI printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... ) 
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
 		std::va_list args;
 		va_start(args, fmt);
 		std::string msg ("[Plugin] : ");
 		msg += fmt;
 		CColour	color(_rgb_get_red(nColor), _rgb_get_green(nColor), _rgb_get_blue(nColor), (unsigned char)0xFF);
-
-		int nRet = iface->engine->getGraphicUI()->console->printLine(color, msg.c_str(), args);
+#pragma message("wtf")
+		int nRet = engine.getGraphicUI()->console->printLine(color, msg.c_str(), args);
 
 		va_end(args);
 
 		return nRet;
 	}
 
-	/*********************************************************************************************
-
-		Creates a label according to the format string, that depends on the reference arguments.
-
-	 *********************************************************************************************/
-	int APE_API_VARI createLabel(CSharedInterface * iface, const char * name, const char * fmt, ...) 
+	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...) 
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
 		va_list args;
 		va_start(args, fmt);
-
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addLabel(name, fmt, args);
+		int tag = engine.getGraphicUI()->ctrlManager.addLabel(name, fmt, args);
 
 		va_end(args);
 		if(tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
 
-	/*********************************************************************************************
-
-		presents a messagebox for the user, that may or may not be blocking
-
-	 *********************************************************************************************/
-	int APE_API msgBox(CSharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking) 
+	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking) 
 	{
 		CAPI_SANITY_CHECK();
-
-		return Misc::MsgBox(text, title, nStyle, iface->engine->getGraphicUI()->getSystemWindow(), nBlocking ? true : false);
+		auto& engine = IEx::upcast(*iface).getEngine();
+		return Misc::MsgBox(text, title, nStyle, engine.getGraphicUI()->getSystemWindow(), nBlocking ? true : false);
 
 	}
 
-	/*********************************************************************************************
-
-		Adds a automatable parameter to the GUI.
-
-	 *********************************************************************************************/
-	int APE_API createKnob(CSharedInterface * iface, const char * name, float * extVal, int type) 
+	int APE_API createKnob(APE_SharedInterface * iface, const char * name, float * extVal, int type) 
 	{
 		CAPI_SANITY_CHECK();
-
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addKnob(name, extVal, static_cast<CKnobEx::type>(type));
+		auto& engine = IEx::upcast(*iface).getEngine();
+		int tag = engine.getGraphicUI()->ctrlManager.addKnob(name, extVal, static_cast<CKnobEx::type>(type));
 		if(tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
 
-	/*********************************************************************************************
-
-		Adds an automatable parameter to the GUI, using a list of values.
-
-	 *********************************************************************************************/
-	int APE_API createKnobEx(CSharedInterface * iface, const char * name, float * extVal, char * values, char * unit) 
+	int APE_API createKnobEx(APE_SharedInterface * iface, const char * name, float * extVal, char * values, char * unit) 
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addKnob(name, extVal, values, unit);
+		int tag = engine.getGraphicUI()->ctrlManager.addKnob(name, extVal, values, unit);
 		if(tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
-	/*********************************************************************************************
 
-		Adds an automatable parameter to the GUI, using a list of values.
-
-	 *********************************************************************************************/	
-	int APE_API createMeter(CSharedInterface * iface, const char * name, float * extVal)
+	int APE_API createMeter(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addMeter(name, extVal);
+		int tag = engine.getGraphicUI()->ctrlManager.addMeter(name, extVal);
 		if(tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
-	/*********************************************************************************************
-
-		Adds a button to the GUI.
-
-	 *********************************************************************************************/	
-	int APE_API createToggle(CSharedInterface * iface, const char * name, float * extVal)
+	
+	int APE_API createToggle(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addToggle(name, extVal);
+		int tag = engine.getGraphicUI()->ctrlManager.addToggle(name, extVal);
 		if(tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
-	/*********************************************************************************************
 
-		Returns an opaque handle to a starting point using the system's high-resolution clock.
-
-	 *********************************************************************************************/
-	long long APE_API timerGet(CSharedInterface * iface) 
+	long long APE_API timerGet(APE_SharedInterface * iface) 
 	{
 		CAPI_SANITY_CHECK();
 		long long t = 0;
@@ -208,12 +168,7 @@ namespace APE
 		return t;
 	}
 
-	/*********************************************************************************************
-
-		Calculates the difference from a previous call to timerGet.
-
-	 *********************************************************************************************/
-	double APE_API timerDiff(CSharedInterface * iface, long long time) 
+	double APE_API timerDiff(APE_SharedInterface * iface, long long time) 
 	{
 		CAPI_SANITY_CHECK();
 
@@ -251,86 +206,59 @@ namespace APE
 		return ret;
 	}
 
-	/*********************************************************************************************
-
-		The memory allocation routine used by the hosted code. It's wrapped here so we can change
-		the routine at will. At some point, register all allocations in a list for free'ing at exit.
-
-	 *********************************************************************************************/
-	void * APE_API alloc(CSharedInterface * iface, size_t size) 
+	void * APE_API alloc(APE_SharedInterface * iface, size_t size) 
 	{
 		CAPI_SANITY_CHECK();
-		return iface->csys->getPluginAllocator().alloc(size);
+		return IEx::upcast(*iface).getCState().getPluginAllocator().alloc(size);
 	}
 
-	/*********************************************************************************************
-
-		Frees a pointer to an earlier call to alloc. Do not mix new/delete/malloc/free with these 
-		functions!!
-
-	 *********************************************************************************************/
-	void APE_API free(CSharedInterface * iface, void * ptr) {
-
-		CAPI_SANITY_CHECK();
-
-		iface->csys->getPluginAllocator().free(ptr);
-	}
-
-	/*********************************************************************************************
-
-		Requests the host to change the initial delay imposed by the module on next resume() call.
-
-	 *********************************************************************************************/
-	void APE_API setInitialDelay(CSharedInterface * iface, VstInt32 samples) {
-
-		CAPI_SANITY_CHECK();
-
-		iface->engine->changeInitialDelay(samples);
-	}
-
-	/*********************************************************************************************
-
-		Returns the number of inputs associated with this plugin.
-
-	 *********************************************************************************************/
-	int APE_API getNumInputs(CSharedInterface * iface) {
-
-		CAPI_SANITY_CHECK();
-
-		return iface->engine->getNumInputChannels();
-	}
-
-	/*********************************************************************************************
-
-		Returns the number of outputs associated with this plugin.
-
-	 *********************************************************************************************/
-	int APE_API getNumOutputs(CSharedInterface * iface) {
-
-		CAPI_SANITY_CHECK();
-
-		return iface->engine->getNumOutputChannels();
-	}
-	/*********************************************************************************************
-
-		Returns the host's BPM
-
-	 *********************************************************************************************/
-	double APE_API getBPM(CSharedInterface * iface)
+	void APE_API free(APE_SharedInterface * iface, void * ptr) 
 	{
 		CAPI_SANITY_CHECK();
+
+		IEx::upcast(*iface).getCState().getPluginAllocator().free(ptr);
+	}
+
+	void APE_API setInitialDelay(APE_SharedInterface * iface, int samples) 
+	{
+		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
+
+		engine.changeInitialDelay(samples);
+	}
+
+	int APE_API getNumInputs(APE_SharedInterface * iface) 
+	{
+		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
+
+		return engine.getNumInputChannels();
+	}
+
+	int APE_API getNumOutputs(APE_SharedInterface * iface) 
+	{
+		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
+
+		return engine.getNumOutputChannels();
+	}
+	
+	double APE_API getBPM(APE_SharedInterface * iface)
+	{
+		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
 		double ret = 0.0;
 		#ifdef APE_VST
 			VstTimeInfo * info;
 	
-			info = iface->engine->getTimeInfo(kVstTempoValid);
+			info = engine.getTimeInfo(kVstTempoValid);
 	
 			if(info && info->flags & kVstTempoValid)
 				return info->tempo;
 		#elif defined(APE_JUCE)
 
-			auto ph = iface->engine->getPlayHead();
+			auto ph = engine.getPlayHead();
 			if(ph)
 			{
 				juce::AudioPlayHead::CurrentPositionInfo cpi;
@@ -341,62 +269,52 @@ namespace APE
 		#endif
 		return ret;
 	}
-	/*********************************************************************************************
-
-		Set the value of a control with the given ID
-
-	 *********************************************************************************************/
-	void APE_API setCtrlValue(CSharedInterface * iface, int ID, float value)
+	
+	void APE_API setCtrlValue(APE_SharedInterface * iface, int ID, float value)
 	{
 		CAPI_SANITY_CHECK();
-		CBaseControl * c = iface->engine->getGraphicUI()->ctrlManager.getControl(ID);
+		auto& engine = IEx::upcast(*iface).getEngine();
+
+		CBaseControl * c = engine.getGraphicUI()->ctrlManager.getControl(ID);
 		if(c)
 			c->bSetValue(value);
 	}
-	/*********************************************************************************************
-
-		Gets the value of a control with the given ID
-
-	 *********************************************************************************************/
-	float APE_API getCtrlValue(CSharedInterface * iface, int ID)
+	
+	float APE_API getCtrlValue(APE_SharedInterface * iface, int ID)
 	{
 		CAPI_SANITY_CHECK();
-		CBaseControl * c = iface->engine->getGraphicUI()->ctrlManager.getControl(ID);
+		auto& engine = IEx::upcast(*iface).getEngine();
+
+		CBaseControl * c = engine.getGraphicUI()->ctrlManager.getControl(ID);
 		if(c)
 			return c->bGetValue();
 		else 
 			return 0.f;
 	}
-	/*********************************************************************************************
 
-		Adds a plot to the GUI.
-
-	*********************************************************************************************/
-	int	APE_API	createPlot(CSharedInterface * iface, const char * name, 
+	int	APE_API	createPlot(APE_SharedInterface * iface, const char * name, 
 		const float * const vals, const unsigned int numVals)
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addPlot(name, vals, numVals);
+		int tag = engine.getGraphicUI()->ctrlManager.addPlot(name, vals, numVals);
 		if (tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
-	/*********************************************************************************************
-
-		Adds a ranged knob
-
-	*********************************************************************************************/
-	int	APE_API	createRangeKnob(CSharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
+	
+	int	APE_API	createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
 	{
 		CAPI_SANITY_CHECK();
+		auto& engine = IEx::upcast(*iface).getEngine();
 
-		int tag = iface->engine->getGraphicUI()->ctrlManager.addKnob(name, unit, extVal, scaleCB, min, max);
+		int tag = engine.getGraphicUI()->ctrlManager.addKnob(name, unit, extVal, scaleCB, min, max);
 		if (tag == -1)
-			iface->engine->getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getGraphicUI()->console->printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 
 	}
-}; // namespace APE
+}

@@ -17,13 +17,13 @@
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
 
-#if defined(CPL_WINDOWS) || defined(CPL_UNIX)
+#ifdef __APPLE__
 
-#include "../src/version.h"
+#include "../../src/version.h"
 
 #else
 
-#include "../../src/version.h"
+#include "../src/version.h"
 
 #endif
 

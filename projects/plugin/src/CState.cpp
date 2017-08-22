@@ -58,7 +58,7 @@ namespace APE
 
 	 *********************************************************************************************/
 	CState::CState(Engine * engine) 
-		: engine(engine), sharedObject(NULL), curProject(nullptr)
+		: engine(engine), curProject(nullptr)
 	{
 		generator = new CCodeGenerator(engine);
 		generator->setErrorFunc(engine->errPrint, engine);
@@ -81,7 +81,6 @@ namespace APE
 		}
 		if(generator)
 			delete generator;
-		freeSharedObject();
 		unregisterHandlers();
 	}
 	/*********************************************************************************************
@@ -92,15 +91,7 @@ namespace APE
 	 *********************************************************************************************/
 	void CState::createSharedObject() 
 	{
-		if(sharedObject)
-			freeSharedObject();
-		sharedObject = new CSharedInterface;
-		::memset(sharedObject, NULL, sizeof *sharedObject);
-		sharedObject->engine = engine;
-		sharedObject->csys = this;
-		for(unsigned i = 0; i < ArraySize(ApiFunctions); i++) {
-			sharedObject->_vtbl[i] = ApiFunctions[i];
-		}
+		sharedObject = std::make_unique<SharedInterfaceEx>(*engine, *this);
 	}
 	/*********************************************************************************************
 
@@ -120,17 +111,7 @@ namespace APE
 	{
 		return protectedMemory;
 	}
-	/*********************************************************************************************
 
-		Frees the shared object create by createsharedObject
-
-	 *********************************************************************************************/
-	void CState::freeSharedObject() 
-	{
-		if(sharedObject)
-			delete sharedObject;
-		sharedObject = NULL;
-	}
 	/*********************************************************************************************
 
 		Tells compiler to compile this->project.
@@ -138,7 +119,7 @@ namespace APE
 	 *********************************************************************************************/
 	bool CState::compileCurrentProject()
 	{
-		this->curProject->iface = sharedObject;
+		this->curProject->iface = sharedObject.get();
 		if(!generator->compileProject(this->curProject))
 			return false;
 		if(!generator->initProject(this->curProject))

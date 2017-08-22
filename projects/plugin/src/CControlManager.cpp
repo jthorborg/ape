@@ -320,7 +320,7 @@ namespace APE {
 	{
 		for (auto it = _controls.begin(); it != _controls.end(); ++it) {
 			//if((*it)->isAttached()) {
-#pragma cwarn("enabled isattached method again")
+#pragma message cwarn("enabled isattached method again")
 			(*it)->bForceEvent();
 
 			//}

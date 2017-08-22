@@ -1476,9 +1476,6 @@
     <ClCompile Include="..\..\src\GraphicUI.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CState.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CCodeGenerator.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1488,15 +1485,6 @@
     <ClCompile Include="..\..\src\CControlManager.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\AAX\juce_AAX_Wrapper.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode1.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode2.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode3.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_WinUtilities.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_Wrapper.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp" />
     <ClCompile Include="..\..\src\CJuceEditor.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1682,6 +1670,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
       <Filter>Audio Programming Environment\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CState.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3044,9 +3035,6 @@
     <ClInclude Include="..\..\src\CThread.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CState.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CValueLabel.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -3136,6 +3124,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h">
       <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CState.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SharedInterfaceEx.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -34,8 +34,6 @@
 
 	#include "SharedInterface.h"
 
-	struct APE_SharedInterface;
-		
 	struct APE_Project
 	{
 		/*
