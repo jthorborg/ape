@@ -77,7 +77,7 @@ namespace APE
 		Engine::Engine() :
 	#endif
 		 
-		numBuffers(2), status(), state(STATUS_DISABLED), delay(), // should according to standard zero-initialize
+		numBuffers(2), status(), state(Status::STATUS_DISABLED), delay(), // should according to standard zero-initialize
 		programName("Default"), uiRefreshInterval(80), clocksPerSample(0), autoSaveInterval(0)
 	{
 		// some variables...
@@ -87,13 +87,10 @@ namespace APE
 		
 		instanceID.ID = Misc::ObtainUniqueInstanceID();
 		
-		// blocks terminals on init, for attacing a debugger
-		//int c;
-		//scanf("%c", &c);
-		
 		// rest of program
-		this->gui = new GraphicUI(this);
-		this->csys = new CState(this);
+		gui = std::make_unique<GraphicUI>(this);
+		csys = std::make_unique<CState>(this);
+
 		// settings
 		loadSettings();
 		gui->console->printLine(CColours::black,
@@ -239,11 +236,7 @@ namespace APE
 	Engine::~Engine() 
 	{
 		disablePlugin();
-		delete this->gui;
-		this->gui = nullptr;
 		Misc::ReleaseUniqueInstanceID(instanceID.ID);
-		// does nothing zzz
-		//config.writeFile((Misc::DirectoryPath + "\config.cfg").c_str());
 	}
 	/*********************************************************************************************
 

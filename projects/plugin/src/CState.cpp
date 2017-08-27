@@ -41,58 +41,42 @@
 namespace APE
 {
 	
-	//thread_local CState * CState::activeStateObject = nullptr;
-	//thread_local sigjmp_buf CState::threadJumpBuffer;
-	//thread_local CState::CSystemException CState::currentException;
-	//thread_local unsigned CState::fpuMask;
-	
 	CState::StaticData CState::staticData;
 	__thread_local CState::ThreadData CState::threadData;
-	
-	//volatile int CState::signalReferenceCount = 0;
-	//struct sigaction CState::newAction, CState::oldActionFPE, CState::oldActionSEGV, CState::oldActionBUS;
-	//CMutex::Lockable CState::signalLock;
-	/*********************************************************************************************
 
-		le constructor
 
-	 *********************************************************************************************/
 	CState::CState(Engine * engine) 
 		: engine(engine), curProject(nullptr)
 	{
-		generator = new CCodeGenerator(engine);
+		generator = std::make_unique<CCodeGenerator>(engine);
 		generator->setErrorFunc(engine->errPrint, engine);
 		createSharedObject();
 		#ifndef __WINDOWS__
 			registerHandlers();
 		#endif
 	}
-	/*********************************************************************************************
 
-		Deconstructor
-
-	 *********************************************************************************************/
 	CState::~CState() 
 	{
 		if (curProject)  
 		{
-			generator->releaseProject(curProject);
-			FreeProjectStruct(curProject);
+			generator->releaseProject(curProject.get());
 		}
-		if(generator)
-			delete generator;
+
 		unregisterHandlers();
 	}
-	/*********************************************************************************************
 
-		creates the sharedObject. this function is to be called at every reset,
-		since the c system might have corrupted this. dirty c.
-
-	 *********************************************************************************************/
 	void CState::createSharedObject() 
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(*engine, *this);
 	}
+
+	SharedInterfaceEx & CState::getSharedInterface()
+	{
+		return *sharedObject.get();
+	}
+
+
 	/*********************************************************************************************
 
 		Getter for the plugin allocator.
@@ -120,9 +104,9 @@ namespace APE
 	bool CState::compileCurrentProject()
 	{
 		this->curProject->iface = sharedObject.get();
-		if(!generator->compileProject(this->curProject))
+		if(!generator->compileProject(this->curProject.get()))
 			return false;
-		if(!generator->initProject(this->curProject))
+		if(!generator->initProject(this->curProject.get()))
 			return false;
 		return true;
 	}
@@ -136,7 +120,7 @@ namespace APE
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]
 			{
-				ret = generator->activateProject(this->curProject);
+				ret = generator->activateProject(this->curProject.get());
 			}
 		);
 		return ret;
@@ -151,7 +135,7 @@ namespace APE
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]
 			{
-				ret = generator->disableProject(this->curProject);
+				ret = generator->disableProject(this->curProject.get());
 			}
 		);
 		return ret;
@@ -166,7 +150,7 @@ namespace APE
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]
 			{
-				ret = generator->processReplacing(this->curProject, in, out, sampleFrames);
+				ret = generator->processReplacing(this->curProject.get(), in, out, sampleFrames);
 			}
 		);
 		return ret;
@@ -182,7 +166,7 @@ namespace APE
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]
 			{
-				ret = generator->onEvent(this->curProject, e);
+				ret = generator->onEvent(this->curProject.get(), e);
 			}
 		);
 		return ret;
@@ -196,11 +180,9 @@ namespace APE
 	{
 		if(curProject)  
 		{
-			generator->releaseProject(curProject);
-			APE::FreeProjectStruct(curProject);
+			generator->releaseProject(curProject.get());
 		}
-		curProject = project;
-
+		curProject.reset(project);
 	}
 
 	/*********************************************************************************************

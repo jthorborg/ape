@@ -74,14 +74,11 @@
 		public:
 
 			struct CSystemException;
-			/*
-				getters
-			*/
+
+			SharedInterfaceEx & getSharedInterface();
 			CAllocator & getPluginAllocator();
 			std::vector<CMemoryGuard> & getPMemory();
-			/*
-				constructors / destructors
-			*/
+
 			CState(APE::Engine * effect);
 			~CState();
 			/*
@@ -292,11 +289,12 @@
 			} threadData;
 			 
 			std::unique_ptr<SharedInterfaceEx> sharedObject;
-			CCodeGenerator * generator;
+			std::unique_ptr<CCodeGenerator> generator;
 			Engine * engine;
 			CAllocator pluginAllocator;
 			std::vector<CMemoryGuard> protectedMemory;
-			ProjectEx * curProject;
+
+			std::unique_ptr<ProjectEx, ProjectDeleter> curProject;
 
 
 			XWORD structuredExceptionHandler(XWORD _code, CSystemException::eStorage & e, void * _systemInformation);

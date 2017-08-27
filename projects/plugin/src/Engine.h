@@ -38,6 +38,7 @@
 	#include <string>
 	#include "Settings.h"
 	#include "CMutex.h"
+	#include <memory>
 	
 	namespace APE {
 
@@ -160,7 +161,8 @@
 			Status requestLinkage();
 			bool activatePlugin();
 			bool pluginCrashed();
-			GraphicUI * getGraphicUI() { return gui; }
+			GraphicUI * getGraphicUI() { return gui.get(); }
+			CState * getCState() { return csys.get(); }
 			void useProtectedBuffers(bool bValue) { status.bUseBuffers = bValue; }
 			libconfig::Setting & getRootSettings();
 			void loadSettings();
@@ -202,11 +204,10 @@
 				
 			} instanceID;
 
-			GraphicUI * gui;
+			std::unique_ptr<GraphicUI> gui;
 			Status state;
-			CState * csys;
+			std::unique_ptr<CState> csys;
 			std::string programName;
-			fpumask fpuMask;
 			libconfig::Config config;
 			volatile long clocksPerSample;
 		}; // class APE

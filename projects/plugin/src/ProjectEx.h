@@ -70,5 +70,14 @@
 		// global allocators to ensure the same allocator is used.
 		ProjectEx * CreateProjectStruct();
 		void FreeProjectStruct(ProjectEx * project);
+
+		class ProjectDeleter
+		{
+		public:
+			void operator () (ProjectEx * project)
+			{
+				FreeProjectStruct(project);
+			}
+		};
 	};
 #endif
