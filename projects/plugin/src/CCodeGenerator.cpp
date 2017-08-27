@@ -209,10 +209,10 @@ namespace APE
 			return Status::STATUS_ERROR;
 		}
 
-		Status CCodeGenerator::onEvent(ProjectEx * project, CEvent * e)
+		Status CCodeGenerator::onEvent(ProjectEx * project, Event * e)
 		{
-
-			if(!project) {
+			if(!project) 
+			{
 				printError("Nullptr passed to onEvent!");
 			}
 			else if (!project->compiler)

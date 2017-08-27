@@ -322,7 +322,7 @@ namespace APE
 			and this should only be a thin layer of indirection
 		*/
 		// create general event
-		CEvent e;
+		Event e;
 		// set type to a change of ctrl value.
 		e.eventType = CtrlValueChanged;
 		// construct ctrlValueChange event object

@@ -177,7 +177,7 @@ namespace APE
 		Calls plugin's onEvent handler
 
 	 *********************************************************************************************/
-	Status CState::onEvent(CEvent * e)
+	Status CState::onEvent(Event * e)
 	{
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]

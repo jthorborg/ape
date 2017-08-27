@@ -34,6 +34,8 @@
 
 	#include "Ape.h"
 	#include "Project.h"
+	#include "Events.h"
+	#include <utility>
 
 	namespace APE
 	{
@@ -41,10 +43,9 @@
 		{
 		public:
 
-			virtual ~ProtoCompiler() {}
 			// changes current project
-			void setProject(CProject * p) { project = p; }
-			CProject * getProject() noexcept { return project; }
+			void setProject(Project * p) { project = p; }
+			Project * getProject() noexcept { return project; }
 			// prints to error function
 			void print(const char * s)
 			{
@@ -52,7 +53,7 @@
 					errorFunc(opaque, s);
 			}
 
-			void setErrorFunc(void * op, APE_ErrorFunc e)
+			void setErrorFunc(void * op, ErrorFunc e)
 			{
 				opaque = op;
 				errorFunc = e;
@@ -66,18 +67,22 @@
 			virtual Status activateProject() = 0;
 			virtual Status disableProject() = 0;
 
-			virtual Status onEvent(CEvent * e)
+			virtual Status onEvent(Event * e)
 			{
 				return STATUS_NOT_IMPLEMENTED;
 			}
+
+			virtual ~ProtoCompiler() {}
+
+			std::pair<void *, ErrorFunc> getErrorFuncDetails() const noexcept { return { opaque, errorFunc }; }
 
 		private:
 			// opaque pointer to be used when error printing
 			void * opaque = nullptr;
 			// error function
-			APE_ErrorFunc errorFunc = nullptr;
+			ErrorFunc errorFunc = nullptr;
 			// the project our instance is associated with
-			CProject * project = nullptr;
+			Project * project = nullptr;
 
 		};
 	}

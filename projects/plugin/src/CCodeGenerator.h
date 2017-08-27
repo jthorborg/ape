@@ -185,7 +185,7 @@
 			Status activateProject(ProjectEx * project);
 			Status processReplacing(ProjectEx * project, Float ** in, Float ** out, Int sampleFrames);
 			Status disableProject(ProjectEx * project);
-			Status onEvent(ProjectEx * project, CEvent * e);
+			Status onEvent(ProjectEx * project, Event * e);
 
 			bool compileProject(ProjectEx * project);
 			bool initProject(ProjectEx * project);

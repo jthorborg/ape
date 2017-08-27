@@ -94,7 +94,7 @@
 
 		namespace APE
 		{
-			//using CProject = APE_Project;
+			using Project = APE_Project;
 		};
 	#endif
 #endif

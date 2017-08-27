@@ -39,17 +39,9 @@
 		class Engine;
 		class CState;
 
-		struct SharedInterfaceEx : public APE_SharedInterface
+		struct BindingsInterfaceResolver : public APE_SharedInterface
 		{
-			Engine & getEngine() noexcept { return engine; }
-			CState & getCState() noexcept { return cstate; }
-			const Engine & getEngine() const noexcept { return engine; }
-			const CState & getCState() const noexcept { return cstate; }
-
-			static SharedInterfaceEx & upcast(APE_SharedInterface & base) noexcept { return static_cast<SharedInterfaceEx &>(base); }
-
-			SharedInterfaceEx(Engine & engine, CState & cstate)
-				: engine(engine), cstate(cstate)
+			BindingsInterfaceResolver()
 			{
 #define APE_GTOL(func) this->func = APE::func
 
@@ -75,8 +67,24 @@
 				APE_GTOL(createPlot);
 				APE_GTOL(createRangeKnob);
 
-#undef APE_GTOL
 				std::memset(&extra, 0, sizeof(extra));
+#undef APE_GTOL
+			}
+		};
+
+		struct SharedInterfaceEx : public BindingsInterfaceResolver
+		{
+			Engine & getEngine() noexcept { return engine; }
+			CState & getCState() noexcept { return cstate; }
+			const Engine & getEngine() const noexcept { return engine; }
+			const CState & getCState() const noexcept { return cstate; }
+
+			static SharedInterfaceEx & upcast(APE_SharedInterface & base) noexcept { return static_cast<SharedInterfaceEx &>(base); }
+
+			SharedInterfaceEx(Engine & engine, CState & cstate)
+				: engine(engine), cstate(cstate)
+			{
+
 			}
 
 		private:

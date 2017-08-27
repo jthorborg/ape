@@ -39,12 +39,12 @@ using namespace APE;
 
 extern "C" 
 {
-	EXPORTED void * APE_API GetSymbol(CProject * p, char * s) 
+	EXPORTED void * APE_API GetSymbol(Project * p, char * s) 
 	{
 		return nullptr;
 	}
 
-	EXPORTED Status APE_API CompileProject(CProject * p, void * op, ErrorFunc e)
+	EXPORTED Status APE_API CompileProject(Project * p, void * op, ErrorFunc e)
 	{
 		ProtoCompiler * compiler = CreateCompiler();
 		p->userData = compiler;
@@ -53,14 +53,15 @@ extern "C"
 		return compiler->compileProject();
 	}
 
-	EXPORTED Status	APE_API SetErrorFunc(CProject * p, void * op, ErrorFunc e)
+	EXPORTED Status	APE_API SetErrorFunc(Project * p, void * op, ErrorFunc e)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
-		return compiler->setErrorFunc(op, e);
+		compiler->setErrorFunc(op, e);
+		return STATUS_OK;
 	}
 
-	EXPORTED Status APE_API ReleaseProject(CProject * p)
+	EXPORTED Status APE_API ReleaseProject(Project * p)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
@@ -69,45 +70,45 @@ extern "C"
 		return s;
 	}
 
-	EXPORTED Status	APE_API InitProject(CProject * p)
+	EXPORTED Status	APE_API InitProject(Project * p)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
 		return compiler->initProject();
 	}
 
-	EXPORTED Status	APE_API ActivateProject(CProject * p)
+	EXPORTED Status	APE_API ActivateProject(Project * p)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
 		return compiler->activateProject();
 	}
 
-	EXPORTED Status	APE_API DisableProject(CProject * p)
+	EXPORTED Status	APE_API DisableProject(Project * p)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
 		return compiler->disableProject();
 	}
 
-	EXPORTED Status	APE_API GetState(CProject * p)
+	EXPORTED Status	APE_API GetState(Project * p)
 	{
 		return STATUS_NOT_IMPLEMENTED;
 	}
 
-	EXPORTED Status	APE_API AddSymbol(CProject * p, const char * name, void * mem)
+	EXPORTED Status	APE_API AddSymbol(Project * p, const char * name, void * mem)
 	{
 		return STATUS_NOT_IMPLEMENTED;
 	}
 
-	EXPORTED Status	APE_API ProcessReplacing(CProject * p, float ** in, float ** out, int sampleFrames)
+	EXPORTED Status	APE_API ProcessReplacing(Project * p, float ** in, float ** out, int sampleFrames)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
 		return compiler->processReplacing(in, out, sampleFrames);
 	}
 
-	EXPORTED Status	APE_API OnEvent(CProject * p, CEvent * e)
+	EXPORTED Status	APE_API OnEvent(Project * p, Event * e)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);

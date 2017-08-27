@@ -99,7 +99,7 @@
 			Status activateProject();
 			Status disableProject();
 			Status processReplacing(Float ** in, Float ** out, Int sampleFrames);
-			Status onEvent(CEvent * e);
+			Status onEvent(Event * e);
 			/*
 				RunProtectedCode
 					calls lambda inside 'safe wrappers', catches OS errors and filters them.

@@ -55,14 +55,18 @@
 			APE_Event_CtrlValueChanged * eCtrlValueChanged;
 
 		} event;
-
 	};
 
 	#ifdef __cplusplus
 		namespace APE
 		{
-			using CEvent = APE_Event;
-			using CEventType = APE_EventType;
+			struct Events
+			{
+				using CtrlValueChanged = APE_Event_CtrlValueChanged;
+			};
+
+			using Event = APE_Event;
+			using EventType = APE_EventType;
 		};
 	#endif
 #endif

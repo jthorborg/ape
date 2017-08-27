@@ -72,23 +72,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\..\..\external;$(ProjectDir)..\..\..\..\external\tinycc;$(ProjectDir)..\..\..\..\shared-src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,14 +150,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp" />
+    <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\dllmain.cpp" />
-    <ClCompile Include="..\..\src\Interface.cpp" />
     <ClCompile Include="..\..\src\Tcc4APE.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\external\tinycc\libtcc.h" />
-    <ClInclude Include="..\..\src\Ape.h" />
-    <ClInclude Include="..\..\src\APESupport.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\Events.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\Project.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\Tcc4APE.h" />
   </ItemGroup>
   <ItemGroup>
