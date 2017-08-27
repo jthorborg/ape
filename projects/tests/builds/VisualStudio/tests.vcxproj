@@ -151,12 +151,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\BindingsHelper.h" />
     <ClInclude Include="..\..\src\catch.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\tests\APITests.cpp" />
+    <ClCompile Include="..\..\tests\EngineTests.cpp" />
     <ClCompile Include="..\..\tests\SharedInterfaceEx.cpp" />
+    <ClCompile Include="..\..\tests\_InitializationTests.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>

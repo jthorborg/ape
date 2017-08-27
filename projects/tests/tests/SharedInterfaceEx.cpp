@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SharedInterfaceEx.h"
 #include <cpl/stdext.h>
+#include "BindingsHelper.h"
 
 TEST_CASE("All bindings are resolved", "[SharedInterface]")
 {
@@ -33,12 +34,7 @@ TEST_CASE("All API functions throws without instance pointers", "[SharedInterfac
 	using namespace cpl;
 
 	BindingsInterfaceResolver resolver;
-	typedef void (APE_API * function)();
-
-	auto const functionSize = sizeof(function);
-
-	auto const numFunctions = offsetof(BindingsInterfaceResolver, extra) / functionSize;
-	size_t cf = 0;
+	size_t cf = 0, numFunctions = BindingsHelper::numFunctions();
 
 	cf++; REQUIRE_THROWS(resolver.alloc(nullptr, 0));
 	cf++; REQUIRE_THROWS(resolver.createKnob(nullptr, nullptr, nullptr, 0));
