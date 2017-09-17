@@ -42,9 +42,15 @@ namespace APE
 {
 	using IEx = SharedInterfaceEx;
 
-	#define CAPI_SANITY_CHECK() \
+#define CAPI_SANITY_CHECK() \
 		if(!iface) \
 			throw CState::CSystemException(CState::CSystemException::status::nullptr_from_plugin, true);
+
+// TODO: Better exception type
+#define APE_STRINGIFY(p) #p
+#define REQUIRES_NOTNULL(param) \
+	if(param == nullptr) \
+			throw std::exception(APE_STRINGIFY(param) " cannot be null");
 
 	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
@@ -63,6 +69,8 @@ namespace APE
 	int APE_API_VARI printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... ) 
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(fmt);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		std::va_list args;
@@ -81,6 +89,9 @@ namespace APE
 	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...) 
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(fmt);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		va_list args;
@@ -97,6 +108,9 @@ namespace APE
 	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking) 
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(text);
+		REQUIRES_NOTNULL(title);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 		return Misc::MsgBox(text, title, nStyle, engine.getGraphicUI()->getSystemWindow(), nBlocking ? true : false);
 
@@ -105,6 +119,9 @@ namespace APE
 	int APE_API createKnob(APE_SharedInterface * iface, const char * name, float * extVal, int type) 
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(extVal);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 		int tag = engine.getGraphicUI()->ctrlManager.addKnob(name, extVal, static_cast<CKnobEx::type>(type));
 		if(tag == -1)
@@ -116,6 +133,11 @@ namespace APE
 	int APE_API createKnobEx(APE_SharedInterface * iface, const char * name, float * extVal, char * values, char * unit) 
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(extVal);
+		REQUIRES_NOTNULL(values);
+		REQUIRES_NOTNULL(unit);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		int tag = engine.getGraphicUI()->ctrlManager.addKnob(name, extVal, values, unit);
@@ -128,6 +150,9 @@ namespace APE
 	int APE_API createMeter(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(extVal);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		int tag = engine.getGraphicUI()->ctrlManager.addMeter(name, extVal);
@@ -140,6 +165,9 @@ namespace APE
 	int APE_API createToggle(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(extVal);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		int tag = engine.getGraphicUI()->ctrlManager.addToggle(name, extVal);
@@ -296,6 +324,9 @@ namespace APE
 		const float * const vals, const unsigned int numVals)
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(vals);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		int tag = engine.getGraphicUI()->ctrlManager.addPlot(name, vals, numVals);
@@ -308,6 +339,11 @@ namespace APE
 	int	APE_API	createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
 	{
 		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(NULL);
+		REQUIRES_NOTNULL(unit);
+		REQUIRES_NOTNULL(extVal);
+		REQUIRES_NOTNULL(scaleCB);
+
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		int tag = engine.getGraphicUI()->ctrlManager.addKnob(name, unit, extVal, scaleCB, min, max);
