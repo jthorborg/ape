@@ -163,7 +163,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tests|Win32'">
@@ -262,7 +262,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tests|x64'">
@@ -358,7 +358,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -405,7 +405,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform)</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -2041,6 +2041,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\external\libconfig\lib\libconfig++.vcxproj">
       <Project>{a0c36ce7-d908-4573-8b69-249eeeb7d2be}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\cfront\builds\VisualStudio\cfront.vcxproj">
+      <Project>{cd0de58c-0e83-423b-bf7b-8fb9a4a89ce3}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\syswrap\builds\VisualStudio\syswrap.vcxproj">
       <Project>{46dd2fe0-78bc-489b-b114-4945451e446c}</Project>

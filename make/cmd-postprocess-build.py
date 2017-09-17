@@ -23,11 +23,13 @@ def cleanup():
 
 # check build output
 
-if not len(sys.argv) == 3:
+if not len(sys.argv) == 4:
 	print(">> Invalid number of post processing arguments")
+	exit(-1)
 
 
 output_dir = sys.argv[1]
+platform_agnostic_dir = sys.argv[3]
 
 for file in os.listdir(output_dir):
     if file.endswith(".dll"):
@@ -49,6 +51,7 @@ sh.copytree("../external/ape-snippets", os.path.join(temp_output, "examples"), i
 sh.copyfile(os.path.join(output_dir, "Audio Programming Environment.dll"), os.path.join(temp_output, "Audio Programming Environment.dll"))
 sh.copyfile(os.path.join(output_dir, "syswrap.dll"), os.path.join(temp_output, "compilers", "syswrap", "syswrap.dll"))
 sh.copyfile(os.path.join(output_dir, "Tcc4APE.dll"), os.path.join(temp_output, "compilers", "Tcc4APE", "Tcc4APE.dll"))
+sh.copyfile(os.path.join(platform_agnostic_dir, "cfront.exe"), os.path.join(temp_output, "compilers", "CppAPE", "cfront.exe"))
 
 # copy into vst folder
 
