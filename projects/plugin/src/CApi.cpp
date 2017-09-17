@@ -46,11 +46,14 @@ namespace APE
 		if(!iface) \
 			throw CState::CSystemException(CState::CSystemException::status::nullptr_from_plugin, true);
 
+#define THROW(msg) \
+	throw std::runtime_error(std::string(__FUNCTION__) + ": " + (msg))
+
 // TODO: Better exception type
 #define APE_STRINGIFY(p) #p
 #define REQUIRES_NOTNULL(param) \
 	if(param == nullptr) \
-			throw std::exception(APE_STRINGIFY(param) " cannot be null");
+			THROW(APE_STRINGIFY(param) " cannot be null");
 
 	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
@@ -276,6 +279,9 @@ namespace APE
 		CAPI_SANITY_CHECK();
 		auto& engine = IEx::upcast(*iface).getEngine();
 
+		if (!engine.isInProcessingCallback())
+			THROW("Can only be called from a processing callback");
+
 		double ret = 0.0;
 		#ifdef APE_VST
 			VstTimeInfo * info;
@@ -306,6 +312,8 @@ namespace APE
 		CBaseControl * c = engine.getGraphicUI()->ctrlManager.getControl(ID);
 		if(c)
 			c->bSetValue(value);
+		else
+			THROW("No such control: " + std::to_string(ID));
 	}
 	
 	float APE_API getCtrlValue(APE_SharedInterface * iface, int ID)
@@ -317,7 +325,7 @@ namespace APE
 		if(c)
 			return c->bGetValue();
 		else 
-			return 0.f;
+			THROW("No such control: " + std::to_string(ID));
 	}
 
 	int	APE_API	createPlot(APE_SharedInterface * iface, const char * name, 

@@ -169,6 +169,9 @@
 			int uniqueInstanceID();
 			int instanceCounter();
 			std::string engineType();
+
+			bool isInProcessingCallback() const { return status.bIsProcessing; }
+
 			/*
 				public data
 			*/
