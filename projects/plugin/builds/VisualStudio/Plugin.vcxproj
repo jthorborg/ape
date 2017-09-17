@@ -156,7 +156,7 @@
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalOptions>/FORCE:multiple /NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>LinkVerbose</ShowProgress>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -255,7 +255,7 @@
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalOptions>/FORCE:multiple /NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>LinkVerbose</ShowProgress>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -2041,6 +2041,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\external\libconfig\lib\libconfig++.vcxproj">
       <Project>{a0c36ce7-d908-4573-8b69-249eeeb7d2be}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\syswrap\builds\VisualStudio\syswrap.vcxproj">
+      <Project>{46dd2fe0-78bc-489b-b114-4945451e446c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tcc4ape\builds\VisualStudio\Tcc4APE.vcxproj">
+      <Project>{c8a8aa6a-edd3-4728-8e5d-d7804960fb77}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\tinycc\builds\VisualStudio\tinycc.vcxproj">
       <Project>{49b2c525-7c50-453d-99e9-65dde637c78f}</Project>
