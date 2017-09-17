@@ -12,3 +12,7 @@
 [submodule "external/ape-snippets"]
 	path = external/ape-snippets
 	url = https://bitbucket.org/Mayae/ape-snippets.git
+[submodule "external/cfront-core"]
+	path = external/cfront-core
+	url = https://bitbucket.org/Mayae/cfront-core.git
+	branch = dev/modern
