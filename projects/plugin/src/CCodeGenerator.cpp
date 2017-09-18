@@ -243,16 +243,42 @@ namespace APE
 				if(!project->compiler || !project->compiler->isInitialized()) 
 				{
 					// set up compiler here.
-					const char * lID = project->languageID;
+					if (!project->languageID || !project->languageID[0])
+					{
+						printError("Null/empty file extension, not supported");
+					}
+
+					std::string fileID = project->languageID;
 					// ensure lID is valid here !
 					try
 					{
 						const libconfig::Setting & settings = engine->getRootSettings();
-						const libconfig::Setting & langstts = settings["languages"][lID]["compiler"];
+						std::string langID;
+						for (auto && lang : settings["languages"])
+						{
+							if (!lang.isGroup())
+								continue;
+							for (auto && ext : lang["extensions"])
+							{
+								if (fileID == ext.c_str())
+								{
+									langID = lang.getName();
+									break;
+								}
+							}
+						}
+						
+						if (!langID.size())
+						{
+							printError("Cannot find compatible compiler for file id \"" + fileID + "\", check your extension settings");
+							return false;
+						}
+
+						const libconfig::Setting & langstts = settings["languages"][langID]["compiler"];
 
 						// compiler is automatically constructed and loaded if it doesn't exist.
 						// if it does, we get a reference to it.
-						auto compiler = &compilers[lID];
+						auto compiler = &compilers[langID];
 						// one could argue this should happen in compiler::compiler
 						// but std::map and copy constructors etc. etc. we do it  here.
 						if(!compiler->isInitialized()) {
