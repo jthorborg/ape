@@ -51,6 +51,7 @@ sh.copytree("../external/ape-snippets", os.path.join(temp_output, "examples"), i
 sh.copyfile(os.path.join(output_dir, "Audio Programming Environment.dll"), os.path.join(temp_output, "Audio Programming Environment.dll"))
 sh.copyfile(os.path.join(output_dir, "syswrap.dll"), os.path.join(temp_output, "compilers", "syswrap", "syswrap.dll"))
 sh.copyfile(os.path.join(output_dir, "Tcc4APE.dll"), os.path.join(temp_output, "compilers", "Tcc4APE", "Tcc4APE.dll"))
+sh.copyfile(os.path.join(output_dir, "CppAPE.dll"), os.path.join(temp_output, "compilers", "CppAPE", "CppAPE.dll"))
 sh.copyfile(os.path.join(platform_agnostic_dir, "cfront.exe"), os.path.join(temp_output, "compilers", "CppAPE", "cfront.exe"))
 
 # copy into vst folder

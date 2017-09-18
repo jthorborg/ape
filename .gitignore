@@ -28,3 +28,4 @@ projects/tinycc/builds/VisualStudio/Win32/
 projects/tests/builds/VisualStudio/Debug/
 projects/tests/builds/VisualStudio/x64/
 projects/cfront/builds/
+projects/cppape/builds/VisualStudio/x64/

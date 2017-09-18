@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "..\..\projects\tes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cfront", "..\..\projects\cfront\builds\VisualStudio\cfront.vcxproj", "{CD0DE58C-0E83-423B-BF7B-8FB9A4A89CE3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppAPE", "..\..\projects\cppape\builds\VisualStudio\CppAPE.vcxproj", "{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -130,20 +132,16 @@ Global
 		{46DD2FE0-78BC-489B-B114-4945451E446C}.Tests|x64.Build.0 = Debug|x64
 		{46DD2FE0-78BC-489B-B114-4945451E446C}.Tests|x86.ActiveCfg = Debug|x64
 		{46DD2FE0-78BC-489B-B114-4945451E446C}.Tests|x86.Build.0 = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Debug|x64.ActiveCfg = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Debug|x64.Build.0 = Debug|x64
+		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Debug|x64.ActiveCfg = Debug|Win32
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Debug|x86.ActiveCfg = Debug|x64
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Debug|x86.Build.0 = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.DebugStatic|x64.ActiveCfg = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.DebugStatic|x64.Build.0 = Debug|x64
+		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.DebugStatic|x64.ActiveCfg = Debug|Win32
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.DebugStatic|x86.ActiveCfg = Debug|x64
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.DebugStatic|x86.Build.0 = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Release|x64.ActiveCfg = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Release|x64.Build.0 = Debug|x64
+		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Release|x64.ActiveCfg = Debug|Win32
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Release|x86.ActiveCfg = Debug|x64
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Release|x86.Build.0 = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.ReleaseStatic|x64.ActiveCfg = Debug|x64
-		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.ReleaseStatic|x64.Build.0 = Debug|x64
+		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.ReleaseStatic|x64.ActiveCfg = Debug|Win32
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.ReleaseStatic|x86.ActiveCfg = Debug|x64
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.ReleaseStatic|x86.Build.0 = Debug|x64
 		{0833728D-BA28-4ABB-86E9-DDF6A57504DD}.Tests|x64.ActiveCfg = Debug|x64
@@ -170,6 +168,26 @@ Global
 		{CD0DE58C-0E83-423B-BF7B-8FB9A4A89CE3}.Tests|x64.Build.0 = Debug|Win32
 		{CD0DE58C-0E83-423B-BF7B-8FB9A4A89CE3}.Tests|x86.ActiveCfg = Debug|Win32
 		{CD0DE58C-0E83-423B-BF7B-8FB9A4A89CE3}.Tests|x86.Build.0 = Debug|Win32
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Debug|x64.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Debug|x64.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Debug|x86.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Debug|x86.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.DebugStatic|x64.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.DebugStatic|x64.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.DebugStatic|x86.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.DebugStatic|x86.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Release|x64.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Release|x64.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Release|x86.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Release|x86.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.ReleaseStatic|x64.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.ReleaseStatic|x64.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.ReleaseStatic|x86.ActiveCfg = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.ReleaseStatic|x86.Build.0 = Debug|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Tests|x64.ActiveCfg = Release|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Tests|x64.Build.0 = Release|x64
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Tests|x86.ActiveCfg = Release|Win32
+		{47BDA949-C47F-4E4A-B112-B3D27FE4ADE0}.Tests|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

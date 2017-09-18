@@ -2,7 +2,7 @@
  
 	 Audio Programming Environment - Audio Plugin - v. 0.3.0.
 	 
-	 Copyright (C) 2014 Janus Lynggaard Thorborg [LightBridge Studios]
+	 Copyright (C) 2017 Janus Lynggaard Thorborg [LightBridge Studios]
 	 
 	 This program is free software: you can redistribute it and/or modify
 	 it under the terms of the GNU General Public License as published by
@@ -21,11 +21,10 @@
  
  **************************************************************************************
 
-	file:Project.h
+	file:SharedInterface.h
 	
-		Defines the common POD-struct CProject, that is used for transferring information
-		about current project, compilers, settings and state around.
-		Is also the C-interface between the compiler and this program.
+		Defines the shared interface between the engine and the plugins,
+		providing a common API.
 
 *************************************************************************************/
 
