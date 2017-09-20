@@ -30,11 +30,7 @@
 #include <ape/ProtoCompiler.hpp>
 #include <string>
 #include <cpl/MacroConstants.h>
-#include "libtcc.h"
-#include <cpl/CModule.h>
-#include <cpl/Utility.h>
-#include <memory>
-#include <mutex>
+#include <ape/TCCBindings.h>
 
 // names of function used in script
 #define SYMBOL_PROCESS_REPLACE "processReplacing"
@@ -82,68 +78,6 @@ namespace TCC4Ape
 		Status pluginStatus;
 	};
 
-	class TCCBindings
-	{
-	public:
-
-		class CompilerAccess : cpl::Utility::CNoncopyable
-		{
-		public:
-
-			CompilerAccess() : bindings(instance()), compilerLock(bindings.compilerMutex) {}
-
-			bool isLinked() const noexcept { return bindings.linkedCorrectly; }
-
-			TCCState * createState() const  { return bindings.newState();}
-			void deleteState(TCCState * s) const  {	return bindings.deleteState(s);	}
-			void setLibPath(TCCState * s, const char *path) const  { return bindings.setLibPath(s, path); }
-			void setErrorFunc(TCCState * s, void * errorOpaque, ErrorFunc errorFunction) const  { return bindings.setErrorFunc(s, errorOpaque, errorFunction); }
-			void addIncludePath(TCCState * s, const char * pathName) const { bindings.addIncludePath(s, pathName);	}
-			void defineSymbol(TCCState * s, const char * symbol, const char * value) const { return bindings.defineSymbol(s, symbol, value); }
-			bool compileString(TCCState * s, const char * buffer) const { return bindings.compileString(s, buffer) != -1; }
-			int setOutputType(TCCState * s, int outputType) const { return bindings.setOutputType(s, outputType);	}
-			int relocate(TCCState * s, void * options) const  { return bindings.relocate(s, options); }
-			void * getSymbol(TCCState * s, const char * name) const  { return bindings.getSymbol(s, name); }
-			void setOptions(TCCState * s, const char * commands) const  { return bindings.setOptions(s, commands); }
-
-		private:
-
-			TCCBindings & bindings;
-			std::lock_guard<std::recursive_mutex> compilerLock;
-		};
-
-	private:
-
-		TCCBindings();
-
-		static TCCBindings & instance()
-		{
-			static TCCBindings bindings;
-			return bindings;
-		}
-
-		decltype(tcc_new) * newState;
-		decltype(tcc_delete) * deleteState;
-		decltype(tcc_set_lib_path) * setLibPath;
-		decltype(tcc_set_error_func) * setErrorFunc;
-		decltype(tcc_add_include_path) * addIncludePath;
-		decltype(tcc_define_symbol) * defineSymbol;
-		decltype(tcc_compile_string) * compileString;
-		decltype(tcc_set_output_type) * setOutputType;
-		decltype(tcc_relocate) * relocate;
-		decltype(tcc_get_symbol) * getSymbol;
-		decltype(tcc_set_options) * setOptions;
-
-		#ifndef TCC4APE_STATIC_LINK
-			cpl::CModule tccDLib;
-		#endif
-
-	private:
-
-		bool linkedCorrectly;
-		std::recursive_mutex compilerMutex;
-	};
-
 	// main class of this program.
 	class ScriptCompiler : public APE::ProtoCompiler
 	{
@@ -167,12 +101,6 @@ namespace TCC4Ape
 		Status onEvent(Event * e) override;
 
 	private:
-
-		class TCCDeleter
-		{
-			public: void operator()(TCCState * s) { TCCBindings::CompilerAccess().deleteState(s); }
-		};
-		typedef std::unique_ptr<TCCState, TCCDeleter> UniqueTCC;
 
 		UniqueTCC state;
 		ScriptPlugin plugin;

@@ -61,48 +61,6 @@ void DeleteCompiler(APE::ProtoCompiler * toBeDeleted)
 namespace TCC4Ape
 {
 
-	TCCBindings::TCCBindings()
-	{
-		/*
-			we use runtime binding on windows, and static linkage on mac.
-			why? to get rid of delay loading on windows and problems with 
-			search paths.
-			on osx, we statically link to the library, so it shouldn't be a problem
-		*/
-		#ifdef TCC4APE_STATIC_LINK
-			newState = tcc_new;
-			setLibPath = tcc_set_lib_path;
-			addIncludePath = tcc_add_include_path;
-			setOutputType = tcc_set_output_type;
-			setErrorFunc = tcc_set_error_func;
-			compileString = tcc_compile_string;
-			deleteState = tcc_delete;
-			relocate = tcc_relocate;
-			getSymbol = tcc_get_symbol;
-			defineSymbol = tcc_define_symbol;
-			setOptions = tcc_set_options;
-		#else
-			if (!tccDLib.load(DirectoryPath + "\\libtcc.dll"))
-			{
-				newState = (decltype(newState)) tccDLib.getFuncAddress("tcc_new");
-				setLibPath = (decltype(setLibPath))tccDLib.getFuncAddress("tcc_set_lib_path");
-				addIncludePath = (decltype(addIncludePath))tccDLib.getFuncAddress("tcc_add_include_path");
-				setOutputType = (decltype(setOutputType))tccDLib.getFuncAddress("tcc_set_output_type");
-				setErrorFunc = (decltype(setErrorFunc))tccDLib.getFuncAddress("tcc_set_error_func");
-				compileString = (decltype(compileString))tccDLib.getFuncAddress("tcc_compile_string");
-				deleteState = (decltype(deleteState))tccDLib.getFuncAddress("tcc_delete");
-				relocate = (decltype(relocate))tccDLib.getFuncAddress("tcc_relocate");
-				getSymbol = (decltype(getSymbol))tccDLib.getFuncAddress("tcc_get_symbol");
-				defineSymbol = (decltype(defineSymbol))tccDLib.getFuncAddress("tcc_define_symbol");
-				setOptions = (decltype(setOptions))tccDLib.getFuncAddress("tcc_set_options");
-			}
-		#endif
-
-		// test whether ALL functions pointers are valid.
-		linkedCorrectly = newState && setLibPath && addIncludePath && setOutputType && setErrorFunc
-			&& compileString && deleteState && relocate && getSymbol && defineSymbol && setOptions;
-	}
-
 	ScriptCompiler::ScriptCompiler() { }
 
 	ScriptCompiler::~ScriptCompiler() 
