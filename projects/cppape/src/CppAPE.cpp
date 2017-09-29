@@ -32,6 +32,7 @@
 #include <string>
 #include <cpl/Misc.h>
 #include <cpl/Common.h>
+#include "TranslationUnit.h"
 
 namespace cpl
 {
@@ -116,6 +117,27 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 
+		try
+		{
+			auto unit = TranslationUnit::FromSource(getProject()->sourceString, getProject()->projectName);
+			
+			unit.includeDirs({ 
+				"\"" + std::string(getProject()->rootPath) + "\\includes\"",
+				"\"" + std::string(getProject()->rootPath) + "\\includes\\tcc\"" }
+			);
+
+			if(!unit.translate())
+				print(unit.getError().c_str());
+			else
+			{
+				auto translation = unit.getTranslation();
+			}
+		}
+		catch (const std::exception& e)
+		{
+			print((std::string("Exception while compiling: ") + e.what()).c_str());
+		}
+		
 		if(getProject()->sourceString && !compiler.compileString(state.get(), getProject()->sourceString))
 			return Status::STATUS_ERROR;
 
