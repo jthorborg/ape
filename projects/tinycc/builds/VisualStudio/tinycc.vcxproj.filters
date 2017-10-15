@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\i386 arch">
+      <UniqueIdentifier>{b967d16b-d129-4b84-ab80-03c2fdcedd65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\i386 arch\x32-gen">
+      <UniqueIdentifier>{cef4d012-6c07-4e8c-ada0-a113a214abef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\i386 arch\x64-gen">
+      <UniqueIdentifier>{8149d02a-ace0-48bc-b6d7-af05f9ac6b12}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\tcc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\tcctok.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\i386-asm.h">
+      <Filter>Source Files\i386 arch\x32-gen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\i386-tok.h">
+      <Filter>Source Files\i386 arch\x32-gen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\tinycc\x86_64-asm.h">
+      <Filter>Source Files\i386 arch\x64-gen</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\external\tinycc\i386-gen.c">
+      <Filter>Source Files\i386 arch\x32-gen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\i386-link.c">
+      <Filter>Source Files\i386 arch\x32-gen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\x86_64-gen.c">
+      <Filter>Source Files\i386 arch\x64-gen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\x86_64-link.c">
+      <Filter>Source Files\i386 arch\x64-gen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tccasm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tccgen.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tccpe.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tccpp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tccrun.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tcctools.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\libtcc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\tccelf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\tinycc\i386-asm.c">
+      <Filter>Source Files\i386 arch</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

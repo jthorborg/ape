@@ -1,1 +1,31 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
+projects/plugin/builds/VisualStudio/.vs/
+projects/plugin/builds/VisualStudio/Debug/
+projects/plugin/builds/VisualStudio/Release/Audio Programming Environment.iobj
+projects/plugin/builds/VisualStudio/Release/
+projects/plugin/builds/VisualStudio/x64/
+projects/plugin/builds/VisualStudio/Win32/
+.vs/
+projects/tinycc/Release/
+projects/tinycc/x64/
+projects/tinycc/builds/VisualStudio/x64/
+projects/tinycc/builds/VisualStudio/Debug/
+projects/tcc4ape/builds/VisualStudio/Debug/
+projects/tcc4ape/builds/VisualStudio/x64/
+solutions/VisualStudio/Debug/
+solutions/VisualStudio/Win32/
+solutions/VisualStudio/x64/
+projects/syswrap/builds/VisualStudio/Debug/
+projects/syswrap/builds/VisualStudio/Release/
+projects/tinycc/builds/VisualStudio/Release/
+projects/tcc4ape/builds/VisualStudio/Release/
+solutions/VisualStudio/Release/
+projects/syswrap/builds/VisualStudio/Win32/
+projects/tcc4ape/builds/VisualStudio/Win32/
+make/config.ini
+projects/syswrap/builds/VisualStudio/x64/
+projects/tinycc/builds/VisualStudio/Win32/
+projects/tests/builds/VisualStudio/Debug/
+projects/tests/builds/VisualStudio/x64/
+projects/cfront/builds/
+projects/cppape/builds/VisualStudio/x64/
