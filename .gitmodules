@@ -6,3 +6,7 @@
 	path = external/tinycc
 	url = git://repo.or.cz/tinycc.git
 	branch = mob
+[submodule "external/cpl"]
+	path = external/cpl
+	url = https://bitbucket.org/Mayae/cpl.git
+	branch = master
