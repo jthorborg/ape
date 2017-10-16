@@ -103,7 +103,7 @@ namespace CppAPE
 				{
 					error = "Error executing: " + ppCommandLine + "\n";
 					error += response.second + "\n";
-					error += "Last error(" + std::to_string((int)cpl::Misc::GetLastOSErrorCode()) + "): " + cpl::Misc::GetLastOSErrorMessage();
+					error += "Last error(" + std::to_string((int)cpl::Misc::GetLastOSError()) + "): " + cpl::Misc::GetLastOSErrorMessage();
 					return false;
 				}
 			}
