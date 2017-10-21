@@ -33,6 +33,7 @@
 #include <cpl/Misc.h>
 #include <cpl/Common.h>
 #include "TranslationUnit.h"
+#include <experimental/filesystem>
 
 namespace cpl
 {
@@ -61,7 +62,7 @@ void DeleteCompiler(APE::ProtoCompiler * toBeDeleted)
 
 namespace CppAPE
 {
-
+	namespace fs = std::experimental::filesystem;
 
 	ScriptCompiler::ScriptCompiler() { }
 
@@ -119,27 +120,28 @@ namespace CppAPE
 
 		try
 		{
-			auto unit = TranslationUnit::FromSource(getProject()->sourceString, getProject()->projectName);
-			
-			unit.includeDirs({ 
-				"\"" + std::string(getProject()->rootPath) + "\\includes\"",
-				"\"" + std::string(getProject()->rootPath) + "\\includes\\tcc\"" }
-			);
+			auto unit = TranslationUnit::FromSource(getProject()->sourceString, getProject()->files[0]);
+			auto root = fs::path(getProject()->rootPath);
+			unit.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()});
 
-			if(!unit.translate())
-				print(unit.getError().c_str());
-			else
+
+			if (!unit.translate())
 			{
-				auto translation = unit.getTranslation();
+				print(unit.getError().c_str());
+				return Status::STATUS_ERROR;
 			}
+
+			if(!compiler.compileString(state.get(), unit.getTranslation().c_str()))
+				return Status::STATUS_ERROR;
+
 		}
 		catch (const std::exception& e)
 		{
 			print((std::string("Exception while compiling: ") + e.what()).c_str());
+			return Status::STATUS_ERROR;
 		}
 		
-		if(getProject()->sourceString && !compiler.compileString(state.get(), getProject()->sourceString))
-			return Status::STATUS_ERROR;
+
 
 		return Status::STATUS_OK;
 	}

@@ -27,16 +27,22 @@
 
 *************************************************************************************/
 #include <cpl/Misc.h>
+#include <experimental/filesystem>
+#include <cpl/Process.h>
 
 namespace CppAPE
 {
 	using namespace APE;
+	namespace fs = std::experimental::filesystem;
 
 	class TranslationUnit
 	{
+
 		TranslationUnit(const std::string& source, const std::string& name)
-			: input(source), name(name)
+			: input(source)
+			, name(name)
 		{
+			preArguments.argPair("-I", fs::path(name).parent_path().string(), preArguments.NoSpace | preArguments.Escaped);
 		}
 
 	public:
@@ -61,75 +67,66 @@ namespace CppAPE
 
 		TranslationUnit & includeDirs(const std::vector<std::string>& idirs)
 		{
-			dirs.insert(dirs.end(), idirs.begin(), idirs.end());
+			for (auto & d : idirs)
+				preArguments.argPair("-I", d, preArguments.NoSpace | preArguments.Escaped);
+
 			return *this;
 		}
 
-		TranslationUnit & preArgs(const std::string& ppArgs)
+		TranslationUnit & preArgs(cpl::Args args)
 		{
-			prearg += ppArgs + " ";
+			preArguments += std::move(args);
 			return *this;
 		}
 
-		TranslationUnit & cppArgs(const std::string& cppArgs)
+		TranslationUnit & cppArgs(cpl::Args args)
 		{
-			cpparg += cppArgs + " ";
+			cppArguments += std::move(args);
 			return *this;
 		}
 
 		bool translate() 
 		{
-			auto root = cpl::Misc::DirectoryPath();
-			auto build = root + "/build/";
+			using namespace cpl;
 
-			auto infile = "\"" + build + "input.c\"";
-			auto outfile = "\"" + build + "output.c\"";
+			fs::path root = cpl::Misc::DirectoryPath();
+			auto allStreams = Process::IOStreamFlags::In | Process::IOStreamFlags::Out | Process::IOStreamFlags::Err;
 
+			auto pp = Process::Builder((root / "mcpp.exe").string())
+				.launch(preArguments.arg("-+"), allStreams);
+
+			std::string s;
+
+			pp.cin() << input << std::endl;
+			pp.cin().close();
+
+			auto cfront = Process::Builder((root / "cfront.exe").string())
+				.launch(cppArguments, allStreams);
+
+			while (std::getline(pp.cout(), s))
 			{
-				std::string ppCommandLine = "mcpp.exe " + prearg;
-				for (auto&& s : dirs)
-					ppCommandLine += "-I" + s + " ";
-
-				if (!cpl::Misc::WriteFile(build + "input.c", input))
-					CPL_RUNTIME_EXCEPTION("Can't write contents of " + name + " to " + build + "input.c");
-
-				ppCommandLine += " " + infile;
-
-				ppCommandLine += " " + outfile;
-
-				auto response = cpl::Misc::ExecCommand(ppCommandLine + " 2>&1");
-
-				if (response.first != 0)
-				{
-					error = "Error executing: " + ppCommandLine + "\n";
-					error += response.second + "\n";
-					error += "Last error(" + std::to_string((int)cpl::Misc::GetLastOSError()) + "): " + cpl::Misc::GetLastOSErrorMessage();
-					return false;
-				}
+				if(cfront.alive())
+					cfront.cin() << s << '\n';
 			}
 
-			{
-				std::string cppCommandLine = "cfront " + cpparg;
+			cfront.cin() << std::endl;
+			cfront.cin().close();
 
-				auto response = cpl::Misc::ExecCommand(cppCommandLine + " < " + outfile + " > " + infile + "2>&1");
+			while (std::getline(cfront.cout(), s))
+				translation += s + '\n';
 
-				if (response.first != 0)
-				{
-					error = response.second;
-					return false;
-				}
 
-				response = cpl::Misc::ReadFile(infile);
-				if (response.first != 0)
-				{
-					error = "Error reading cfront output";
-					return false;
-				}
+			while (std::getline(pp.cerr(), s))
+				error += "PP: " + s + "\n";
 
-				translation = std::move(response.second);
-			}
+			while (std::getline(cfront.cerr(), s))
+				error += "C++: " + s + "\n";
 
-			return true;
+			pp.join();
+			cfront.join();
+
+			return pp.getExitCode() == EXIT_SUCCESS && cfront.getExitCode() == EXIT_SUCCESS;
+
 		}
 
 		const std::string & getTranslation() const noexcept
@@ -144,8 +141,8 @@ namespace CppAPE
 
 	private:
 
-		std::vector<std::string> dirs;
-		std::string input, prearg, cpparg, error, name, translation;
+		cpl::Args preArguments, cppArguments;
+		std::string input, error, name, translation;
 	};
 
 };
