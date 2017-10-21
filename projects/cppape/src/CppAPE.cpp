@@ -64,6 +64,54 @@ namespace CppAPE
 {
 	namespace fs = std::experimental::filesystem;
 
+	static const cpl::Args sizeTypeDefines = []()
+	{
+		cpl::Args ret;
+		#ifdef CPL_M_64BIT
+
+			#ifdef CPL_WINDOWS
+				// Windows 64 bit
+				ret
+					.argPair("-D", "__SIZE_TYPE__=\"unsigned long long\"")
+					.argPair("-D", "__PTRDIFF_TYPE__=\"signed long long\"")
+					.argPair("-D", "__WINT_TYPE__=\"unsigned short\"")
+					.argPair("-D", "__WCHAR_TYPE__=\"short\"");
+
+			#else
+				// Unix LP 64 bit
+				ret.
+					.argPair("-D", "__LP64__=1")
+					.argPair("-D", "__SIZE_TYPE__=\"unsigned long\"")
+					.argPair("-D", "__PTRDIFF_TYPE__=\"signed long\"")
+					.argPair("-D", "__WINT_TYPE__=\"int\"")
+					.argPair("-D", "__WCHAR_TYPE__=\"int\"");
+
+
+			#endif
+
+		#else
+
+			#ifdef CPL_WINDOWS
+				// Windows 32 bit
+				ret
+					.argPair("-D", "__SIZE_TYPE__=\"unsigned int\"")
+					.argPair("-D", "__PTRDIFF_TYPE__=\"int\"")
+					.argPair("-D", "__WINT_TYPE__=\"unsigned short\"")
+					.argPair("-D", "__WCHAR_TYPE__=\"short\"");
+			#else
+				// Unix LP 32 bit
+				ret
+					.argPair("-D", "__LP64__=1")
+					.argPair("-D", "__SIZE_TYPE__=\"unsigned int\"")
+					.argPair("-D", "__PTRDIFF_TYPE__=\"int\"")
+					.argPair("-D", "__WINT_TYPE__=\"int\"")
+					.argPair("-D", "__WCHAR_TYPE__=\"int\"");
+			#endif
+		#endif
+
+		return ret;
+	}();
+
 	ScriptCompiler::ScriptCompiler() { }
 
 	ScriptCompiler::~ScriptCompiler() 
@@ -99,8 +147,6 @@ namespace CppAPE
 		if (getProject()->arguments)
 			compiler.setOptions(state.get(), getProject()->arguments);
 
-		compiler.addIncludePath(state.get(), (std::string(getProject()->rootPath) + "/includes").c_str());
-		compiler.addIncludePath(state.get(), (std::string(getProject()->rootPath) + "/includes/tcc").c_str());
 		compiler.setOutputType(state.get(), TCC_OUTPUT_MEMORY);
 		compiler.setErrorFunc(state.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
 
@@ -123,7 +169,7 @@ namespace CppAPE
 			auto unit = TranslationUnit::FromSource(getProject()->sourceString, getProject()->files[0]);
 			auto root = fs::path(getProject()->rootPath);
 			unit.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()});
-
+			unit.preArgs(sizeTypeDefines);
 
 			if (!unit.translate())
 			{
@@ -191,6 +237,20 @@ namespace CppAPE
 				"after you declared your PluginData struct?");
 			return Status::STATUS_ERROR;
 		}
+
+		#ifdef _DEBUG
+		char buf[8192];
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_INIT, compiler.getSymbol(state.get(), SYMBOL_INIT));
+		print(buf);
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_END, compiler.getSymbol(state.get(), SYMBOL_END));
+		print(buf);
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_PROCESS_REPLACE, compiler.getSymbol(state.get(), SYMBOL_PROCESS_REPLACE));
+		print(buf);
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_EVENT_HANDLER, compiler.getSymbol(state.get(), SYMBOL_EVENT_HANDLER));
+		print(buf);
+
+
+		#endif
 
 		return Status::STATUS_OK;
 	}

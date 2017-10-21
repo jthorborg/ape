@@ -29,6 +29,7 @@
 #include <cpl/Misc.h>
 #include <experimental/filesystem>
 #include <cpl/Process.h>
+#include <fstream>
 
 namespace CppAPE
 {
@@ -38,21 +39,33 @@ namespace CppAPE
 	class TranslationUnit
 	{
 
-		TranslationUnit(const std::string& source, const std::string& name)
-			: input(source)
-			, name(name)
+		TranslationUnit(std::string source, std::string name)
+			: input(std::move(source))
+			, name(std::move(name))
 		{
-			preArguments.argPair("-I", fs::path(name).parent_path().string(), preArguments.NoSpace | preArguments.Escaped);
+			preArguments
+				// include directory of file itself
+				.argPair("-I", fs::path(name).parent_path().string(), preArguments.NoSpace | preArguments.Escaped)
+				// compile C++ source compability
+				.arg("-+")
+				.argPair("-D", "__cplusplus=199711L", preArguments.NoSpace)
+				.argPair("-V", "199901L", preArguments.NoSpace)
+				// cfront does not support signed, ignore
+				.argPair("-D", "signed=\"\"", preArguments.NoSpace);
+
+			cppArguments
+				// support long doubles
+				.arg("+a1");
 		}
 
 	public:
 
-		static TranslationUnit FromSource(const std::string& source, const std::string& name)
+		static TranslationUnit FromSource(std::string source, std::string name)
 		{
 			return { source, name };
 		}
 
-		static TranslationUnit FromFile(const std::string& path)
+		static TranslationUnit FromFile(std::string path)
 		{
 			auto contents = cpl::Misc::ReadFile(path);
 
@@ -61,7 +74,7 @@ namespace CppAPE
 				CPL_RUNTIME_EXCEPTION("Couldn't read file: " + path);
 			}
 
-			return { std::move(contents.second), path };
+			return { std::move(contents.second), std::move(path) };
 		}
 
 
@@ -93,9 +106,15 @@ namespace CppAPE
 			auto allStreams = Process::IOStreamFlags::In | Process::IOStreamFlags::Out | Process::IOStreamFlags::Err;
 
 			auto pp = Process::Builder((root / "mcpp.exe").string())
-				.launch(preArguments.arg("-+"), allStreams);
+				.launch(preArguments, allStreams);
 
 			std::string s;
+			std::ofstream 
+				preOut((root / "build" / "mcpp_out.cpp").c_str()),
+				cfOut((root / "build" / "cfront_out.c").c_str());
+
+			pp.cin() << "#line 2 \"" << fs::path(name).filename() << "\"" << std::endl;
+			pp.cin() << "#line 1 \"" << fs::path(name).filename() << "\"" << std::endl;
 
 			pp.cin() << input << std::endl;
 			pp.cin().close();
@@ -105,8 +124,11 @@ namespace CppAPE
 
 			while (std::getline(pp.cout(), s))
 			{
-				if(cfront.alive())
+				if (cfront.alive())
+				{
 					cfront.cin() << s << '\n';
+					preOut << s << '\n';
+				}
 			}
 
 			cfront.cin() << std::endl;
@@ -121,6 +143,8 @@ namespace CppAPE
 
 			while (std::getline(cfront.cerr(), s))
 				error += "C++: " + s + "\n";
+
+			cfOut << translation << std::endl;
 
 			pp.join();
 			cfront.join();
