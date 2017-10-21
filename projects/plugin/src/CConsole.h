@@ -67,7 +67,7 @@
 		};
 
 
-		class CConsole : public CMutex::Lockable
+		class CConsole : public CMutex::Lockable, juce::AsyncUpdater
 		{
 		private:
 			int nLines; // number of lines
@@ -82,7 +82,7 @@
 			int printLine(CColour color, const char * fmt, ... );
 			int printLine(CColour color, const char * fmt, va_list ap);
 			int calculateTextLength(std::string & text);
-
+			void handleAsyncUpdate() override;
 			void renderConsole();
 			void removeHistory(std::list<ConsoleMessage>::reverse_iterator & it);
 			void setLogging(bool toggle, const std::string & file);

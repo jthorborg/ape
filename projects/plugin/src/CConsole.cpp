@@ -175,6 +175,14 @@ namespace APE
 
 		return nBufLen;
 	}
+
+	void CConsole::handleAsyncUpdate()
+	{
+		cont->repaint();
+		cont->setDirty();
+	}
+
+
 	/*********************************************************************************************
 
 		Overloaded version of the former: Prints from a va_list instead.
@@ -249,9 +257,7 @@ namespace APE
 		delete[] fmtd_str;
 		if (cont)
 		{
-#pragma message cwarn("acquire messagemanagerlock here.")
-			cont->repaint();
-			cont->setDirty();
+			triggerAsyncUpdate();
 		}
 		return nBufLen;
 	}

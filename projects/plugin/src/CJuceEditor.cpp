@@ -560,7 +560,7 @@ namespace APE
 		{
 			project = APE::CreateProjectStruct();
 			project->files = nullptr;
-			project->nFiles = 0;
+			project->nFiles = 1;
 			project->uniqueID = (unsigned)-1;
 			project->isSingleString = true;
 			std::string text;
