@@ -26,6 +26,8 @@
 		Implements the interface for the compiler.
 
 *************************************************************************************/
+#ifndef CPPAPE_H
+#define CPPAPE_H
 
 #include <ape/ProtoCompiler.hpp>
 #include <string>
@@ -33,6 +35,7 @@
 #include <ape/TCCBindings.h>
 #include <cpl/Utility.h>
 #include <memory>
+#include <experimental/filesystem>
 
 // names of function used in script
 #define SYMBOL_PROCESS_REPLACE "processReplacing"
@@ -43,6 +46,8 @@
 
 namespace CppAPE
 {
+	namespace fs = std::experimental::filesystem;
+
 	using namespace APE;
 	// alias of the plugin's memory block (we cannot know the type exactly)
 	typedef void ScriptInstance;
@@ -80,7 +85,6 @@ namespace CppAPE
 		Status pluginStatus;
 	};
 
-
 	// main class of this program.
 	class ScriptCompiler : public APE::ProtoCompiler
 	{
@@ -105,6 +109,8 @@ namespace CppAPE
 
 	private:
 
+		bool SetupEnvironment();
+
 		UniqueTCC state;
 		ScriptPlugin plugin;
 
@@ -125,3 +131,4 @@ namespace CppAPE
 };
 
 
+#endif

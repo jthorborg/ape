@@ -33,7 +33,6 @@
 #include <cpl/Misc.h>
 #include <cpl/Common.h>
 #include "TranslationUnit.h"
-#include <experimental/filesystem>
 
 namespace cpl
 {
@@ -62,7 +61,6 @@ void DeleteCompiler(APE::ProtoCompiler * toBeDeleted)
 
 namespace CppAPE
 {
-	namespace fs = std::experimental::filesystem;
 
 	static const cpl::Args sizeTypeDefines = []()
 	{
@@ -131,6 +129,13 @@ namespace CppAPE
 		{
 			print("[CppAPE] : Error linking against TCC, module is either not found or invalid.");
 			return Status::STATUS_ERROR;
+		}
+
+		// TODO: More state.
+		if(!SetupEnvironment())
+		{
+			print("[CppAPE] : Error setting up environment.");
+			//return Status::STATUS_ERROR;
 		}
 
 		state = UniqueTCC(compiler.createState());
@@ -203,7 +208,7 @@ namespace CppAPE
 		globalData = nullptr;
 		const TCCBindings::CompilerAccess compiler;
 
-		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO) < 0)
+		if (!compiler.relocate(state.get(), TCC_RELOCATE_AUTO))
 		{
 			print("[CppAPE] : Error relocating compiled plugin.");
 			return Status::STATUS_ERROR;

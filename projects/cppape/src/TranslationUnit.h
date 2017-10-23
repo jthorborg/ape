@@ -26,15 +26,14 @@
 		Class that handles a complete translation unit.
 
 *************************************************************************************/
+#include "CppAPE.h"
 #include <cpl/Misc.h>
-#include <experimental/filesystem>
 #include <cpl/Process.h>
 #include <fstream>
 
 namespace CppAPE
 {
 	using namespace APE;
-	namespace fs = std::experimental::filesystem;
 
 	class TranslationUnit
 	{
@@ -44,6 +43,8 @@ namespace CppAPE
 			, name(std::move(name))
 		{
 			preArguments
+				// unset system headers
+				.arg("-I-")
 				// include directory of file itself
 				.argPair("-I", fs::path(name).parent_path().string(), preArguments.NoSpace | preArguments.Escaped)
 				// compile C++ source compability

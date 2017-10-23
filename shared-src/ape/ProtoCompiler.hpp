@@ -36,6 +36,7 @@
 	#include "Project.h"
 	#include "Events.h"
 	#include <utility>
+	#include <string>
 
 	namespace APE
 	{
@@ -51,6 +52,11 @@
 			{
 				if(errorFunc)
 					errorFunc(opaque, s);
+			}
+
+			void print(const std::string& s)
+			{
+				print(s.c_str());
 			}
 
 			void setErrorFunc(void * op, ErrorFunc e)

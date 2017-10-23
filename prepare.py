@@ -1,5 +1,6 @@
 import os
 import configparser
+from shutil import copyfile
 
 print(">> Updating submodules...")
 os.system("git submodule update --init --recursive")
@@ -38,5 +39,8 @@ for filename in os.listdir("projects"):
 							os.symlink(moduleFolder, "external/JuceLibraryCode/modules")
 
 
+print(">> Setting up skeletons...")
+
+copyfile(os.path.join("external", "cfront-core", "cfront-dist", "source", "szal.c"), os.path.join("make", "skeleton", "compilers", "CppAPE", "build", "szal.c"))
 
 print(">> Dev environment setup without errors.")

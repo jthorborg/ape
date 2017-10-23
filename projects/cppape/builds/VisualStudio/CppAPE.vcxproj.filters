@@ -13,6 +13,9 @@
     <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\EnvironmentSetup.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CppAPE.h">

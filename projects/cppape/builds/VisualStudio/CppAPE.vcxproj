@@ -162,6 +162,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\CppAPE.cpp" />
     <ClCompile Include="..\..\src\dllmain.cpp" />
+    <ClCompile Include="..\..\src\EnvironmentSetup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\external\tinycc\libtcc.h" />
