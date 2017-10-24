@@ -26,13 +26,17 @@
 		Class that handles a complete translation unit.
 
 *************************************************************************************/
-#include "CppAPE.h"
+#ifndef CPPAPE_TRANSLATIONUNIT_H
+#define CPPAPE_TRANSLATIONUNIT_H
 #include <cpl/Misc.h>
 #include <cpl/Process.h>
 #include <fstream>
+#include <experimental/filesystem>
+#include <future>
 
 namespace CppAPE
 {
+	namespace fs = std::experimental::filesystem;
 	using namespace APE;
 
 	class TranslationUnit
@@ -61,6 +65,14 @@ namespace CppAPE
 
 	public:
 
+		struct CommonOptions
+		{
+			fs::path szalFile;
+			fs::path constructorSinkFile;
+			fs::path destructorSinkFile;
+			fs::path globalSymSinkFile;
+		};
+
 		static TranslationUnit FromSource(std::string source, std::string name)
 		{
 			return { source, name };
@@ -78,6 +90,27 @@ namespace CppAPE
 			return { std::move(contents.second), std::move(path) };
 		}
 
+		static TranslationUnit FromFile(fs::path path)
+		{
+			return FromFile(path.string());
+		}
+
+		TranslationUnit & options(const CommonOptions& options)
+		{
+			if(fs::exists(options.szalFile))
+				cppArguments.argPair("-x", options.szalFile.string(), preArguments.NoSpace);
+
+			if (fs::exists(options.constructorSinkFile))
+				cppArguments.argPair("-y", options.constructorSinkFile.string(), preArguments.NoSpace);
+
+			if (fs::exists(options.destructorSinkFile))
+				cppArguments.argPair("-z", options.destructorSinkFile.string(), preArguments.NoSpace);
+
+			if (fs::exists(options.globalSymSinkFile))
+				cppArguments.argPair("-q", options.globalSymSinkFile.string(), preArguments.NoSpace);
+
+			return *this;
+		}
 
 		TranslationUnit & includeDirs(const std::vector<std::string>& idirs)
 		{
@@ -107,12 +140,40 @@ namespace CppAPE
 			auto allStreams = Process::IOStreamFlags::In | Process::IOStreamFlags::Out | Process::IOStreamFlags::Err;
 
 			auto pp = Process::Builder((root / "mcpp.exe").string())
+				.workingDir(root.string())
 				.launch(preArguments, allStreams);
 
-			std::string s;
 			std::ofstream 
 				preOut((root / "build" / "mcpp_out.cpp").c_str()),
 				cfOut((root / "build" / "cfront_out.c").c_str());
+
+			auto cfront = Process::Builder((root / "cfront.exe").string())
+				.workingDir(root.string())
+				.launch(cppArguments, allStreams);
+
+			auto pipingProcess = std::async(
+				[&]() 
+				{
+					std::string s;
+					while (std::getline(pp.cout(), s))
+					{
+						cfront.cin() << s << '\n';
+						preOut << s << '\n';
+					}
+
+					cfront.cin() << std::endl;
+					cfront.cin().close();
+				}
+			);
+
+			auto resultProcess = std::async(
+				[&]()
+				{
+					std::string s;
+					while (std::getline(cfront.cout(), s))
+						translation += s + '\n';
+				}
+			);
 
 			pp.cin() << "#line 2 \"" << fs::path(name).filename() << "\"" << std::endl;
 			pp.cin() << "#line 1 \"" << fs::path(name).filename() << "\"" << std::endl;
@@ -120,24 +181,10 @@ namespace CppAPE
 			pp.cin() << input << std::endl;
 			pp.cin().close();
 
-			auto cfront = Process::Builder((root / "cfront.exe").string())
-				.launch(cppArguments, allStreams);
+			pipingProcess.wait();
+			resultProcess.wait();
 
-			while (std::getline(pp.cout(), s))
-			{
-				if (cfront.alive())
-				{
-					cfront.cin() << s << '\n';
-					preOut << s << '\n';
-				}
-			}
-
-			cfront.cin() << std::endl;
-			cfront.cin().close();
-
-			while (std::getline(cfront.cout(), s))
-				translation += s + '\n';
-
+			std::string s;
 
 			while (std::getline(pp.cerr(), s))
 				error += "PP: " + s + "\n";
@@ -173,3 +220,4 @@ namespace CppAPE
 };
 
 
+#endif

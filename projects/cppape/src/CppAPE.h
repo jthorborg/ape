@@ -36,6 +36,7 @@
 #include <cpl/Utility.h>
 #include <memory>
 #include <experimental/filesystem>
+#include "TranslationUnit.h"
 
 // names of function used in script
 #define SYMBOL_PROCESS_REPLACE "processReplacing"
@@ -109,7 +110,19 @@ namespace CppAPE
 
 	private:
 
+		static const cpl::Args ScriptCompiler::sizeTypeDefines;
+
+
+		/// <summary>
+		/// Mutual (os-wide) exclusion should be provided by the parent caller.
+		/// </summary>
 		bool SetupEnvironment();
+		/// <summary>
+		/// Mutual (os-wide) exclusion should be provided by the parent caller.
+		/// Clears files in translationOptions.
+		/// </summary>
+		bool ClearEnvironment();
+		static const TranslationUnit::CommonOptions& translationOptions();
 
 		UniqueTCC state;
 		ScriptPlugin plugin;

@@ -32,6 +32,7 @@
 #include <string>
 #include <cpl/Misc.h>
 #include <cpl/Common.h>
+#include <cpl/CExclusiveFile.h>
 #include "TranslationUnit.h"
 
 namespace cpl
@@ -62,7 +63,7 @@ void DeleteCompiler(APE::ProtoCompiler * toBeDeleted)
 namespace CppAPE
 {
 
-	static const cpl::Args sizeTypeDefines = []()
+	const cpl::Args ScriptCompiler::sizeTypeDefines = []()
 	{
 		cpl::Args ret;
 		#ifdef CPL_M_64BIT
@@ -110,7 +111,22 @@ namespace CppAPE
 		return ret;
 	}();
 
-	ScriptCompiler::ScriptCompiler() { }
+	const TranslationUnit::CommonOptions& ScriptCompiler::translationOptions()
+	{
+		fs::path root = "build";
+
+		static const TranslationUnit::CommonOptions translationOptions 
+		{
+			root / "szal.gen.h",
+			root / "ctors.gen.inl",
+			root / "dtors.gen.inl",
+			root / "runtime_sym.gen.inl"
+		};
+
+		return translationOptions;
+	}
+
+	ScriptCompiler::ScriptCompiler() {}
 
 	ScriptCompiler::~ScriptCompiler() 
 	{
@@ -125,9 +141,19 @@ namespace CppAPE
 	{
 		const TCCBindings::CompilerAccess compiler;
 
+		fs::path dirRoot = cpl::Misc::DirectoryPath();
+
 		if (!compiler.isLinked())
 		{
 			print("[CppAPE] : Error linking against TCC, module is either not found or invalid.");
+			return Status::STATUS_ERROR;
+		}
+
+		cpl::CExclusiveFile lockFile;
+
+		if (!lockFile.open((dirRoot / "lockfile.l").string()))
+		{
+			print("[CppAPE] : error: couldn't lock file");
 			return Status::STATUS_ERROR;
 		}
 
@@ -135,7 +161,7 @@ namespace CppAPE
 		if(!SetupEnvironment())
 		{
 			print("[CppAPE] : Error setting up environment.");
-			//return Status::STATUS_ERROR;
+			return Status::STATUS_ERROR;
 		}
 
 		state = UniqueTCC(compiler.createState());
@@ -146,8 +172,7 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 
-		std::string dir = cpl::Misc::DirectoryPath();
-		compiler.setLibPath(state.get(), dir.c_str());
+		compiler.setLibPath(state.get(), dirRoot.string().c_str());
 
 		if (getProject()->arguments)
 			compiler.setOptions(state.get(), getProject()->arguments);
@@ -155,13 +180,6 @@ namespace CppAPE
 		compiler.setOutputType(state.get(), TCC_OUTPUT_MEMORY);
 		compiler.setErrorFunc(state.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
 
-
-		//	TCC has the nice feature of setting size_t to unsigned int even on 64-bit.
-		//	Lets fix that.
-
-		#ifdef CPL_M_64_BIT
-			compiler.defineSymbol(state, "__SIZE_TYPE__", "unsigned long long");
-		#endif
 
 		if(!getProject()->isSingleString) 
 		{
@@ -173,12 +191,19 @@ namespace CppAPE
 		{
 			auto unit = TranslationUnit::FromSource(getProject()->sourceString, getProject()->files[0]);
 			auto root = fs::path(getProject()->rootPath);
-			unit.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()});
-			unit.preArgs(sizeTypeDefines);
 
-			if (!unit.translate())
-			{
+			unit
+				.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()})
+				.preArgs(sizeTypeDefines)
+				.options(translationOptions());
+
+			auto result = unit.translate();
+
+			if(unit.getError().size())
 				print(unit.getError().c_str());
+
+			if (!result)
+			{
 				return Status::STATUS_ERROR;
 			}
 
@@ -191,8 +216,6 @@ namespace CppAPE
 			print((std::string("Exception while compiling: ") + e.what()).c_str());
 			return Status::STATUS_ERROR;
 		}
-		
-
 
 		return Status::STATUS_OK;
 	}

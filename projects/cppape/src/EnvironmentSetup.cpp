@@ -61,24 +61,19 @@ namespace CppAPE
 		}
 	}
 
-
+	bool ScriptCompiler::ClearEnvironment()
+	{
+		return
+			::remove(translationOptions().constructorSinkFile.string().c_str()) != -1 &&
+			::remove(translationOptions().destructorSinkFile.string().c_str()) != -1 &&
+			::remove(translationOptions().globalSymSinkFile.string().c_str()) != -1;
+	}
 
 	bool ScriptCompiler::SetupEnvironment()
 	{
 		auto root = fs::path(cpl::Misc::DirectoryPath());
 
-		if (fs::exists(root / "build" / "baselib.o"))
-			return true;
-
-		cpl::CExclusiveFile lockFile;
-
-		if (!lockFile.open((root / "lockfile.l").string()))
-		{
-			print("[CppAPE] : error setting up environment: couldn't lock file");
-			return false;
-		}
-
-		if (fs::exists(root / "build" / "baselib.o"))
+		if (fs::exists(root / "runtime" / "runtime.o"))
 			return true;
 
 
@@ -92,12 +87,9 @@ namespace CppAPE
 
 		bindings.addIncludePath(tcc.get(), (root / ".." / ".." / "includes" / "tcc").string().c_str());
 
-		//bindings.setLibPath(tcc.get(), (root / "elf").string().c_str());
-		//bindings.addLibPath(tcc.get(), (root / "elf").string().c_str());
-
 		if (!bindings.addFile(tcc.get(), (root / "szal.c").string().c_str()))
 		{
-			print("[CppAPE] : error setting up environment: couldn't compile szal.c");
+			print("[CppAPE] : couldn't compile szal.c");
 			return false;
 		}
 
@@ -106,7 +98,7 @@ namespace CppAPE
 
 		if (!bindings.relocate(tcc.get(), TCC_RELOCATE_AUTO))
 		{
-			print("[CppAPE] : error setting up environment: couldn't relocate szal.c");
+			print("[CppAPE] : couldn't relocate szal.c");
 			return false;
 		}
 
@@ -118,7 +110,7 @@ namespace CppAPE
 
 		if (!e)
 		{
-			print("[CppAPE] : error setting up environment: no main() in szal.c");
+			print("[CppAPE] : no main() in szal.c");
 			return false;
 		}
 
@@ -126,12 +118,60 @@ namespace CppAPE
 
 		if (stdErr.size())
 		{
-			print("[CppAPE] : error setting up environment: \n" + stdErr);
+			print(stdErr);
+			return false;
 		}
 
-		cpl::Misc::WriteFile((root / "szal.gen.h").string(), stdOut);
+		cpl::Misc::WriteFile(translationOptions().szalFile.string(), stdOut);
 
-		return false;
+		ClearEnvironment();
+
+		try
+		{
+			auto unit = TranslationUnit::FromFile(root / "runtime" / "runtime.cpp");
+
+			unit
+				.includeDirs({
+					(root / ".." / ".." / "includes" / "tcc").string(), 
+					(root / ".." / ".." / "includes").string()}
+				)
+				.preArgs(sizeTypeDefines)
+				.options(translationOptions());
+
+			auto result = unit.translate();
+
+			if (unit.getError().size())
+			{
+				print(unit.getError());
+			}
+
+			if (!result)
+			{
+				return false;
+			}
+
+			tcc.reset(bindings.createState());
+			bindings.setLibPath(tcc.get(), (root).string().c_str());
+			bindings.setErrorFunc(tcc.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
+			bindings.setOutputType(tcc.get(), TCC_OUTPUT_OBJ);
+
+
+			if (!bindings.compileString(tcc.get(), unit.getTranslation().c_str()))
+			{
+				return false;
+			}
+
+			if(!bindings.outputFile(tcc.get(), (root / "runtime" / "runtime.o").string().c_str()))
+				return false;
+
+		}
+		catch (const std::exception& e)
+		{
+			print((std::string("Exception while compiling: ") + e.what()).c_str());
+			return Status::STATUS_ERROR;
+		}
+
+		return true;
 
 	}
 }
