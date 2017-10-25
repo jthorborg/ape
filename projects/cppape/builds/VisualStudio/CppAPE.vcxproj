@@ -172,6 +172,7 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\Project.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
+    <ClInclude Include="..\..\..\..\shared-src\tcc4ape\ScriptBindings.h" />
     <ClInclude Include="..\..\src\CppAPE.h" />
     <ClInclude Include="..\..\src\TranslationUnit.h" />
   </ItemGroup>

@@ -149,7 +149,7 @@ namespace CppAPE
 			{
 				return false;
 			}
-
+			tcc.reset(nullptr);
 			tcc.reset(bindings.createState());
 			bindings.setLibPath(tcc.get(), (root).string().c_str());
 			bindings.setErrorFunc(tcc.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);

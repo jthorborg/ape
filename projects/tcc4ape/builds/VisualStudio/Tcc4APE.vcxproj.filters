@@ -53,5 +53,8 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\tcc4ape\ScriptBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -56,8 +56,10 @@ namespace CppAPE
 				.argPair("-D", "__cplusplus=199711L", preArguments.NoSpace)
 				.argPair("-V", "199901L", preArguments.NoSpace)
 				// cfront does not support signed, ignore
-				.argPair("-D", "signed=\"\"", preArguments.NoSpace);
-
+				.argPair("-D", "signed=\"\"", preArguments.NoSpace)
+				.argPair("-D", "__cfront", preArguments.NoSpace)
+				.argPair("-W", "0", preArguments.NoSpace);
+	
 			cppArguments
 				// support long doubles
 				.arg("+a1");

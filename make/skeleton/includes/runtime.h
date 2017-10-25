@@ -1,5 +1,5 @@
-#ifndef RUNTIME_H
-#define RUNTIME_H
+#ifndef CPPAPE_RUNTIME_H
+#define CPPAPE_RUNTIME_H
 
 #ifndef __cplusplus
 #error runtime.h can only be used with a C++ compiler
@@ -12,9 +12,8 @@
 #define _countof(_Array) (sizeof(_Array) / sizeof(_Array[0]))
 #define __attribute__(x)
 #define _CRT_ERRNO_DEFINED
-//#define inline
 #include <stddef.h>
-#include <stdlib.h>
+#include "shared-src/ape/SharedInterface.h"
 
 #undef __inline__
 //#undef inline

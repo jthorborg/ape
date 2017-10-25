@@ -45,6 +45,9 @@
     <ClInclude Include="..\..\src\TranslationUnit.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\tcc4ape\ScriptBindings.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

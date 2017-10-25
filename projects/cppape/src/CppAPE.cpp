@@ -163,6 +163,8 @@ namespace CppAPE
 			print("[CppAPE] : Error setting up environment.");
 			return Status::STATUS_ERROR;
 		}
+		
+		ClearEnvironment();
 
 		state = UniqueTCC(compiler.createState());
 
@@ -210,6 +212,8 @@ namespace CppAPE
 			if(!compiler.compileString(state.get(), unit.getTranslation().c_str()))
 				return Status::STATUS_ERROR;
 
+			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "runtime.o").string().c_str()))
+				return Status::STATUS_ERROR;
 		}
 		catch (const std::exception& e)
 		{
@@ -252,13 +256,13 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 
-		if(!compiler.getSymbol(state.get(), "check"))
+		/* if(!compiler.getSymbol(state.get(), "check"))
 		{
 			print("[CppAPE] : Unable to find certain symbols, did you forget to include \"CInterface.h\"?");
 			return Status::STATUS_ERROR;
-		}
+		} */
 
-		globalData = reinterpret_cast<PluginGlobalData *>(compiler.getSymbol(state.get(), "_global_data"));
+		globalData = reinterpret_cast<PluginGlobalData *>(compiler.getSymbol(state.get(), SYMBOL_GLOBAL_DATA));
 		if(!globalData)
 		{
 			print("[CppAPE] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
