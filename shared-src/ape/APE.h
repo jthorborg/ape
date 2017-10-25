@@ -45,7 +45,7 @@
 		#else
 			#define APE_STD_API __cdecl
 			#define APE_API APE_STD_API
-			#define APE_API_VARI STD_API
+			#define APE_API_VARI APE_STD_API
 		#endif
 	#endif
 
@@ -65,7 +65,7 @@
 		STATUS_NOT_IMPLEMENTED = 7 // operation not supported
 	} APE_Status;
 	
-	#ifdef __cplusplus
+	#if defined(__cplusplus) && !defined(__cfront)
 		namespace APE
 		{
 			using Status = APE_Status;

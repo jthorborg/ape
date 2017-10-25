@@ -57,7 +57,7 @@
 		} event;
 	};
 
-	#ifdef __cplusplus
+	#if defined(__cplusplus) && !defined(__cfront) 
 		namespace APE
 		{
 			struct Events

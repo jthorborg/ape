@@ -44,6 +44,7 @@ cleanup()
 sh.copytree("skeleton", temp_output)
 sh.copytree("../external/tinycc/win32/include", os.path.join(temp_output, "includes", "tcc"))
 du.copy_tree("../external/tinycc/include", os.path.join(temp_output, "includes", "tcc"))
+du.copy_tree("../shared-src", os.path.join(temp_output, "includes", "shared-src"))
 sh.copytree("../external/ape-snippets", os.path.join(temp_output, "examples"), ignore = sh.ignore_patterns("*.md", "*.git"))
 
 # copy build files

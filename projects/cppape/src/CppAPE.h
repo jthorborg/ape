@@ -34,37 +34,20 @@
 #include <cpl/MacroConstants.h>
 #include <ape/TCCBindings.h>
 #include <cpl/Utility.h>
+#include <tcc4ape/ScriptBindings.h>
 #include <memory>
 #include <experimental/filesystem>
 #include "TranslationUnit.h"
-
-// names of function used in script
-#define SYMBOL_PROCESS_REPLACE "processReplacing"
-#define SYMBOL_INIT "onLoad"
-#define SYMBOL_END "onUnload"
-#define SYMBOL_EVENT_HANDLER "onEvent"
-#define SCRIPT_API APE_API
 
 namespace CppAPE
 {
 	namespace fs = std::experimental::filesystem;
 
 	using namespace APE;
-	// alias of the plugin's memory block (we cannot know the type exactly)
-	typedef void ScriptInstance;
-	using Status = APE_Status;
 
 	// Helper struct to manage the plugin
 	struct ScriptPlugin 
 	{
-		typedef Status (SCRIPT_API * ProcessReplacer)
-			(ScriptInstance *, APE_SharedInterface *, float**, float**, int);
-		typedef Status (SCRIPT_API * Init)
-			(ScriptInstance *, APE_SharedInterface *);
-		typedef Status (SCRIPT_API * End)
-			(ScriptInstance *, APE_SharedInterface *);
-		typedef Status (SCRIPT_API * EventHandler)
-			(ScriptInstance *, APE_SharedInterface *, Event *);
 
 		ScriptPlugin() : processor(nullptr), entrypoint(nullptr), exitpoint(nullptr), pluginStatus(STATUS_DISABLED), handler(nullptr) {}
 
@@ -79,10 +62,10 @@ namespace CppAPE
 			return handler != nullptr;
 		}
 
-		ProcessReplacer processor;
-		Init entrypoint;
-		End exitpoint;
-		EventHandler handler;
+		APE_ProcessReplacer processor;
+		APE_Init entrypoint;
+		APE_End exitpoint;
+		APE_EventHandler handler;
 		Status pluginStatus;
 	};
 
@@ -126,16 +109,6 @@ namespace CppAPE
 
 		UniqueTCC state;
 		ScriptPlugin plugin;
-
-		struct PluginGlobalData
-		{
-			std::size_t allocSize;
-			std::size_t version;
-			const char * name;
-			int wantsToSelfAlloc;
-			void * (SCRIPT_API * PluginAlloc)(void *);
-			void * (SCRIPT_API * PluginFree)(void *);
-		};
 
 		ScriptInstance * pluginData = nullptr;
 		PluginGlobalData * globalData = nullptr;

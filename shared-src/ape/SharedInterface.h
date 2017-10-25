@@ -40,6 +40,8 @@
 		void * reserved;
 	};
 
+	struct APE_SharedInterface;
+
 	struct APE_SharedInterface
 	{
 		float		(APE_API * getSampleRate)	(struct APE_SharedInterface * iface);
@@ -67,7 +69,7 @@
 		struct APE_SIExtra extra;
 	};
 	
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(__cfront)
 
 		//using SharedInterface = APE_SharedInterface;
 
