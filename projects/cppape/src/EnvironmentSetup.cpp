@@ -61,14 +61,6 @@ namespace CppAPE
 		}
 	}
 
-	bool ScriptCompiler::ClearEnvironment()
-	{
-		return
-			::remove(translationOptions().constructorSinkFile.string().c_str()) != -1 &&
-			::remove(translationOptions().destructorSinkFile.string().c_str()) != -1 &&
-			::remove(translationOptions().globalSymSinkFile.string().c_str()) != -1;
-	}
-
 	bool ScriptCompiler::SetupEnvironment()
 	{
 		auto root = fs::path(cpl::Misc::DirectoryPath());
@@ -122,21 +114,24 @@ namespace CppAPE
 			return false;
 		}
 
-		cpl::Misc::WriteFile(translationOptions().szalFile.string(), stdOut);
+		cpl::Misc::WriteFile(userTranslationOptions().szalFile.string(), stdOut);
 
-		ClearEnvironment();
+		userTranslationOptions().clean();
 
 		try
 		{
+			auto options = TranslationUnit::CommonOptions("runtime", userTranslationOptions().szalFile, "cpp.");
+			
 			auto unit = TranslationUnit::FromFile(root / "runtime" / "runtime.cpp");
 
 			unit
 				.includeDirs({
+					(root / "runtime").string(),
 					(root / ".." / ".." / "includes" / "tcc").string(), 
 					(root / ".." / ".." / "includes").string()}
 				)
 				.preArgs(sizeTypeDefines)
-				.options(translationOptions());
+				.options(options);
 
 			auto result = unit.translate();
 
@@ -164,6 +159,8 @@ namespace CppAPE
 			if(!bindings.outputFile(tcc.get(), (root / "runtime" / "runtime.o").string().c_str()))
 				return false;
 
+			options.clean();
+			options.ensureCreated();
 		}
 		catch (const std::exception& e)
 		{

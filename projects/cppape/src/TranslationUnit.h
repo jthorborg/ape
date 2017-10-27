@@ -73,6 +73,41 @@ namespace CppAPE
 			fs::path constructorSinkFile;
 			fs::path destructorSinkFile;
 			fs::path globalSymSinkFile;
+
+			explicit CommonOptions(const fs::path& root, const fs::path& szalFile, const std::string& prefix = "")
+				: szalFile(szalFile)
+				, constructorSinkFile(root / (prefix + "ctors.gen.inl"))
+				, destructorSinkFile(root / (prefix + "dtors.gen.inl"))
+				, globalSymSinkFile(root / (prefix + "sym.gen.h"))
+			{
+
+			}
+
+			void ensureCreated() const
+			{
+				for (auto f : {szalFile, constructorSinkFile, destructorSinkFile, globalSymSinkFile})
+				{
+					if (f.is_relative())
+					{
+						f = cpl::Misc::DirectoryPath() / f;
+					}
+					std::fclose(std::fopen(f.string().c_str(), "a+"));
+
+				}
+			}
+
+			void clean() const
+			{
+				for (auto f : {szalFile, constructorSinkFile, destructorSinkFile, globalSymSinkFile})
+				{
+					if (f.is_relative())
+					{
+						f = cpl::Misc::DirectoryPath() / f;
+					}
+
+					std::remove(f.string().c_str());
+				}
+			}
 		};
 
 		static TranslationUnit FromSource(std::string source, std::string name)
@@ -100,16 +135,13 @@ namespace CppAPE
 		TranslationUnit & options(const CommonOptions& options)
 		{
 			if(fs::exists(options.szalFile))
-				cppArguments.argPair("-x", options.szalFile.string(), preArguments.NoSpace);
+				cppArguments.argPair("+x", options.szalFile.string(), preArguments.NoSpace);
 
-			if (fs::exists(options.constructorSinkFile))
-				cppArguments.argPair("-y", options.constructorSinkFile.string(), preArguments.NoSpace);
+			cppArguments.argPair("+y", options.constructorSinkFile.string(), preArguments.NoSpace);
 
-			if (fs::exists(options.destructorSinkFile))
-				cppArguments.argPair("-z", options.destructorSinkFile.string(), preArguments.NoSpace);
+			cppArguments.argPair("+z", options.destructorSinkFile.string(), preArguments.NoSpace);
 
-			if (fs::exists(options.globalSymSinkFile))
-				cppArguments.argPair("-q", options.globalSymSinkFile.string(), preArguments.NoSpace);
+			cppArguments.argPair("+q", options.globalSymSinkFile.string(), preArguments.NoSpace);
 
 			return *this;
 		}
@@ -202,6 +234,8 @@ namespace CppAPE
 			return pp.getExitCode() == EXIT_SUCCESS && cfront.getExitCode() == EXIT_SUCCESS;
 
 		}
+
+
 
 		const std::string & getTranslation() const noexcept
 		{

@@ -100,12 +100,7 @@ namespace CppAPE
 		/// Mutual (os-wide) exclusion should be provided by the parent caller.
 		/// </summary>
 		bool SetupEnvironment();
-		/// <summary>
-		/// Mutual (os-wide) exclusion should be provided by the parent caller.
-		/// Clears files in translationOptions.
-		/// </summary>
-		bool ClearEnvironment();
-		static const TranslationUnit::CommonOptions& translationOptions();
+		static const TranslationUnit::CommonOptions& userTranslationOptions();
 
 		UniqueTCC state;
 		ScriptPlugin plugin;

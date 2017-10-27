@@ -1,6 +1,8 @@
 #ifndef CPPAPE_VECTOR_H
 #define CPPAPE_VECTOR_H
 
+#include "baselib.h"
+
 template<class T>
 class vector
 {

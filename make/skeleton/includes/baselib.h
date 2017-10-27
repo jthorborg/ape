@@ -42,4 +42,6 @@ size_t distance(const T * begin, const T * end)
 	return end - begin;
 }
 
+int printf(char * fmt, ...);
+
 #endif

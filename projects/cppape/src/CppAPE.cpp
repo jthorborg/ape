@@ -111,17 +111,9 @@ namespace CppAPE
 		return ret;
 	}();
 
-	const TranslationUnit::CommonOptions& ScriptCompiler::translationOptions()
+	const TranslationUnit::CommonOptions& ScriptCompiler::userTranslationOptions()
 	{
-		fs::path root = "build";
-
-		static const TranslationUnit::CommonOptions translationOptions 
-		{
-			root / "szal.gen.h",
-			root / "ctors.gen.inl",
-			root / "dtors.gen.inl",
-			root / "runtime_sym.gen.inl"
-		};
+		static const TranslationUnit::CommonOptions translationOptions(fs::path("build"), fs::path("build") / "szal.gen.h");
 
 		return translationOptions;
 	}
@@ -164,7 +156,7 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 		
-		ClearEnvironment();
+		userTranslationOptions().clean();
 
 		state = UniqueTCC(compiler.createState());
 
@@ -197,7 +189,7 @@ namespace CppAPE
 			unit
 				.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()})
 				.preArgs(sizeTypeDefines)
-				.options(translationOptions());
+				.options(userTranslationOptions());
 
 			auto result = unit.translate();
 
@@ -209,11 +201,17 @@ namespace CppAPE
 				return Status::STATUS_ERROR;
 			}
 
+			userTranslationOptions().ensureCreated();
+
 			if(!compiler.compileString(state.get(), unit.getTranslation().c_str()))
 				return Status::STATUS_ERROR;
 
 			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "runtime.o").string().c_str()))
 				return Status::STATUS_ERROR;
+
+			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "ctorsdtors.c").string().c_str()))
+				return Status::STATUS_ERROR;
+
 		}
 		catch (const std::exception& e)
 		{
