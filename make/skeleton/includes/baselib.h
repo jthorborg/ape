@@ -2,12 +2,13 @@
 #define CPPAPE_RUNTIME_H
 
 #ifndef __cplusplus
-#error runtime.h can only be used with a C++ compiler
+#error baselib.h can only be used with a C++ compiler
 #endif
 
 #define __inline__ inline
 #define __inline inline
 #define __cdecl
+#define _cdecl
 #define RC_INVOKED
 #define _countof(_Array) (sizeof(_Array) / sizeof(_Array[0]))
 #define __attribute__(x)
@@ -16,7 +17,7 @@
 #include "shared-src/ape/SharedInterface.h"
 
 #undef __inline__
-//#undef inline
+
 #undef NULL
 #define NULL 0
 

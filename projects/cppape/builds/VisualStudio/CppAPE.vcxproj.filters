@@ -16,6 +16,15 @@
     <ClCompile Include="..\..\src\EnvironmentSetup.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.c">
+      <Filter>Plugin\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\runtime.cpp">
+      <Filter>Plugin\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\build\postfix.cpp">
+      <Filter>Plugin\Runtime</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CppAPE.h">
@@ -48,6 +57,24 @@
     <ClInclude Include="..\..\..\..\shared-src\tcc4ape\ScriptBindings.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\baselib.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\effect.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\memory.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\processor.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\vector.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.h">
+      <Filter>Plugin\Runtime</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -55,6 +82,15 @@
     </Filter>
     <Filter Include="Headers">
       <UniqueIdentifier>{b0f3c5e2-8963-4b23-9dd3-ad587db30acf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin">
+      <UniqueIdentifier>{405111a9-9d2f-461c-8905-5f469121c277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin\Public Headers">
+      <UniqueIdentifier>{722cc6e0-906a-4c65-a82e-c6ed5a2bbeca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin\Runtime">
+      <UniqueIdentifier>{f8fe5387-6d67-47b9-8927-9a48e0cdc363}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

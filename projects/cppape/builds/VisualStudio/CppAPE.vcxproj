@@ -154,6 +154,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp" />
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\build\postfix.cpp" />
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.c" />
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\runtime.cpp" />
     <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -166,6 +169,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\external\tinycc\libtcc.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\baselib.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\effect.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\memory.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\processor.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\vector.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\Events.h" />
