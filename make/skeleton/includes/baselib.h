@@ -44,5 +44,43 @@ size_t distance(const T * begin, const T * end)
 }
 
 int printf(char * fmt, ...);
+APE_SharedInterface& getInterface();
+
+
+struct Status
+{
+	enum Codes
+	{
+		Ok = 0,
+		Error = 1,
+		Wait = 2,
+		Silent = 3,
+		Ready = 4,
+		Disabled = 5,
+		Handled = 6,
+		NotImplemented = 7
+	};
+
+	Status() {}
+	Status(Codes c) : code(c) {}
+	Status& operator = (Codes c)
+	{
+		code = c;
+		return *this;
+	}
+
+	operator Codes ()
+	{
+		return code;
+	}
+
+	operator APE_Status()
+	{
+		return (APE_Status)code;
+	}
+
+private:
+	Codes code;
+};
 
 #endif

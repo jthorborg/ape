@@ -12,6 +12,12 @@ void FactoryBase::SetCreater(ProcessorCreater factory)
 	pluginCreater = factory;
 }
 
+APE_SharedInterface& getInterface()
+{
+	// TODO: thread_local
+	return *lastIFace;
+}
+
 extern "C"
 {
 	void * malloc(size_t size);
@@ -49,7 +55,6 @@ extern "C"
 			return NULL;
 		}
 		Processor * p = pluginCreater();
-		p->init();
 		return p;
 	}
 
@@ -85,28 +90,32 @@ void operator delete(void * loc)
 extern "C"
 {
 
-	APE_Status SCRIPT_API NAME_PROCESS_REPLACE(ScriptInstance *, APE_SharedInterface * iface, float**, float**, int)
+	APE_Status SCRIPT_API NAME_PROCESS_REPLACE(ScriptInstance * instance, APE_SharedInterface * iface, float ** inputs, float ** outputs, int frames)
 	{
 		lastIFace = iface;
-		return STATUS_OK;
+		Processor * p = (Processor*)instance;
+		return p ? p->process(inputs, outputs, frames) : Status(Status::Error);
 	}
 
-	APE_Status SCRIPT_API NAME_INIT(ScriptInstance *, APE_SharedInterface * iface)
+	APE_Status SCRIPT_API NAME_INIT(ScriptInstance * instance, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
-		return STATUS_READY;
+		Processor * p = (Processor*)instance;
+		return p ? p->init() : Status(Status::Error);
 	}
 
-	APE_Status SCRIPT_API NAME_END(ScriptInstance *, APE_SharedInterface * iface)
+	APE_Status SCRIPT_API NAME_END(ScriptInstance * instance, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
-		return STATUS_OK;
+		Processor * p = (Processor*)instance;
+		return p ? p->close() : Status(Status::Error);
 	}
 
-	APE_Status SCRIPT_API NAME_EVENT_HANDLER(ScriptInstance *, APE_SharedInterface * iface, APE_Event *)
+	APE_Status SCRIPT_API NAME_EVENT_HANDLER(ScriptInstance * instance, APE_SharedInterface * iface, APE_Event * event)
 	{
 		lastIFace = iface;
-		return STATUS_OK;
+		Processor * p = (Processor*)instance;
+		return p ? p->onEvent(event) : Status(Status::Error);
 	}
 
 };

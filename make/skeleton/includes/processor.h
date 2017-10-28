@@ -2,6 +2,7 @@
 #define CPPAPE_PROCESSOR_H
 
 #include "baselib.h"
+#include "shared-src/ape/Events.h"
 
 class Processor
 {
@@ -12,16 +13,35 @@ public:
 
 	}
 
-	virtual void init()
+	virtual Status init()
+	{
+		return Status::Ready;
+	}
+
+	virtual Status close()
+	{
+		return Status::Ok;
+	}
+
+	virtual Status process(float ** inputs, float ** outputs, size_t frames)
+	{
+		(void)inputs;
+		(void)outputs;
+		(void)frames;
+
+		return Status::Ok;
+	}
+
+	virtual Status onEvent(APE_Event * event)
+	{
+		(void)event;
+		return Status::NotImplemented;
+	}
+
+	virtual ~Processor()
 	{
 
 	}
-
-	virtual ~Processor() 
-	{
-	
-	}
-
 };
 
 class FactoryBase
