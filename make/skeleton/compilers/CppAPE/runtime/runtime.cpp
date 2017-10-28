@@ -5,6 +5,12 @@
 #include <stdarg.h>
 
 APE_SharedInterface * lastIFace;
+FactoryBase::ProcessorCreater pluginCreater;
+
+void FactoryBase::SetCreater(ProcessorCreater factory)
+{
+	pluginCreater = factory;
+}
 
 extern "C"
 {
@@ -35,14 +41,22 @@ extern "C"
 
 	void * SCRIPT_API PluginCreate(APE_SharedInterface * iface)
 	{
+		runtime_init();
 		lastIFace = iface;
-		printf("hello!");
-		return NULL;
+		if (!pluginCreater)
+		{
+			iface->printLine(iface, 0xFF000000, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
+			return NULL;
+		}
+		Processor * p = pluginCreater();
+		p->init();
+		return p;
 	}
 
 	void SCRIPT_API PluginDelete(ScriptInstance * instance)
 	{
-		printf("goodbye!");
+		delete (Processor*)instance;
+		runtime_exit();
 	}
 
 	PluginGlobalData NAME_GLOBAL_DATA = {
@@ -54,6 +68,8 @@ extern "C"
 		PluginDelete //void * (SCRIPT_API * PluginFree)(ScriptInstance *);
 	};
 };
+
+
 
 
 void *operator new(unsigned int am)
@@ -78,14 +94,12 @@ extern "C"
 	APE_Status SCRIPT_API NAME_INIT(ScriptInstance *, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
-		runtime_init();
 		return STATUS_READY;
 	}
 
 	APE_Status SCRIPT_API NAME_END(ScriptInstance *, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
-		runtime_exit();
 		return STATUS_OK;
 	}
 

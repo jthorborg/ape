@@ -1,5 +1,5 @@
 #ifndef CPPAPE_EFFECT_H
-#define CPPAPE_PROCESSOR_H
+#define CPPAPE_EFFECT_H
 
 #include "baselib.h"
 #include "processor.h"

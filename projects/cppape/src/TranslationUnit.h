@@ -132,15 +132,25 @@ namespace CppAPE
 			return FromFile(path.string());
 		}
 
+		TranslationUnit& addSource(fs::path path)
+		{
+			return addSource(cpl::Misc::ReadFile(path.string()).second);
+		}
+
+		TranslationUnit& addSource(const std::string& contents)
+		{
+			input += "\n";
+			input += contents;
+			return *this;
+		}
+
 		TranslationUnit & options(const CommonOptions& options)
 		{
 			if(fs::exists(options.szalFile))
 				cppArguments.argPair("+x", options.szalFile.string(), preArguments.NoSpace);
 
 			cppArguments.argPair("+y", options.constructorSinkFile.string(), preArguments.NoSpace);
-
 			cppArguments.argPair("+z", options.destructorSinkFile.string(), preArguments.NoSpace);
-
 			cppArguments.argPair("+q", options.globalSymSinkFile.string(), preArguments.NoSpace);
 
 			return *this;

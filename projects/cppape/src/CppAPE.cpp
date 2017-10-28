@@ -189,7 +189,8 @@ namespace CppAPE
 			unit
 				.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()})
 				.preArgs(sizeTypeDefines)
-				.options(userTranslationOptions());
+				.options(userTranslationOptions())
+				.addSource(dirRoot / "build" / "postfix.cpp");
 
 			auto result = unit.translate();
 
@@ -206,8 +207,13 @@ namespace CppAPE
 			if(!compiler.compileString(state.get(), unit.getTranslation().c_str()))
 				return Status::STATUS_ERROR;
 
+			// ugly hack to prevent message of ODR of vtables violation in runtime.o....
+			compiler.setErrorFunc(state.get(), nullptr, nullptr);
+
 			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "runtime.o").string().c_str()))
 				return Status::STATUS_ERROR;
+
+			compiler.setErrorFunc(state.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
 
 			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "ctorsdtors.c").string().c_str()))
 				return Status::STATUS_ERROR;
