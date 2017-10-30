@@ -100,7 +100,7 @@
 				{
 					newState = (decltype(newState))tccDLib.getFuncAddress("tcc_new");
 					setLibPath = (decltype(setLibPath))tccDLib.getFuncAddress("tcc_set_lib_path");
-					addLibPath = (decltype(setLibPath))tccDLib.getFuncAddress("tcc_add_library_path");
+					addLibPath = (decltype(addLibPath))tccDLib.getFuncAddress("tcc_add_library_path");
 					addIncludePath = (decltype(addIncludePath))tccDLib.getFuncAddress("tcc_add_include_path");
 					setOutputType = (decltype(setOutputType))tccDLib.getFuncAddress("tcc_set_output_type");
 					setErrorFunc = (decltype(setErrorFunc))tccDLib.getFuncAddress("tcc_set_error_func");
@@ -108,7 +108,7 @@
 					deleteState = (decltype(deleteState))tccDLib.getFuncAddress("tcc_delete");
 					relocate = (decltype(relocate))tccDLib.getFuncAddress("tcc_relocate");
 					getSymbol = (decltype(getSymbol))tccDLib.getFuncAddress("tcc_get_symbol");
-					addSymbol = (decltype(getSymbol))tccDLib.getFuncAddress("tcc_add_symbol");
+					addSymbol = (decltype(addSymbol))tccDLib.getFuncAddress("tcc_add_symbol");
 					defineSymbol = (decltype(defineSymbol))tccDLib.getFuncAddress("tcc_define_symbol");
 					setOptions = (decltype(setOptions))tccDLib.getFuncAddress("tcc_set_options");
 					addFile = (decltype(addFile))tccDLib.getFuncAddress("tcc_add_file");

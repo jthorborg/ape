@@ -37,6 +37,7 @@
 
 namespace cpl
 {
+	#ifndef APE_TESTS
 	const ProgramInfo programInfo
 	{
 		"Audio Programming Environment",
@@ -47,7 +48,7 @@ namespace cpl
 		nullptr,
 		""
 	};
-
+	#endif
 };
 
 APE::ProtoCompiler * CreateCompiler()

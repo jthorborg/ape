@@ -51,7 +51,7 @@ extern "C"
 		lastIFace = iface;
 		if (!pluginCreater)
 		{
-			iface->printLine(iface, 0xFF000000, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
+			iface->printLine(iface, 0xFF0000FF, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
 			return NULL;
 		}
 		Processor * p = pluginCreater();

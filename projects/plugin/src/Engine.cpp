@@ -40,6 +40,7 @@
 
 namespace cpl
 {
+	#ifndef APE_TESTS
 	const ProgramInfo programInfo
 	{
 		"Audio Programming Environment",
@@ -50,7 +51,7 @@ namespace cpl
 		nullptr,
 		APE_BUILD_INFO
 	};
-
+	#endif
 };
 
 namespace APE 

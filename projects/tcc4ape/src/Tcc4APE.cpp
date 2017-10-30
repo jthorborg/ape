@@ -35,6 +35,7 @@
 
 namespace cpl
 {
+	#ifndef APE_TESTS
 	const ProgramInfo programInfo
 	{
 		"Audio Programming Environment",
@@ -45,7 +46,7 @@ namespace cpl
 		nullptr,
 		""
 	};
-
+	#endif
 };
 
 APE::ProtoCompiler * CreateCompiler()
@@ -131,7 +132,7 @@ namespace TCC4Ape
 		globalData = nullptr;
 		const TCCBindings::CompilerAccess compiler;
 
-		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO) < 0)
+		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO))
 		{
 			print("[TCC4Ape] : Error relocating compiled plugin.");
 			return Status::STATUS_ERROR;
