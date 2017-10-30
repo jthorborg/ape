@@ -30,6 +30,9 @@
     <ClInclude Include="..\..\src\BindingsHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\CommonHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +48,12 @@
       <Filter>tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\tests\EngineTests.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tests\JitTests.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tests\JitSmokeTests.cpp">
       <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>

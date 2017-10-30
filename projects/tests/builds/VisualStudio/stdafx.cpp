@@ -9,7 +9,7 @@
 
 namespace cpl
 {
-	/* const ProgramInfo programInfo
+	const ProgramInfo programInfo
 	{
 		"APE Tests",
 		cpl::Version::fromParts(0, 1, 0),
@@ -18,5 +18,5 @@ namespace cpl
 		false,
 		nullptr,
 		""
-	}; */
+	}; 
 };
