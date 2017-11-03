@@ -54,8 +54,21 @@ int TestCallbacksAreSet()
 
 )";
 
+const std::string callbackProgram = R"(
+	int callback(int (* c)(int), int a)
+	{
+		return c(a);
+	}
+)";
+
 const std::string invalidProgram = program + "z";
 const auto libpath = tests::RepositoryRoot() / "make" / "skeleton" / "compilers" / "TCC4APE";
+int nFloatCallbacks = 0;
+int nDoubleCallbacks = 0;
+void * const opaque = reinterpret_cast<void * const>(0xDEADBEEF);
+int nErrorCalls = 0;
+volatile int nCallbacks = 0;
+jmp_buf jumpBuffer;
 
 TEST_CASE("TCC is linked and can create states", "[JitCodeGen]")
 {
@@ -83,9 +96,6 @@ TEST_CASE("TCC can compile", "[JitCodeGen]")
 	REQUIRE(tcc_compile_string(tcc, program.c_str()) != -1);
 	tcc_delete(tcc);
 }
-
-void * const opaque = reinterpret_cast<void * const>(0xDEADBEEF);
-int nErrorCalls = 0;
 
 TEST_CASE("TCC calls back error on bad compilation", "[JitCodeGen]")
 {
@@ -210,8 +220,6 @@ TEST_CASE("Can invoke TCC IntRetArgFunction", "[JitCodeGen]")
 	tcc_delete(tcc);
 }
 
-int nCallbacks = 0;
-
 TEST_CASE("Can invoke TCC JIT callback", "[JitCodeGen]")
 {
 	nCallbacks = 0;
@@ -299,9 +307,6 @@ TEST_CASE("Can set TCC symbols", "[JitCodeGen]")
 	tcc_delete(tcc);
 }
 
-int nFloatCallbacks = 0;
-int nDoubleCallbacks = 0;
-
 TEST_CASE("Can invoke TCC float/double function callback", "[JitCodeGen]")
 {
 	nFloatCallbacks = 0;
@@ -384,9 +389,17 @@ TEST_CASE("Can invoke TCC float/double function callback", "[JitCodeGen]")
 	tcc_delete(tcc);
 }
 
-TEST_CASE("Can catch hardware exception across JIT", "[JitCodeGen]")
+TEST_CASE("Can catch interop between TCC stackframes", "[JitCodeGen]")
 {
 	nCallbacks = 0;
+
+	enum Returns
+	{
+		Return10,
+		DivideByZero,
+		ThrowRuntimeException,
+		LongJmp
+	};
 
 	auto error = [](void * op, const char * msg)
 	{
@@ -399,7 +412,18 @@ TEST_CASE("Can catch hardware exception across JIT", "[JitCodeGen]")
 		if (op != opaque)
 			return -1;
 
-		return 10 / arg;
+		switch (arg)
+		{
+		default:
+		case Return10:
+			return 10;
+		case DivideByZero:
+			return 10 / (arg - 1);
+		case ThrowRuntimeException:
+			cpl::CProtected::instance().throwException<std::runtime_error>("blah");
+		case LongJmp:
+			longjmp(jumpBuffer, 1);
+		}
 	};
 
 	TCCState * tcc = tcc_new();
@@ -413,17 +437,48 @@ TEST_CASE("Can catch hardware exception across JIT", "[JitCodeGen]")
 
 	REQUIRE(cbi != nullptr);
 
-	REQUIRE(cbi(callback, opaque, 1) == 10);
-	REQUIRE(nCallbacks == 1);
-	
-	//REQUIRE_THROWS_AS(
-	cpl::CProtected::instance().runProtectedCode([&]() { cbi(callback, opaque, 0); })//, 
-//	cpl::CProtected::CSystemException
-//;
+	// direct callback
+	{
+		REQUIRE(cbi(callback, opaque, Return10) == 10);
+		REQUIRE(nCallbacks == 1);
+	}
 
+	// hardware exceptions
+	{
+		REQUIRE_THROWS_AS(
+			cpl::CProtected::instance().runProtectedCode([&]() { cbi(callback, opaque, DivideByZero); }),
+			cpl::CProtected::CSystemException
+		);
+		REQUIRE(nCallbacks == 2);
+	}
 
-; REQUIRE(nCallbacks == 2);
+	// long jumps
+	{
+		bool didJumpBack = false;
+
+		if (setjmp(jumpBuffer))
+		{
+			didJumpBack = true;
+		}
+		else
+		{
+			cbi(callback, opaque, LongJmp);
+		}
+
+		REQUIRE(nCallbacks == 3);
+		REQUIRE(didJumpBack == true);
+	}
+
+	// exceptions
+	{
+		REQUIRE_THROWS_AS(
+			cpl::CProtected::instance().runProtectedCode([&] { cbi(callback, opaque, ThrowRuntimeException); }),
+			std::runtime_error
+		);
+
+		REQUIRE(nCallbacks == 4);
+	}
 
 
 	tcc_delete(tcc);
-}
+} 

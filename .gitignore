@@ -31,3 +31,5 @@ projects/cfront/builds/
 projects/cppape/builds/VisualStudio/x64/
 projects/plugin/JuceLibraryCode/modules/
 make/skeleton/compilers/CppAPE/szal.c
+projects/cppape/builds/VisualStudio/Win32/
+projects/tests/builds/VisualStudio/TestsRelease/
