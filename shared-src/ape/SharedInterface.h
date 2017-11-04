@@ -44,6 +44,7 @@
 
 	struct APE_SharedInterface
 	{
+		void		(APE_API * abortPlugin)		(struct APE_SharedInterface * iface, const char * reason);
 		float		(APE_API * getSampleRate)	(struct APE_SharedInterface * iface);
 		int			(APE_API_VARI * printLine)	(struct APE_SharedInterface * iface, unsigned nColor, const char * fmt, ...);
 		int			(APE_API * msgBox)			(struct APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);

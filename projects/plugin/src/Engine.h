@@ -83,6 +83,12 @@
 			bool copyInput(std::vector<float *> & in, std::vector<float *> & out, audioBuffer & buffer);
 			bool copyOutput(std::vector<float *> & out, audioBuffer & buffer);
 		public:
+
+			class AbortException : public std::runtime_error
+			{
+				using std::runtime_error::runtime_error;
+			};
+
 			virtual ~Engine() __llvm_DummyNoExcept; //can't hurt
 			/*
 				overloads

@@ -78,7 +78,7 @@ namespace APE
 		Engine::Engine() :
 	#endif
 		 
-		numBuffers(2), status(), state(Status::STATUS_DISABLED), delay(), // should according to standard zero-initialize
+		numBuffers(2), status(), state(Status::STATUS_DISABLED), delay(),
 		programName("Default"), uiRefreshInterval(80), clocksPerSample(0), autoSaveInterval(0)
 	{
 		// some variables...
@@ -340,7 +340,15 @@ namespace APE
 			disablePlugin(false);
 			pluginCrashed();
 			csys->projectCrashed();
-		};
+		}
+		catch (const AbortException& e)
+		{
+			state = STATUS_DISABLED;
+			gui->setStatusText("Plugin aborted", CColours::orange);
+			gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
+			disablePlugin(false);
+
+		}
 		// update event.
 		if(ret == STATUS_HANDLED) {
 			if(aevent.value != base->bGetValue()) 
@@ -366,17 +374,25 @@ namespace APE
 			// else the processor might start while we are doing this
 			CMutex lockGuard(this);
 			status.bActivated = false;
-			try {
+			try 
+			{
 				state = csys->disableProject(); 
 			} 
-			catch (CState::CSystemException & e) {
+			catch (const CState::CSystemException & e) 
+			{
 				gui->console->printLine(CColours::red,
 					"[Engine] : Exception 0x%X occured while disabling plugin: %s Plugin disabled.",
 					e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
 				gui->setStatusText("Plugin crashed!", CColours::red);
 				state = STATUS_ERROR;
 				pluginCrashed();
-			};
+			}
+			catch (const AbortException& e)
+			{
+				state = STATUS_DISABLED;
+				gui->setStatusText("Plugin aborted", CColours::orange);
+				gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
+			}
 			gui->console->printLine(CColours::black, state == STATUS_OK ?
 				"[Engine] : Plugin disabled without error." :
 				"[Engine] : Unexpected return value from onUnLoad(), plugin disabled.");
@@ -404,10 +420,12 @@ namespace APE
 			return false;
 		status.bActivated = false;
 
-		try {
+		try 
+		{
 			state = csys->activateProject();
 		} 
-		catch (CState::CSystemException & e) {
+		catch (CState::CSystemException & e) 
+		{
 			gui->console->printLine(CColours::red,
 				"[Engine] : Exception 0x%X occured while activating plugin: %s Plugin disabled.",
 				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
@@ -416,7 +434,13 @@ namespace APE
 			disablePlugin(false);
 			pluginCrashed();
 			csys->projectCrashed();
-		};
+		}
+		catch (const AbortException& e)
+		{
+			state = STATUS_DISABLED;
+			gui->setStatusText("Plugin aborted", CColours::orange);
+			gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while activating plugin: %s.", e.what());
+		}
 		switch(state)
 		{
 		case STATUS_DISABLED:
@@ -525,8 +549,7 @@ namespace APE
 
 			if(!copyInput(in, out, buffer))
 			{
-				gui->console->printLine(CColours::red,
-										"[Engine] : Error copying input buffers!");
+				gui->console->printLine(CColours::red, "[Engine] : Error copying input buffers!");
 				lockGuard.release();
 				disablePlugin(false);
 				goto skip;
@@ -576,7 +599,17 @@ namespace APE
 				gui->setStatusText("Plugin crashed!", CColours::red);
 				// report crash to cstate
 				csys->projectCrashed();
-			}; // __try __catch block
+			}
+			catch (const AbortException& e)
+			{
+				state = STATUS_DISABLED;
+				// release lock of this, disablePlugin() needs to acquire it
+				lockGuard.release();
+				disablePlugin(false);
+
+				gui->setStatusText("Plugin aborted", CColours::orange);
+				gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
+			};
 			// if its still activated (ie. no error in previous code, we copy contents from plugin into 
 			// buffer (this may seem weird to overwrite input with output, but thats how juce does it)
 			if (status.bActivated)

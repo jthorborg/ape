@@ -37,6 +37,7 @@
 #include "CState.h"
 #include "Misc.h"
 #include "Engine.h"
+#include <cpl/Protected.h>
 
 namespace APE 
 {
@@ -44,16 +45,22 @@ namespace APE
 
 #define CAPI_SANITY_CHECK() \
 		if(!iface) \
-			throw CState::CSystemException(CState::CSystemException::status::nullptr_from_plugin, true);
+			cpl::CProtected::instance().throwException<CState::CSystemException>(CState::CSystemException::status::nullptr_from_plugin, true)
 
 #define THROW(msg) \
-	throw std::runtime_error(std::string(__FUNCTION__) + ": " + (msg))
+	cpl::CProtected::instance().throwException<std::runtime_error>(std::string(__FUNCTION__) + ": " + (msg))
 
 // TODO: Better exception type
 #define APE_STRINGIFY(p) #p
 #define REQUIRES_NOTNULL(param) \
 	if(param == nullptr) \
 			THROW(APE_STRINGIFY(param) " cannot be null");
+
+	void APE_API abortPlugin(APE_SharedInterface * iface, const char * reason)
+	{
+		CAPI_SANITY_CHECK();
+		cpl::CProtected::instance().throwException<Engine::AbortException>(reason);
+	}
 
 	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
@@ -347,7 +354,7 @@ namespace APE
 	int	APE_API	createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
 	{
 		CAPI_SANITY_CHECK();
-		REQUIRES_NOTNULL(NULL);
+		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(unit);
 		REQUIRES_NOTNULL(extVal);
 		REQUIRES_NOTNULL(scaleCB);

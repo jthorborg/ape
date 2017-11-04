@@ -21,6 +21,7 @@ TEST_CASE("All API functions are callable without crashes with invalid arguments
 	SECTION("Bindings from CState, with null shared interface")
 	{
 		std::size_t cf = 0;
+		cf++; REQUIRE_THROWS(sharedInterface.abortPlugin(nullptr, ""));
 		cf++; REQUIRE_THROWS(sharedInterface.alloc(nullptr, 0));
 		cf++; REQUIRE_THROWS(sharedInterface.createKnob(nullptr, nullptr, nullptr, 0));
 		cf++; REQUIRE_THROWS(sharedInterface.createKnobEx(nullptr, nullptr, nullptr, nullptr, nullptr));
@@ -50,6 +51,8 @@ TEST_CASE("All API functions are callable without crashes with invalid arguments
 	{
 		std::size_t cf = 0;
 		auto p = &sharedInterface;
+		// throws by design
+		cf++; REQUIRE_THROWS(sharedInterface.abortPlugin(p, ""));
 		// no possible configuration where it can throw
 		cf++; REQUIRE_NOTHROW(sharedInterface.alloc(p, 0));
 		// throws due to null ptrs

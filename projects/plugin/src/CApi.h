@@ -40,6 +40,11 @@
 	{
 		class Engine;
 
+
+		/// <summary>
+		/// Throws an abort exception, picked up by the engine and disables the plugin.
+		/// </summary>
+		void		APE_API			abortPlugin(APE_SharedInterface * iface, const char * reason);
 		/// <summary>
 		/// Returns sample rate of the current instance.
 		/// </summary>

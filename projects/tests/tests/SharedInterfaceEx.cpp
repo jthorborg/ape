@@ -36,6 +36,7 @@ TEST_CASE("All API functions throws without instance pointers", "[SharedInterfac
 	BindingsInterfaceResolver resolver;
 	size_t cf = 0, numFunctions = BindingsHelper::numFunctions();
 
+	cf++; REQUIRE_THROWS(resolver.abortPlugin(nullptr, ""));
 	cf++; REQUIRE_THROWS(resolver.alloc(nullptr, 0));
 	cf++; REQUIRE_THROWS(resolver.createKnob(nullptr, nullptr, nullptr, 0));
 	cf++; REQUIRE_THROWS(resolver.createKnobEx(nullptr, nullptr, nullptr, nullptr, nullptr));

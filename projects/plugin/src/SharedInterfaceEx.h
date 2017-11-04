@@ -45,6 +45,7 @@
 			{
 #define APE_GTOL(func) this->func = APE::func
 
+				APE_GTOL(abortPlugin);
 				APE_GTOL(getSampleRate);
 				APE_GTOL(printLine);
 				APE_GTOL(msgBox);
