@@ -62,7 +62,7 @@
 				void defineSymbol(TCCState * s, const char * symbol, const char * value) const { return bindings.defineSymbol(s, symbol, value); }
 				bool compileString(TCCState * s, const char * buffer) const { return bindings.compileString(s, buffer) != -1; }
 				int setOutputType(TCCState * s, int outputType) const { return bindings.setOutputType(s, outputType); }
-				bool relocate(TCCState * s, void * options) const { return bindings.relocate(s, options) != -1; }
+				int relocate(TCCState * s, void * options) const { return bindings.relocate(s, options); }
 				void * getSymbol(TCCState * s, const char * name) const { return bindings.getSymbol(s, name); }
 				void addSymbol(TCCState * s, const char * name, const void * value) const { bindings.addSymbol(s, name, value); }
 				void setOptions(TCCState * s, const char * commands) const { return bindings.setOptions(s, commands); }

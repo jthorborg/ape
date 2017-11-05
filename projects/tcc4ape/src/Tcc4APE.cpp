@@ -132,7 +132,7 @@ namespace TCC4Ape
 		globalData = nullptr;
 		const TCCBindings::CompilerAccess compiler;
 
-		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO))
+		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO) == -1)
 		{
 			print("[TCC4Ape] : Error relocating compiled plugin.");
 			return Status::STATUS_ERROR;

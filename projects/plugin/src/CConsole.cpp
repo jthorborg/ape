@@ -223,6 +223,15 @@ namespace APE
 			msgs.push_back(ConsoleMessage(fmt.str(), CColours::red));
 		}
 		// log to file
+#ifdef _DEBUG
+		if (cpl::Misc::IsBeingDebugged())
+		{
+			CPL_DEBUGOUT(fmtd_str);
+			CPL_DEBUGOUT("\n");
+
+		}
+
+#endif
 		if(logging && debugFile.isOpened())
 		{
 			debugFile.write(fmtd_str);
