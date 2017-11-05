@@ -205,6 +205,11 @@ namespace CppAPE
 
 			userTranslationOptions().ensureCreated();
 
+			compiler.addIncludePath(state.get(), (root / "includes" / "tcc").string().c_str());
+
+			if (!compiler.compileString(state.get(), "#include <math.h>\n"))
+				return Status::STATUS_ERROR;
+
 			if(!compiler.compileString(state.get(), unit.getTranslation().c_str()))
 				return Status::STATUS_ERROR;
 
@@ -240,7 +245,7 @@ namespace CppAPE
 		globalData = nullptr;
 		const TCCBindings::CompilerAccess compiler;
 
-		if (!compiler.relocate(state.get(), TCC_RELOCATE_AUTO))
+		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO) == -1)
 		{
 			print("[CppAPE] : Error relocating compiled plugin.");
 			return Status::STATUS_ERROR;

@@ -13,23 +13,15 @@ public:
 
 	}
 
-	virtual Status init()
-	{
-		return Status::Ready;
-	}
+	virtual void init() {}
 
-	virtual Status close()
-	{
-		return Status::Ok;
-	}
+	virtual void close() {}
 
-	virtual Status process(float ** inputs, float ** outputs, size_t frames)
+	virtual void process(float ** inputs, float ** outputs, size_t frames)
 	{
 		(void)inputs;
 		(void)outputs;
 		(void)frames;
-
-		return Status::Ok;
 	}
 
 	virtual Status onEvent(APE_Event * event)

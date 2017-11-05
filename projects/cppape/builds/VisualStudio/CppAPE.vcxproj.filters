@@ -75,6 +75,12 @@
     <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.h">
       <Filter>Plugin\Runtime</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\parameter.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\mathlib.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

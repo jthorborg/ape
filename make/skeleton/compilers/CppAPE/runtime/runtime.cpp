@@ -24,6 +24,7 @@ extern "C"
 	void * calloc(size_t size, size_t count);
 	void free(void * pointer);
 	int vsnprintf(char * s, size_t n, const char * format, va_list arg);
+	void abort();
 };
 
 int printf(char * fmt, ...)
@@ -40,6 +41,15 @@ int printf(char * fmt, ...)
 
 	lastIFace->printLine(lastIFace, 0, "%s", buf);
 	return ret;
+}
+
+void abort(const char * reason)
+{
+	if (lastIFace == NULL)
+		abort();
+
+	lastIFace->abortPlugin(lastIFace, reason);
+
 }
 
 extern "C"
@@ -94,27 +104,45 @@ extern "C"
 	{
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
-		return p ? p->process(inputs, outputs, frames) : Status(Status::Error);
+		if (!p)
+			return Status(Status::Error);
+
+		p->process(inputs, outputs, frames);
+		return Status(Status::Ok);
 	}
 
 	APE_Status SCRIPT_API NAME_INIT(ScriptInstance * instance, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
-		return p ? p->init() : Status(Status::Error);
+
+		if(!p)
+			return Status(Status::Error);
+
+		p->init();
+
+		return Status(Status::Ready);
 	}
 
 	APE_Status SCRIPT_API NAME_END(ScriptInstance * instance, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
-		return p ? p->close() : Status(Status::Error);
+
+		if (!p)
+			return Status(Status::Error);
+
+		p->close();
+
+		return Status(Status::Ok);
+
 	}
 
 	APE_Status SCRIPT_API NAME_EVENT_HANDLER(ScriptInstance * instance, APE_SharedInterface * iface, APE_Event * event)
 	{
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
+
 		return p ? p->onEvent(event) : Status(Status::Error);
 	}
 

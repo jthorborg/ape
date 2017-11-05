@@ -88,7 +88,7 @@ namespace CppAPE
 		bindings.addSymbol(tcc.get(), "printf", &printf_hook);
 		bindings.addSymbol(tcc.get(), "fprintf", &fprintf_hook);
 
-		if (!bindings.relocate(tcc.get(), TCC_RELOCATE_AUTO) == -1)
+		if (bindings.relocate(tcc.get(), TCC_RELOCATE_AUTO) == -1)
 		{
 			print("[CppAPE] : couldn't relocate szal.c");
 			return false;

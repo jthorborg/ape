@@ -83,4 +83,7 @@ private:
 	Codes code;
 };
 
+void abort(const char reason);
+
+
 #endif
