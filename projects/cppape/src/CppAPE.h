@@ -92,7 +92,7 @@ namespace CppAPE
 		Status onEvent(Event * e) override;
 
 	private:
-
+		static RUNTIME_FUNCTION * LookupRuntimeFunction(DWORD64 pc, void * context);
 		static const cpl::Args ScriptCompiler::sizeTypeDefines;
 
 
@@ -107,7 +107,7 @@ namespace CppAPE
 
 		ScriptInstance * pluginData = nullptr;
 		PluginGlobalData * globalData = nullptr;
-
+		std::vector<byte> buffer;
 	};
 };
 

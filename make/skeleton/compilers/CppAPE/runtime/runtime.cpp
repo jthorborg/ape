@@ -100,6 +100,7 @@ extern "C"
 	APE_Status SCRIPT_API NAME_INIT(ScriptInstance * instance, APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
+		iface->abortPlugin(iface, "");
 		Processor * p = (Processor*)instance;
 		return p ? p->init() : Status(Status::Error);
 	}

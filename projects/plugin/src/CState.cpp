@@ -347,7 +347,7 @@ namespace APE
 	 *********************************************************************************************/
 	XWORD CState::structuredExceptionHandler(XWORD _code, CSystemException::eStorage & e, void * systemInformation)
 	{
-		BreakIfDebugged();
+		//BreakIfDebugged();
 
 		#ifdef __WINDOWS__
 			auto exceptCode = _code;

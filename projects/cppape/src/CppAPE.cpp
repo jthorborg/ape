@@ -235,16 +235,33 @@ namespace CppAPE
 		return Status::STATUS_OK;
 	}
 
+	RUNTIME_FUNCTION * ScriptCompiler::LookupRuntimeFunction(DWORD64 pc, void * context)
+	{
+
+		ScriptCompiler * c = (ScriptCompiler*)context;
+		auto base = pc - (DWORD64)c->buffer.data();
+		return {};
+	}
+
 	Status ScriptCompiler::initProject()
 	{
+
 		globalData = nullptr;
 		const TCCBindings::CompilerAccess compiler;
 
-		if (!compiler.relocate(state.get(), TCC_RELOCATE_AUTO))
+		const auto size = compiler.relocate(state.get(), nullptr);
+		if (size == -1)
+			return STATUS_ERROR;
+
+		buffer.resize(size);
+		if (compiler.relocate(state.get(), buffer.data()) == -1)
 		{
 			print("[CppAPE] : Error relocating compiled plugin.");
 			return Status::STATUS_ERROR;
 		}
+
+		RtlInstallFunctionTableCallback((DWORD64)buffer.data() | 0x3, (DWORD64)buffer.data(), buffer.size(), LookupRuntimeFunction, this, nullptr);
+
 
 		plugin.entrypoint 
 			= reinterpret_cast<decltype(plugin.entrypoint)>(compiler.getSymbol(state.get(), SYMBOL_INIT));
@@ -277,13 +294,13 @@ namespace CppAPE
 
 		#ifdef _DEBUG
 		char buf[8192];
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_INIT, compiler.getSymbol(state.get(), SYMBOL_INIT));
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p\n -> 0x%p + 0x%llX", SYMBOL_INIT, compiler.getSymbol(state.get(), SYMBOL_INIT), buffer.data(), (byte*)compiler.getSymbol(state.get(), SYMBOL_INIT) - buffer.data());
 		print(buf);
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_END, compiler.getSymbol(state.get(), SYMBOL_END));
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p\n -> 0x%p + 0x%llX", SYMBOL_END, compiler.getSymbol(state.get(), SYMBOL_END), buffer.data(), (byte*)compiler.getSymbol(state.get(), SYMBOL_END) - buffer.data());
 		print(buf);
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_PROCESS_REPLACE, compiler.getSymbol(state.get(), SYMBOL_PROCESS_REPLACE));
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p\n -> 0x%p + 0x%llX", SYMBOL_PROCESS_REPLACE, compiler.getSymbol(state.get(), SYMBOL_PROCESS_REPLACE), buffer.data(), (byte*)compiler.getSymbol(state.get(), SYMBOL_PROCESS_REPLACE) - buffer.data());
 		print(buf);
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_EVENT_HANDLER, compiler.getSymbol(state.get(), SYMBOL_EVENT_HANDLER));
+		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p\n -> 0x%p + 0x%llX", SYMBOL_EVENT_HANDLER, compiler.getSymbol(state.get(), SYMBOL_EVENT_HANDLER), buffer.data(), (byte*)compiler.getSymbol(state.get(), SYMBOL_EVENT_HANDLER) - buffer.data());
 		print(buf);
 
 

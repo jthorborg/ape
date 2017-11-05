@@ -583,7 +583,7 @@ namespace APE
 			};
 			auto fileLocations = new char *[1];
 			project->files = fileLocations;
-			if (getDocumentText(text) && text.length() != 0 && 
+			if (getDocumentText(text) && 
 				assignCStr(text, project->sourceString) &&
 				assignCStr(getProjectName(), project->projectName) &&
 				assignCStr(Misc::DirectoryPath(), project->rootPath) &&
