@@ -3,6 +3,7 @@
 #include <shared-src/tcc4ape/ScriptBindings.h>
 #include "ctorsdtors.h"
 #include <stdarg.h>
+#include <mathlib.h>
 
 APE_SharedInterface * lastIFace;
 FactoryBase::ProcessorCreater pluginCreater;
@@ -51,6 +52,25 @@ void abort(const char * reason)
 	lastIFace->abortPlugin(lastIFace, reason);
 
 }
+
+int fpclassify(double x) {
+	union { double f; uint64_t i; } u;
+	u.f = x;
+	int e = u.i >> 52 & 0x7ff;
+	if (!e) return u.i << 1 ? FP_SUBNORMAL : FP_ZERO;
+	if (e == 0x7ff) return u.i << 12 ? FP_NAN : FP_INFINITE;
+	return FP_NORMAL;
+}
+
+int fpclassify(float x) {
+	union { float f; uint32_t i; } u;
+	u.f = x;
+	int e = u.i >> 23 & 0xff;
+	if (!e) return u.i << 1 ? FP_SUBNORMAL : FP_ZERO;
+	if (e == 0xff) return u.i << 9 ? FP_NAN : FP_INFINITE;
+	return FP_NORMAL;
+}
+
 
 extern "C"
 {
