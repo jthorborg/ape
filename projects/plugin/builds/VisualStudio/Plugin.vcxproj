@@ -2207,12 +2207,15 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\cppape\builds\VisualStudio\CppAPE.vcxproj">
       <Project>{47bda949-c47f-4e4a-b112-b3d27fe4ade0}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\..\..\syswrap\builds\VisualStudio\syswrap.vcxproj">
       <Project>{46dd2fe0-78bc-489b-b114-4945451e446c}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\..\..\tcc4ape\builds\VisualStudio\Tcc4APE.vcxproj">
       <Project>{c8a8aa6a-edd3-4728-8e5d-d7804960fb77}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\..\..\tinycc\builds\VisualStudio\tinycc.vcxproj">
       <Project>{49b2c525-7c50-453d-99e9-65dde637c78f}</Project>

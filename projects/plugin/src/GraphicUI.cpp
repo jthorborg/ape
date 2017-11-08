@@ -39,6 +39,7 @@
 #include "ProjectEx.h"
 #include <stdio.h>
 #include "CQueueLabel.h"
+#include <chrono>
 
 namespace APE 
 {
@@ -583,11 +584,13 @@ namespace APE
 	{
 
 		Engine * _this = reinterpret_cast<Engine*>(effectPointer);
+
 		// messages should be explanatory
 		if(!_this)
 			return 0;
 		APE::GraphicUI * _gui = _this->getGraphicUI();
-	
+		auto start = std::chrono::high_resolution_clock::now();
+
 		APE::ProjectEx * project = _gui->externEditor->getProject();
 		if(!project)
 		{
@@ -605,7 +608,9 @@ namespace APE
 		_this->csys->setNewProject(project);
 
 		if(_this->csys->compileCurrentProject()) {
-			_gui->console->printLine(CColours::black, "[GUI] : Compiled successfully.");
+			auto delta = std::chrono::high_resolution_clock::now() - start;
+			auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
+			_gui->console->printLine(CColours::black, "[GUI] : Compiled successfully (%f ms).", time);
 			_gui->setStatusText("Compiled OK!", CColours::green, 2000);
 			_gui->bIsCompiling = false;
 			_gui->bIsCompiled = true;
