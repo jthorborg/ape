@@ -1,9 +1,9 @@
 #ifndef CPPAPE_MATHLIB_H
 #define CPPAPE_MATHLIB_H
 
-#include <limits.h>
-#include <stdint.h>
-#include <float.h>
+#include "tcc/limits.h"
+#include "tcc/stdint.h"
+#include "tcc/float.h"
 //#define HAS_F_VERSIONS
 
 

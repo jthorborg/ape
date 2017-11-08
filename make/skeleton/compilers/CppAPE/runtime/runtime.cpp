@@ -28,7 +28,7 @@ extern "C"
 	void abort();
 };
 
-int printf(char * fmt, ...)
+int printf(const char * fmt, ...)
 {
 	if (lastIFace == NULL)
 		return -1;
@@ -111,6 +111,12 @@ void *operator new(unsigned int am)
 {
 	return calloc(am, 1);
 }
+
+void *operator new(unsigned int am, void * loc)
+{
+	return loc;
+}
+
 
 void operator delete(void * loc)
 {

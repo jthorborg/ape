@@ -87,6 +87,18 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\complex.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\algorithm.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\string.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\string_view.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\assert.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

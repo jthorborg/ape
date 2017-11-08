@@ -13,10 +13,13 @@
 #define _countof(_Array) (sizeof(_Array) / sizeof(_Array[0]))
 #define __attribute__(x)
 #define _CRT_ERRNO_DEFINED
-#include <stddef.h>
+#include "tcc/_mingw.h"
+#undef __CRT_INLINE
+#define __CRT_INLINE inline
+#include "tcc/stddef.h"
 #include "shared-src/ape/SharedInterface.h"
 
-#undef __inline__
+//#undef __inline__
 
 #undef NULL
 #define NULL 0
@@ -28,6 +31,7 @@ enum
 	false, true
 };
 
+void *operator new(unsigned am, void * loc);
 
 inline size_t nextpow2(size_t current)
 {
@@ -43,7 +47,7 @@ size_t distance(const T * begin, const T * end)
 	return end - begin;
 }
 
-int printf(char * fmt, ...);
+int printf(const char * fmt, ...);
 APE_SharedInterface& getInterface();
 
 
@@ -82,8 +86,5 @@ struct Status
 private:
 	Codes code;
 };
-
-void abort(const char reason);
-
 
 #endif

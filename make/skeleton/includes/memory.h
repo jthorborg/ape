@@ -1,6 +1,8 @@
 #ifndef CPPAPE_MEMORY_H
 #define CPPAPE_MEMORY_H
 
+#include "tcc/memory.h"
+
 template<class T>
 class auto_ptr
 {
@@ -37,7 +39,7 @@ template<class T>
 class auto_array
 {
 public:
-	auto_array() { ptr = 0; }
+	auto_array() : ptr(0) { }
 	auto_array(T * instance) { ptr = instance; }
 	auto_array(auto_array<T>& other)
 	{
@@ -53,6 +55,7 @@ public:
 		ptr = newPtr;
 	}
 
+	const T& operator [] (size_t index) const { return ptr[index]; }
 	T& operator [] (size_t index) { return ptr[index]; }
 	~auto_array()
 	{

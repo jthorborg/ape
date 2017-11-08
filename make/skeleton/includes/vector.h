@@ -2,6 +2,7 @@
 #define CPPAPE_VECTOR_H
 
 #include "baselib.h"
+#include "algorithm.h"
 
 template<class T>
 class vector
@@ -95,6 +96,15 @@ public:
 		new (&ptr[vsize++]) T(el);
 	}
 
+	void pop_back()
+	{
+		if (vsize != 0)
+		{
+			ptr[vsize - 1].~T();
+			vsize--;
+		}
+	}
+
 	T* data()
 	{
 		return begin();
@@ -161,6 +171,13 @@ public:
 			ptr[i].~T();
 
 		vsize = 0;
+	}
+
+	void swap(vector<T>& other)
+	{
+		::swap(ptr, other.ptr);
+		::swap(vsize, other.vsize);
+		::swap(vcapacity, other.vcapacity);
 	}
 
 	~vector()
