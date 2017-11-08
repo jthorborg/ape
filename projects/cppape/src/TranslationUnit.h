@@ -219,6 +219,30 @@ namespace CppAPE
 				}
 			);
 
+			auto errorCfrontProcess = std::async(
+				[&]()
+				{
+					std::string comb;
+					std::string s;
+					while (std::getline(cfront.cerr(), s))
+						comb += "C++: " + s + "\n";
+
+					return comb;
+				}
+			);
+
+			auto errorPPProcess = std::async(
+				[&]()
+				{
+					std::string comb;
+					std::string s;
+					while (std::getline(pp.cerr(), s))
+						comb += "PP: " + s + "\n";
+
+					return comb;
+				}
+			);
+
 			pp.cin() << "#line 2 \"" << fs::path(name).filename() << "\"" << std::endl;
 			pp.cin() << "#line 1 \"" << fs::path(name).filename() << "\"" << std::endl;
 
@@ -228,13 +252,8 @@ namespace CppAPE
 			pipingProcess.wait();
 			resultProcess.wait();
 
-			std::string s;
-
-			while (std::getline(pp.cerr(), s))
-				error += "PP: " + s + "\n";
-
-			while (std::getline(cfront.cerr(), s))
-				error += "C++: " + s + "\n";
+			error += errorPPProcess.get();
+			error += errorCfrontProcess.get();
 
 			cfOut << translation << std::endl;
 
