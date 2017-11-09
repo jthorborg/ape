@@ -171,7 +171,7 @@
 	EXPORTED Status STD_API ReleaseProject	(CProject * p);
 	EXPORTED Status STD_API InitProject		(CProject * p);
 	EXPORTED Status STD_API ActivateProject	(CProject * p);
-	EXPORTED Status STD_API DisableProject	(CProject * p);
+	EXPORTED Status STD_API DisableProject	(CProject * p, int didMisbehave);
 	EXPORTED Status STD_API GetState		(CProject * p);
 	EXPORTED Status STD_API AddSymbol		(CProject * p, const char * name, void * mem);
 	EXPORTED Status	STD_API ProcessReplacing(CProject * p, float ** in, float ** out, int sampleFrames);
@@ -194,7 +194,7 @@
 			ReleaseProject(NULL);
 			InitProject(NULL);
 			ActivateProject(NULL);
-			DisableProject(NULL);
+			DisableProject(NULL, 0);
 			GetState(NULL);
 			AddSymbol(NULL, NULL, NULL);
 			ProcessReplacing(NULL, NULL, NULL, 0);

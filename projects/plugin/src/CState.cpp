@@ -130,12 +130,12 @@ namespace APE
 		Calls compilers disable function.
 
 	 *********************************************************************************************/
-	Status CState::disableProject()
+	Status CState::disableProject(bool didMisbehave)
 	{
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]
 			{
-				ret = generator->disableProject(this->curProject.get());
+				ret = generator->disableProject(this->curProject.get(), didMisbehave);
 			}
 		);
 		return ret;

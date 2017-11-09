@@ -94,7 +94,7 @@
 				safe wrappers around compiler
 			*/
 			Status activateProject();
-			Status disableProject();
+			Status disableProject(bool didMisbehave);
 			Status processReplacing(Float ** in, Float ** out, Int sampleFrames);
 			Status onEvent(Event * e);
 			/*

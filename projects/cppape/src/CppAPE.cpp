@@ -390,9 +390,12 @@ namespace CppAPE
 		return plugin.entrypoint(pluginData, getProject()->iface); 
 	}
 
-	Status ScriptCompiler::disableProject()
+	Status ScriptCompiler::disableProject(bool didMisbehave)
 	{
-		auto ret = plugin.exitpoint(pluginData, getProject()->iface); 
+		Status ret = Status::STATUS_OK;
+		
+		if(!didMisbehave)
+			ret = plugin.exitpoint(pluginData, getProject()->iface); 
 
 		if (!freeLocalMemory())
 			return Status::STATUS_ERROR;

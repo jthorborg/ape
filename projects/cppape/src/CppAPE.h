@@ -88,7 +88,7 @@ namespace CppAPE
 		Status releaseProject() override;
 		Status initProject() override;
 		Status activateProject() override;
-		Status disableProject() override;
+		Status disableProject(bool didMisbehave) override;
 		Status onEvent(Event * e) override;
 
 	private:

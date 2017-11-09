@@ -41,6 +41,7 @@
 	#include "Misc.h"
 	#include "CModule.h"
 	#include <ape/Events.h>
+	#include <ape/CompilerBindings.h>
 
 	namespace APE
 	{
@@ -50,37 +51,23 @@
 		/*
 			indexer for g_sExports
 		*/
-		enum EExports : unsigned
+		enum class ExportIndex
 		{
 			GetSymbol,
 			CompileProject,
-			SetErrorFunc,
-			FreeProject,
+			ReleaseProject,
 			InitProject,
+			ActivateProject,
+			DisableProject,
 			GetState,
 			AddSymbol,
-			processReplacing,
-			onEvent,
-			zzz,
-			eDummy
+			ProcessReplacing,
+			OnEvent,
+			end
+		};
 
-		};
-		/*
-			The exported symbol names for external compilers
-		*/
-		static const char * g_sExports[] =
-		{
-			"GetSymbol",
-			"CompileProject",
-			"ReleaseProject",
-			"InitProject",
-			"ActivateProject",
-			"DisableProject",
-			"GetState",
-			"AddSymbol",
-			"ProcessReplacing",
-			"OnEvent"
-		};
+		constexpr inline std::size_t MaxExports() { return static_cast<std::size_t>(ExportIndex::end); }
+
 		/*
 			A compiler instance.
 		*/
@@ -100,36 +87,23 @@
 
 			struct CBindings
 			{
-#pragma message("fix")
-				// c-bindings
-				typedef void *	(APE_STD_API * getSymbol_t)		(APE_Project * project, const char * symbol);
-				typedef Status	(APE_STD_API * compileProject_t)(APE_Project * project, const void * opaque, ErrorFunc errorFunc);
-				typedef Status	(APE_STD_API * releaseProject_t)(APE_Project * project);
-				typedef Status	(APE_STD_API * initProject_t)	(APE_Project * project);
-				typedef Status	(APE_STD_API * activateProject_t)(APE_Project * project);
-				typedef Status	(APE_STD_API * disableProject_t)(APE_Project * project);
-				typedef Status	(APE_STD_API * getState_t)		(APE_Project * project);
-				typedef Status	(APE_STD_API * addSymbol_t)		(APE_Project * project, const char * symbol, const void * mem);
-				typedef Status	(APE_STD_API * processReplacing_t)(APE_Project * project, Float ** in, Float ** out, Int sampleFrames);
-				typedef Status	(APE_STD_API * onEvent_t)		(APE_Project * project, APE_Event * );
-
 				bool valid;
 
 				union {
 					struct {
-						getSymbol_t getSymbol;
-						compileProject_t compileProject;
-						releaseProject_t releaseProject;
-						initProject_t initProject;
-						activateProject_t activateProject;
-						disableProject_t disableProject;
-						getState_t getState;
-						addSymbol_t addSymbol;
-						processReplacing_t processReplacing;
-						onEvent_t onEvent;
+						decltype(GetSymbol) * getSymbol;
+						decltype(CompileProject) * compileProject;
+						decltype(ReleaseProject) * releaseProject;
+						decltype(InitProject) * initProject;
+						decltype(ActivateProject) * activateProject;
+						decltype(DisableProject) * disableProject;
+						decltype(GetState) * getState;
+						decltype(AddSymbol) * addSymbol;
+						decltype(ProcessReplacing) * processReplacing;
+						decltype(OnEvent) * onEvent;
 					};
 					/* sizeof(previous struct) / sizeof (void*) */
-					void * _table[EExports::eDummy];
+					void * _table[MaxExports()];
 				};
 
 				bool loadBindings(CModule & module, const libconfig::Setting & exportSettings);
@@ -163,19 +137,6 @@
 			void setErrorFunc(ErrorFunc f, void * op);
 			void printError(const std::string & message);
 
-#pragma message("wtf")
-			template <typename type>
-				type getSymbol(ProjectEx * project, const std::string & name)
-				{
-					assert(0 && "Shouldn't reach this point (deprecated)");
-					return (type)nullptr;
-				}
-			template <typename type>
-				int addSymbol(ProjectEx * project, const std::string & name, type symbol) {
-					assert(0 && "Shouldn't reach this point (deprecated)");
-					return (type)nullptr;
-				}
-
 			/*
 				Important: Following functions must be RAII-free.
 				It should be considered that the system might throw
@@ -184,7 +145,7 @@
 			*/
 			Status activateProject(ProjectEx * project);
 			Status processReplacing(ProjectEx * project, Float ** in, Float ** out, Int sampleFrames);
-			Status disableProject(ProjectEx * project);
+			Status disableProject(ProjectEx * project, bool didMisbehave);
 			Status onEvent(ProjectEx * project, Event * e);
 
 			bool compileProject(ProjectEx * project);

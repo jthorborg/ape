@@ -370,33 +370,32 @@ namespace APE
 	 *********************************************************************************************/
 	void Engine::disablePlugin(bool fromEditor)
 	{
-		if(state == STATUS_READY) {
-			// else the processor might start while we are doing this
-			CMutex lockGuard(this);
-			status.bActivated = false;
-			try 
-			{
-				state = csys->disableProject(); 
-			} 
-			catch (const CState::CSystemException & e) 
-			{
-				gui->console->printLine(CColours::red,
-					"[Engine] : Exception 0x%X occured while disabling plugin: %s Plugin disabled.",
-					e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
-				gui->setStatusText("Plugin crashed!", CColours::red);
-				state = STATUS_ERROR;
-				pluginCrashed();
-			}
-			catch (const AbortException& e)
-			{
-				state = STATUS_DISABLED;
-				gui->setStatusText("Plugin aborted", CColours::orange);
-				gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
-			}
-			gui->console->printLine(CColours::black, state == STATUS_OK ?
-				"[Engine] : Plugin disabled without error." :
-				"[Engine] : Unexpected return value from onUnLoad(), plugin disabled.");
+		// else the processor might start while we are doing this
+		CMutex lockGuard(this);
+		status.bActivated = false;
+		try 
+		{
+			state = csys->disableProject(state != STATUS_READY);
+		} 
+		catch (const CState::CSystemException & e) 
+		{
+			gui->console->printLine(CColours::red,
+				"[Engine] : Exception 0x%X occured while disabling plugin: %s Plugin disabled.",
+				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
+			gui->setStatusText("Plugin crashed!", CColours::red);
+			state = STATUS_ERROR;
+			pluginCrashed();
 		}
+		catch (const AbortException& e)
+		{
+			state = STATUS_DISABLED;
+			gui->setStatusText("Plugin aborted", CColours::orange);
+			gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
+		}
+		gui->console->printLine(CColours::black, state == STATUS_OK ?
+			"[Engine] : Plugin disabled without error." :
+			"[Engine] : Unexpected return value from onUnLoad(), plugin disabled.");
+		
 		status.bActivated = false;
 		if(!fromEditor)
 			gui->setParameter(kActiveStateButton, 0.f);
@@ -602,13 +601,12 @@ namespace APE
 			}
 			catch (const AbortException& e)
 			{
-				state = STATUS_DISABLED;
 				// release lock of this, disablePlugin() needs to acquire it
 				lockGuard.release();
 				disablePlugin(false);
 
 				gui->setStatusText("Plugin aborted", CColours::orange);
-				gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
+				gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while processing samples: %s.", e.what());
 			};
 			// if its still activated (ie. no error in previous code, we copy contents from plugin into 
 			// buffer (this may seem weird to overwrite input with output, but thats how juce does it)

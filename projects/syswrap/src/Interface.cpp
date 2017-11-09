@@ -74,11 +74,11 @@ EXPORTED Status	STD_API ActivateProject(CProject * p)
 	_this->setProject(p);
 	return _this->activateProject();
 }
-EXPORTED Status	STD_API DisableProject(CProject * p) 
+EXPORTED Status	STD_API DisableProject(CProject * p, int didMisbehave) 
 {
 	CCompiler * _this = reinterpret_cast<CCompiler*>(p->userData);
 	_this->setProject(p);
-	return _this->disableProject();
+	return _this->disableProject(didMisbehave ? true : false);
 }
 EXPORTED Status	STD_API GetState(CProject * p) 
 {

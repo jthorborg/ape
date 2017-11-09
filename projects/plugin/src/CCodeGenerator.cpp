@@ -31,9 +31,27 @@
 #include "Engine.h"
 #include "Misc.h"
 #include "Settings.h"
+#include <cpl/Misc.h>
 
 namespace APE
 {
+	/*
+	The exported symbol names for external compilers
+	*/
+	static const char * g_sExports[] =
+	{
+		"GetSymbol",
+		"CompileProject",
+		"ReleaseProject",
+		"InitProject",
+		"ActivateProject",
+		"DisableProject",
+		"GetState",
+		"AddSymbol",
+		"ProcessReplacing",
+		"OnEvent"
+	};
+
 	// this is horrible kill me, but the definition might change
 	#define SUCCESS(x) (x == 0)
 
@@ -55,27 +73,34 @@ namespace APE
 			bool settingsIsValid = exportSettings.isGroup() && !strcmp(exportSettings.getName(), "exports");
 			const char * name;
 			valid = true;
-			for(unsigned i = 0; i < EExports::eDummy; ++i) {
-				name = nullptr;
-				// see if we can get a valid name out of our settings
-				if(settingsIsValid && exportSettings.exists(g_sExports[i]))
-				{
-					name  = exportSettings[g_sExports[i]].c_str();
-				}
-				// shortcircuiting avoids null-dereferencing
-				if(!name || (name && !name[0]))
-					name = g_sExports[i];
-				_table[i] = module.getFuncAddress(name);
 
-				if(!_table[i]) {
-					APE::Misc::CStringFormatter fmt;
-					fmt << "Error retrieving pointer for function " << g_sExports[i] << ". ";
-					fmt << "Specific name: " << name << ". Was settings valid? " << settingsIsValid << ".";
-					valid = false;
-					throw Misc::CStrException(fmt.str());
-					break;
+			cpl::foreach_uenum<ExportIndex>(
+				[&](auto i)
+				{
+					name = nullptr;
+					// see if we can get a valid name out of our settings
+					if (settingsIsValid && exportSettings.exists(g_sExports[i]))
+					{
+						name = exportSettings[g_sExports[i]].c_str();
+					}
+					// shortcircuiting avoids null-dereferencing
+					if (!name || (name && !name[0]))
+						name = g_sExports[i];
+					_table[i] = module.getFuncAddress(name);
+
+					if (!_table[i]) 
+					{
+						APE::Misc::CStringFormatter fmt;
+						fmt << "Error retrieving pointer for function " << g_sExports[i] << ". ";
+						fmt << "Specific name: " << name << ". Was settings valid? " << std::boolalpha << settingsIsValid << ".";
+						valid = false;
+						throw Misc::CStrException(fmt.str());
+					}
+
+
 				}
-			}
+			);
+
 			return valid;
 		}
 		bool CCompiler::initialize(const libconfig::Setting & languageSettings)
@@ -166,7 +191,7 @@ namespace APE
 				errorPrinter(opaque, std::string("[Generator] : " + message).c_str());
 
 		}
-		Status CCodeGenerator::disableProject(ProjectEx * project)
+		Status CCodeGenerator::disableProject(ProjectEx * project, bool didMisbehave)
 		{
 			if(!project) {
 				printError("Nullptr passed to disableProject!");
@@ -178,7 +203,7 @@ namespace APE
 			else if (project->state != CodeState::Activated) {
 				printError("Cannot disable project when state isn't activated.");
 			} else {
-				auto status = project->compiler->bindings.disableProject(project);
+				auto status = project->compiler->bindings.disableProject(project, didMisbehave ? 1 : 0);
 				if(SUCCESS(status))
 					project->state = CodeState::Disabled;
 				return status;

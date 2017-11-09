@@ -92,10 +92,7 @@ public:
 
 	complex<T>& operator/=(const complex<T>& other)
 	{
-		T conda = (other.im < 0 ? -other.im : +other.im);
-		T condb = (other.re < 0 ? -other.re : +other.re);
-
-		if (conda < condb)
+		if (abs(other.im) < abs(other.re))
 		{
 			const T wr = other.im / other.re;
 			const T wd = other.re + wr * other.im;

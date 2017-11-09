@@ -269,10 +269,11 @@ namespace syswrap
 		return plugin.entrypoint(reinterpret_cast<PluginData*>(plugin_data),
 			reinterpret_cast<CSharedInterface*>(project->iface));
 	}
-	Status CCompiler::disableProject()
+	Status CCompiler::disableProject(bool didMisbehave)
 	{
-		auto ret = plugin.exitpoint(reinterpret_cast<PluginData*>(plugin_data),
-			reinterpret_cast<CSharedInterface*>(project->iface));
+		Status ret = Status::STATUS_OK;
+		if(!didMisbehave)
+			ret = plugin.exitpoint(reinterpret_cast<PluginData*>(plugin_data), reinterpret_cast<CSharedInterface*>(project->iface));
 		auto ret2 = freeLocalMemory();
 		if (!ret2)
 			return Status::STATUS_ERROR;

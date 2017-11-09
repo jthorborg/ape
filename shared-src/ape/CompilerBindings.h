@@ -40,7 +40,7 @@ extern  "C"
 	EXPORTED APE_Status APE_API ReleaseProject(APE_Project * p);
 	EXPORTED APE_Status APE_API InitProject(APE_Project * p);
 	EXPORTED APE_Status APE_API ActivateProject(APE_Project * p);
-	EXPORTED APE_Status APE_API DisableProject(APE_Project * p);
+	EXPORTED APE_Status APE_API DisableProject(APE_Project * p, int misbehaved);
 	EXPORTED APE_Status APE_API GetState(APE_Project * p);
 	EXPORTED APE_Status APE_API AddSymbol(APE_Project * p, const char * name, void * mem);
 	EXPORTED APE_Status	APE_API ProcessReplacing(APE_Project * p, float ** in, float ** out, int sampleFrames);

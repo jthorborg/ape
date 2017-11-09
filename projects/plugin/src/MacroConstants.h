@@ -34,6 +34,8 @@
 
 	#include <stdint.h>
 
+	#define EXPORTED
+
 	#define _CONSOLE_CLEAR_HISTORY
 	#define __xstring(x) #x
 	#define __tostring(x) __xstring(x)

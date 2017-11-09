@@ -84,11 +84,11 @@ extern "C"
 		return compiler->activateProject();
 	}
 
-	EXPORTED Status	APE_API DisableProject(Project * p)
+	EXPORTED Status	APE_API DisableProject(Project * p, int misbehaved)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
-		return compiler->disableProject();
+		return compiler->disableProject(misbehaved ? true : false);
 	}
 
 	EXPORTED Status	APE_API GetState(Project * p)

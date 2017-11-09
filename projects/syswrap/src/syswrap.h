@@ -117,7 +117,7 @@ namespace syswrap
 		Status releaseProject();
 		Status initProject();
 		Status activateProject();
-		Status disableProject();
+		Status disableProject(bool didMisbehave);
 		Status onEvent(CEvent * e);
 	};
 };

@@ -71,7 +71,7 @@
 			virtual Status releaseProject() = 0;
 			virtual Status initProject() = 0;
 			virtual Status activateProject() = 0;
-			virtual Status disableProject() = 0;
+			virtual Status disableProject(bool didMisbehave = false) = 0;
 
 			virtual Status onEvent(Event * e)
 			{
