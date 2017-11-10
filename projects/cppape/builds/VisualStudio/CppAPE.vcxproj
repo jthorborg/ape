@@ -371,6 +371,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\iterator.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\mathlib.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\memory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -396,6 +397,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\string.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\string_view.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\utility.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\vector.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tests|Win32'">true</ExcludedFromBuild>

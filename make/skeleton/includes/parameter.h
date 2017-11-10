@@ -3,6 +3,7 @@
 
 #include "baselib.h"
 #include "mathlib.h"
+#include "string.h"
 
 template<class Type>
 class Param;
@@ -103,24 +104,29 @@ class Param
 
 public:
 
+	Param()
+		: name("Unnamed")
+	{
+		internalID = createSuitableExternalParameter(name, "", range, &storage, Type());
+	}
 
-	Param(const char * paramName = NULL, Range parameterRange = defaultRange())
+	Param(const string_view& paramName, Range parameterRange = defaultRange())
 		: name(paramName), range(parameterRange)
 	{
-		if (name == NULL)
+		if (name.size() == 0)
 			name = "Unnamed";
 
-		internalID = createSuitableExternalParameter(name, "", parameterRange, &storage, Type());
+		internalID = createSuitableExternalParameter(name, "", range, &storage, Type());
 
 	}
 
-	Param(const char * paramName, const char * unit, Range parameterRange = defaultRange())
+	Param(const string_view& paramName, const string_view& unit, Range parameterRange = defaultRange())
 		: name(paramName), range(parameterRange)
 	{
-		if (name == NULL)
+		if (name.size() == 0)
 			name = "Unnamed";
 
-		internalID = createSuitableExternalParameter(name, unit, parameterRange, &storage, Type());
+		internalID = createSuitableExternalParameter(name, unit, range, &storage, Type());
 	}
 
 	operator Type() const
@@ -137,35 +143,35 @@ public:
 
 private:
 
-	int createSuitableExternalParameter(const char * name, const char * unit, const Range& range, float * storage, float tag)
+	int createSuitableExternalParameter(const string_view& name, const string_view& unit, const Range& range, float * storage, float tag)
 	{
 		(void)tag;
-		return getInterface().createRangeKnob(&getInterface(), name, unit, storage, range.getScaler(false), range.min, range.max);
+		return getInterface().createRangeKnob(&getInterface(), name.c_str(), unit.c_str(), storage, range.getScaler(false), range.min, range.max);
 	}
 
-	int createSuitableExternalParameter(const char * name, const char * unit, const Range& range, float * storage, double tag)
+	int createSuitableExternalParameter(const string_view& name, const string_view& unit, const Range& range, float * storage, double tag)
 	{
 		(void)tag;
-		return getInterface().createRangeKnob(&getInterface(), name, unit, storage, range.getScaler(false), range.min, range.max);
+		return getInterface().createRangeKnob(&getInterface(), name.c_str(), unit.c_str(), storage, range.getScaler(false), range.min, range.max);
 	}
 
-	int createSuitableExternalParameter(const char * name, const char * unit, const Range& range, float * storage, int tag)
+	int createSuitableExternalParameter(const string_view& name, const string_view& unit, const Range& range, float * storage, int tag)
 	{
 		(void)tag;
-		return getInterface().createRangeKnob(&getInterface(), name, unit, storage, range.getScaler(true), range.min, range.max);
+		return getInterface().createRangeKnob(&getInterface(), name.c_str(), unit.c_str(), storage, range.getScaler(true), range.min, range.max);
 	}
 
-	int createSuitableExternalParameter(const char * name, const char * unit, const Range& range, float * storage, bool tag)
+	int createSuitableExternalParameter(const string_view& name, const string_view& unit, const Range& range, float * storage, bool tag)
 	{
 		(void)unit;
 		(void)range;
 		(void)storage;
 		(void)tag;
-		return getInterface().createToggle(&getInterface(), name, storage);
+		return getInterface().createToggle(&getInterface(), name.c_str(), storage);
 	}
 
 	int internalID;
-	const char * name;
+	string name;
 	Range range;
 	float storage;
 };

@@ -23,7 +23,11 @@ public:
 		pend = end;
 	}
 
+	string_view() : pbegin(""), pend(pbegin) {}
+
 	string_view(const string_view& other) : pbegin(other.pbegin), pend(other.pend) {}
+
+	static string_view empty() { return ""; }
 
 	size_t size() const { return pend - pbegin; }
 	const char * c_str() const { return pbegin; }

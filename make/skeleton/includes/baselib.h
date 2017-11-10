@@ -41,12 +41,6 @@ inline size_t nextpow2(size_t current)
 	return p;
 }
 
-template<class T>
-size_t distance(const T * begin, const T * end)
-{
-	return end - begin;
-}
-
 int printf(const char * fmt, ...);
 APE_SharedInterface& getInterface();
 
