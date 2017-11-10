@@ -32,9 +32,7 @@
 
 	#include "MacroConstants.h"
 	#include <exception>
-	#include <ape/APE.h>
-
-	struct APE_SharedInterface;
+	#include <ape/SharedInterface.h>
 
 	namespace APE
 	{
@@ -79,7 +77,7 @@
 		/// The memory allocation routine used by the hosted code. It's wrapped here so we can change
 		/// the routine at will.At some point, register all allocations in a list for free'ing at exit.
 		/// </summary>
-		void *		APE_API			alloc(APE_SharedInterface * iface, size_t size);
+		void *		APE_API			alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size);
 		/// <summary>
 		/// Frees a pointer to an earlier call to alloc. Do not mix new/delete/malloc/free with these 
 		/// functions!!

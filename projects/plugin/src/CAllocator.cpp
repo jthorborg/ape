@@ -43,7 +43,7 @@ namespace APE
 		Allocates memsize bytes and returns them. Returns nullptr on failure.
 
 	 *********************************************************************************************/
-	void * CAllocator::alloc(size_t memsize)
+	void * CAllocator::alloc(CAllocator::Label l, std::size_t memsize)
 	{
 		// calculate needed size.
 		size_t size = sizeof(mem_block) + memsize + sizeof(mem_block::mem_end);
@@ -62,6 +62,7 @@ namespace APE
 		// zero out memory
 		memset(m, 0, size);
 		mem_block * header = reinterpret_cast<mem_block *>(m);
+		header->memLabel = l;
 		header->totalSize = size;
 		header->end = reinterpret_cast<mem_block::mem_end *>
 			(		// end = start + size - size of end header
@@ -69,6 +70,7 @@ namespace APE
 			);
 		// set a unique value in the end to so we can check if memory has been overwritten.
 		header->end->ncheck = end_marker;
+		cpl::CMutex lock(this);
 		allocations.push_back(header);
 		return header->getMemory();
 	}
@@ -82,6 +84,9 @@ namespace APE
 	{
 		if (!block)
 			return nullptr;
+
+		cpl::CMutex lock(this);
+		
 		mem_block * header = reinterpret_cast<mem_block *> 
 			(	// the header is located before the actual block of memory, so subtract that value.
 				reinterpret_cast<char*>(block) - sizeof(mem_block)
@@ -100,6 +105,7 @@ namespace APE
 	{
 		mem_it ret_it;
 		bool found(false);
+		cpl::CMutex lock(this);
 
 		for(ret_it = allocations.begin(); ret_it != allocations.end(); ret_it++) {
 
@@ -120,6 +126,8 @@ namespace APE
 	void CAllocator::free(void * block) {
 		if(!block)
 			return;
+
+		cpl::CMutex lock(this);
 		mem_block * header = headerFromBlock(block);
 		if(!header)
 			return;
@@ -133,6 +141,7 @@ namespace APE
 	 *********************************************************************************************/
 	void CAllocator::clear()
 	{
+		cpl::CMutex lock(this);
 		for(auto it = allocations.begin(); it != allocations.end(); it++) {
 			std::free(*it);
 		}

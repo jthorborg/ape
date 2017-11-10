@@ -36,12 +36,17 @@
 	#include <list>
 	#include <cstdlib>
 	#include "MacroConstants.h"
+	#include <ape/SharedInterface.h>
+	#include <cpl/CMutex.h>
 
 	namespace APE 
 	{
 
-		class CAllocator
+		class CAllocator : private cpl::CMutex::Lockable
 		{
+		public:
+			using Label = APE_AllocationLabel;
+
 		private: 
 
 			static const unsigned int end_marker = 0xBADC0DE; // lulz
@@ -62,7 +67,9 @@
 				};
 				// sizeof start of header + memoryblock + mem_end
 				std::size_t totalSize;
+				Label memLabel;
 				mem_end * end;
+
 				// holded memory is after this block, so we add the size of this block to it's pointer.
 				void * getMemory() { return reinterpret_cast<char*>(this) + sizeof(*this); }
 			};
@@ -72,12 +79,12 @@
 
 		public:
 			CAllocator(unsigned align = 8);
-			void * alloc(size_t memsize);
+			void * alloc(Label l, size_t memsize);
 			
 			template <typename T> 
-				T * alloc()
+				T * alloc(Label l)
 				{
-					return reinterpret_cast<T*> (this->alloc(sizeof (T)));
+					return reinterpret_cast<T*> (this->alloc(l, sizeof (T)));
 				}
 
 

@@ -33,6 +33,13 @@
 
 	#include "APE.h"
 
+	enum APE_AllocationLabel
+	{
+		APE_Alloc_Buffer,
+		APE_Alloc_Tiny,
+		APE_Alloc_Temp
+	};
+
 
 	struct APE_SIExtra
 	{
@@ -52,7 +59,7 @@
 		int			(APE_API * createKnob)		(struct APE_SharedInterface * iface, const char * name, float * extVal, int type);
 		long long	(APE_API * timerGet)		(struct APE_SharedInterface * iface);
 		double		(APE_API * timerDiff)		(struct APE_SharedInterface * iface, long long time);
-		void *		(APE_API * alloc)			(struct APE_SharedInterface * iface, size_t size);
+		void *		(APE_API * alloc)			(struct APE_SharedInterface * iface, APE_AllocationLabel label, size_t size);
 		void		(APE_API * free)			(struct APE_SharedInterface * iface, void * ptr);
 		int			(APE_API * createKnobEx)	(struct APE_SharedInterface * iface, const char * name, float * extVal, char * values, char * unit);
 		void		(APE_API * setInitialDelay)	(struct APE_SharedInterface * iface, int samples);

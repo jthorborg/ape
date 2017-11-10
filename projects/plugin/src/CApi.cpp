@@ -244,10 +244,10 @@ namespace APE
 		return ret;
 	}
 
-	void * APE_API alloc(APE_SharedInterface * iface, size_t size) 
+	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size) 
 	{
 		CAPI_SANITY_CHECK();
-		return IEx::upcast(*iface).getCState().getPluginAllocator().alloc(size);
+		return IEx::upcast(*iface).getCState().getPluginAllocator().alloc(label, size);
 	}
 
 	void APE_API free(APE_SharedInterface * iface, void * ptr) 

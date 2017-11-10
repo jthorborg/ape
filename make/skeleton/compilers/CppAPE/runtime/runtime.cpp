@@ -21,9 +21,6 @@ APE_SharedInterface& getInterface()
 
 extern "C"
 {
-	void * malloc(size_t size);
-	void * calloc(size_t size, size_t count);
-	void free(void * pointer);
 	int vsnprintf(char * s, size_t n, const char * format, va_list arg);
 	void abort();
 };
@@ -109,7 +106,7 @@ extern "C"
 
 void *operator new(unsigned int am)
 {
-	return calloc(am, 1);
+	return lastIFace->alloc(lastIFace, APE_Alloc_Tiny, am);
 }
 
 void *operator new(unsigned int am, void * loc)
@@ -120,7 +117,7 @@ void *operator new(unsigned int am, void * loc)
 
 void operator delete(void * loc)
 {
-	free(loc);
+	lastIFace->free(lastIFace, loc);
 }
 
 extern "C"

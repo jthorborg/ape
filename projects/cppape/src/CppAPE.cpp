@@ -394,11 +394,16 @@ namespace CppAPE
 	{
 		Status ret = Status::STATUS_OK;
 		
-		if(!didMisbehave)
-			ret = plugin.exitpoint(pluginData, getProject()->iface); 
+		if (!didMisbehave)
+		{
+			ret = plugin.exitpoint(pluginData, getProject()->iface);
 
-		if (!freeLocalMemory())
-			return Status::STATUS_ERROR;
+			if (!freeLocalMemory())
+				return Status::STATUS_ERROR;
+		}
+		
+		pluginData = nullptr;
+		
 
 		return ret;
 	}
