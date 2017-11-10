@@ -1491,33 +1491,6 @@
     <ClCompile Include="..\..\src\CExclusiveFile.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\AAX\juce_AAX_Wrapper.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode1.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode2.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_DigiCode3.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_WinUtilities.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_Wrapper.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp">
-      <Filter>Juce Library Code\Plugin Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp">
       <Filter>Juce Library Code\Plugin Wrappers</Filter>
     </ClCompile>
@@ -2967,9 +2940,6 @@
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Misc.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\VSTGUISupport.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ButtonDefinitions.h">
