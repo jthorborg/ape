@@ -51,12 +51,12 @@ namespace cpl
 	#endif
 };
 
-APE::ProtoCompiler * CreateCompiler()
+ape::ProtoCompiler * CreateCompiler()
 {
 	return new CppAPE::ScriptCompiler();
 }
 
-void DeleteCompiler(APE::ProtoCompiler * toBeDeleted)
+void DeleteCompiler(ape::ProtoCompiler * toBeDeleted)
 {
 	delete toBeDeleted;
 }

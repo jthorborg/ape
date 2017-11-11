@@ -5,7 +5,7 @@
 
 TEST_CASE("All bindings are resolved", "[SharedInterface]")
 {
-	using namespace APE;
+	using namespace ape;
 	using namespace cpl;
 
 	BindingsInterfaceResolver resolver;
@@ -30,7 +30,7 @@ TEST_CASE("All bindings are resolved", "[SharedInterface]")
 
 TEST_CASE("All API functions throws without instance pointers", "[SharedInterface]")
 {
-	using namespace APE;
+	using namespace ape;
 	using namespace cpl;
 
 	BindingsInterfaceResolver resolver;

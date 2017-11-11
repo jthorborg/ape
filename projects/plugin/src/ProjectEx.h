@@ -34,7 +34,7 @@
 
 	#include <ape/Project.h>
 
-	namespace APE
+	namespace ape
 	{
 		struct CCompiler;
 		struct CSharedInterface;

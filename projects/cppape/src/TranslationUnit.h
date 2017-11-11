@@ -37,7 +37,7 @@
 namespace CppAPE
 {
 	namespace fs = std::experimental::filesystem;
-	using namespace APE;
+	using namespace ape;
 
 	class TranslationUnit
 	{

@@ -27,15 +27,15 @@
 
 *************************************************************************************/
 
-#include "APE.h"
+#include "ape.h"
 #include "ProtoCompiler.hpp"
 #include "Project.h"
 #include "CompilerBindings.h"
 
-APE::ProtoCompiler * CreateCompiler();
-void DeleteCompiler(APE::ProtoCompiler * toBeDeleted);
+ape::ProtoCompiler * CreateCompiler();
+void DeleteCompiler(ape::ProtoCompiler * toBeDeleted);
 
-using namespace APE;
+using namespace ape;
 
 extern "C" 
 {

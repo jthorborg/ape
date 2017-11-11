@@ -202,7 +202,7 @@
 	#endif
 
 	// program types
-	namespace APE
+	namespace ape
 	{
 		#ifdef _DOUBLE_PRECISION
 			typedef double Float;

@@ -8,10 +8,10 @@
 
 TEST_CASE("All API functions are callable without crashes with invalid arguments", "[SharedInterface]")
 {
-	using namespace APE;
+	using namespace ape;
 	using namespace cpl;
 
-	auto engine = std::make_unique<APE::Engine>();
+	auto engine = std::make_unique<ape::Engine>();
 
 	auto csys = engine->getCState();
 

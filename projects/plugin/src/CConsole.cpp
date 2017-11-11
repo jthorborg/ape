@@ -37,7 +37,7 @@
 #include <cctype>
 #include <sstream>
 
-namespace APE
+namespace ape
 {
 	/*********************************************************************************************
 	 

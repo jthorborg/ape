@@ -39,7 +39,7 @@
 #include "CConsole.h"
 #include <sstream>
 
-namespace APE
+namespace ape
 {
 	
 	CState::StaticData CState::staticData;
@@ -61,7 +61,7 @@ namespace APE
 	{
 		if (curProject)  
 		{
-			generator->releaseProject(curProject.get());
+			generator->releaseProject(*curProject);
 		}
 
 		unregisterHandlers();
@@ -83,7 +83,7 @@ namespace APE
 		Getter for the plugin allocator.
 
 	 *********************************************************************************************/
-	APE::CAllocator & CState::getPluginAllocator() 
+	ape::CAllocator & CState::getPluginAllocator() 
 	{
 		return pluginAllocator;
 	}
@@ -92,7 +92,7 @@ namespace APE
 		Getter for the protected memory.
 
 	 *********************************************************************************************/
-	std::vector<APE::CMemoryGuard> & CState::getPMemory() 
+	std::vector<ape::CMemoryGuard> & CState::getPMemory() 
 	{
 		return protectedMemory;
 	}
@@ -104,11 +104,14 @@ namespace APE
 	 *********************************************************************************************/
 	bool CState::compileCurrentProject()
 	{
-		this->curProject->iface = sharedObject.get();
-		if(!generator->compileProject(this->curProject.get()))
-			return false;
-		if(!generator->initProject(this->curProject.get()))
-			return false;
+		if (curProject)
+		{
+			this->curProject->iface = sharedObject.get();
+			if (!generator->compileProject(*curProject))
+				return false;
+			if (!generator->initProject(*curProject))
+				return false;
+		}
 		return true;
 	}
 	/*********************************************************************************************
@@ -121,7 +124,7 @@ namespace APE
 		Status ret = Status::STATUS_ERROR;
 		this->RunProtectedCode( [&]
 			{
-				ret = generator->activateProject(this->curProject.get());
+				ret = generator->activateProject(*curProject);
 			}
 		);
 		return ret;
@@ -134,11 +137,16 @@ namespace APE
 	Status CState::disableProject(bool didMisbehave)
 	{
 		Status ret = Status::STATUS_ERROR;
-		this->RunProtectedCode( [&]
+		
+		if (curProject)
+		{
+			this->RunProtectedCode([&]
 			{
-				ret = generator->disableProject(this->curProject.get(), didMisbehave);
+				ret = generator->disableProject(*curProject, didMisbehave);
 			}
-		);
+			);
+		}
+
 		return ret;
 	}
 	/*********************************************************************************************
@@ -149,11 +157,14 @@ namespace APE
 	Status CState::processReplacing(Float ** in, Float ** out, Int sampleFrames)
 	{
 		Status ret = Status::STATUS_ERROR;
-		this->RunProtectedCode( [&]
+		if (curProject)
+		{
+			this->RunProtectedCode([&]
 			{
-				ret = generator->processReplacing(this->curProject.get(), in, out, sampleFrames);
+				ret = generator->processReplacing(*curProject, in, out, sampleFrames);
 			}
-		);
+			);
+		}
 		return ret;
 
 	}
@@ -165,11 +176,14 @@ namespace APE
 	Status CState::onEvent(Event * e)
 	{
 		Status ret = Status::STATUS_ERROR;
-		this->RunProtectedCode( [&]
+		if (curProject)
+		{
+			this->RunProtectedCode([&]
 			{
-				ret = generator->onEvent(this->curProject.get(), e);
+				ret = generator->onEvent(*curProject, e);
 			}
-		);
+			);
+		}
 		return ret;
 	}
 	/*********************************************************************************************
@@ -177,11 +191,11 @@ namespace APE
 		Releases old project and updates it to new one. Does not check whether project is used!!
 
 	 *********************************************************************************************/
-	void CState::setNewProject(APE::ProjectEx * project)
+	void CState::setNewProject(ape::ProjectEx * project)
 	{
 		if(curProject)  
 		{
-			generator->releaseProject(curProject.get());
+			generator->releaseProject(*curProject);
 		}
 		curProject.reset(project);
 	}

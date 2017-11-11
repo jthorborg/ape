@@ -66,7 +66,7 @@
 	} APE_Status;
 	
 	#if defined(__cplusplus) && !defined(__cfront)
-		namespace APE
+		namespace ape
 		{
 			using Status = APE_Status;
 			using ScaleFunc = APE_ScaleFunc;

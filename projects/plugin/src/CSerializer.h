@@ -39,7 +39,7 @@
 	#include <cpl/CThread.h>
 	#include "CCodeEditor.h"
 
-	namespace APE
+	namespace ape
 	{
 		/*
 			It is of pretty high importance to standardize the layout of this 

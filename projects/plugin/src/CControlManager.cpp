@@ -33,7 +33,7 @@
 
 #include "Engine.h"
 
-namespace APE {
+namespace ape {
 
 	/*********************************************************************************************
 
@@ -561,7 +561,7 @@ namespace APE {
 		Adds a ranged knob
 
 	 *********************************************************************************************/
-	int CPluginCtrlManager::addKnob(const char * name, const char * unit, float * extVal, APE::ScaleFunc cb, float min, float max) 
+	int CPluginCtrlManager::addKnob(const char * name, const char * unit, float * extVal, ape::ScaleFunc cb, float min, float max) 
 	{
 		if(!gridManager.full()) {
 			int _tag = getNextTag();

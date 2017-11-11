@@ -40,7 +40,7 @@
 	#include "UserControls.h"
 	#include "CApi.h"
 
-	namespace APE 
+	namespace ape 
 	{
 
 		class Engine;
@@ -151,7 +151,7 @@
 			int addMeter(const char * name, float * extVal);
 			int addToggle(const char * name, float * extVal);
 			int addPlot(const char * name, const float * const vals, unsigned int numVals);
-			int addKnob(const char * name, const char * unit, float * val, APE::ScaleFunc cb, float min, float max);
+			int addKnob(const char * name, const char * unit, float * val, ape::ScaleFunc cb, float min, float max);
 			
 			virtual void reset();
 		};

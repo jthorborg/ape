@@ -44,7 +44,7 @@
 		#include "../JuceLibraryCode/JuceHeader.h"
 	#endif
 
-	namespace APE
+	namespace ape
 	{
 
 		enum GUI_RESOURCE

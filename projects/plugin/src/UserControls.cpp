@@ -36,7 +36,7 @@
 #include <cpl/CMutex.h>
 #include <cpl/Mathext.h>
 
-namespace APE {
+namespace ape {
 	
 	
 	#define __CPLOT_ADD_BORDERS
@@ -397,7 +397,7 @@ namespace APE {
 		repaint();
 	}
 	/*********************************************************************************************/
-	CRangeKnob::CRangeKnob(const CRect & _where, const char * name, const char * _unit, float * extVal, APE::ScaleFunc scaleCB, float _min, float _max)
+	CRangeKnob::CRangeKnob(const CRect & _where, const char * name, const char * _unit, float * extVal, ape::ScaleFunc scaleCB, float _min, float _max)
 		: CKnobEx(_where, name, type::ft, extVal), extScale(scaleCB), _min(_min), _max(_max)
 	{
 
@@ -414,38 +414,13 @@ namespace APE {
 	}
 	/*********************************************************************************************/
 
-	/*
-		On windows 64 bit, TCC expects floats and doubles in registers r6++
-		This is very weird. This functions bridges those two calling conventions.
-		It should put float arguments into rcx, rdx and r8 and xmm0 - xmm2.
-		With a bit of luck, it should work for both targets.
-		This hack is beyond dirty. Hope for a fix from tcc team (i can't even compile it here on windows).
-	*/
-	template<typename sseType>
-		sseType TCCAssemblyHelper(ScaleFunc cb, sseType val, sseType _min, sseType _max)
-		{
-			sseType xmm0(val), xmm1(_min), xmm2(_max);
-			long long rcx, rdx, r8;
-			rcx = *(long long*)&xmm0;
-			rdx = *(long long*)&xmm1;
-			r8 = *(long long*)&xmm2;
-
-			typedef float(*interMedFunc)(long long rcx, long long rdx, long long r8, float xmm0, float xmm1, float xmm2);
-
-			interMedFunc helperFunc = reinterpret_cast<interMedFunc>(cb);
-			return helperFunc(rcx, rdx, r8, xmm0, xmm1, xmm2);
-		}
-
 	void CRangeKnob::onValueChange()
 	{
 		float val = bGetValue();
 		char buf[100];
 		float finalValue;
 		if (extScale)
-			if (APE::Globals::ApplyTCCConvHack)
-				finalValue = TCCAssemblyHelper(extScale, val, _min, _max);
-			else
-				finalValue = extScale(val, _min, _max);
+			finalValue = extScale(val, _min, _max);
 		else
 			finalValue = val;
 

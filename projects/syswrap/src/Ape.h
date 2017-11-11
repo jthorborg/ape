@@ -120,7 +120,7 @@
 		*/
 		char_t * workingDirectory;
 		/*
-			Root directory of APE
+			Root directory of ape
 		*/
 		char_t * rootPath;
 		/*

@@ -33,7 +33,7 @@
 #include <cpl/Misc.h>
 #include "Settings.h"
 
-namespace APE
+namespace ape
 {
 	/*
 	The exported symbol names for external compilers
@@ -52,359 +52,320 @@ namespace APE
 		"OnEvent"
 	};
 
-	// this is horrible kill me, but the definition might change
-	#define SUCCESS(x) (x == 0)
-
-		/*
-			Inits all bindings in this CBinding from module.
-			If Setting is valid, it is expected to be of this format:
+	/*
+		Inits all bindings in this CBinding from module.
+		If Setting is valid, it is expected to be of this format:
+			...
+			exports:
+			{
+				errorFunc = "_@4errorFunc";
 				...
-				exports:
+			}
+		And allows to specify different names/decorations than default.
+		If key and value is not found, it will default to the same value in
+		g_sExports.
+	*/
+	bool CCompiler::CBindings::loadBindings(cpl::CModule & module, const libconfig::Setting & exportSettings)
+	{
+		bool settingsIsValid = exportSettings.isGroup() && !strcmp(exportSettings.getName(), "exports");
+		const char * name;
+		valid = true;
+
+		cpl::foreach_uenum<ExportIndex>(
+			[&](auto i)
+			{
+				name = nullptr;
+				// see if we can get a valid name out of our settings
+				if (settingsIsValid && exportSettings.exists(g_sExports[i]))
 				{
-					errorFunc = "_@4errorFunc";
-					...
+					name = exportSettings[g_sExports[i]].c_str();
 				}
-			And allows to specify different names/decorations than default.
-			If key and value is not found, it will default to the same value in
-			g_sExports.
-		*/
-		bool CCompiler::CBindings::loadBindings(cpl::CModule & module, const libconfig::Setting & exportSettings)
-		{
-			bool settingsIsValid = exportSettings.isGroup() && !strcmp(exportSettings.getName(), "exports");
-			const char * name;
-			valid = true;
+				// shortcircuiting avoids null-dereferencing
+				if (!name || (name && !name[0]))
+					name = g_sExports[i];
+				_table[i] = module.getFuncAddress(name);
 
-			cpl::foreach_uenum<ExportIndex>(
-				[&](auto i)
+				if (!_table[i]) 
 				{
-					name = nullptr;
-					// see if we can get a valid name out of our settings
-					if (settingsIsValid && exportSettings.exists(g_sExports[i]))
-					{
-						name = exportSettings[g_sExports[i]].c_str();
-					}
-					// shortcircuiting avoids null-dereferencing
-					if (!name || (name && !name[0]))
-						name = g_sExports[i];
-					_table[i] = module.getFuncAddress(name);
-
-					if (!_table[i]) 
-					{
-						std::stringstream fmt;
-						fmt << "Error retrieving pointer for function " << g_sExports[i] << ". ";
-						fmt << "Specific name: " << name << ". Was settings valid? " << std::boolalpha << settingsIsValid << ".";
-						valid = false;
-						throw std::runtime_error(fmt.str());
-					}
-
-
-				}
-			);
-
-			return valid;
-		}
-		bool CCompiler::initialize(const libconfig::Setting & languageSettings)
-		{
-			if(!initialized) {
-
-				compilerName = languageSettings["name"].c_str();
-				#ifdef APE_CHECK_FOR_TCC_HACK
-					if (Globals::CheckForTCC && compilerName.find_first_of("tcc") != std::string::npos)
-					{
-						Globals::ApplyTCCConvHack = true;
-					}
-				#endif
-				compilerPath = languageSettings["path"].c_str();
-				language = languageSettings.getParent().getName();
-				// loop over extensions and insert into this::extensions
-
-				// more checks on this.
-				const libconfig::Setting & settings = languageSettings["exports"];
-
-				if(!compilerPath.length()) {
 					std::stringstream fmt;
-					fmt << "Invalid (empty) path for compiler \'" << compilerName << "\' for language \'"
-						<<  language << "\'.";
+					fmt << "Error retrieving pointer for function " << g_sExports[i] << ". ";
+					fmt << "Specific name: " << name << ". Was settings valid? " << std::boolalpha << settingsIsValid << ".";
+					valid = false;
 					throw std::runtime_error(fmt.str());
 				}
-				auto error = module.load(cpl::Misc::DirectoryPath() + compilerPath);
-				if(error) {
-					std::stringstream fmt;
-					fmt << "Error loading compiler module \'" << compilerName << "\' for language \'"
-						<<  language << "\' " << " at " << "\'" << cpl::Misc::DirectoryPath() + compilerPath << "\'. OS returns " << error << ".";
-					throw std::runtime_error(fmt.str());
-				}
-				// will throw its own exception
-				return initialized = bindings.loadBindings(module, settings);
+
 
 			}
-			return initialized;
-		}
-		CCompiler::CCompiler()
-			: initialized(false)
-		{
+		);
 
-		}
-		CCompiler::CBindings::CBindings() 
-			: valid(false) 
-		{
-			// zero-out pointers
-			std::memset(this, 0, sizeof(*this));
-		}
+		return valid;
+	}
+	bool CCompiler::initialize(const libconfig::Setting & languageSettings)
+	{
+		if(!initialized) {
 
+			compilerName = languageSettings["name"].c_str();
+			compilerPath = languageSettings["path"].c_str();
+			language = languageSettings.getParent().getName();
+			// loop over extensions and insert into this::extensions
 
-		Status CCodeGenerator::activateProject(ProjectEx * project)
-		{
-			if(!project) 
-			{
-				printError("Nullptr passed to activateProject");
-			}
-			else if(project->state > CodeState::Disabled)
-			{
+			// more checks on this.
+			const libconfig::Setting & settings = languageSettings["exports"];
+
+			if(!compilerPath.length()) {
 				std::stringstream fmt;
-				fmt << "Cannot activate project when state is higher than initialized (" << static_cast<int>(project->state) << ").";
-				printError(fmt.str());
-			} else 
-			{
-				auto status = project->compiler->bindings.activateProject(project);
-				if(status != Status::STATUS_ERROR)
-					project->state = CodeState::Activated;
-				return status;
+				fmt << "Invalid (empty) path for compiler \'" << compilerName << "\' for language \'"
+					<<  language << "\'.";
+				throw std::runtime_error(fmt.str());
 			}
-			return Status::STATUS_ERROR;
-		}
-
-		CCodeGenerator::CCodeGenerator(APE::Engine * engine)
-			: errorPrinter(nullptr), engine(engine)
-		{
+			auto error = module.load(cpl::Misc::DirectoryPath() + compilerPath);
+			if(error) {
+				std::stringstream fmt;
+				fmt << "Error loading compiler module \'" << compilerName << "\' for language \'"
+					<<  language << "\' " << " at " << "\'" << cpl::Misc::DirectoryPath() + compilerPath << "\'. OS returns " << error << ".";
+				throw std::runtime_error(fmt.str());
+			}
+			// will throw its own exception
+			return initialized = bindings.loadBindings(module, settings);
 
 		}
+		return initialized;
+	}
+	CCompiler::CCompiler()
+		: initialized(false)
+	{
 
-		void CCodeGenerator::setErrorFunc(ErrorFunc f, void * op)
+	}
+	CCompiler::CBindings::CBindings() 
+		: valid(false) 
+	{
+		// zero-out pointers
+		std::memset(this, 0, sizeof(*this));
+	}
+
+
+	Status CCodeGenerator::activateProject(ProjectEx& project)
+	{
+		if(project.state > CodeState::Disabled)
 		{
-			opaque = op;
-			errorPrinter = f;
+			std::stringstream fmt;
+			fmt << "Cannot activate project when state is higher than initialized (" << static_cast<int>(project.state) << ").";
+			printError(fmt.str());
+		} else 
+		{
+			auto status = project.compiler->bindings.activateProject(&project);
+			if(status != Status::STATUS_ERROR)
+				project.state = CodeState::Activated;
+			return status;
 		}
-		void CCodeGenerator::printError(const std::string & message)
-		{
-			if(opaque && errorPrinter)
-				errorPrinter(opaque, std::string("[Generator] : " + message).c_str());
+		return Status::STATUS_ERROR;
+	}
 
+	CCodeGenerator::CCodeGenerator(ape::Engine * engine)
+		: errorPrinter(nullptr), engine(engine)
+	{
+
+	}
+
+	void CCodeGenerator::setErrorFunc(ErrorFunc f, void * op)
+	{
+		opaque = op;
+		errorPrinter = f;
+	}
+	void CCodeGenerator::printError(const std::string & message)
+	{
+		if(opaque && errorPrinter)
+			errorPrinter(opaque, std::string("[Generator] : " + message).c_str());
+
+	}
+	Status CCodeGenerator::disableProject(ProjectEx & project, bool didMisbehave)
+	{
+		if (project.state != CodeState::Activated) 
+		{
+			printError("Cannot disable project when state isn't activated.");
+		} 
+		else 
+		{
+			auto status = project.compiler->bindings.disableProject(&project, didMisbehave ? 1 : 0);
+			if(status == Status::STATUS_OK)
+				project.state = CodeState::Disabled;
+			return status;
 		}
-		Status CCodeGenerator::disableProject(ProjectEx * project, bool didMisbehave)
+		return Status::STATUS_ERROR;
+	}
+
+	Status CCodeGenerator::processReplacing(ProjectEx& project, Float ** in, Float ** out, Int sampleFrames)
+	{
+		if (!project.compiler)
 		{
-			if(!project) {
-				printError("Nullptr passed to disableProject!");
-			}
-			else if (!project->compiler)
-			{
-				printError("No compiler exists for project.");
-			}
-			else if (project->state != CodeState::Activated) {
-				printError("Cannot disable project when state isn't activated.");
-			} else {
-				auto status = project->compiler->bindings.disableProject(project, didMisbehave ? 1 : 0);
-				if(SUCCESS(status))
-					project->state = CodeState::Disabled;
-				return status;
-			}
-			return Status::STATUS_ERROR;
+			printError("No compiler exists for project.");
 		}
-
-		Status CCodeGenerator::processReplacing(ProjectEx * project, Float ** in, Float ** out, Int sampleFrames)
+		else if (project.state != CodeState::Activated) 
 		{
-			if(!project) 
-			{
-				printError("Nullptr passed to processReplacing!");
-			}
-			else if (!project->compiler)
-			{
-				printError("No compiler exists for project.");
-			}
-			else if (project->state != CodeState::Activated) 
-			{
-				printError("Access denied to processing function (plugin is not activated).");
-			} else {
-				auto status = 
-				(
-					project->compiler->bindings.processReplacing(project, in, out, sampleFrames)
-				);
-				return status;
-			}
-			return Status::STATUS_ERROR;
+			printError("Access denied to processing function (plugin is not activated).");
+		} else {
+			auto status = 
+			(
+				project.compiler->bindings.processReplacing(&project, in, out, sampleFrames)
+			);
+			return status;
 		}
+		return Status::STATUS_ERROR;
+	}
 
-		Status CCodeGenerator::onEvent(ProjectEx * project, Event * e)
+	Status CCodeGenerator::onEvent(ProjectEx& project, Event * e)
+	{
+		if (project.state != CodeState::Activated)
 		{
-			if(!project) 
-			{
-				printError("Nullptr passed to onEvent!");
-			}
-			else if (!project->compiler)
-			{
-				printError("No compiler exists for project.");
-			}
-			else if (project->state != CodeState::Activated) {
-				printError("Access denied to event function (plugin is not activated).");
-			} else {
-				return project->compiler->bindings.onEvent(project, e);
-			}
-			return Status::STATUS_ERROR;
-
+			printError("Access denied to event function (plugin is not activated).");
+		} 
+		else
+		{
+			return project.compiler->bindings.onEvent(&project, e);
 		}
+		return Status::STATUS_ERROR;
 
-		bool CCodeGenerator::compileProject(ProjectEx * project)
+	}
+
+	bool CCodeGenerator::compileProject(ProjectEx& project)
+	{
+		if (project.state > CodeState::None) 
 		{
-			if(!project) 
+			printError("Cannot compile project when state is higher than none.");
+		} 
+		else 
+		{
+			if(!project.compiler || !project.compiler->isInitialized()) 
 			{
-				printError("Nullptr passed to compileProject!");
-			}
-			else if (project->state > CodeState::None) 
-			{
-				printError("Cannot compile project when state is higher than none.");
-			} 
-			else 
-			{
-				if(!project->compiler || !project->compiler->isInitialized()) 
+				// set up compiler here.
+				if (!project.languageID || !project.languageID[0])
 				{
-					// set up compiler here.
-					if (!project->languageID || !project->languageID[0])
-					{
-						printError("Null/empty file extension, not supported");
-					}
+					printError("Null/empty file extension, not supported");
+				}
 
-					std::string fileID = project->languageID;
-					// ensure lID is valid here !
-					try
+				std::string fileID = project.languageID;
+				// ensure lID is valid here !
+				try
+				{
+					const libconfig::Setting & settings = engine->getRootSettings();
+					std::string langID;
+					for (auto && lang : settings["languages"])
 					{
-						const libconfig::Setting & settings = engine->getRootSettings();
-						std::string langID;
-						for (auto && lang : settings["languages"])
+						if (!lang.isGroup())
+							continue;
+						for (auto && ext : lang["extensions"])
 						{
-							if (!lang.isGroup())
-								continue;
-							for (auto && ext : lang["extensions"])
+							if (fileID == ext.c_str())
 							{
-								if (fileID == ext.c_str())
-								{
-									langID = lang.getName();
-									break;
-								}
+								langID = lang.getName();
+								break;
 							}
 						}
+					}
 						
-						if (!langID.size())
-						{
-							printError("Cannot find compatible compiler for file id \"" + fileID + "\", check your extension settings");
+					if (!langID.size())
+					{
+						printError("Cannot find compatible compiler for file id \"" + fileID + "\", check your extension settings");
+						return false;
+					}
+
+					const libconfig::Setting & langstts = settings["languages"][langID]["compiler"];
+
+					// compiler is automatically constructed and loaded if it doesn't exist.
+					// if it does, we get a reference to it.
+					auto compiler = &compilers[langID];
+					// one could argue this should happen in compiler::compiler
+					// but std::map and copy constructors etc. etc. we do it  here.
+					if(!compiler->isInitialized()) {
+						if(!compiler->initialize(langstts)) {
+							printError("Unable to initialize compiler!");
 							return false;
 						}
-
-						const libconfig::Setting & langstts = settings["languages"][langID]["compiler"];
-
-						// compiler is automatically constructed and loaded if it doesn't exist.
-						// if it does, we get a reference to it.
-						auto compiler = &compilers[langID];
-						// one could argue this should happen in compiler::compiler
-						// but std::map and copy constructors etc. etc. we do it  here.
-						if(!compiler->isInitialized()) {
-							if(!compiler->initialize(langstts)) {
-								printError("Unable to initialize compiler!");
-								return false;
-							}
-						}
-						std::string const args = langstts["arguments"].c_str();
-						auto argString = new char[args.length() + 1];
-						std::copy(args.begin(), args.end(), argString);
-						argString[args.length()] = '\0';
-						project->arguments = argString;
-						project->compiler = compiler;
 					}
-					catch(libconfig::ParseException & e)
-					{
-						printError("Exception while parsing!");
-						printError(e.getError());
-						return false;
-					}
-					catch(libconfig::SettingNameException & e)
-					{
-						printError(e.getPath());
-						return false;
-					}
-					catch(libconfig::SettingNotFoundException & e)
-					{
-						printError("Setting not found!");
-						printError(e.getPath());
-						return false;
-					}
-					catch(libconfig::SettingException & e)
-					{
-						printError("Error in settings!");
-						printError(e.getPath());
-						return false;
-					}
-					catch(std::exception & e)
-					{
-						printError("Error while loading compiler!");
-						printError(e.what());
-						return false;
-					}
+					std::string const args = langstts["arguments"].c_str();
+					auto argString = new char[args.length() + 1];
+					std::copy(args.begin(), args.end(), argString);
+					argString[args.length()] = '\0';
+					project.arguments = argString;
+					project.compiler = compiler;
 				}
-
-				auto status = project->compiler->bindings.compileProject(project, opaque, errorPrinter);
-				if(SUCCESS(status)) {
-					project->state = CodeState::Compiled;
-					return true;
+				catch(libconfig::ParseException & e)
+				{
+					printError("Exception while parsing!");
+					printError(e.getError());
+					return false;
+				}
+				catch(libconfig::SettingNameException & e)
+				{
+					printError(e.getPath());
+					return false;
+				}
+				catch(libconfig::SettingNotFoundException & e)
+				{
+					printError("Setting not found!");
+					printError(e.getPath());
+					return false;
+				}
+				catch(libconfig::SettingException & e)
+				{
+					printError("Error in settings!");
+					printError(e.getPath());
+					return false;
+				}
+				catch(std::exception & e)
+				{
+					printError("Error while loading compiler!");
+					printError(e.what());
+					return false;
 				}
 			}
-			return false;
+
+			if(project.compiler->bindings.compileProject(&project, opaque, errorPrinter) == Status::STATUS_OK)
+			{
+				project.state = CodeState::Compiled;
+				return true;
+			}
 		}
-		bool CCodeGenerator::initProject(ProjectEx * project)
+		return false;
+	}
+	bool CCodeGenerator::initProject(ProjectEx& project)
+	{
+		if (!project.compiler)
 		{
-			if(!project) 
-			{
-				printError("Nullptr passed to initProject!");
-			}
-			else if (!project->compiler)
-			{
-				printError("No compiler exists for project.");
-			}
-			else if(project->state > CodeState::Compiled) 
-			{
-				printError("Cannot initiate project when state is higher than compiled.");
-			} 
-			else 
-			{
-				auto status = project->compiler->bindings.initProject(project);
-				if(SUCCESS(status)) {
-					project->state = CodeState::Initialized;
-					return true;
-				}
-			}
-			return false;
+			printError("No compiler exists for project.");
 		}
-		bool CCodeGenerator::releaseProject(ProjectEx * project)
+		else if(project.state > CodeState::Compiled) 
 		{
-			if(!project) {
-				printError("Nullptr passed to releaseProject!");
+			printError("Cannot initiate project when state is higher than compiled.");
+		} 
+		else 
+		{
+			if(project.compiler->bindings.initProject(&project) == Status::STATUS_OK) {
+				project.state = CodeState::Initialized;
+				return true;
 			}
-			else if (!project->compiler)
-			{
-				printError("No compiler exists for project.");
-			}
-			else if(project->state < CodeState::Compiled) 
-			{
-				printError("Cannot release project when it isn't compiled.");
-			} 
-			else 
-			{
-				auto status = project->compiler->bindings.releaseProject(project);
-				if(SUCCESS(status)) {
-					project->state = CodeState::Released;
-					return true;
-				}
-			}
-			return false;
 		}
+		return false;
+	}
+	bool CCodeGenerator::releaseProject(ProjectEx& project)
+	{
+		if (!project.compiler)
+		{
+			printError("No compiler exists for project.");
+		}
+		else if(project.state < CodeState::Compiled) 
+		{
+			printError("Cannot release project when it isn't compiled.");
+		} 
+		else 
+		{
+			if(project.compiler->bindings.releaseProject(&project)) {
+				project.state = CodeState::Released;
+				return true;
+			}
+		}
+		return false;
+	}
 
 
 };

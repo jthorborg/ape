@@ -31,7 +31,7 @@
 #ifndef APE_CSHAREDINTERFACE_H
 	#define APE_CSHAREDINTERFACE_H
 
-	#include "APE.h"
+	#include "ape.h"
 
 	enum APE_AllocationLabel
 	{

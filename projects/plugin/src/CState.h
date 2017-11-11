@@ -46,7 +46,7 @@
 	#include <cpl/CMutex.h>
 	#include "ProjectEx.h"
 
-	namespace APE
+	namespace ape
 	{
 
 		typedef void * RawFunctionPtr;
@@ -72,7 +72,7 @@
 			CAllocator & getPluginAllocator();
 			std::vector<CMemoryGuard> & getPMemory();
 
-			CState(APE::Engine * effect);
+			CState(ape::Engine * effect);
 			~CState();
 			/*
 				utility

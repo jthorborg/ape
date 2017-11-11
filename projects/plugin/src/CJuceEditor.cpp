@@ -38,7 +38,7 @@
 #include <cstdio>
 #include <sstream>
 
-namespace APE
+namespace ape
 {
 	std::unique_ptr<CCodeEditor> MakeCodeEditor(Engine * e)
 	{
@@ -550,7 +550,7 @@ namespace APE
 	/*********************************************************************************************
 
 		Returns a project struct that describes the current project. Must be deallocated with
-		APE::FreeProjectStruct() when done with it.
+		ape::FreeProjectStruct() when done with it.
 
 	*********************************************************************************************/
 	ProjectEx * CJuceEditor::getProject()
@@ -564,7 +564,7 @@ namespace APE
 		// we set the appropiate values in the project struct and fill it.
 		if (isSingleFile) 
 		{
-			project = APE::CreateProjectStruct();
+			project = ape::CreateProjectStruct();
 			project->files = nullptr;
 			project->nFiles = 1;
 			project->uniqueID = (unsigned)-1;
@@ -602,7 +602,7 @@ namespace APE
 			}
 		}
 		// some error occured.
-		APE::FreeProjectStruct(project);
+		ape::FreeProjectStruct(project);
 		return nullptr;
 	}
 	/*********************************************************************************************
@@ -1002,7 +1002,7 @@ namespace APE
 		}
 
 
-		auto answer = MsgBox(fmt.str(), "APE - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
+		auto answer = MsgBox(fmt.str(), "ape - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
 
 		switch (answer)
 		{

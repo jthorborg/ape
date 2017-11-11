@@ -31,7 +31,7 @@
 #include "ProjectEx.h"
 #include <cstring>
 
-namespace APE 
+namespace ape 
 {
 	ProjectEx * CreateProjectStruct()
 	{ 

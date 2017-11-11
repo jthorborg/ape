@@ -5,16 +5,16 @@
 
 TEST_CASE("Plugin can be created without errors", "[Initialization]")
 {
-	APE::Engine * plugin = nullptr;
+	ape::Engine * plugin = nullptr;
 	
-	REQUIRE_NOTHROW(plugin = new APE::Engine());
+	REQUIRE_NOTHROW(plugin = new ape::Engine());
 
 	REQUIRE(plugin != nullptr);
 
 	REQUIRE_NOTHROW(delete plugin);
 }
 
-TEST_CASE("Plugin can be created through JUCE APE", "[Initialization]")
+TEST_CASE("Plugin can be created through JUCE ape", "[Initialization]")
 {
 	juce::AudioProcessor * JUCE_CALLTYPE createPluginFilter();
 
@@ -24,7 +24,7 @@ TEST_CASE("Plugin can be created through JUCE APE", "[Initialization]")
 
 	REQUIRE(plugin != nullptr);
 
-	REQUIRE(dynamic_cast<APE::Engine *>(plugin) != nullptr);
+	REQUIRE(dynamic_cast<ape::Engine *>(plugin) != nullptr);
 
 	REQUIRE_NOTHROW(delete plugin);
 }

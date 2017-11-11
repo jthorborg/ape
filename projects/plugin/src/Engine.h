@@ -23,7 +23,7 @@
 
 **************************************************************************************
 
-	file:APE.h
+	file:ape.h
 		
 		Implements the interface for the VST.
 
@@ -40,7 +40,7 @@
 	#include <cpl/CMutex.h>
 	#include <memory>
 	
-	namespace APE {
+	namespace ape {
 
 		// forward declaration of the GUI class.
 		class GraphicUI;
@@ -48,25 +48,10 @@
 		class CBaseControl;
 		class CSerializer;
 
-		#ifdef APE_IPLUG
-			typedef AudioProcessor implementationDriver;
-		#elif defined(APE_VST)
-			typedef AudioEffectX implementationDriver;
-		#elif defined(APE_JUCE)
-			typedef juce::AudioProcessor implementationDriver;
-			typedef juce::AudioSampleBuffer audioBuffer;
-		#endif
-
-		namespace Globals
-		{
-			extern bool ApplyTCCConvHack;
-			extern bool CheckForTCC;
-		};
-
 		/*
 			Main engine class
 		*/
-		class Engine : public implementationDriver, public cpl::CMutex::Lockable
+		class Engine : public juce::AudioProcessor, private cpl::CMutex::Lockable
 		{
 			/*
 				friends
@@ -80,8 +65,8 @@
 		private:
 			void static errPrint(void * data, const char * text);
 			void initMem(int am = 2);
-			bool copyInput(std::vector<float *> & in, std::vector<float *> & out, audioBuffer & buffer);
-			bool copyOutput(std::vector<float *> & out, audioBuffer & buffer);
+			bool copyInput(std::vector<float *> & in, std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
+			bool copyOutput(std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
 		public:
 
 			class AbortException : public std::runtime_error
@@ -93,67 +78,51 @@
 			/*
 				overloads
 			*/
-			#ifdef APE_VST
-				Engine(audioMasterCallback master);
-				virtual void process (float **inputs, float **outputs, VstInt32 sampleFrames);
-				virtual void processReplacing (float **inputs, float **outputs, VstInt32 sampleFrames);
-				virtual void processDoubleReplacing (double **inputs, double **outputs, VstInt32 sampleFrames);
-				virtual void resume();
 
-				virtual void setProgramName (char *name);
-				virtual void setProgram(VstInt32 index);
-				virtual VstInt32 getProgram();
-				virtual void getProgramName (char *name);
-				virtual void setParameter (VstInt32 index, float value);
-				virtual bool getEffectName (char * name);
-				virtual bool getVendorString (char * text);
-				virtual bool getProductString (char * text);
-				virtual VstInt32 getVendorVersion () { return 1000; }
-				virtual VstPlugCategory getPlugCategory () { return kPlugCategEffect; }
-			#elif defined(APE_JUCE)
-				Engine();
-				//==============================================================================
-				void prepareToPlay(double sampleRate, int samplesPerBlock);
-				void releaseResources();
+			Engine();
+			//==============================================================================
+			void prepareToPlay(double sampleRate, int samplesPerBlock);
+			void releaseResources();
 
-				void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages);
+			void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages);
 
-				//==============================================================================
-				juce::AudioProcessorEditor* createEditor();
-				bool hasEditor() const;
+			//==============================================================================
+			juce::AudioProcessorEditor* createEditor();
+			bool hasEditor() const;
 
-				//==============================================================================
-				const juce::String getName() const;
+			//==============================================================================
+			const juce::String getName() const;
 
-				int getNumParameters();
+			int getNumParameters();
 
-				float getParameter(int index);
-				void setParameter(int index, float newValue);
+			float getParameter(int index);
+			void setParameter(int index, float newValue);
 
-				const juce::String getParameterName(int index);
-				const juce::String getParameterText(int index);
+			const juce::String getParameterName(int index);
+			const juce::String getParameterText(int index);
 
-				const juce::String getInputChannelName(int channelIndex) const;
-				const juce::String getOutputChannelName(int channelIndex) const;
-				bool isInputChannelStereoPair(int index) const;
-				bool isOutputChannelStereoPair(int index) const;
+			const juce::String getInputChannelName(int channelIndex) const;
+			const juce::String getOutputChannelName(int channelIndex) const;
+			bool isInputChannelStereoPair(int index) const;
+			bool isOutputChannelStereoPair(int index) const;
 
-				bool acceptsMidi() const;
-				bool producesMidi() const;
-				bool silenceInProducesSilenceOut() const;
-				double getTailLengthSeconds() const;
+			bool acceptsMidi() const;
+			bool producesMidi() const;
+			bool silenceInProducesSilenceOut() const;
+			double getTailLengthSeconds() const;
 
-				//==============================================================================
-				int getNumPrograms();
-				int getCurrentProgram();
-				void setCurrentProgram(int index);
-				const juce::String getProgramName(int index);
-				void changeProgramName(int index, const juce::String& newName);
+			//==============================================================================
+			int getNumPrograms();
+			int getCurrentProgram();
+			void setCurrentProgram(int index);
+			const juce::String getProgramName(int index);
+			void changeProgramName(int index, const juce::String& newName);
 
-				//==============================================================================
-				void getStateInformation(juce::MemoryBlock& destData);
-				void setStateInformation(const void* data, int sizeInBytes);
-			#endif
+			//==============================================================================
+			void getStateInformation(juce::MemoryBlock& destData);
+			void setStateInformation(const void* data, int sizeInBytes);
+
+
 			/*
 				public functions
 			*/
@@ -219,6 +188,6 @@
 			std::string programName;
 			libconfig::Config config;
 			volatile long clocksPerSample;
-		}; // class APE
-	} //namespace APE'
+		}; // class ape
+	} //namespace ape'
 #endif

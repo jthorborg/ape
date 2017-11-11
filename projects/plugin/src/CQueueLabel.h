@@ -40,7 +40,7 @@
 	#include "GraphicComponents.h"
 	#include <queue>
 
-	namespace APE
+	namespace ape
 	{
 		class CQueueLabel : public cpl::CMutex::Lockable, public CTextLabel
 		{

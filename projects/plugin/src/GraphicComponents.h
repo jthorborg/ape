@@ -35,7 +35,7 @@
 	#include <cpl/CMutex.h>
 	#include "CBaseControl.h"
 
-	namespace APE
+	namespace ape
 	{
 
 		/*********************************************************************************************

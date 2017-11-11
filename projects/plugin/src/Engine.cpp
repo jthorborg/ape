@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:APE.cpp
+	file:ape.cpp
 	
 		Implementation of the audio effect interface.
 
@@ -54,32 +54,22 @@ namespace cpl
 	#endif
 };
 
-namespace APE 
+namespace ape 
 {
-	/*
-		Stuff that absolutely have to be global. They exist here because they're initiated by Engine objects
-		and thus cannot exist in other files.
-	*/
-	namespace Globals
-	{
-		bool ApplyTCCConvHack = false;
-		bool CheckForTCC = false;
-	};
-
 	/*********************************************************************************************
 
 		Implementation for the constructor.
 
 	 *********************************************************************************************/
-	#ifdef APE_VST
-		Engine::Engine(audioMasterCallback cb) :
-			AudioEffectX(cb, 1, 0), 
-	#elif defined(APE_JUCE)
-		Engine::Engine() :
-	#endif
-		 
-		numBuffers(2), status(), state(Status::STATUS_DISABLED), delay(),
-		programName("Default"), uiRefreshInterval(80), clocksPerSample(0), autoSaveInterval(0)
+	Engine::Engine() 
+		: numBuffers(2)
+		, status()
+		, state(Status::STATUS_DISABLED)
+		, delay()
+		, programName("Default")
+		, uiRefreshInterval(80)
+		, clocksPerSample(0)
+		, autoSaveInterval(0)
 	{
 		// some variables...
 		status.bUseBuffers = true;
@@ -149,7 +139,6 @@ namespace APE
 
 			bool usefpe = approot["use_fpe"];
 			status.bUseFPUE = usefpe;
-			Globals::CheckForTCC = approot["use_tcc_convention_hack"];
 			int refreshTimer = approot["ui_refresh_interval"];
 			if (refreshTimer > 10 && refreshTimer < 10000)
 				this->uiRefreshInterval = refreshTimer;
@@ -274,7 +263,7 @@ namespace APE
 	{
 		// fetch this, as this function is static
 		
-		APE::Engine *_this = reinterpret_cast<APE::Engine*>(data);
+		ape::Engine *_this = reinterpret_cast<ape::Engine*>(data);
 		// print the message
 		_this->gui->console->printLine(CColours::red, (std::string("[Compiler] : ") + text).c_str());
 		int nLinePos(-1), i(0);
@@ -312,7 +301,7 @@ namespace APE
 	Status Engine::onCtrlEvent(CBaseControl * base)
 	{
 		/*
-			everything in here should actually be delegated to APE::gui, 
+			everything in here should actually be delegated to ape::gui, 
 			and this should only be a thin layer of indirection
 		*/
 		// create general event
@@ -456,7 +445,7 @@ namespace APE
 			break;
 		default:
 			gui->console->printLine(CColours::red,
-				"[APE] : Unexpected return value from onLoad (%d), assuming plugin is ready.", state);
+				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", state);
 			state = STATUS_READY;
 			status.bActivated = true;
 		}
@@ -636,7 +625,7 @@ namespace APE
 		makes _in & _out valid buffers and copies inputs to in
 
 	 *********************************************************************************************/
-	bool inline Engine::copyInput(std::vector<float*> & in, std::vector<float*> & out, audioBuffer & buffer)
+	bool inline Engine::copyInput(std::vector<float*> & in, std::vector<float*> & out, juce::AudioSampleBuffer & buffer)
 	{
 		// [0] is in, [1] is out
 		unsigned size = buffer.getNumSamples();
@@ -672,7 +661,7 @@ namespace APE
 		Copies the output from the plugin into the output provided by the host.
 
 	 *********************************************************************************************/
-	bool inline Engine::copyOutput(std::vector<float*> & out, audioBuffer & buffer)
+	bool inline Engine::copyOutput(std::vector<float*> & out, juce::AudioSampleBuffer & buffer)
 	{
 		for(int i = 0; i < getNumOutputChannels(); ++i) {
 			::memcpy(buffer.getSampleData(i), out[i], buffer.getNumSamples() * sizeof(float));
@@ -963,11 +952,11 @@ namespace APE
 		*/
 		#ifdef __WINDOWS__
 			if (!searchChanged) {
-				SetDllDirectory(APE::Misc::DirectoryPath.c_str());
+				SetDllDirectory(ape::Misc::DirectoryPath.c_str());
 				searchChanged = true;
 			}
 		#endif
-		return new APE::Engine(audioMaster);
+		return new ape::Engine(audioMaster);
 	}
 #elif defined(APE_JUCE)
 	juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
@@ -979,10 +968,10 @@ namespace APE
 			}
 		#endif
 		
-		APE::Engine * effect = nullptr;
+		ape::Engine * effect = nullptr;
 		try
 		{
-			effect = new APE::Engine();
+			effect = new ape::Engine();
 		}
 		catch (const std::exception & e)
 		{

@@ -76,7 +76,7 @@
 		*/
 		const char * workingDirectory;
 		/*
-			Root directory of APE
+			Root directory of ape
 		*/
 		const char * rootPath;
 		/*
@@ -92,7 +92,7 @@
 	
 	#ifdef __cplusplus
 
-		namespace APE
+		namespace ape
 		{
 			using Project = APE_Project;
 		};

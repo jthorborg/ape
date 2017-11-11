@@ -39,7 +39,7 @@
 	#endif
 	#include <cpl/Utility.h>
 
-	namespace APE
+	namespace ape
 	{
 		class TCCBindings
 		{

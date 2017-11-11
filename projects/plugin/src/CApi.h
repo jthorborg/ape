@@ -34,7 +34,7 @@
 	#include <exception>
 	#include <ape/SharedInterface.h>
 
-	namespace APE
+	namespace ape
 	{
 		class Engine;
 
@@ -48,7 +48,7 @@
 		/// </summary>
 		float		APE_API			getSampleRate(APE_SharedInterface * iface);
 		/// <summary>
-		/// Prints a line with the color nColor in the console in the APE window associated with 
+		/// Prints a line with the color nColor in the console in the ape window associated with 
 		/// the C script.
 		/// </summary>
 		int			APE_API_VARI	printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... );
@@ -58,7 +58,7 @@
 		int			APE_API			msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);
 		/// <summary>
 		/// The c-subsystem can here request a change to it's status, it may or may not be 
-		/// accepted, return value is always the(possible changed) state of APE.
+		/// accepted, return value is always the(possible changed) state of ape.
 		/// </summary>
 		Status		APE_API			setStatus(APE_SharedInterface * iface, Status status);
 		/// <summary>

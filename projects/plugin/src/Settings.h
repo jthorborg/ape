@@ -38,4 +38,15 @@
 	#endif
 	#include <libconfig.hh>
 
+	namespace ape
+	{
+		class Settings
+		{
+
+
+
+		};
+	}
+
+	
 #endif

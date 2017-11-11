@@ -39,7 +39,7 @@
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 
-	namespace APE {
+	namespace ape {
 
 		class Engine;
 		class CConsole;
@@ -59,7 +59,7 @@
 			
 			class Editor;
 			
-			friend class APE::Engine;
+			friend class ape::Engine;
 			friend class CCodeEditor;
 			friend class CSerializer;
 			friend class Editor;
@@ -109,7 +109,7 @@
 				virtual ~CCtrlDelegateListener() {};
 			} ctrlNotifier;
 
-			GraphicUI(APE::Engine *effect);
+			GraphicUI(ape::Engine *effect);
 			virtual ~GraphicUI();
 
 			void setParameter(int index, float value);
@@ -118,7 +118,7 @@
 			void editorClosed();
 			void render();
 			Editor * create();
-			APE::CConsole * console;
+			ape::CConsole * console;
 			void setStatusText(const std::string &, CColour color = juce::Colours::lightgoldenrodyellow);
 			void setStatusText(const std::string &, CColour color, int timeout);
 			void setStatusText();
@@ -134,7 +134,7 @@
 			virtual bool valueChanged(CBaseControl *);
 			
 			std::unique_ptr<CCodeEditor> externEditor;
-			APE::Engine * engine;
+			ape::Engine * engine;
 			Editor * editor;
 
 			std::string projectName, statusLabel;

@@ -25,7 +25,7 @@
 	
 		Defines a prototype (well, abstract class) of a compiler to be used
 		together with CompilerBindings.h and CppCompilerInterface.cpp,
-		providing automatic bindings with APE.
+		providing automatic bindings with ape.
 
 *************************************************************************************/
 
@@ -38,7 +38,7 @@
 	#include <utility>
 	#include <string>
 
-	namespace APE
+	namespace ape
 	{
 		class ProtoCompiler
 		{

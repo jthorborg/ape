@@ -40,7 +40,7 @@
 	#include <string>
 	#include <memory>
 
-	namespace APE
+	namespace ape
 	{
 		struct ProjectEx;
 #pragma message("fix")

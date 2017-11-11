@@ -42,7 +42,7 @@
 	#include <ape/Events.h>
 	#include <ape/CompilerBindings.h>
 
-	namespace APE
+	namespace ape
 	{
 		class Engine;
 		class CCodeGenerator;
@@ -128,11 +128,11 @@
 			ErrorFunc errorPrinter;
 			void * opaque;
 			std::map<std::string, CCompiler> compilers;
-			APE::Engine * engine;
+			ape::Engine * engine;
 
 		public:
 
-			CCodeGenerator(APE::Engine * engine);
+			CCodeGenerator(ape::Engine * engine);
 			void setErrorFunc(ErrorFunc f, void * op);
 			void printError(const std::string & message);
 
@@ -142,14 +142,14 @@
 				system exceptions anywhere in these functions.
 				They are caught in the CState wrapper.
 			*/
-			Status activateProject(ProjectEx * project);
-			Status processReplacing(ProjectEx * project, Float ** in, Float ** out, Int sampleFrames);
-			Status disableProject(ProjectEx * project, bool didMisbehave);
-			Status onEvent(ProjectEx * project, Event * e);
+			Status activateProject(ProjectEx & project);
+			Status processReplacing(ProjectEx & project, Float ** in, Float ** out, Int sampleFrames);
+			Status disableProject(ProjectEx & project, bool didMisbehave);
+			Status onEvent(ProjectEx & project, Event * e);
 
-			bool compileProject(ProjectEx * project);
-			bool initProject(ProjectEx * project);
-			bool releaseProject(ProjectEx * project);
+			bool compileProject(ProjectEx & project);
+			bool initProject(ProjectEx & project); 
+			bool releaseProject(ProjectEx & project);
 
 		};
 	};

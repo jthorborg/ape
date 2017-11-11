@@ -40,7 +40,7 @@
 	#include <cpl/CMutex.h>
 	#include "Common.h"
 
-	namespace APE
+	namespace ape
 	{
 		//-----------------------------------------------------------------------------
 		// CReferenceCounter Declaration (Reference Counting)

@@ -39,7 +39,7 @@
 
 		#include <Windows.h>
 
-		namespace APE {
+		namespace ape {
 				struct MenuItem { UINT type; char *title;};
 
 

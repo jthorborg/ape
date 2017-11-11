@@ -39,7 +39,7 @@
 	#include <ape/SharedInterface.h>
 	#include <cpl/CMutex.h>
 
-	namespace APE 
+	namespace ape 
 	{
 
 		class CAllocator : private cpl::CMutex::Lockable

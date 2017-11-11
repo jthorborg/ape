@@ -10,7 +10,7 @@
 
 		static std::size_t numFunctions()
 		{
-			return offsetof(APE::BindingsInterfaceResolver, extra) / functionSize;
+			return offsetof(ape::BindingsInterfaceResolver, extra) / functionSize;
 		}
 	};
 

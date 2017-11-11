@@ -34,7 +34,7 @@
 	#define BUTTON_HEIGHT 138
 	#define BUTTON_LENGTH 53
 
-	namespace APE {
+	namespace ape {
 		#ifdef APE_VST
 			struct sButton { int nResourceID, left, top, right, bottom; bool sticky; };
 

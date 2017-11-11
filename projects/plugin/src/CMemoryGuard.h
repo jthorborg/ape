@@ -51,7 +51,7 @@
 		#error "Implement for your system."
 	#endif
 	#include <cmath>
-	namespace APE 
+	namespace ape 
 	{
 		class CMemoryGuard
 		{

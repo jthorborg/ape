@@ -253,7 +253,7 @@
  #define JucePlugin_ManufacturerCode       'LbJt'
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             'APE'
+ #define JucePlugin_PluginCode             'ape'
 #endif
 #ifndef  JucePlugin_MaxNumInputChannels
  #define JucePlugin_MaxNumInputChannels    2

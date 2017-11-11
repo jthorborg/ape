@@ -5,7 +5,7 @@
 
 TEST_CASE("Basic API tests", "[Engine]")
 {
-	auto engine = std::make_unique<APE::Engine>();
+	auto engine = std::make_unique<ape::Engine>();
 
 	REQUIRE(engine->getGraphicUI() != nullptr);
 	REQUIRE(engine->getCState() != nullptr);
@@ -15,7 +15,7 @@ TEST_CASE("Basic API tests", "[Engine]")
 
 TEST_CASE("Serialization roundtrip", "[Engine]")
 {
-	auto engine = std::make_unique<APE::Engine>();
+	auto engine = std::make_unique<ape::Engine>();
 
 	juce::MemoryBlock serializedData;
 

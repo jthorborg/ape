@@ -39,7 +39,7 @@
 	#include <sstream>
 	#include <stdarg.h> 
 
-	namespace APE {
+	namespace ape {
 
 		class CBaseValue 
 		{
@@ -112,5 +112,5 @@
 			std::string get();
 			~CValueLabel();
 		};
-	} // namespace APE
+	} // namespace ape
 #endif

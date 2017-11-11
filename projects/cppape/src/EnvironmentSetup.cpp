@@ -69,7 +69,7 @@ namespace CppAPE
 			return true;
 
 
-		APE::TCCBindings::CompilerAccess bindings;
+		ape::TCCBindings::CompilerAccess bindings;
 
 		UniqueTCC tcc(bindings.createState());
 		bindings.setLibPath(tcc.get(), (root).string().c_str());

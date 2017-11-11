@@ -23,11 +23,11 @@
 
 	file:CompilerBindings.h
 	
-		Exported C bindings that APE should be able to find.
+		Exported C bindings that ape should be able to find.
 
 *************************************************************************************/
 
-#include "APE.h"
+#include "ape.h"
 #include "Project.h"
 
 #ifdef __cplusplus

@@ -39,7 +39,7 @@
 	#include "CValueLabel.h"
 	#include "GraphicComponents.h"
 
-	namespace APE {
+	namespace ape {
 
 		// constants
 		#define hzLimit 8000.f
@@ -52,7 +52,7 @@
 		 *********************************************************************************************/
 		class CLabelDisplay : public GraphicComponent, public CBaseControl
 		{
-			APE::CValueLabel text;
+			ape::CValueLabel text;
 			std::string title;
 			CTextLabel * labels[2];
 		public:
@@ -210,13 +210,13 @@
 
 		*********************************************************************************************/
 		class CRangeKnob : public CKnobEx {
-			APE::ScaleFunc extScale;
+			ape::ScaleFunc extScale;
 			char unit[10];
 			float _min, _max;
 
 		public:
 
-			CRangeKnob(const CRect & _where, const char * name, const char * unit, float * extVal, APE::ScaleFunc scaleCB, float _min, float _max);
+			CRangeKnob(const CRect & _where, const char * name, const char * unit, float * extVal, ape::ScaleFunc scaleCB, float _min, float _max);
 
 			virtual void onValueChange();
 		};

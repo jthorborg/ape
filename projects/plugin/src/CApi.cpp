@@ -39,7 +39,7 @@
 #include "Engine.h"
 #include <cpl/Protected.h>
 
-namespace APE 
+namespace ape 
 {
 	using IEx = SharedInterfaceEx;
 

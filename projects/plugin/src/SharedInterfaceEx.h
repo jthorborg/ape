@@ -34,7 +34,7 @@
 	#include "CApi.h"
 	#include <string>
 
-	namespace APE
+	namespace ape
 	{
 		class Engine;
 		class CState;
@@ -43,7 +43,7 @@
 		{
 			BindingsInterfaceResolver()
 			{
-#define APE_GTOL(func) this->func = APE::func
+#define APE_GTOL(func) this->func = ape::func
 
 				APE_GTOL(abortPlugin);
 				APE_GTOL(getSampleRate);

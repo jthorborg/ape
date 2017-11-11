@@ -23,7 +23,7 @@
 
 	file:Event.h
 	
-		Defines events messaged by APE.
+		Defines events messaged by ape.
 
 *************************************************************************************/
 
@@ -58,7 +58,7 @@
 	};
 
 	#if defined(__cplusplus) && !defined(__cfront) 
-		namespace APE
+		namespace ape
 		{
 			struct Events
 			{

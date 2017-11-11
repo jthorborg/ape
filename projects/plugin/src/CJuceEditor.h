@@ -39,7 +39,7 @@
 	#include <string>
 	#include <map>
 
-	namespace APE
+	namespace ape
 	{
 		/*
 			The various commands we support in the menu
@@ -159,7 +159,7 @@
 		};
 
 		/*
-			This is the interface for APE that holds the editor window.
+			This is the interface for ape that holds the editor window.
 		*/
 		class CJuceEditor : public CCodeEditor, public juce::ApplicationCommandTarget
 		{
@@ -221,5 +221,5 @@
 			void * getParentWindow();
 			
 		};
-	}; // class APE
+	}; // class ape
 #endif

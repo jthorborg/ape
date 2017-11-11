@@ -11,7 +11,7 @@ namespace cpl
 {
 	const ProgramInfo programInfo
 	{
-		"APE Tests",
+		"ape Tests",
 		cpl::Version::fromParts(0, 1, 0),
 		"Janus Thorborg",
 		"ape.tests",

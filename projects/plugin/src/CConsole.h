@@ -37,7 +37,7 @@
 	#include "GraphicComponents.h"
 	#include <cpl/CExclusiveFile.h>
 
-	namespace APE
+	namespace ape
 	{
 		class CConsole;
 		class CTextLabel;
@@ -101,5 +101,5 @@
 
 		
 		}; // class CConsole
-	}; // class APE
+	}; // class ape
 #endif

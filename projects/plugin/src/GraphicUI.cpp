@@ -41,7 +41,7 @@
 #include <chrono>
 #include "CCodeEditor.h"
 
-namespace APE 
+namespace ape 
 {
 	/*********************************************************************************************
 	 
@@ -64,7 +64,7 @@ namespace APE
 		some of the engine's state to itself (button toggles, for instance.)
 
 	 *********************************************************************************************/
-	GraphicUI::GraphicUI(APE::Engine * effect)
+	GraphicUI::GraphicUI(ape::Engine * effect)
 		: console(nullptr), externEditor(nullptr), projectName(cpl::programInfo.programAbbr),
 		bIsCompiling(false), editor(nullptr), engine(effect), bIsCompiled(false), bIsActive(effect->status.bActivated),
 		bStatusLock(false), bUseBuffers(engine->status.bUseBuffers), bUseFPUE(engine->status.bUseFPUE),
@@ -584,10 +584,10 @@ namespace APE
 		// messages should be explanatory
 		if(!_this)
 			return 0;
-		APE::GraphicUI * _gui = _this->getGraphicUI();
+		ape::GraphicUI * _gui = _this->getGraphicUI();
 		auto start = std::chrono::high_resolution_clock::now();
 
-		APE::ProjectEx * project = _gui->externEditor->getProject();
+		ape::ProjectEx * project = _gui->externEditor->getProject();
 		if(!project)
 		{
 			_gui->console->printLine(CColours::red, "[GUI] : Compilation error - "

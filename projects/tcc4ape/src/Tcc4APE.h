@@ -35,7 +35,7 @@
 
 namespace TCC4Ape
 {
-	using namespace APE;
+	using namespace ape;
 	// alias of the plugin's memory block (we cannot know the type exactly)
 	using Status = APE_Status;
 
@@ -64,7 +64,7 @@ namespace TCC4Ape
 	};
 
 	// main class of this program.
-	class ScriptCompiler : public APE::ProtoCompiler
+	class ScriptCompiler : public ape::ProtoCompiler
 	{
 	public:
 

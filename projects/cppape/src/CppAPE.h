@@ -43,7 +43,7 @@ namespace CppAPE
 {
 	namespace fs = std::experimental::filesystem;
 
-	using namespace APE;
+	using namespace ape;
 
 	// Helper struct to manage the plugin
 	struct ScriptPlugin 
@@ -70,7 +70,7 @@ namespace CppAPE
 	};
 
 	// main class of this program.
-	class ScriptCompiler : public APE::ProtoCompiler
+	class ScriptCompiler : public ape::ProtoCompiler
 	{
 	public:
 
