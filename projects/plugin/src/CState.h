@@ -27,20 +27,13 @@
 		them; handles compiling and run-time resolution of dispatches from C to C++ 
 		member functions, as well as wrapping unsafe code turning hardware exceptions
 		into the software exception CSystemException. Allows setting of FPU environment.
- 
-	options:
-		#define __CSTATE_USE_SIGACTION
-			uses sigaction() instead of signal() on unix systems. Highly recommended
 
 *************************************************************************************/
 
 #ifndef APE_CSTATE_H
 	#define APE_CSTATE_H
 
-	#include "PlatformSpecific.h"
-	#include "Misc.h"
-	#include <assert.h>
-	#include "CApi.h"
+	#include <cpl/PlatformSpecific.h>
 	#include "MacroConstants.h"
 	#include "CMemoryGuard.h"
 	#include <vector>
@@ -48,11 +41,10 @@
 	#include <signal.h>
 	#include "CAllocator.h"
 	#include <ape/Project.h>
-	#include <ape/SharedInterface.h>
 	#include <ape/Events.h>
 	#include <thread>
-	#include "CMutex.h"
-	#include "SharedInterfaceEx.h"
+	#include <cpl/CMutex.h>
+	#include "ProjectEx.h"
 
 	namespace APE
 	{
@@ -64,6 +56,7 @@
 		struct Module;
 		class CState;
 		class CCodeGenerator;
+		struct SharedInterfaceEx;
 		
 		/*
 			This class is responsible for interconnecting the C and C++ systems, dispatch calls correctly and hold the state of the C-system

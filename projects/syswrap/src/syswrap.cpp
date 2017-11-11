@@ -153,7 +153,7 @@ namespace syswrap
 
 		auto ret = module.load(cpl::Misc::DirectoryPath() + "/sysoutput" + std::to_string(instanceNumber) + ".dll");
 
-		sprintf_s(addr, "0x%X", module.getHandle());
+		sprintf_s(addr, "0x%p", module.getHandle());
 		std::string loadMsg = "syswrap: loaded sysoutput.dll at ";
 		loadMsg += addr;
 		if (ret)

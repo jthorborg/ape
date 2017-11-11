@@ -38,11 +38,13 @@
 	#define APE_CCODEEDITOR_H
 
 	#include <string>
+	#include <memory>
 
 	namespace APE
 	{
-#pragma message("fix")
 		struct ProjectEx;
+#pragma message("fix")
+
 		// ideally the editor should not know about the engine, but library design doesn't
 		// really allow this.
 		class Engine;
@@ -81,8 +83,9 @@
 			void show() {};
 			void hide() {};
 			bool exists() { return false; }
-
-
 		};
+
+		std::unique_ptr<CCodeEditor> MakeCodeEditor(Engine * e);
+
 	};
 #endif

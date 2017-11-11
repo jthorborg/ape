@@ -30,6 +30,7 @@
 #ifndef _CCODEGENERATOR_H
 	#define _CCODEGENERATOR_H
 
+	#include <cpl/CModule.h>
 	#include "MacroConstants.h"
 	#include <string>
 	#include "CApi.h"
@@ -38,8 +39,6 @@
 	#include "Settings.h"
 	#include "ProjectEx.h"
 	#include <cassert>
-	#include "Misc.h"
-	#include "CModule.h"
 	#include <ape/Events.h>
 	#include <ape/CompilerBindings.h>
 
@@ -106,13 +105,13 @@
 					void * _table[MaxExports()];
 				};
 
-				bool loadBindings(CModule & module, const libconfig::Setting & exportSettings);
+				bool loadBindings(cpl::CModule & module, const libconfig::Setting & exportSettings);
 
 				CBindings();
 			};
 
 			bool initialized;
-			CModule module;
+			cpl::CModule module;
 			CBindings bindings;
 			std::vector<std::string> extensions;
 			std::string language;

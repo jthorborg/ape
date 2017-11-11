@@ -29,14 +29,15 @@
 
 *************************************************************************************/
 
+#include <cpl/PlatformSpecific.h>
+#include "SharedInterfaceEx.h"
 #include "CState.h"
 #include "Engine.h"
 #include "CCodeGenerator.h"
-#include "PlatformSpecific.h"
 #include "MacroConstants.h"
 #include "GraphicUI.h"
-#include "Misc.h"
 #include "CConsole.h"
+#include <sstream>
 
 namespace APE
 {
@@ -192,7 +193,7 @@ namespace APE
 	 *********************************************************************************************/
 	std::string CState::formatExceptionMessage(const CSystemException & e) 
 	{
-		Misc::CStringFormatter base;
+		std::stringstream base;
 		base << "Exception at " << std::hex << e.data.faultAddr << ": ";
 		switch(e.data.exceptCode)
 		{
@@ -214,7 +215,7 @@ namespace APE
 				return base.str() + "An API function was called with 'this' as an null pointer.";
 		case CSystemException::status::access_violation:
 			{
-				Misc::CStringFormatter fmt;
+				std::stringstream fmt;
 				#ifndef __WINDOWS__
 					switch(e.data.actualCode)
 					{

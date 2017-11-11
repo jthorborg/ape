@@ -34,7 +34,7 @@
 
 	#include <vector>
 	#include <string>
-	#include "Misc.h"
+	#include <cpl/Misc.h>
 	#include "CApi.h"
 	#include "CValueLabel.h"
 	#include "GraphicComponents.h"

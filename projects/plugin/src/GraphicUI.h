@@ -36,13 +36,9 @@
 	#include <vector>
 	#include "CControlManager.h"
 	#include "ButtonDefinitions.h"
-	#include "Misc.h"
+	#include <cpl/Misc.h>
+	#include <cpl/CMutex.h>
 
-	namespace Scintilla {
-
-		struct SciLexer;
-
-	};
 	namespace APE {
 
 		class Engine;
@@ -56,7 +52,7 @@
 		#ifdef APE_VST
 			: public AEffGUIEditor, public CControlListener, public CMutex::Lockable
 		#elif defined(APE_JUCE)
-			: public CCtrlListener, public CMutex::Lockable
+			: public CCtrlListener, public cpl::CMutex::Lockable
 		#endif
 		{
 		  public:
@@ -64,7 +60,6 @@
 			class Editor;
 			
 			friend class APE::Engine;
-			friend struct Scintilla::SciLexer;
 			friend class CCodeEditor;
 			friend class CSerializer;
 			friend class Editor;
@@ -138,7 +133,7 @@
 			void setProjectName(const std::string & name) { projectName = name; }
 			virtual bool valueChanged(CBaseControl *);
 			
-			CCodeEditor * externEditor;
+			std::unique_ptr<CCodeEditor> externEditor;
 			APE::Engine * engine;
 			Editor * editor;
 
@@ -146,7 +141,6 @@
 			CColour statusColour;
 			volatile bool bIsCompiling;
 			volatile bool bIsCompiled;
-			bool bShouldReset;
 			bool bFirstDraw;
 			volatile bool bStatusLock;
 			// these are refererences to the engine

@@ -29,16 +29,22 @@
 
 
 #include "CJuceEditor.h"
-#include "Misc.h"
+#include <cpl/misc.h>
 #include "Engine.h"
 #include "GraphicUI.h"
 #include "CConsole.h"
 #include "ProjectEx.h"
 #include <ctime>
 #include <cstdio>
+#include <sstream>
 
 namespace APE
 {
+	std::unique_ptr<CCodeEditor> MakeCodeEditor(Engine * e)
+	{
+		return std::make_unique<CJuceEditor>(e);
+	}
+
 	/*********************************************************************************************
 
 		Tokeniser implementation
@@ -120,7 +126,7 @@ namespace APE
 
 	*********************************************************************************************/
 	CWindow::CWindow(juce::CodeDocument & cd)
-		: DocumentWindow(_PROGRAM_NAME " editor",
+		: DocumentWindow(cpl::programInfo.name + " editor",
 		CColours::white,
 		DocumentWindow::TitleBarButtons::allButtons),
 		cec(nullptr)
@@ -245,7 +251,7 @@ namespace APE
 	*********************************************************************************************/
 	CJuceEditor::CJuceEditor(Engine * e)
 		: CCodeEditor(e), window(nullptr), isInitialized(false), isSingleFile(true), fullPath("Untitled"),
-		appName(_PROGRAM_NAME_ABRV " Editor"), isActualFile(false), wasRestored(false), autoSaveChecked(false)
+		appName(cpl::programInfo.programAbbr + " Editor"), isActualFile(false), wasRestored(false), autoSaveChecked(false)
 	{
 		doc.setSavePoint();
 	}
@@ -294,7 +300,7 @@ namespace APE
 				}
 				
 				if (file.length())
-					openFile((APE::Misc::DirectoryPath() + file).c_str());
+					openFile((cpl::Misc::DirectoryPath() + file).c_str());
 
 				setTitle();
 				return true;
@@ -347,7 +353,7 @@ namespace APE
 								// this is not really ideal control transfer, 
 								// but every lookup on libconfig::Setting might throw,
 								// so we use the same method here.. and only here.
-								throw Misc::CStrException("Not a list");
+								throw std::runtime_error("Not a list");
 							}
 							else
 							{
@@ -385,8 +391,8 @@ namespace APE
 		for (auto & str : filetypes)
 			validTypes += "*." + str + ";";
 
-		juce::File initialPath(APE::Misc::DirectoryPath() + "/examples/");
-		juce::FileChooser fileSelector(_PROGRAM_NAME_ABRV " - Select a source file...", initialPath, validTypes);
+		juce::File initialPath(cpl::Misc::DirectoryPath() + "/examples/");
+		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " - Select a source file...", initialPath, validTypes);
 
 		if (fileSelector.browseForFileToOpen())
 		{
@@ -394,10 +400,10 @@ namespace APE
 		}
 		else
 		{
-			APE::Misc::CStringFormatter fmt;
+			std::stringstream fmt;
 			fmt << "Error opening file dialog (" << 0 << ")!";
-			APE::Misc::MsgBox(fmt.str(), _PROGRAM_NAME_ABRV " Error!",
-				APE::Misc::MsgStyle::sOk | APE::Misc::MsgIcon::iWarning, getParentWindow());
+			cpl::Misc::MsgBox(fmt.str(), cpl::programInfo.programAbbr + " Error!",
+				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iWarning, getParentWindow());
 		}
 
 	}
@@ -520,12 +526,12 @@ namespace APE
 		switch (info.commandID)
 		{
 		case Command::FileNew:
-			if (saveIfUnsure() != APE::Misc::MsgButton::bCancel) {
+			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) {
 				newDocument();
 			}
 			break;
 		case Command::FileOpen:
-			if (saveIfUnsure() != APE::Misc::MsgButton::bCancel) {
+			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) {
 				openAFile();
 			}
 			break;
@@ -586,7 +592,7 @@ namespace APE
 			if (getDocumentText(text) && text.length() != 0 && 
 				assignCStr(text, project->sourceString) &&
 				assignCStr(getProjectName(), project->projectName) &&
-				assignCStr(Misc::DirectoryPath(), project->rootPath) &&
+				assignCStr(cpl::Misc::DirectoryPath(), project->rootPath) &&
 				assignCStr(getExtension(), project->languageID) &&
 				assignCStr(fullPath, fileLocations[0]))
 			{
@@ -738,12 +744,12 @@ namespace APE
 	 *********************************************************************************************/
 	int CJuceEditor::saveIfUnsure()
 	{
-		using namespace APE::Misc;
+		using namespace cpl::Misc;
 		if (isDirty()) {
 			std::string msg("Save changes to \"");
 			msg += fullPath;
 			msg += "\"?";
-			int decision = MsgBox(msg, _PROGRAM_NAME_ABRV, MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
+			int decision = MsgBox(msg, cpl::programInfo.programAbbr, MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
 			if (decision == MsgButton::bYes) {
 				if (isActualFile)
 					saveCurrentFile();
@@ -791,7 +797,7 @@ namespace APE
 			std::string msg("Could not open file \"");
 			msg += fullPath;
 			msg += "\".";
-			APE::Misc::MsgBox(msg, appName, APE::Misc::MsgStyle::sOk, getParentWindow(), true);
+			cpl::Misc::MsgBox(msg, appName, cpl::Misc::MsgStyle::sOk, getParentWindow(), true);
 			return false;
 		}
 		setTitle();
@@ -806,9 +812,9 @@ namespace APE
 	*********************************************************************************************/
 	void CJuceEditor::saveAs() {
 		 
-		juce::File suggestedPath(isActualFile ? fullPath : Misc::DirectoryPath());
+		juce::File suggestedPath(isActualFile ? fullPath : cpl::Misc::DirectoryPath());
 
-		juce::FileChooser fileSelector(_PROGRAM_NAME_ABRV " :: Select where to save your file...", suggestedPath);
+		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " :: Select where to save your file...", suggestedPath);
 		if (fileSelector.browseForFileToSave(true))
 		{
 			fullPath = fileSelector.getResult().getFullPathName().toStdString();
@@ -818,10 +824,10 @@ namespace APE
 		}
 		else
 		{
-			APE::Misc::CStringFormatter fmt;
+			std::stringstream fmt;
 			fmt << "Error opening save file dialog (" << false << ")!";
-			APE::Misc::MsgBox(fmt.str(), _PROGRAM_NAME_ABRV " Error!",
-				APE::Misc::MsgStyle::sOk | APE::Misc::MsgIcon::iWarning, getParentWindow());
+			cpl::Misc::MsgBox(fmt.str(), cpl::programInfo.programAbbr + " Error!",
+				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iWarning, getParentWindow());
 		}
 	}
 	/*********************************************************************************************
@@ -845,11 +851,11 @@ namespace APE
 			auto ret = fwrite(data.data(), data.size(), 1, fp);
 			if (ret != 1)
 			{
-				using namespace APE::Misc;
-				CStringFormatter fmt;
+				using namespace cpl::Misc;
+				std::stringstream fmt;
 				fmt << "Error saving to file \"" << fullPath << "\"." 
 					<< std::endl << "Wrote " << ret * data.size() << " bytes, expected " << data.size() << " bytes.";
-				MsgBox(fmt.str(), _PROGRAM_NAME_ABRV " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
+				MsgBox(fmt.str(), cpl::programInfo.programAbbr + " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 			}
 			else
 			{
@@ -859,10 +865,10 @@ namespace APE
 		}
 		else 
 		{
-			using namespace APE::Misc;
-			CStringFormatter fmt;
+			using namespace cpl::Misc;
+			std::stringstream fmt;
 			fmt << "Could not save file \"" << fullPath << "\".";
-			MsgBox(fmt.str(), _PROGRAM_NAME_ABRV " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
+			MsgBox(fmt.str(), cpl::programInfo.programAbbr + " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 		}
 	}
 	/*********************************************************************************************
@@ -900,7 +906,7 @@ namespace APE
 			// close the currently open file
 			if(!autoSaveFile.isOpened())
 			{
-				std::string path = Misc::DirectoryPath() + "/logs/autosave"
+				std::string path = cpl::Misc::DirectoryPath() + "/logs/autosave"
 				+ std::to_string(engine->uniqueInstanceID()) + ".ape";
 				autoSaveFile.open(path);
 			}
@@ -959,11 +965,11 @@ namespace APE
 	 *********************************************************************************************/
 	bool CJuceEditor::restoreAutoSave(AutoSaveInfo * info, juce::File & parentFile)
 	{
-		using namespace Misc;
+		using namespace cpl::Misc;
 		bool ret = false; // whether we actually restored a state
 		if (!info->wasDirty)
 			return false;
-		CStringFormatter fmt;
+		std::stringstream fmt;
 
 		time_t timeObj = info->timeStamp;
 		tm * ctime;
@@ -996,12 +1002,12 @@ namespace APE
 		}
 
 
-		auto answer = Misc::MsgBox(fmt.str(), "APE - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
+		auto answer = MsgBox(fmt.str(), "APE - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
 
 		switch (answer)
 		{
 		case MsgButton::bCancel:
-			parentFile.moveFileTo(juce::File(Misc::DirectoryPath() + "/junk/" + std::to_string(info->timeStamp) + fileName));
+			parentFile.moveFileTo(juce::File(DirectoryPath() + "/junk/" + std::to_string(info->timeStamp) + fileName));
 			// move file to a junk folder
 			break;
 		case MsgButton::bYes:
@@ -1038,14 +1044,14 @@ namespace APE
 	bool CJuceEditor::checkAutoSave()
 	{
 		// prevent multiple instances of this plugin to access the same files at once
-		static CMutex::Lockable autoSaveMutex;
-		CMutex lock(autoSaveMutex);
+		static cpl::CMutex::Lockable autoSaveMutex;
+		cpl::CMutex lock(autoSaveMutex);
 
 		if (autoSaveChecked)
 			return wasRestored;
 
 
-		juce::DirectoryIterator dir(juce::File(Misc::DirectoryPath() + "/logs/"), false, "autosave*.ape");
+		juce::DirectoryIterator dir(juce::File(cpl::Misc::DirectoryPath() + "/logs/"), false, "autosave*.ape");
 		
 		bool restored(false);
 		/*
@@ -1058,7 +1064,7 @@ namespace APE
 			// check if file is opened in exclusive mode by another instance of this program
 			// ie: whether it's an autosave file currently being used, or if it's an old file
 			// that we can safely mess with / restore / delete
-			if(CExclusiveFile::isFileExclusive(f.getFullPathName().toRawUTF8()))
+			if(cpl::CExclusiveFile::isFileExclusive(f.getFullPathName().toRawUTF8()))
 				continue;
 
 			

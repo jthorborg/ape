@@ -27,11 +27,11 @@
 *************************************************************************************/
 
 #include "CCodeGenerator.h"
-#include "PlatformSpecific.h"
+#include <cpl/PlatformSpecific.h>
 #include "Engine.h"
-#include "Misc.h"
-#include "Settings.h"
+#include <sstream>
 #include <cpl/Misc.h>
+#include "Settings.h"
 
 namespace APE
 {
@@ -68,7 +68,7 @@ namespace APE
 			If key and value is not found, it will default to the same value in
 			g_sExports.
 		*/
-		bool CCompiler::CBindings::loadBindings(CModule & module, const libconfig::Setting & exportSettings)
+		bool CCompiler::CBindings::loadBindings(cpl::CModule & module, const libconfig::Setting & exportSettings)
 		{
 			bool settingsIsValid = exportSettings.isGroup() && !strcmp(exportSettings.getName(), "exports");
 			const char * name;
@@ -90,11 +90,11 @@ namespace APE
 
 					if (!_table[i]) 
 					{
-						APE::Misc::CStringFormatter fmt;
+						std::stringstream fmt;
 						fmt << "Error retrieving pointer for function " << g_sExports[i] << ". ";
 						fmt << "Specific name: " << name << ". Was settings valid? " << std::boolalpha << settingsIsValid << ".";
 						valid = false;
-						throw Misc::CStrException(fmt.str());
+						throw std::runtime_error(fmt.str());
 					}
 
 
@@ -122,17 +122,17 @@ namespace APE
 				const libconfig::Setting & settings = languageSettings["exports"];
 
 				if(!compilerPath.length()) {
-					Misc::CStringFormatter fmt;
+					std::stringstream fmt;
 					fmt << "Invalid (empty) path for compiler \'" << compilerName << "\' for language \'"
 						<<  language << "\'.";
-					throw Misc::CStrException(fmt.str());
+					throw std::runtime_error(fmt.str());
 				}
-				auto error = module.load(Misc::DirectoryPath() + compilerPath);
+				auto error = module.load(cpl::Misc::DirectoryPath() + compilerPath);
 				if(error) {
-					Misc::CStringFormatter fmt;
+					std::stringstream fmt;
 					fmt << "Error loading compiler module \'" << compilerName << "\' for language \'"
-						<<  language << "\' " << " at " << "\'" << Misc::DirectoryPath() + compilerPath << "\'. OS returns " << error << ".";
-					throw Misc::CStrException(fmt.str());
+						<<  language << "\' " << " at " << "\'" << cpl::Misc::DirectoryPath() + compilerPath << "\'. OS returns " << error << ".";
+					throw std::runtime_error(fmt.str());
 				}
 				// will throw its own exception
 				return initialized = bindings.loadBindings(module, settings);
@@ -161,7 +161,7 @@ namespace APE
 			}
 			else if(project->state > CodeState::Disabled)
 			{
-				Misc::CStringFormatter fmt;
+				std::stringstream fmt;
 				fmt << "Cannot activate project when state is higher than initialized (" << static_cast<int>(project->state) << ").";
 				printError(fmt.str());
 			} else 

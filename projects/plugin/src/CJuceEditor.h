@@ -34,7 +34,7 @@
 	#include "MacroConstants.h"
 	#include "Common.h"
 	#include "CCodeEditor.h"
-	#include "CExclusiveFile.h"
+	#include <cpl/CExclusiveFile.h>
 	#include "ProjectEx.h"
 	#include <string>
 	#include <map>
@@ -178,7 +178,7 @@
 			CWindow * window;
 			std::string fullPath, appName;
 			juce::CodeDocument doc;
-			CExclusiveFile autoSaveFile;
+			cpl::CExclusiveFile autoSaveFile;
 			bool isInitialized, isSingleFile, isActualFile, autoSaveChecked, wasRestored;
 			std::map<int, std::string> userHotKeys;
 		public:

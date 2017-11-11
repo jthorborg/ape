@@ -35,7 +35,7 @@
 #include <string>
 #include "CConsole.h"
 #include "CState.h"
-#include "Misc.h"
+#include <cpl/Misc.h>
 #include "Engine.h"
 #include <cpl/Protected.h>
 
@@ -122,7 +122,7 @@ namespace APE
 		REQUIRES_NOTNULL(title);
 
 		auto& engine = IEx::upcast(*iface).getEngine();
-		return Misc::MsgBox(text, title, nStyle, engine.getGraphicUI()->getSystemWindow(), nBlocking ? true : false);
+		return cpl::Misc::MsgBox(text, title, nStyle, engine.getGraphicUI()->getSystemWindow(), nBlocking ? true : false);
 
 	}
 

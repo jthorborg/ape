@@ -35,7 +35,7 @@
 #include "CConsole.h"
 #include "Settings.h"
 #include <ape/Project.h>
-#include "Misc.h"
+#include <cpl/Misc.h>
 #include "CSerializer.h"
 
 namespace cpl
@@ -86,7 +86,7 @@ namespace APE
 		status.bUseFPUE = false;
 		programName = "Default";
 		
-		instanceID.ID = Misc::ObtainUniqueInstanceID();
+		instanceID.ID = cpl::Misc::ObtainUniqueInstanceID();
 		
 		// rest of program
 		gui = std::make_unique<GraphicUI>(this);
@@ -95,7 +95,7 @@ namespace APE
 		// settings
 		loadSettings();
 		gui->console->printLine(CColours::black,
-			"[Engine] : Audio Programming Environment <%s> (instance %d) " _VERSION_STRING " (" _ARCH_STRING ") %s loaded.",
+			("[Engine] : Audio Programming Environment <%s> (instance %d) " + cpl::programInfo.version.toString() + " (" _ARCH_STRING ") %s loaded.").c_str(),
 			engineType().c_str(), instanceID.ID,
 			#if defined(_DEBUG) || defined(DEBUG)
 				"debug");
@@ -134,12 +134,12 @@ namespace APE
 	{
 		int unid = -1;
 		try {
-			config.readFile((Misc::DirectoryPath() + "/config.cfg").c_str());
+			config.readFile((cpl::Misc::DirectoryPath() + "/config.cfg").c_str());
 
 			const libconfig::Setting & approot = getRootSettings()["application"];
 			bool enableLogging = approot["log_console"];
 			
-			std::string log_path = Misc::DirectoryPath() + "/logs/log" + std::to_string(instanceID.ID) + ".txt";
+			std::string log_path = cpl::Misc::DirectoryPath() + "/logs/log" + std::to_string(instanceID.ID) + ".txt";
 			
 			gui->console->setLogging(enableLogging, log_path);
 			bool enableStdWriting = approot["console_std_writing"];
@@ -157,16 +157,16 @@ namespace APE
 			unid = approot["unique_id"];
 			bool g_shown = approot["greeting_shown"];
 			if(!g_shown) {
-				Misc::MsgBox("Hello and welcome to " _PROGRAM_NAME "! Before you start using this program, "
+				cpl::Misc::MsgBox("Hello and welcome to " + cpl::programInfo.name + "! Before you start using this program, "
 				"please take time to read the readme and agree to all licenses + disclaimers found in /licenses. "
-				"Have fun!", _PROGRAM_NAME, Misc::MsgIcon::iInfo);
+				"Have fun!", cpl::programInfo.name, cpl::Misc::MsgIcon::iInfo);
 				approot["greeting_shown"] = true;
 			}
 			
 		}
 		catch(libconfig::FileIOException & e)
 		{
-			gui->console->printLine(CColours::red, "[Engine] : Error reading config file (%s)! (%s)",(Misc::DirectoryPath() + "/config.cfg").c_str(), e.what());
+			gui->console->printLine(CColours::red, "[Engine] : Error reading config file (%s)! (%s)", (cpl::Misc::DirectoryPath() + "/config.cfg").c_str(), e.what());
 		}
 		catch(libconfig::SettingNotFoundException & e)
 		{
@@ -237,7 +237,7 @@ namespace APE
 	Engine::~Engine() 
 	{
 		disablePlugin();
-		Misc::ReleaseUniqueInstanceID(instanceID.ID);
+		cpl::Misc::ReleaseUniqueInstanceID(instanceID.ID);
 	}
 	/*********************************************************************************************
 
@@ -248,14 +248,14 @@ namespace APE
 	 *********************************************************************************************/
 	bool Engine::pluginCrashed() 
 	{
-		Misc::MsgBox("Your plugin has performed an illegal operation and has crashed! "
+		cpl::Misc::MsgBox("Your plugin has performed an illegal operation and has crashed! "
 					 "it is adviced that you immediately save your project (perhaps in a new "
 					 "file) and restart your "
 					 "application, as memory might have been corrupted. Consider going through "
 					 "your code and double-check it for errors, especially pointer dereferences "
 					 "and loops that might cause segmentation faults.",
-					 _PROGRAM_NAME_ABRV " Fatal Error",
-					 Misc::MsgStyle::sOk | Misc::MsgIcon::iStop,
+					 cpl::programInfo.programAbbr + " Fatal Error",
+					 cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop,
 					 gui->getSystemWindow(),
 					 false);
 		return true;
@@ -371,7 +371,7 @@ namespace APE
 	void Engine::disablePlugin(bool fromEditor)
 	{
 		// else the processor might start while we are doing this
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		status.bActivated = false;
 		try 
 		{
@@ -542,7 +542,7 @@ namespace APE
 	{
 		if (status.bActivated)
 		{
-			CMutex lockGuard(this);
+			cpl::CMutex lockGuard(this);
 			unsigned numSamples = buffer.getNumSamples();
 			std::vector<float *> in, out; 
 
@@ -560,9 +560,9 @@ namespace APE
 			long long start(0), stop(0);
 			try
 			{
-				start = Misc::ClockCounter();
+				start = cpl::Misc::ClockCounter();
 				csys->processReplacing(in.data(), out.data(), numSamples);
-				stop = Misc::ClockCounter() - start;
+				stop = cpl::Misc::ClockCounter() - start;
 			}
 			catch (const CState::CSystemException & e)
 			{
@@ -614,7 +614,7 @@ namespace APE
 			{
 				clocksPerSample = static_cast<long>(stop / numSamples);
 				if(!clocksPerSample)
-					gui->console->printLine(CColours::red, "no counter? %d, %d, %d", stop, numSamples, Misc::ClockCounter());
+					gui->console->printLine(CColours::red, "no counter? %d, %d, %d", stop, numSamples, cpl::Misc::ClockCounter());
 				if (status.bUseFPUE)
 					csys->useFPUExceptions(false);
 				status.bIsProcessing = false;
@@ -974,7 +974,7 @@ namespace APE
 	{
 		#ifdef __WINDOWS__
 			if (!searchChanged) {
-				SetDllDirectory(APE::Misc::DirectoryPath().c_str());
+				SetDllDirectory(cpl::Misc::DirectoryPath().c_str());
 				searchChanged = true;
 			}
 		#endif
@@ -986,12 +986,12 @@ namespace APE
 		}
 		catch (const std::exception & e)
 		{
-			APE::Misc::CStringFormatter csf;
+			std::stringstream csf;
 			csf << "Exception while creating effect: " << e.what() << ".\nCheck /logs/ for more information ";
 			csf << "(logging can be enabled in config.cfg.application.log_console)";
 			fputs(csf.str().c_str(), stderr);
-			APE::Misc::MsgBox(csf.str(), _PROGRAM_NAME_ABRV " construction error!",
-				APE::Misc::MsgStyle::sOk | APE::Misc::MsgIcon::iStop, nullptr, true);
+			cpl::Misc::MsgBox(csf.str(), cpl::programInfo.programAbbr + " construction error!",
+				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, nullptr, true);
 		}
 		
 		return effect;

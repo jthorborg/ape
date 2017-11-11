@@ -29,17 +29,17 @@
 
 #include "GraphicUI.h"
 #include "ButtonDefinitions.h"
-#include "Misc.h"
+#include <cpl/Misc.h>
 #include "Engine.h"
 #include "CState.h"
 #include "CConsole.h"
-#include "PlatformSpecific.h"
 #include "MacroConstants.h"
-#include "CThread.h"
+#include <cpl/CThread.h>
 #include "ProjectEx.h"
 #include <stdio.h>
 #include "CQueueLabel.h"
 #include <chrono>
+#include "CCodeEditor.h"
 
 namespace APE 
 {
@@ -65,17 +65,17 @@ namespace APE
 
 	 *********************************************************************************************/
 	GraphicUI::GraphicUI(APE::Engine * effect)
-		: console(nullptr), externEditor(nullptr), projectName(_PROGRAM_NAME_ABRV),
-		bIsCompiling(false), engine(effect), bIsCompiled(false), bIsActive(effect->status.bActivated),
+		: console(nullptr), externEditor(nullptr), projectName(cpl::programInfo.programAbbr),
+		bIsCompiling(false), editor(nullptr), engine(effect), bIsCompiled(false), bIsActive(effect->status.bActivated),
 		bStatusLock(false), bUseBuffers(engine->status.bUseBuffers), bUseFPUE(engine->status.bUseFPUE),
-		ctrlNotifier(this), editor(nullptr), ctrlManager(&ctrlNotifier, CRect(138, 0, 826 - 138, 245), kTagEnd),
+		ctrlNotifier(this), ctrlManager(&ctrlNotifier, CRect(138, 0, 826 - 138, 245), kTagEnd),
 		autoSaveCounter(0), bFirstDraw(true), incGraphicCounter(0)
 	{
 		
 		// create console
 		console = new CConsole();
 		// create the editor
-		externEditor = new ExternalEditor(effect);
+		externEditor = MakeCodeEditor(effect);
 		
 		// 0.025 is pretty smooth
 		clockData.pole = 0.025f;
@@ -291,11 +291,7 @@ namespace APE
 	 *********************************************************************************************/
 	GraphicUI::~GraphicUI()
 	{
-		Misc::SpinLock(10000, bIsCompiling);
-
-		if(externEditor)
-			delete externEditor;
-
+		cpl::Misc::SpinLock(10000, bIsCompiling);
 	}
 	/*********************************************************************************************
 	 
@@ -363,7 +359,7 @@ namespace APE
 	void GraphicUI::setStatusText(const std::string & text, CColour colour)
 	{
 
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		statusLabel = projectName + " - " + text;
 		statusColour = colour;
 		if (editor)
@@ -391,7 +387,7 @@ namespace APE
 	void GraphicUI::setStatusText()
 	{
 
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		if (editor)
 		{
 			editor->statusLabel->setDefaultMessage(statusLabel, statusColour);
@@ -404,7 +400,7 @@ namespace APE
 	 *********************************************************************************************/
 	std::string GraphicUI::getStatusText()
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		return statusLabel;
 	}
 
@@ -452,7 +448,7 @@ namespace APE
 					engine->disablePlugin(false);
 					ctrlManager.reset();
 				}
-				CThread compileThread(GraphicUI::startCompilation);
+				cpl::CThread compileThread(GraphicUI::startCompilation);
 				compileThread.run(engine);
 			}
 			break;
@@ -497,7 +493,7 @@ namespace APE
 			
 			if(value > 0.1f) {
 				if(!externEditor->exists())
-					Misc::MsgBox("No code editor available!", _PROGRAM_NAME_ABRV " error!");
+					cpl::Misc::MsgBox("No code editor available!", cpl::programInfo.programAbbr + " error!");
 				externEditor->openEditor();
 			}
 			else
@@ -518,10 +514,10 @@ namespace APE
 		case tagUseFPU:
 			auto proxy = value > 0.1f ? true : false;
 			if(proxy) {
-				auto ret = Misc::MsgBox("Warning: Enabling floating-point exceptions can result in errornous behaviour, since "
-					"most DAW's have concurrent threads not checking exceptions. Resume?", _PROGRAM_NAME_ABRV,
-					Misc::MsgStyle::sYesNoCancel | Misc::MsgIcon::iQuestion, this->getSystemWindow(), true);
-				if(ret == Misc::MsgButton::bYes) {
+				auto ret = cpl::Misc::MsgBox("Warning: Enabling floating-point exceptions can result in errornous behaviour, since "
+					"most DAW's have concurrent threads not checking exceptions. Resume?", cpl::programInfo.programAbbr,
+					cpl::Misc::MsgStyle::sYesNoCancel | cpl::Misc::MsgIcon::iQuestion, this->getSystemWindow(), true);
+				if(ret == cpl::Misc::MsgButton::bYes) {
 					bUseFPUE = true;
 					control->bSetInternal(1.0f);
 					console->printLine(CColours::black, "[GUI] : Activated floating-point unit exceptions.");
@@ -561,16 +557,16 @@ namespace APE
 	void GraphicUI::about()
 	{
 		static std::string sDialogMessage =
-			_PROGRAM_NAME " is written by " _PROGRAM_AUTHOR
-			" in the period of " _TIME_OF_WRITING ". " _PROGRAM_NAME_ABRV " utilizes "
+			cpl::programInfo.name + " is written by " _PROGRAM_AUTHOR
+			" in the period of " _TIME_OF_WRITING ". " + cpl::programInfo.programAbbr + " utilizes "
 			_HOST_TARGET_TECH " as central program structure. All rights reserved to their respective owners,"
 			" see /licenses/ for licenses for using this program. Thanks to everyone"
 			" that has made this project possible; thanks for the great libraries and I hope"
 			" you do enjoy using this program." _HOMEPAGE_SENTENCE _ADDITIONAL_NOTES;
 
 		static std::string sTitleMessage =
-			"About " _PROGRAM_NAME_ABRV " " _VERSION_STRING " project";
-		Misc::MsgBox(sDialogMessage, sTitleMessage, Misc::MsgStyle::sOk | Misc::MsgIcon::iInfo, getSystemWindow(),true);
+			"About " + cpl::programInfo.programAbbr + " " + cpl::programInfo.version.toString() + " project";
+		cpl::Misc::MsgBox(sDialogMessage, sTitleMessage, cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iInfo, getSystemWindow(),true);
 	}
 	/*********************************************************************************************
 
@@ -614,7 +610,6 @@ namespace APE
 			_gui->setStatusText("Compiled OK!", CColours::green, 2000);
 			_gui->bIsCompiling = false;
 			_gui->bIsCompiled = true;
-			_gui->bShouldReset = true;
 		}
 		else
 		{
@@ -622,7 +617,6 @@ namespace APE
 			_gui->setStatusText("Error while compiling (see console)!", CColours::red, 5000);
 			_gui->bIsCompiling = false;
 			_gui->bIsCompiled = false;
-			_gui->bShouldReset = true;
 		}
 		
 		return (void*)1;

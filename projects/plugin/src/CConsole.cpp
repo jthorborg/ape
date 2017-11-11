@@ -30,11 +30,12 @@
 *************************************************************************************/
 
 #include "CConsole.h"
-#include "Misc.h"
+#include <cpl/Misc.h>
 #include <cstdarg>
 #include "MacroConstants.h"
 #include <cstdio>
 #include <cctype>
+#include <sstream>
 
 namespace APE
 {
@@ -81,7 +82,7 @@ namespace APE
 	 *********************************************************************************************/
 	void CConsole::create(const CRect & inSize)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		cont = new CConsoleContainer(this);
 		cont->bSetSize(inSize);
 		CRect fakeSize(inSize);
@@ -145,7 +146,7 @@ namespace APE
 	 *********************************************************************************************/
 	void CConsole::close() 
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		if (cont)
 			delete cont;
 		cont = nullptr;
@@ -190,15 +191,15 @@ namespace APE
 	 *********************************************************************************************/
 	int CConsole::printLine(CColour color, const char * fmt, va_list args) 
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		int nBufLen(0);
 		char * fmtd_str;
-		nBufLen = Misc::GetSizeRequiredFormat(fmt, args);
+		nBufLen = cpl::Misc::GetSizeRequiredFormat(fmt, args);
 
 		if(nBufLen < 0)
 			return 0;
 		std::string prefix = "[";
-		prefix += Misc::GetTime() + "]";
+		prefix += cpl::Misc::GetTime() + "]";
 		prefix += " > ";
 		auto size = nBufLen + 5 + prefix.length();
 		fmtd_str = new char[size];
@@ -217,7 +218,7 @@ namespace APE
 		{
 			// we printed a different amount of characters than we expected,
 			// report the error.
-			Misc::CStringFormatter fmt;
+			std::stringstream fmt;
 			fmt << "Console error: Mismatch in printed chars (expected "
 				<< nBufLen << ", printed " << charsPrinted << "), check your parameters:";
 			msgs.push_back(ConsoleMessage(fmt.str(), CColours::red));
@@ -291,7 +292,7 @@ namespace APE
 		//nothing to print
 		if(msgs.empty())
 			return;
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 
 		int lines_used = 0;
 		std::size_t msg_len; // total length of the current msg (eqv. to (*current).msg.lenght())

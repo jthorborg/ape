@@ -32,7 +32,7 @@
 
 	#include "Common.h"
 	#include <map>
-	#include "CMutex.h"
+	#include <cpl/CMutex.h>
 	#include "CBaseControl.h"
 
 	namespace APE

@@ -35,14 +35,14 @@
 	#define _QUEUELABEL_H
 
 	#include "MacroConstants.h"
-	#include "Misc.h"
-	#include "CMutex.h"
+	#include <cpl/Misc.h>
+	#include <cpl/CMutex.h>
 	#include "GraphicComponents.h"
 	#include <queue>
 
 	namespace APE
 	{
-		class CQueueLabel : public CMutex::Lockable, public CTextLabel
+		class CQueueLabel : public cpl::CMutex::Lockable, public CTextLabel
 		{
 			typedef std::pair<juce::String, CColour> colouredString;
 			
@@ -67,7 +67,7 @@
 
 			void paint(juce::Graphics & g)
 			{
-				CMutex lock(this);
+				cpl::CMutex lock(this);
 				g.setFont(size);
 				g.setColour(currentMessage->second);
 				g.drawText(currentMessage->first, CRect(0, 0, getWidth(), getHeight()), just, false);
@@ -83,20 +83,20 @@
 
 			void setDefaultMessage(const juce::String & msg, CColour colour)
 			{
-				CMutex lock(this);
+				cpl::CMutex lock(this);
 				defaultMessage.first = msg;
 				defaultMessage.second = colour;
 			}
 
 			void pushMessage(const juce::String & msg, CColour colour, int timeout)
 			{
-				CMutex lock(this);
+				cpl::CMutex lock(this);
 				messageStack.push(Message(std::make_pair(msg, colour), timeout));
 			}
 
 			void updateMessage()
 			{
-				CMutex lock(this);
+				cpl::CMutex lock(this);
 				if (messageStack.size())
 				{
 
@@ -106,13 +106,13 @@
 						// new message: no timestamp yet
 						// set it as the message, and stamp it
 						currentMessage = &front.msg;
-						front.timeStamp = Misc::QuickTime();
+						front.timeStamp = cpl::Misc::QuickTime();
 						repaint();
 						return;
 					}
 					// message already has a timestop (ie. it is shown) - check if it's been
 					// shown for it's period
-					else if (Misc::QuickTime() > (front.timeStamp + front.timeOut))
+					else if (cpl::Misc::QuickTime() > (front.timeStamp + front.timeOut))
 					{
 						messageStack.pop();
 						repaint();
@@ -127,7 +127,7 @@
 								// new message: no timestamp yet
 								// set it as the message, and stamp it
 								currentMessage = &front.msg;
-								front.timeStamp = Misc::QuickTime();
+								front.timeStamp = cpl::Misc::QuickTime();
 							}
 							return;
 						} // no elements left in container: fallback to default message at bottom

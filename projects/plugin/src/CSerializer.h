@@ -36,7 +36,8 @@
 	#include "CApi.h"
 	#include "Common.h"
 	#include "CConsole.h"
-	#include "CThread.h"
+	#include <cpl/CThread.h>
+	#include "CCodeEditor.h"
 
 	namespace APE
 	{
@@ -160,7 +161,7 @@
 
 			static bool restore(Engine * engine, const void * block, unsigned size)
 			{
-
+				using namespace cpl;
 				const SerializedEngine * se = reinterpret_cast<const SerializedEngine *> (block);
 				// some basic checks
 				if (
@@ -183,7 +184,7 @@
 						(
 						"Warning: You're trying to restore an instance from a different version ("
 						_VERSION_INT_STRING ") of this plugin, continue?", 
-						_PROGRAM_NAME " warning",
+							cpl::programInfo.name + " warning",
 						Misc::MsgStyle::sYesNoCancel | Misc::MsgIcon::iWarning
 						);
 					if (answer != Misc::MsgButton::bYes)

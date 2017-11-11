@@ -35,7 +35,7 @@
 	#include <list>
 	#include <stdarg.h>
 	#include "GraphicComponents.h"
-	#include "CExclusiveFile.h"
+	#include <cpl/CExclusiveFile.h>
 
 	namespace APE
 	{
@@ -67,7 +67,7 @@
 		};
 
 
-		class CConsole : public CMutex::Lockable, juce::AsyncUpdater
+		class CConsole : public cpl::CMutex::Lockable, juce::AsyncUpdater
 		{
 		private:
 			int nLines; // number of lines
@@ -97,7 +97,7 @@
 			std::list<ConsoleMessage> msgs;
 			std::vector<CTextLabel*> lines;
 			bool logging, stdWriting, visible, dirty;
-			CExclusiveFile debugFile;
+			cpl::CExclusiveFile debugFile;
 
 		
 		}; // class CConsole

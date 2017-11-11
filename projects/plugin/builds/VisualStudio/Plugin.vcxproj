@@ -588,13 +588,10 @@
     <ClCompile Include="..\..\src\CCodeGenerator.cpp" />
     <ClCompile Include="..\..\src\CConsole.cpp" />
     <ClCompile Include="..\..\src\CControlManager.cpp" />
-    <ClCompile Include="..\..\src\CExclusiveFile.cpp" />
     <ClCompile Include="..\..\src\CJuceEditor.cpp" />
-    <ClCompile Include="..\..\src\CModule.cpp" />
     <ClCompile Include="..\..\src\CValueLabel.cpp" />
     <ClCompile Include="..\..\src\GraphicComponents.cpp" />
     <ClCompile Include="..\..\src\GraphicUI.cpp" />
-    <ClCompile Include="..\..\src\Misc.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1705,22 +1702,16 @@
     <ClInclude Include="..\..\src\CCodeEditor.h" />
     <ClInclude Include="..\..\src\CConsole.h" />
     <ClInclude Include="..\..\src\CControlManager.h" />
-    <ClInclude Include="..\..\src\CExclusiveFile.h" />
     <ClInclude Include="..\..\src\CJuceEditor.h" />
     <ClInclude Include="..\..\src\CMemoryGuard.h" />
-    <ClInclude Include="..\..\src\CModule.h" />
-    <ClInclude Include="..\..\src\CMutex.h" />
     <ClInclude Include="..\..\src\Common.h" />
     <ClInclude Include="..\..\src\CQueueLabel.h" />
     <ClInclude Include="..\..\src\CSerializer.h" />
-    <ClInclude Include="..\..\src\CThread.h" />
     <ClInclude Include="..\..\src\CValueLabel.h" />
     <ClInclude Include="..\..\src\EditorMenu.h" />
     <ClInclude Include="..\..\src\GraphicComponents.h" />
     <ClInclude Include="..\..\src\GraphicUI.h" />
     <ClInclude Include="..\..\src\MacroConstants.h" />
-    <ClInclude Include="..\..\src\Misc.h" />
-    <ClInclude Include="..\..\src\PlatformSpecific.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioSampleBuffer.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_FloatVectorOperations.h" />
@@ -2170,7 +2161,6 @@
     <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
     <ClInclude Include="..\..\src\UserControls.h" />
-    <ClInclude Include="..\..\src\resource.h" />
     <ClInclude Include="..\..\src\Settings.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

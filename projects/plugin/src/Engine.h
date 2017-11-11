@@ -37,7 +37,7 @@
 	#include "CMemoryGuard.h"
 	#include <string>
 	#include "Settings.h"
-	#include "CMutex.h"
+	#include <cpl/CMutex.h>
 	#include <memory>
 	
 	namespace APE {
@@ -66,7 +66,7 @@
 		/*
 			Main engine class
 		*/
-		class Engine : public implementationDriver, public CMutex::Lockable
+		class Engine : public implementationDriver, public cpl::CMutex::Lockable
 		{
 			/*
 				friends
@@ -89,7 +89,7 @@
 				using std::runtime_error::runtime_error;
 			};
 
-			virtual ~Engine() __llvm_DummyNoExcept; //can't hurt
+			virtual ~Engine();
 			/*
 				overloads
 			*/

@@ -37,7 +37,7 @@
 #ifndef _CBASECONTROL_H
 	#define _CBASECONTROL_H
 
-	#include "CMutex.h"
+	#include <cpl/CMutex.h>
 	#include "Common.h"
 
 	namespace APE
@@ -67,7 +67,7 @@
 		class CBaseControl 
 		: 
 			public refCounter,
-			public CMutex::Lockable,
+			public cpl::CMutex::Lockable,
 			public juce::Slider::Listener, 
 			public juce::Button::Listener,
 			public juce::ScrollBar::Listener

@@ -44,8 +44,6 @@
 		#include "../JuceLibraryCode/JuceHeader.h"
 	#endif
 
-	#include "resource.h"
-
 	namespace APE
 	{
 

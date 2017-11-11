@@ -119,11 +119,6 @@
 
 	#define DIRC_COMP(x) ((x) == '\\' || (x) == '/')
 
-	#define _PROGRAM_NAME "Audio Programming Environment"
-	#define _PROGRAM_NAME_ABRV "APE"
-
-	#define _VERSION_SPECIFIC "alpha"
-
 	#ifdef APE_JUCE
 		#define _HOST_TARGET_TECH "JUCE"
 		#define _VERSION_INT JucePlugin_VersionCode

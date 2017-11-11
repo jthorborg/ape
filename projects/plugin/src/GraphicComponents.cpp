@@ -1,7 +1,7 @@
 
 
 #include "GraphicComponents.h"
-#include "Misc.h"
+#include <cpl/Misc.h>
 
 
 namespace APE
@@ -77,7 +77,7 @@ namespace APE
 		if (!isResourcesLoaded)
 		{
 			isResourcesLoaded = true;
-			std::string dir = Misc::DirectoryPath() + "/resources/";
+			std::string dir = cpl::Misc::DirectoryPath() + "/resources/";
 			for (auto name : resourceNames)
 			{
 				auto & image = resources[name];
@@ -85,7 +85,7 @@ namespace APE
 				image.setPath(path);
 				if (!image.load())
 				{
-					Misc::MsgBox("Error loading resource " + path, _PROGRAM_NAME_ABRV " error!", Misc::MsgIcon::iStop);
+					cpl::Misc::MsgBox("Error loading resource " + path, cpl::programInfo.programAbbr + " error!", cpl::Misc::MsgIcon::iStop);
 					return false;
 				}
 			}
@@ -244,7 +244,7 @@ namespace APE
 
 	void CToggle::paint(juce::Graphics & g)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		auto width = cbox.getWidth();
 		bool toggled = getToggleState();
 		g.drawImage(cbox, 0, 0, width, width, 0, toggled ? width : 0, width, width);
@@ -255,7 +255,7 @@ namespace APE
 
 	void CToggle::bSetText(const std::string & in)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		text = in;
 	}
 
@@ -399,17 +399,17 @@ namespace APE
 	}
 	void CTextControl::bSetText(const std::string & newText)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		CTextLabel::setText(newText);
 	}
 	const std::string CTextControl::bGetText()
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		return text.toStdString();
 	}
 	void CTextControl::paint(juce::Graphics & g)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		CTextLabel::paint(g);
 	}
 };

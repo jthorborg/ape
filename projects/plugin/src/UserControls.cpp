@@ -33,6 +33,8 @@
 #include "UserControls.h"
 #include "MacroConstants.h"
 #include "Engine.h"
+#include <cpl/CMutex.h>
+#include <cpl/Mathext.h>
 
 namespace APE {
 	
@@ -73,20 +75,20 @@ namespace APE {
 	/*********************************************************************************************/
 	void CLabelDisplay::bSetTitle(const std::string  & in)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		title = in;
 		labels[0]->setText(title);
 	}
 	/*********************************************************************************************/
 	void CLabelDisplay::setFormat(const char * fmt, va_list args)
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		text.setFormat(fmt, args);
 	}
 	/*********************************************************************************************/
 	void CLabelDisplay::bRedraw()
 	{
-		CMutex lockGuard(this);
+		cpl::CMutex lockGuard(this);
 		labels[1]->setText(text.get().c_str());
 
 	}
@@ -177,7 +179,7 @@ namespace APE {
 	{
 		float val = bGetValue();
 
-		int idx = APE::Misc::Round(val * (_values.size() ? _values.size() - 1 : 0));
+		int idx = cpl::Math::round<int>(val * (_values.size() ? _values.size() - 1 : 0));
 		std::string t;
 		t = (_values[idx] + " ")  + _unit;
 		bSetText(t.c_str());
