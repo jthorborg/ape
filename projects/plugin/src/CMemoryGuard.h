@@ -39,7 +39,7 @@
 
 #ifndef _CMEMORYGUARD_H
 	#define _CMEMORYGUARD_H
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#ifdef __WINDOWS__
 		#include <Windows.h>
 		typedef DWORD prot_t;

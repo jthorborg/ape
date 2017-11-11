@@ -31,7 +31,6 @@
 
 #include "Common.h"
 #include "UserControls.h"
-#include "MacroConstants.h"
 #include "Engine.h"
 #include <cpl/CMutex.h>
 #include <cpl/Mathext.h>

@@ -27,10 +27,10 @@
 
 *************************************************************************************/
 
+#include <cpl/Common.h>
 #include "Engine.h"
 #include "CApi.h"
 #include "CState.h"
-#include "MacroConstants.h"
 #include "GraphicUI.h"
 #include "CConsole.h"
 #include "Settings.h"
@@ -85,8 +85,9 @@ namespace ape
 		// settings
 		loadSettings();
 		gui->console->printLine(CColours::black,
-			("[Engine] : Audio Programming Environment <%s> (instance %d) " + cpl::programInfo.version.toString() + " (" _ARCH_STRING ") %s loaded.").c_str(),
+			("[Engine] : Audio Programming Environment <%s> (instance %d) " + cpl::programInfo.version.toString() + " (%s) %s loaded.").c_str(),
 			engineType().c_str(), instanceID.ID,
+			sizeof(void*) == 8 ? "64-bit" : "32-bit",
 			#if defined(_DEBUG) || defined(DEBUG)
 				"debug");
 			#else

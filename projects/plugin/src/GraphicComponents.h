@@ -193,7 +193,7 @@
 			juce::Component * getVContainer() { return virtualContainer; }
 			void scrollBarMoved(juce::ScrollBar * b, double newRange);
 			virtual void paint(juce::Graphics & g) override;
-			virtual ~CScrollableContainer() __llvm_DummyNoExcept;
+			virtual ~CScrollableContainer();
 
 		};
 		/*********************************************************************************************

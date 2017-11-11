@@ -31,7 +31,7 @@
 #ifndef APE_JUCEEDITOR_H
 	#define APE_JUCEEDITOR_H
 
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include "Common.h"
 	#include "CCodeEditor.h"
 	#include <cpl/CExclusiveFile.h>
@@ -150,7 +150,7 @@
 		public:
 
 			CWindow(juce::CodeDocument & cd);
-			virtual ~CWindow() __llvm_DummyNoExcept;
+			virtual ~CWindow();
 			// override resize to size codeeditorcomponent
 			void resized() override;
 			void closeButtonPressed() override;
@@ -183,7 +183,7 @@
 			std::map<int, std::string> userHotKeys;
 		public:
 			CJuceEditor(Engine * e);
-			virtual ~CJuceEditor() __llvm_DummyNoExcept;
+			virtual ~CJuceEditor();
 			/*
 				CCodeEditor overrides
 			*/

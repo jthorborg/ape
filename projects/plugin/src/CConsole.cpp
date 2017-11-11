@@ -30,9 +30,9 @@
 *************************************************************************************/
 
 #include "CConsole.h"
+#include <cpl/Common.h>
 #include <cpl/Misc.h>
 #include <cstdarg>
-#include "MacroConstants.h"
 #include <cstdio>
 #include <cctype>
 #include <sstream>

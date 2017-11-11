@@ -28,7 +28,7 @@
 
 #ifndef _SETTINGS_H
 	#define _SETTINGS_H
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 
 	#ifdef __MSVC__
 
@@ -42,7 +42,7 @@
 	{
 		class Settings
 		{
-
+			Settings();
 
 
 		};

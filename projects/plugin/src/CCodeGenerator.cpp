@@ -194,7 +194,7 @@ namespace ape
 		return Status::STATUS_ERROR;
 	}
 
-	Status CCodeGenerator::processReplacing(ProjectEx& project, Float ** in, Float ** out, Int sampleFrames)
+	Status CCodeGenerator::processReplacing(ProjectEx& project, float ** in, float ** out, std::size_t sampleFrames)
 	{
 		if (!project.compiler)
 		{

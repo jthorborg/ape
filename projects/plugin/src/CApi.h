@@ -30,7 +30,7 @@
 #ifndef APE_CAPI_H
 	#define APE_CAPI_H
 
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include <exception>
 	#include <ape/SharedInterface.h>
 

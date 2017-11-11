@@ -34,7 +34,6 @@
 #include "CState.h"
 #include "Engine.h"
 #include "CCodeGenerator.h"
-#include "MacroConstants.h"
 #include "GraphicUI.h"
 #include "CConsole.h"
 #include <sstream>
@@ -43,7 +42,7 @@ namespace ape
 {
 	
 	CState::StaticData CState::staticData;
-	__thread_local CState::ThreadData CState::threadData;
+	thread_local CState::ThreadData CState::threadData;
 
 
 	CState::CState(Engine * engine) 
@@ -154,7 +153,7 @@ namespace ape
 		Calls plugin's processReplacer
 
 	 *********************************************************************************************/
-	Status CState::processReplacing(Float ** in, Float ** out, Int sampleFrames)
+	Status CState::processReplacing(float ** in, float ** out, std::size_t sampleFrames)
 	{
 		Status ret = Status::STATUS_ERROR;
 		if (curProject)
@@ -311,9 +310,8 @@ namespace ape
 	 *********************************************************************************************/
 	void CState::useFPUExceptions(bool bVal) 
 	{
-		BreakIfDebugged();
 		// always call this!!#
-		#ifdef __MSVC__
+		#ifdef CPL_MSVC
 			_clearfp();
 			unsigned int nfpcw = 0;
 			if(bVal)
@@ -362,7 +360,7 @@ namespace ape
 	 *********************************************************************************************/
 	XWORD CState::structuredExceptionHandler(XWORD _code, CSystemException::eStorage & e, void * systemInformation)
 	{
-		BreakIfDebugged();
+		CPL_BREAKIFDEBUGGED();
 
 		#ifdef __WINDOWS__
 			auto exceptCode = _code;

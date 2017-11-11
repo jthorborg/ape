@@ -27,7 +27,7 @@
 
 *************************************************************************************/
 
-#include "MacroConstants.h"
+#include <cpl/Common.h>
 #include "CApi.h"
 #include "SharedInterfaceEx.h"
 #include "GraphicUI.h"
@@ -87,9 +87,8 @@ namespace ape
 		va_start(args, fmt);
 		std::string msg ("[Plugin] : ");
 		msg += fmt;
-		CColour	color(_rgb_get_red(nColor), _rgb_get_green(nColor), _rgb_get_blue(nColor), (unsigned char)0xFF);
-#pragma message("wtf")
-		int nRet = engine.getGraphicUI()->console->printLine(color, msg.c_str(), args);
+		juce::Colour colour(nColor);
+		int nRet = engine.getGraphicUI()->console->printLine(colour.withAlpha(1.0f), msg.c_str(), args);
 
 		va_end(args);
 

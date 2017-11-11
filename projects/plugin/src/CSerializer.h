@@ -30,7 +30,7 @@
 	#define _CSERIALIZER_H
 
 
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include "Engine.h"
 	#include "GraphicUI.h"
 	#include "CApi.h"
@@ -45,7 +45,7 @@
 			It is of pretty high importance to standardize the layout of this 
 			struct os-, architechture- and compiler independent (for obvious reasons)
 		*/
-		struct __alignas(APE_DEF_ALIGN) SerializedEngine
+		struct SerializedEngine
 		{
 			typedef uint32_t SeIntType;
 
@@ -136,7 +136,7 @@
 				::memset(se, 0, neededSize);
 				se->size = neededSize;
 				se->structSize = sizeof(SerializedEngine);
-				se->version = _VERSION_INT;
+				se->version = 9;
 				se->editorOpened = engine->gui->externEditor->isOpen();
 				se->isActivated = isActivated;
 				se->valueOffset = sizeof(SerializedEngine);
@@ -175,15 +175,14 @@
 						se, size, sizeof(SerializedEngine), se->size);
 					return false;
 				}
-				else if (se->version != _VERSION_INT)
+				else if (se->version != 9)
 				{
 					engine->gui->console->printLine(CColours::red,
 						"[Serializer] : Warning: Different versions detected!");
 
 					auto answer = Misc::MsgBox
 						(
-						"Warning: You're trying to restore an instance from a different version ("
-						_VERSION_INT_STRING ") of this plugin, continue?", 
+						"Warning: You're trying to restore an instance from a different version (0) of this plugin, continue?", 
 							cpl::programInfo.name + " warning",
 						Misc::MsgStyle::sYesNoCancel | Misc::MsgIcon::iWarning
 						);

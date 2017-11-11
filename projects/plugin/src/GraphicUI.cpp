@@ -33,7 +33,6 @@
 #include "Engine.h"
 #include "CState.h"
 #include "CConsole.h"
-#include "MacroConstants.h"
 #include <cpl/CThread.h>
 #include "ProjectEx.h"
 #include <stdio.h>
@@ -108,7 +107,7 @@ namespace ape
 
 		// add buttons
 		CButton * b = nullptr;
-		for (int i = 0; i < ArraySize(ButtonDefs); i++)
+		for (int i = 0; i < std::extent<decltype(ButtonDefs)>::value; i++)
 		{
 			b = new CButton(ButtonDefs[i].toggled, ButtonDefs[i].untoggled, &parent);
 			b->bSetTag(ButtonDefs[i].tag);
@@ -557,12 +556,12 @@ namespace ape
 	void GraphicUI::about()
 	{
 		static std::string sDialogMessage =
-			cpl::programInfo.name + " is written by " _PROGRAM_AUTHOR
-			" in the period of " _TIME_OF_WRITING ". " + cpl::programInfo.programAbbr + " utilizes "
-			_HOST_TARGET_TECH " as central program structure. All rights reserved to their respective owners,"
+			cpl::programInfo.name + " is written by Janus Lynggard Thorborg"
+			" in the period of 2012-2017. " + cpl::programInfo.programAbbr + " utilizes "
+			"juce as central program structure. All rights reserved to their respective owners,"
 			" see /licenses/ for licenses for using this program. Thanks to everyone"
 			" that has made this project possible; thanks for the great libraries and I hope"
-			" you do enjoy using this program." _HOMEPAGE_SENTENCE _ADDITIONAL_NOTES;
+			" you do enjoy using this program. See more at www.jthorborg.com/index.html?ipage=ape";
 
 		static std::string sTitleMessage =
 			"About " + cpl::programInfo.programAbbr + " " + cpl::programInfo.version.toString() + " project";

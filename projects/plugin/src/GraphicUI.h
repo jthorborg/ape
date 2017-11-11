@@ -92,7 +92,7 @@
 				void paint(juce::Graphics & g);
 				void timerCallback();
 				Editor(GraphicUI & parent);
-				virtual ~Editor() __llvm_DummyNoExcept;
+				virtual ~Editor();
 			};
 			/*
 			this struct handles incoming events from the VSTGUI lib specific for the plugins'

@@ -37,9 +37,12 @@
 #include <ctime>
 #include <cstdio>
 #include <sstream>
+#include <experimental/filesystem>
 
 namespace ape
 {
+	namespace fs = std::experimental::filesystem;
+
 	std::unique_ptr<CCodeEditor> MakeCodeEditor(Engine * e)
 	{
 		return std::make_unique<CJuceEditor>(e);
@@ -630,30 +633,19 @@ namespace ape
 		Returns the document name.
 
 	*********************************************************************************************/
-	std::string CJuceEditor::getDocumentName() {
-		for (signed int i = static_cast<signed int>(fullPath.length()); 
-			i >= 0; 
-			--i)
-		{
-			if (DIRC_COMP(fullPath[i])) // if fullPath is a path and not an unsaved file, shave the directory off
-				// by looping backwards and finding the first backslash.
-				return fullPath.substr(i + 1);
-		}
-		return fullPath;
+	std::string CJuceEditor::getDocumentName() 
+	{
+		return fs::path(fullPath).filename().string();
 	}
 	/*********************************************************************************************
 
 		Returns the directory the document reside in.
 
 	*********************************************************************************************/
-	std::string CJuceEditor::getDirectory() {
-		//NOT DONE here. Pull the info from the project info file, if not exists - from file alone.")
-		for (signed int i = fullPath.length(); i >= 0; --i) {
-			if (DIRC_COMP(fullPath[i])) // if fullPath is a path and not an unsaved file, shave the file off
-				// by looping backwards and finding the first backslash.
-				return std::string(fullPath.begin(), fullPath.begin() + i);
-		}
-		return "";
+	std::string CJuceEditor::getDirectory() 
+	{
+		// TODO: fullpath -> std::path
+		return fs::path(fullPath).parent_path().string();
 	}
 	/*********************************************************************************************
 	 
@@ -989,17 +981,7 @@ namespace ape
 			<< ctime->tm_sec << ", " << ctime->tm_mday << "/" << ctime->tm_mon + 1 << "." << std::endl;
 		fmt << "Do you want to open this file (yes), delete it (no) or move it to /junk/ folder (cancel)?";
 
-		std::string fileName = fullFileName;
-
-		for (signed int i = static_cast<signed int>(fullFileName.length());
-			i >= 0;
-			--i)
-		{
-			if (DIRC_COMP(fullFileName[i]))
-			{
-				fileName = fullFileName.substr(i + 1);
-			}
-		}
+		std::string fileName = fs::path(fullFileName).filename().string();
 
 
 		auto answer = MsgBox(fmt.str(), "ape - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);

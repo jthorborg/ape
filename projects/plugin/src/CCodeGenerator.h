@@ -31,7 +31,7 @@
 	#define _CCODEGENERATOR_H
 
 	#include <cpl/CModule.h>
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include <string>
 	#include "CApi.h"
 	#include <map>
@@ -143,7 +143,7 @@
 				They are caught in the CState wrapper.
 			*/
 			Status activateProject(ProjectEx & project);
-			Status processReplacing(ProjectEx & project, Float ** in, Float ** out, Int sampleFrames);
+			Status processReplacing(ProjectEx & project, float ** in, float ** out, std::size_t sampleFrames);
 			Status disableProject(ProjectEx & project, bool didMisbehave);
 			Status onEvent(ProjectEx & project, Event * e);
 

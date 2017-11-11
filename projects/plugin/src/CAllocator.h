@@ -35,7 +35,7 @@
 
 	#include <list>
 	#include <cstdlib>
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include <ape/SharedInterface.h>
 	#include <cpl/CMutex.h>
 

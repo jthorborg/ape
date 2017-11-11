@@ -201,7 +201,7 @@
 				const float * const values, const int numValues);
 			void paint(juce::Graphics & g);
 			void bRedraw() override;
-			~CPlot() __llvm_DummyNoExcept;
+			~CPlot();
 		};
 
 		/*********************************************************************************************

@@ -2843,9 +2843,6 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>Juce Library Code</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\MacroConstants.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CCodeEditor.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>

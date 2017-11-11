@@ -33,7 +33,7 @@
 
 	#define _EDITOR_MENU_H
 
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 
 	#ifdef __WINDOWS__
 

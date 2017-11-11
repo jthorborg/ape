@@ -34,7 +34,7 @@
 	#define APE_CSTATE_H
 
 	#include <cpl/PlatformSpecific.h>
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include "CMemoryGuard.h"
 	#include <vector>
 	#include <exception>
@@ -88,7 +88,7 @@
 			*/
 			Status activateProject();
 			Status disableProject(bool didMisbehave);
-			Status processReplacing(Float ** in, Float ** out, Int sampleFrames);
+			Status processReplacing(float ** in, float ** out, std::size_t sampleFrames);
 			Status onEvent(Event * e);
 			/*
 				RunProtectedCode
@@ -271,7 +271,7 @@
 			 } staticData;
 			 
 			 
-			static __thread_local struct ThreadData
+			static thread_local struct ThreadData
 			{
 				CState * activeStateObject;
 				#ifndef __WINDOWS__

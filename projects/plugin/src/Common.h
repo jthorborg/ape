@@ -31,7 +31,7 @@
 
 #ifndef _COMMON_H
 	#define _COMMON_H
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 
 	#ifdef APE_IPLUG
 		#include "IPlug_include_in_plug_hdr.h"

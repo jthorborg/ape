@@ -34,7 +34,7 @@
 #ifndef _QUEUELABEL_H
 	#define _QUEUELABEL_H
 
-	#include "MacroConstants.h"
+ #include <cpl/MacroConstants.h>
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 	#include "GraphicComponents.h"
