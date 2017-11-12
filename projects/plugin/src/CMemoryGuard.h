@@ -39,7 +39,8 @@
 
 #ifndef _CMEMORYGUARD_H
 	#define _CMEMORYGUARD_H
- #include <cpl/MacroConstants.h>
+
+	#include <cpl/MacroConstants.h>
 	#ifdef __WINDOWS__
 		#include <Windows.h>
 		typedef DWORD prot_t;
@@ -50,7 +51,9 @@
 	#else
 		#error "Implement for your system."
 	#endif
+
 	#include <cmath>
+
 	namespace ape 
 	{
 		class CMemoryGuard
@@ -139,21 +142,24 @@
 				#endif
 				return true;
 			}
-			/*
-				if size > getMaxSize() it attemps to resize the allocation.
-				this causes all memory to be forgotten.
-				automatically guards pages before and after with no-access protection.
-				this will cause segfaults if this memory is accessed.
-				returns true if sucessful, false if error occured.
-				the usable memory is protected with default (readwrite) or whatever setProtect has
-				been called with.
-			*/
-			bool resize(size_t size) {
+
+			/// <summary>
+			/// if size > getMaxSize() it attemps to resize the allocation.
+			/// this causes all memory to be forgotten.
+			///	automatically guards pages before and after with no - access protection.
+			///	this will cause segfaults if this memory is accessed.
+			///	returns true if sucessful, false if error occured.
+			///	the usable memory is protected with default (readwrite) or whatever setProtect has
+			///	been called with.
+			/// </summary>
+			bool resize(size_t size) 
+			{
 				if(size < bankSize)
 					return true;
 
 				if(!reset())
 					return false;
+
 				size_t needed_memory = ((size_t)std::ceil(float(size) / pageSize)) * pageSize;
 				bankSize = needed_memory; // set bankSize to the size of the usable memory.
 				needed_memory += 2 * pageSize; // add a page before and after
@@ -203,6 +209,13 @@
 				#endif
 				return true;
 			}
+
+			template<typename T>
+			bool resize(std::size_t elements)
+			{
+				return resize(elements * sizeof(T));
+			}
+
 			/*
 				checks whether a pointer points to memory inside this object's allocated memory.
 					return values are -1 if it points to protected page before,
@@ -210,7 +223,8 @@
 					1 if it points to the actual valid memory.
 					0 if it doesn't point to anything this object knows of.
 			*/
-			int in_range(const void * ptr) {
+			int in_range(const void * ptr) noexcept 
+			{
 				if(ptr > regions[0] && ptr < regions[1])
 					return -1;
 				if(ptr > regions[1] && ptr < regions[2])
@@ -224,14 +238,23 @@
 				returns the valid usable memory. guaranteed to be valid if resize() returned true.
 				returns nullptr if resize() error'd or hasn't been called.
 			*/
-			void * get() {
+			void * get() noexcept
+			{
 				return regions[1] ? regions[1] : nullptr;
 			}
+
+			template<typename T>
+			T* get() noexcept
+			{
+				return reinterpret_cast<T*>(get());
+			}
+
 			/*
 				returns the maximum size of the valid memory
 				this implies that get() + 0 to get() + getMaxSize() - 1 is valid memory
 			*/
-			size_t getMaxSize() {
+			size_t getMaxSize() 
+			{
 				return bankSize;
 			}
 		};

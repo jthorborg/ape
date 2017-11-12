@@ -64,7 +64,6 @@
 			Engine(const Engine &);
 		private:
 			void static errPrint(void * data, const char * text);
-			void initMem(int am = 2);
 			bool copyInput(std::vector<float *> & in, std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
 			bool copyOutput(std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
 		public:
@@ -130,7 +129,6 @@
 			Status onCtrlEvent(CBaseControl * base);
 
 			void changeInitialDelay(long samples);
-			Status requestStatusChange(Status);
 			void about();
 			void disablePlugin(bool fromEditor = true);
 			Status requestLinkage();

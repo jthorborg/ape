@@ -43,10 +43,6 @@ namespace ape
 {
 	using IEx = SharedInterfaceEx;
 
-#define CAPI_SANITY_CHECK() \
-		if(!iface) \
-			cpl::CProtected::instance().throwException<CState::CSystemException>(CState::CSystemException::status::nullptr_from_plugin, true)
-
 #define THROW(msg) \
 	cpl::CProtected::instance().throwException<std::runtime_error>(std::string(__FUNCTION__) + ": " + (msg))
 
@@ -58,27 +54,27 @@ namespace ape
 
 	void APE_API abortPlugin(APE_SharedInterface * iface, const char * reason)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		cpl::CProtected::instance().throwException<Engine::AbortException>(reason);
 	}
 
 	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 		return static_cast<float>(engine.getSampleRate());
 	}
 
 	Status APE_API setStatus(APE_SharedInterface * iface, Status status) 
 	{
-		CAPI_SANITY_CHECK();
-		auto& engine = IEx::upcast(*iface).getEngine();
-		return engine.requestStatusChange(status);
+		abortPlugin(iface, "setStatus is a deprecated API.");
+
+		return Status::STATUS_ERROR;
 	}
 
 	int APE_API_VARI printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... ) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(fmt);
 
 		auto& engine = IEx::upcast(*iface).getEngine();
@@ -97,7 +93,7 @@ namespace ape
 
 	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(fmt);
 
@@ -116,7 +112,7 @@ namespace ape
 
 	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(text);
 		REQUIRES_NOTNULL(title);
 
@@ -127,7 +123,7 @@ namespace ape
 
 	int APE_API createKnob(APE_SharedInterface * iface, const char * name, float * extVal, int type) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
@@ -141,7 +137,7 @@ namespace ape
 
 	int APE_API createKnobEx(APE_SharedInterface * iface, const char * name, float * extVal, char * values, char * unit) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 		REQUIRES_NOTNULL(values);
@@ -158,7 +154,7 @@ namespace ape
 
 	int APE_API createMeter(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
@@ -173,7 +169,7 @@ namespace ape
 	
 	int APE_API createToggle(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
@@ -188,7 +184,7 @@ namespace ape
 
 	long long APE_API timerGet(APE_SharedInterface * iface) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		long long t = 0;
 
 		#ifdef _WINDOWS_
@@ -207,7 +203,7 @@ namespace ape
 
 	double APE_API timerDiff(APE_SharedInterface * iface, long long time) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 
 		double ret = 0.f;
 
@@ -245,20 +241,20 @@ namespace ape
 
 	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		return IEx::upcast(*iface).getCState().getPluginAllocator().alloc(label, size);
 	}
 
 	void APE_API free(APE_SharedInterface * iface, void * ptr) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 
 		IEx::upcast(*iface).getCState().getPluginAllocator().free(ptr);
 	}
 
 	void APE_API setInitialDelay(APE_SharedInterface * iface, int samples) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		engine.changeInitialDelay(samples);
@@ -266,7 +262,7 @@ namespace ape
 
 	int APE_API getNumInputs(APE_SharedInterface * iface) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		return engine.getNumInputChannels();
@@ -274,7 +270,7 @@ namespace ape
 
 	int APE_API getNumOutputs(APE_SharedInterface * iface) 
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		return engine.getNumOutputChannels();
@@ -282,7 +278,7 @@ namespace ape
 	
 	double APE_API getBPM(APE_SharedInterface * iface)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		if (!engine.isInProcessingCallback())
@@ -312,7 +308,7 @@ namespace ape
 	
 	void APE_API setCtrlValue(APE_SharedInterface * iface, int ID, float value)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		CBaseControl * c = engine.getGraphicUI()->ctrlManager.getControl(ID);
@@ -324,7 +320,7 @@ namespace ape
 	
 	float APE_API getCtrlValue(APE_SharedInterface * iface, int ID)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::upcast(*iface).getEngine();
 
 		CBaseControl * c = engine.getGraphicUI()->ctrlManager.getControl(ID);
@@ -337,7 +333,7 @@ namespace ape
 	int	APE_API	createPlot(APE_SharedInterface * iface, const char * name, 
 		const float * const vals, const unsigned int numVals)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(vals);
 
@@ -352,7 +348,7 @@ namespace ape
 	
 	int	APE_API	createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
 	{
-		CAPI_SANITY_CHECK();
+		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(unit);
 		REQUIRES_NOTNULL(extVal);

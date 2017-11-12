@@ -170,28 +170,9 @@ namespace ape
 		{
 			gui->console->printLine(CColours::red, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
 		}
-		#ifdef APE_VST
-			setNumInputs (numBuffers); // stereo in
-			setNumOutputs (numBuffers); // stereo out
-			setUniqueID (unid); // identify
-			canProcessReplacing (); // supports both accumulating and replacing output
-		#endif
-		initMem();
 
 	}
-	/*********************************************************************************************
 
-		Initializes memory used for safe buffers
-
-	 *********************************************************************************************/
-	void Engine::initMem(int am)
-	{
-		for(int i = 0; i < am; ++i) {
-			csys->getPMemory().push_back(CMemoryGuard());
-			// hack, should be read_only but then we must change permissions on the fly
-			csys->getPMemory()[i].setProtect(CMemoryGuard::protection::readwrite); 
-		}
-	}
 	/*********************************************************************************************
 
 		Returns a unique id, that represents this instance.
@@ -318,13 +299,15 @@ namespace ape
 		e.event.eCtrlValueChanged = &aevent;
 		// run plugin's event handler
 		Status ret = STATUS_OK;
-		try {
+		try 
+		{
 			ret = csys->onEvent(&e); 
 		} 
-		catch (CState::CSystemException & e) {
+		catch (const cpl::CProtected::CSystemException & e) 
+		{
 			gui->console->printLine(CColours::red, 
 				"[Engine] : Exception 0x%X occured while calling eventHandler code: %s Plugin disabled.", 
-				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
+				e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str());
 			state = STATUS_ERROR;
 			gui->setStatusText("Plugin crashed!", CColours::red);
 			disablePlugin(false);
@@ -367,11 +350,11 @@ namespace ape
 		{
 			state = csys->disableProject(state != STATUS_READY);
 		} 
-		catch (const CState::CSystemException & e) 
+		catch (const cpl::CProtected::CSystemException & e) 
 		{
 			gui->console->printLine(CColours::red,
 				"[Engine] : Exception 0x%X occured while disabling plugin: %s Plugin disabled.",
-				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
+				e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str());
 			gui->setStatusText("Plugin crashed!", CColours::red);
 			state = STATUS_ERROR;
 			pluginCrashed();
@@ -413,11 +396,13 @@ namespace ape
 		{
 			state = csys->activateProject();
 		} 
-		catch (CState::CSystemException & e) 
+		catch (const cpl::CProtected::CSystemException & e)
 		{
-			gui->console->printLine(CColours::red,
-				"[Engine] : Exception 0x%X occured while activating plugin: %s Plugin disabled.",
-				e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
+			gui->console->printLine(
+				CColours::red, 
+				"[Engine] : Exception 0x%X occured while activating plugin: %s Plugin disabled.", 
+				e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str()
+			);
 			state = STATUS_ERROR;
 			gui->setStatusText("Plugin crashed!", CColours::red);
 			disablePlugin(false);
@@ -452,76 +437,6 @@ namespace ape
 		}
 		return status.bActivated;
 	}
-	/*********************************************************************************************
-
-		The plugin may call this function for changing the state, depending on state and context
-		the state may change. Will ideally be used for silencing/activating from a silenced state,
-		to bypass activation and disabling (ie. to bypass onLoad and onUnload, useful when plugin is threaded).
-
-	 *********************************************************************************************/
-	Status Engine::requestStatusChange(Status status) 
-	{
-
-		// not really done yet and can crash (see notes), therefore we just do this so far:
-		return state;
-
-		/*
-			If we are in a error state, we cannot recover from this function.
-		*/
-		if(state == STATUS_ERROR)
-			return STATUS_ERROR;
-
-		switch(status) 
-		{
-		case STATUS_DISABLED:
-			disablePlugin(false);
-			break;
-
-		/*
-			STATUS_SILENT and -Wait overrides the standard activation and disabling methods,
-			setting the plugin in a metastate until the csys reports READY back.
-		*/
-		case STATUS_SILENT:
-		case STATUS_WAIT:
-			this->status.bActivated = false;
-			state = status;
-			break;
-
-		case STATUS_READY:
-		case STATUS_OK:
-			switch(state)
-			{
-			case STATUS_DISABLED:
-				activatePlugin();
-				break;
-			/*
-				Again, this should be where the plugin reports READY back.
-			*/
-			case STATUS_SILENT:
-			case STATUS_WAIT:
-				this->status.bActivated = true;
-				state = status;
-				break;
-
-			case STATUS_READY:
-			case STATUS_OK:
-
-				break;
-
-			case STATUS_ERROR:
-				state = STATUS_ERROR;
-				disablePlugin(false);
-				break;
-			default:
-					gui->console->printLine(CColours::red, "[Engine] : unhandled state request change from %d to %d.", state, status);
-			};
-			break;
-
-		default:
-			gui->console->printLine(CColours::red, "[Engine] : unhandled state request change from %d to %d.", state, status);
-		};
-		return state;
-	}
 
 	/*********************************************************************************************
 	 
@@ -554,20 +469,22 @@ namespace ape
 				csys->processReplacing(in.data(), out.data(), numSamples);
 				stop = cpl::Misc::ClockCounter() - start;
 			}
-			catch (const CState::CSystemException & e)
+			catch (const cpl::CProtected::CSystemException & e)
 			{
 				if (status.bUseFPUE)
 					csys->useFPUExceptions(false);
+
 				switch (e.data.exceptCode) 
 				{
-				case CState::CSystemException::access_violation:
+				case cpl::CProtected::CSystemException::access_violation:
 					// plugin code tried to access memory out of bounds - that is inside of our guarded code.
 					if (e.data.aVInProtectedMemory) 
 					{
 						gui->console->printLine(CColours::red, "[Engine] : Plugin accessed memory out of bounds. "
 							"Consider saving your project and restarting your application.");
 					}
-					else {
+					else 
+					{
 						pluginCrashed();
 					}
 				default:
@@ -577,7 +494,7 @@ namespace ape
 					*/
 					gui->console->printLine(CColours::red,
 						"[Engine] : Exception 0x%X occured in plugin while processing: \"%s\". Plugin disabled.",
-						e.data.exceptCode, CState::formatExceptionMessage(e).c_str());
+						e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str());
 
 				}
 				// release lock of this, disablePlugin() needs to acquire it
@@ -636,21 +553,10 @@ namespace ape
 		in.resize(amountOfBuffers);
 		out.resize(amountOfBuffers);
 
-		if (!csys->getPMemory()[0].resize(size * sizeof(float) * amountOfBuffers)
-			|| !csys->getPMemory()[1].resize(size * sizeof(float)* amountOfBuffers)) 
+		for (unsigned i = 0; i < amountOfBuffers; ++i) 
 		{
-			gui->console->printLine(CColours::red,
-					"Error allocating memory for safe buffers (0)! - skipping plugin code.");
-			gui->setStatusText("Memory error, see console!", CColours::red);
-			return false;
-		}
-		float * _baseIn = reinterpret_cast<float*>
-			(csys->getPMemory()[0].get()); // if no error before, .get() is guaranteed to be valid.
-		float * _baseOut = reinterpret_cast<float*>
-			(csys->getPMemory()[1].get());
-		for (unsigned i = 0; i < amountOfBuffers; ++i) {
-			in[i] = _baseIn + size * i; // resize guarantees sampleFrames * numBuffers * float.sizeof size.
-			out[i] = _baseOut + size * i;
+			in[i] = csys->getPMemory()[0].get<float>() + size * i;
+			out[i] = csys->getPMemory()[0].get<float>() + size * i;
 			::memcpy(in[i], buffer.getSampleData(i), size * sizeof(float));
 		}
 
@@ -922,6 +828,8 @@ namespace ape
 			
 			delay.bDelayChanged = false;
 		}
+
+		csys->setBounds(2, 2, samplesPerBlock);
 	}
 	/*********************************************************************************************
 	 
