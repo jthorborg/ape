@@ -34,7 +34,7 @@
 #include "PluginState.h"
 #include "Engine.h"
 #include "CCodeGenerator.h"
-#include "GraphicUI.h"
+#include "UIController.h"
 #include "CConsole.h"
 #include <sstream>
 #include <cpl/Protected.h>

@@ -31,7 +31,7 @@
 #include "Engine.h"
 #include "CApi.h"
 #include "PluginState.h"
-#include "GraphicUI.h"
+#include "UIController.h"
 #include "CConsole.h"
 #include "Settings.h"
 #include <ape/Project.h>

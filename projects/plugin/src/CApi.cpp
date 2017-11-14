@@ -30,7 +30,7 @@
 #include <cpl/Common.h>
 #include "CApi.h"
 #include "SharedInterfaceEx.h"
-#include "GraphicUI.h"
+#include "UIController.h"
 #include <cstdarg>
 #include <string>
 #include "CConsole.h"

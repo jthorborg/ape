@@ -27,7 +27,7 @@
 
 *************************************************************************************/
 
-#include "GraphicUI.h"
+#include "UIController.h"
 #include "ButtonDefinitions.h"
 #include <cpl/Misc.h>
 #include "Engine.h"

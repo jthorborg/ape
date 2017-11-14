@@ -1467,9 +1467,6 @@
     <ClCompile Include="..\..\src\CConsole.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\GraphicUI.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CCodeGenerator.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1501,6 +1498,9 @@
       <Filter>Audio Programming Environment\Shared</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\PluginState.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\UIController.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2870,9 +2870,6 @@
     <ClInclude Include="..\..\src\GraphicComponents.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\GraphicUI.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CConsole.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -2928,6 +2925,9 @@
       <Filter>Audio Programming Environment\Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\PluginState.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UIController.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
   </ItemGroup>

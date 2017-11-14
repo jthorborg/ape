@@ -31,7 +31,7 @@
 #include "CJuceEditor.h"
 #include <cpl/misc.h>
 #include "Engine.h"
-#include "GraphicUI.h"
+#include "UIController.h"
 #include "CConsole.h"
 #include "ProjectEx.h"
 #include <ctime>
