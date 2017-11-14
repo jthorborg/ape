@@ -43,8 +43,8 @@
 	namespace ape {
 
 		// forward declaration of the GUI class.
-		class GraphicUI;
-		class CState;
+		class UIController;
+		class PluginState;
 		class CBaseControl;
 		class CSerializer;
 
@@ -56,8 +56,8 @@
 			/*
 				friends
 			*/
-			friend class CState;
-			friend class GraphicUI;
+			friend class PluginState;
+			friend class UIController;
 			friend class CSerializer;
 			typedef unsigned fpumask;
 			// protect copy constructor
@@ -134,8 +134,8 @@
 			Status requestLinkage();
 			bool activatePlugin();
 			bool pluginCrashed();
-			GraphicUI * getGraphicUI() { return gui.get(); }
-			CState * getCState() { return csys.get(); }
+			UIController * getGraphicUI() { return gui.get(); }
+			PluginState * getCState() { return csys.get(); }
 			void useProtectedBuffers(bool bValue) { status.bUseBuffers = bValue; }
 			libconfig::Setting & getRootSettings();
 			void loadSettings();
@@ -180,9 +180,9 @@
 				
 			} instanceID;
 
-			std::unique_ptr<GraphicUI> gui;
+			std::unique_ptr<UIController> gui;
 			Status state;
-			std::unique_ptr<CState> csys;
+			std::unique_ptr<PluginState> csys;
 			std::string programName;
 			libconfig::Config config;
 			volatile long clocksPerSample;

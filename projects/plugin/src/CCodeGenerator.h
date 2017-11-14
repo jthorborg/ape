@@ -22,7 +22,7 @@
  **************************************************************************************
 
 	file:CCodeGenerator.h
-		File and classes responsible for responsing to Engine and CState's requests
+		File and classes responsible for responsing to Engine and PluginState's requests
 		to compilations and access to plugins.
 
 *************************************************************************************/
@@ -140,7 +140,7 @@
 				Important: Following functions must be RAII-free.
 				It should be considered that the system might throw
 				system exceptions anywhere in these functions.
-				They are caught in the CState wrapper.
+				They are caught in the PluginState wrapper.
 			*/
 			Status activateProject(ProjectEx & project);
 			Status processReplacing(ProjectEx & project, float ** in, float ** out, std::size_t sampleFrames);

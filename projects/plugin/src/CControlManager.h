@@ -29,16 +29,16 @@
 
 *************************************************************************************/
 
-#ifndef _CCONTROL_MANAGER_H
-	#define _CCONTROL_MANAGER_H
+#ifndef APE_CCONTROL_MANAGER_H
+	#define APE_CCONTROL_MANAGER_H
 
+	#include <ape/APE.h>
 	#include "Common.h"
 	#include <list>
 	#include <queue>
 	#include <map>
 	#include <vector>
 	#include "UserControls.h"
-	#include "CApi.h"
 
 	namespace ape 
 	{

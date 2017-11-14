@@ -30,7 +30,7 @@
 #include <cpl/Common.h>
 #include "Engine.h"
 #include "CApi.h"
-#include "CState.h"
+#include "PluginState.h"
 #include "GraphicUI.h"
 #include "CConsole.h"
 #include "Settings.h"
@@ -79,8 +79,8 @@ namespace ape
 		instanceID.ID = cpl::Misc::ObtainUniqueInstanceID();
 		
 		// rest of program
-		gui = std::make_unique<GraphicUI>(this);
-		csys = std::make_unique<CState>(this);
+		gui = std::make_unique<UIController>(this);
+		csys = std::make_unique<PluginState>(this);
 
 		// settings
 		loadSettings();

@@ -48,12 +48,8 @@
 		class CSerializer;
 		class CQueueLabel;
 
-		class GraphicUI
-		#ifdef APE_VST
-			: public AEffGUIEditor, public CControlListener, public CMutex::Lockable
-		#elif defined(APE_JUCE)
+		class UIController
 			: public CCtrlListener, public cpl::CMutex::Lockable
-		#endif
 		{
 		  public:
 			
@@ -74,7 +70,7 @@
 			class Editor
 				: public juce::AudioProcessorEditor, public juce::Timer
 			{
-				friend class GraphicUI;
+				friend class UIController;
 				std::vector<juce::Component *> garbageCollection;
 				std::map<int, CBaseControl *> controls;
 				CTextControl * infoLabel;
@@ -87,11 +83,11 @@
 				juce::OpenGLContext oglc;
 				
 			public:
-				GraphicUI & parent;
+				UIController & parent;
 				void initialize(bool useOpenGL = false);
 				void paint(juce::Graphics & g);
 				void timerCallback();
-				Editor(GraphicUI & parent);
+				Editor(UIController & parent);
 				virtual ~Editor();
 			};
 			/*
@@ -103,14 +99,14 @@
 			struct CCtrlDelegateListener // wanted to be unnamed, but cannot create a constructor then.
 				: public CCtrlListener
 			{
-				GraphicUI * parent;
-				CCtrlDelegateListener(GraphicUI * p) : parent(p) {};
+				UIController * parent;
+				CCtrlDelegateListener(UIController * p) : parent(p) {};
 				virtual bool valueChanged(CBaseControl * control);
 				virtual ~CCtrlDelegateListener() {};
 			} ctrlNotifier;
 
-			GraphicUI(ape::Engine *effect);
-			virtual ~GraphicUI();
+			UIController(ape::Engine *effect);
+			virtual ~UIController();
 
 			void setParameter(int index, float value);
 			void about();

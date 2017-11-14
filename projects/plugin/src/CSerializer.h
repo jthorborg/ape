@@ -213,7 +213,7 @@
 				if (se->isActivated)
 				{
 					// try to compile the project
-					CThread compileThread(GraphicUI::startCompilation);
+					CThread compileThread(UIController::startCompilation);
 					compileThread.run(engine);
 					// wait for it to finish
 					compileThread.join();

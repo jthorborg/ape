@@ -23,15 +23,15 @@
 
 **************************************************************************************
 
-	file:CState.cpp
+	file:PluginState.cpp
 	
-		Implementation of CState.h
+		Implementation of PluginState.h
 
 *************************************************************************************/
 
 #include <cpl/PlatformSpecific.h>
 #include "SharedInterfaceEx.h"
-#include "CState.h"
+#include "PluginState.h"
 #include "Engine.h"
 #include "CCodeGenerator.h"
 #include "GraphicUI.h"
@@ -43,7 +43,7 @@ namespace ape
 {
 	thread_local unsigned int fpuMask;
 
-	CState::CState(Engine * engine) 
+	PluginState::PluginState(Engine * engine) 
 		: engine(engine), curProject(nullptr)
 	{
 		generator = std::make_unique<CCodeGenerator>(engine);
@@ -54,7 +54,7 @@ namespace ape
 		#endif
 	}
 
-	CState::~CState() 
+	PluginState::~PluginState() 
 	{
 		if (curProject)  
 		{
@@ -63,17 +63,17 @@ namespace ape
 
 	}
 
-	void CState::createSharedObject() 
+	void PluginState::createSharedObject() 
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(*engine, *this);
 	}
 
-	SharedInterfaceEx & CState::getSharedInterface()
+	SharedInterfaceEx & PluginState::getSharedInterface()
 	{
 		return *sharedObject.get();
 	}
 
-	void CState::setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize)
+	void PluginState::setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize)
 	{
 		while (protectedMemory.size() < 2)
 			protectedMemory.emplace_back().setProtect(CMemoryGuard::protection::readwrite);
@@ -87,7 +87,7 @@ namespace ape
 		Getter for the plugin allocator.
 
 	 *********************************************************************************************/
-	ape::CAllocator & CState::getPluginAllocator() 
+	ape::CAllocator & PluginState::getPluginAllocator() 
 	{
 		return pluginAllocator;
 	}
@@ -96,7 +96,7 @@ namespace ape
 		Getter for the protected memory.
 
 	 *********************************************************************************************/
-	std::vector<ape::CMemoryGuard> & CState::getPMemory() 
+	std::vector<ape::CMemoryGuard> & PluginState::getPMemory() 
 	{
 		return protectedMemory;
 	}
@@ -106,7 +106,7 @@ namespace ape
 		Tells compiler to compile this->project.
 
 	 *********************************************************************************************/
-	bool CState::compileCurrentProject()
+	bool PluginState::compileCurrentProject()
 	{
 		if (curProject)
 		{
@@ -123,7 +123,7 @@ namespace ape
 		Calls compilers activate function.
 
 	 *********************************************************************************************/
-	Status CState::activateProject()
+	Status PluginState::activateProject()
 	{
 		Status ret = Status::STATUS_ERROR;
 		cpl::CProtected::instance().runProtectedCode( 
@@ -139,7 +139,7 @@ namespace ape
 		Calls compilers disable function.
 
 	 *********************************************************************************************/
-	Status CState::disableProject(bool didMisbehave)
+	Status PluginState::disableProject(bool didMisbehave)
 	{
 		Status ret = Status::STATUS_ERROR;
 		
@@ -160,7 +160,7 @@ namespace ape
 		Calls plugin's processReplacer
 
 	 *********************************************************************************************/
-	Status CState::processReplacing(float ** in, float ** out, std::size_t sampleFrames)
+	Status PluginState::processReplacing(float ** in, float ** out, std::size_t sampleFrames)
 	{
 		Status ret = Status::STATUS_ERROR;
 		if (curProject)
@@ -180,7 +180,7 @@ namespace ape
 		Calls plugin's onEvent handler
 
 	 *********************************************************************************************/
-	Status CState::onEvent(Event * e)
+	Status PluginState::onEvent(Event * e)
 	{
 		Status ret = Status::STATUS_ERROR;
 		if (curProject)
@@ -199,7 +199,7 @@ namespace ape
 		Releases old project and updates it to new one. Does not check whether project is used!!
 
 	 *********************************************************************************************/
-	void CState::setNewProject(ape::ProjectEx * project)
+	void PluginState::setNewProject(ape::ProjectEx * project)
 	{
 		if(curProject)  
 		{
@@ -211,7 +211,7 @@ namespace ape
 	/*
 		unless you want to have a heart attack, dont look at this code.
 	*/
-	#ifdef __MSVC__
+	#ifdef CPL_MSVC
 		#pragma fenv_access (on)
 	#else
 		#pragma STDC FENV_ACCESS on
@@ -221,7 +221,7 @@ namespace ape
 		Toggle floating point exceptions on and off.
 
 	 *********************************************************************************************/
-	void CState::useFPUExceptions(bool bVal) 
+	void PluginState::useFPUExceptions(bool bVal) 
 	{
 		// always call this!!#
 		#ifdef CPL_MSVC
@@ -266,7 +266,7 @@ namespace ape
 		#endif
 	}
 
-	void CState::projectCrashed()
+	void PluginState::projectCrashed()
 	{
 		curProject->state = CodeState::Disabled;
 	}

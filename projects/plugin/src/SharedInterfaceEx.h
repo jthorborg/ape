@@ -37,7 +37,7 @@
 	namespace ape
 	{
 		class Engine;
-		class CState;
+		class PluginState;
 
 		struct BindingsInterfaceResolver : public APE_SharedInterface
 		{
@@ -76,13 +76,13 @@
 		struct SharedInterfaceEx : public BindingsInterfaceResolver
 		{
 			Engine & getEngine() noexcept { return engine; }
-			CState & getCState() noexcept { return cstate; }
+			PluginState & getCState() noexcept { return cstate; }
 			const Engine & getEngine() const noexcept { return engine; }
-			const CState & getCState() const noexcept { return cstate; }
+			const PluginState & getCState() const noexcept { return cstate; }
 
 			static SharedInterfaceEx & upcast(APE_SharedInterface & base) noexcept { return static_cast<SharedInterfaceEx &>(base); }
 
-			SharedInterfaceEx(Engine & engine, CState & cstate)
+			SharedInterfaceEx(Engine & engine, PluginState & cstate)
 				: engine(engine), cstate(cstate)
 			{
 
@@ -90,7 +90,7 @@
 
 		private:
 			Engine & engine;
-			CState & cstate;
+			PluginState & cstate;
 		};
 	
 	};

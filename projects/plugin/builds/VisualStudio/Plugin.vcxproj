@@ -581,7 +581,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tests|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\CState.cpp" />
+    <ClCompile Include="..\..\src\PluginState.cpp" />
     <ClCompile Include="..\..\src\Engine.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
     <ClCompile Include="..\..\src\CApi.cpp" />
@@ -1693,7 +1693,7 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
-    <ClInclude Include="..\..\src\CState.h" />
+    <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
     <ClInclude Include="..\..\src\ButtonDefinitions.h" />
     <ClInclude Include="..\..\src\CAllocator.h" />
@@ -1708,7 +1708,6 @@
     <ClInclude Include="..\..\src\CQueueLabel.h" />
     <ClInclude Include="..\..\src\CSerializer.h" />
     <ClInclude Include="..\..\src\CValueLabel.h" />
-    <ClInclude Include="..\..\src\EditorMenu.h" />
     <ClInclude Include="..\..\src\GraphicComponents.h" />
     <ClInclude Include="..\..\src\GraphicUI.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h" />

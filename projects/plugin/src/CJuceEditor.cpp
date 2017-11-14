@@ -831,7 +831,7 @@ namespace ape
 	{
 		fullPath = fileName;
 		FILE *fp = nullptr;
-		#ifdef __MSVC__
+		#ifdef CPL_MSVC
 			fopen_s(&fp, fullPath.c_str(), "wb");
 		#else
 			fp = fopen(fullPath.c_str(), "wb");
@@ -965,7 +965,7 @@ namespace ape
 
 		time_t timeObj = info->timeStamp;
 		tm * ctime;
-		#ifdef __MSVC__
+		#ifdef CPL_MSVC
 			tm pTime;
 			gmtime_s(&pTime, &timeObj);
 			ctime = &pTime;

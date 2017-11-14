@@ -1497,11 +1497,11 @@
     <ClCompile Include="..\..\src\Engine.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CState.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
       <Filter>Audio Programming Environment\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\PluginState.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2888,9 +2888,6 @@
     <ClInclude Include="..\..\src\CJuceEditor.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\EditorMenu.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CQueueLabel.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -2912,9 +2909,6 @@
     <ClInclude Include="..\..\src\CCodeGenerator.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CState.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SharedInterfaceEx.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -2932,6 +2926,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h">
       <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\PluginState.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

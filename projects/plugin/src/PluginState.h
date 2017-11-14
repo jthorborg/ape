@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:CState.h
+	file:PluginState.h
 	
 		Implements interface for the c-subsystem-controller and communication between
 		them; handles compiling and run-time resolution of dispatches from C to C++ 
@@ -49,19 +49,13 @@
 	namespace ape
 	{
 
-		typedef void * RawFunctionPtr;
-		typedef int VstInt32;
-
 		class Engine;
 		struct Module;
-		class CState;
+		class PluginState;
 		class CCodeGenerator;
 		struct SharedInterfaceEx;
-		
-		/*
-			This class is responsible for interconnecting the C and C++ systems, dispatch calls correctly and hold the state of the C-system
-		*/			
-		class CState
+			
+		class PluginState
 		{
 		public:
 
@@ -71,8 +65,8 @@
 
 			void setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize);
 
-			CState(ape::Engine * effect);
-			~CState();
+			PluginState(ape::Engine * effect);
+			~PluginState();
 
 			/*
 				utility

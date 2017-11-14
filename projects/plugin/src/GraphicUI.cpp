@@ -31,7 +31,7 @@
 #include "ButtonDefinitions.h"
 #include <cpl/Misc.h>
 #include "Engine.h"
-#include "CState.h"
+#include "PluginState.h"
 #include "CConsole.h"
 #include <cpl/CThread.h>
 #include "ProjectEx.h"
@@ -63,7 +63,7 @@ namespace ape
 		some of the engine's state to itself (button toggles, for instance.)
 
 	 *********************************************************************************************/
-	GraphicUI::GraphicUI(ape::Engine * effect)
+	UIController::UIController(ape::Engine * effect)
 		: console(nullptr), externEditor(nullptr), projectName(cpl::programInfo.programAbbr),
 		bIsCompiling(false), editor(nullptr), engine(effect), bIsCompiled(false), bIsActive(effect->status.bActivated),
 		bStatusLock(false), bUseBuffers(engine->status.bUseBuffers), bUseFPUE(engine->status.bUseFPUE),
@@ -92,7 +92,7 @@ namespace ape
 		Constructor for the editor. Creates all graphical components. Notifies parent
 	 
 	 *********************************************************************************************/
-	GraphicUI::Editor::Editor(GraphicUI & p)
+	UIController::Editor::Editor(UIController & p)
 		: parent(p), AudioProcessorEditor(p.engine),
 		repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
 		//,testImage(juce::Image::PixelFormat::ARGB, 800,300, false, *new juce::OpenGLImageType())
@@ -173,7 +173,7 @@ namespace ape
 		Destructor. Delets graphic elements, stops timers and notifies parent
 	 
 	 *********************************************************************************************/
-	GraphicUI::Editor::~Editor()
+	UIController::Editor::~Editor()
 	{
 		oglc.detach();
 		for (auto garbage : garbageCollection)
@@ -188,13 +188,13 @@ namespace ape
 		Paint loop for the editor. Calls the paren't rendering loop
 	 
 	 *********************************************************************************************/
-	void GraphicUI::Editor::paint(juce::Graphics & g)
+	void UIController::Editor::paint(juce::Graphics & g)
 	{
 		// draw background image
 		//g.drawImage(background, 0, 0, getWidth(), getHeight(), 0, 0, background.getWidth(), background.getHeight());
 		parent.render();
 	}
-	void GraphicUI::Editor::initialize(bool useOpenGL)
+	void UIController::Editor::initialize(bool useOpenGL)
 	{
 		if(useOpenGL)
 			oglc.attachTo(*this);
@@ -207,7 +207,7 @@ namespace ape
 		Updates the info label with new data.
 	 
 	 *********************************************************************************************/
-	void GraphicUI::updateInfoLabel()
+	void UIController::updateInfoLabel()
 	{
 		if (!editor)
 		{
@@ -231,7 +231,7 @@ namespace ape
 		Renders any objects marked as dirty. Calls autosave regularly
 	 
 	 *********************************************************************************************/
-	void GraphicUI::render()
+	void UIController::render()
 	{
 		incGraphicCounter++;
 		int autoSaveInterval = engine->autoSaveInterval;
@@ -270,7 +270,7 @@ namespace ape
 		Timer callback. Calls the parent's render loop
 	 
 	 *********************************************************************************************/
-	void GraphicUI::Editor::timerCallback()
+	void UIController::Editor::timerCallback()
 	{
 		statusLabel->updateMessage();
 		// force a repaint every second (it wont itself, necessarily, even tho childs are set as dirty!! ugh)
@@ -288,7 +288,7 @@ namespace ape
 		Destructor, cleans up memory. Waits for any compilation. 
 
 	 *********************************************************************************************/
-	GraphicUI::~GraphicUI()
+	UIController::~UIController()
 	{
 		cpl::Misc::SpinLock(10000, bIsCompiling);
 	}
@@ -297,7 +297,7 @@ namespace ape
 		Called whenever the editor is opened and ready for action.
 	 
 	 *********************************************************************************************/
-	void GraphicUI::editorOpened(Editor * newEditor)
+	void UIController::editorOpened(Editor * newEditor)
 	{
 		setStatusText();
 		ctrlManager.attach(newEditor);
@@ -310,7 +310,7 @@ namespace ape
 		Called when the editor closes
 	 
 	 *********************************************************************************************/
-	void GraphicUI::editorClosed()
+	void UIController::editorClosed()
 	{
 		editor = nullptr;
 		ctrlManager.setParent(editor);
@@ -320,7 +320,7 @@ namespace ape
 		Creates an instance of the graphical editor
 	 
 	 *********************************************************************************************/
-	GraphicUI::Editor * GraphicUI::create()
+	UIController::Editor * UIController::create()
 	{
 		if (editor)
 			console->printLine(CColours::red, "[GUI] : error! Request to create new editor while old one still exists. "
@@ -345,7 +345,7 @@ namespace ape
 		Requests the editor to show the error line
 
 	 *********************************************************************************************/
-	void GraphicUI::setEditorError(int nLine) 
+	void UIController::setEditorError(int nLine) 
 	{
 		externEditor->setErrorLine(nLine);
 	}
@@ -355,7 +355,7 @@ namespace ape
 		Set the status text label.
 
 	 *********************************************************************************************/
-	void GraphicUI::setStatusText(const std::string & text, CColour colour)
+	void UIController::setStatusText(const std::string & text, CColour colour)
 	{
 
 		cpl::CMutex lockGuard(this);
@@ -371,7 +371,7 @@ namespace ape
 		Push a message for display for x milliseconds
 
 	 *********************************************************************************************/
-	void GraphicUI::setStatusText(const std::string & text, CColour colour, int ms)
+	void UIController::setStatusText(const std::string & text, CColour colour, int ms)
 	{
 		if (editor)
 		{
@@ -383,7 +383,7 @@ namespace ape
 		Set the status text label to what it previously was.
 
 	 *********************************************************************************************/
-	void GraphicUI::setStatusText()
+	void UIController::setStatusText()
 	{
 
 		cpl::CMutex lockGuard(this);
@@ -397,7 +397,7 @@ namespace ape
 		Get the status text. Not to be modified!
 
 	 *********************************************************************************************/
-	std::string GraphicUI::getStatusText()
+	std::string UIController::getStatusText()
 	{
 		cpl::CMutex lockGuard(this);
 		return statusLabel;
@@ -410,7 +410,7 @@ namespace ape
 		should be called from here.
 
 	 *********************************************************************************************/
-	bool GraphicUI::valueChanged(CBaseControl * control)
+	bool UIController::valueChanged(CBaseControl * control)
 	{
 		/*
 			This really shouldn't happen (this function is called from editor)	
@@ -447,7 +447,7 @@ namespace ape
 					engine->disablePlugin(false);
 					ctrlManager.reset();
 				}
-				cpl::CThread compileThread(GraphicUI::startCompilation);
+				cpl::CThread compileThread(UIController::startCompilation);
 				compileThread.run(engine);
 			}
 			break;
@@ -538,7 +538,7 @@ namespace ape
 		// tells the control that sent the event that it should handle it itself
 		return false;
 	}
-	void GraphicUI::setParameter(int index, float value)
+	void UIController::setParameter(int index, float value)
 	{
 		if (!editor)
 		{
@@ -553,7 +553,7 @@ namespace ape
 		}
 		ctrl->bSetValue(value);
 	}
-	void GraphicUI::about()
+	void UIController::about()
 	{
 		static std::string sDialogMessage =
 			cpl::programInfo.name + " is written by Janus Lynggard Thorborg"
@@ -575,7 +575,7 @@ namespace ape
 		project must have been cleaned up.
 
 	 *********************************************************************************************/
-	void * GraphicUI::startCompilation(void * effectPointer)
+	void * UIController::startCompilation(void * effectPointer)
 	{
 
 		Engine * _this = reinterpret_cast<Engine*>(effectPointer);
@@ -583,7 +583,7 @@ namespace ape
 		// messages should be explanatory
 		if(!_this)
 			return 0;
-		ape::GraphicUI * _gui = _this->getGraphicUI();
+		ape::UIController * _gui = _this->getGraphicUI();
 		auto start = std::chrono::high_resolution_clock::now();
 
 		ape::ProjectEx * project = _gui->externEditor->getProject();
@@ -628,7 +628,7 @@ namespace ape
 		to the default handler of the control.
 
 	 *********************************************************************************************/
-	bool GraphicUI::CCtrlDelegateListener::valueChanged(CBaseControl * control)
+	bool UIController::CCtrlDelegateListener::valueChanged(CBaseControl * control)
 	{
 		if(!control) 
 		{

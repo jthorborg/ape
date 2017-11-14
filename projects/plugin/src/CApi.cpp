@@ -34,7 +34,7 @@
 #include <cstdarg>
 #include <string>
 #include "CConsole.h"
-#include "CState.h"
+#include "PluginState.h"
 #include <cpl/Misc.h>
 #include "Engine.h"
 #include <cpl/Protected.h>
@@ -326,7 +326,7 @@ namespace ape
 		CBaseControl * c = engine.getGraphicUI()->ctrlManager.getControl(ID);
 		if(c)
 			return c->bGetValue();
-		else 
+		else  
 			THROW("No such control: " + std::to_string(ID));
 	}
 

@@ -209,7 +209,7 @@ namespace ape
 		// we add one to buflen to make space for nulltermination (extra allocation has been done
 		// previously, see "auto size = ..."), and vsnprintf returns the amount of characters,
 		// that would have been printed, NOT including the nulltermination.
-		#ifdef __MSVC__
+		#ifdef CPL_MSVC
 			auto charsPrinted = vsnprintf_s(fmtd_str + prefix.length(), size - prefix.length(), nBufLen + 1, fmt, args);
 		#else
 			auto charsPrinted = vsnprintf(fmtd_str + prefix.length(), nBufLen + 1, fmt, args);

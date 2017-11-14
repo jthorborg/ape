@@ -30,7 +30,7 @@
 	#define _SETTINGS_H
  #include <cpl/MacroConstants.h>
 
-	#ifdef __MSVC__
+	#ifdef CPL_MSVC
 
 		#pragma warning (disable: 4275)
 		#pragma warning (disable: 4290)
