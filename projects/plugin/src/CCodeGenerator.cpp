@@ -40,16 +40,14 @@ namespace ape
 	*/
 	static const char * g_sExports[] =
 	{
-		"GetSymbol",
+		"CreateProject",
 		"CompileProject",
-		"ReleaseProject",
 		"InitProject",
 		"ActivateProject",
 		"DisableProject",
-		"GetState",
-		"AddSymbol",
 		"ProcessReplacing",
-		"OnEvent"
+		"OnEvent",
+		"ReleaseProject",
 	};
 
 	/*
@@ -143,24 +141,6 @@ namespace ape
 		std::memset(this, 0, sizeof(*this));
 	}
 
-
-	Status CCodeGenerator::activateProject(ProjectEx& project)
-	{
-		if(project.state > CodeState::Disabled)
-		{
-			std::stringstream fmt;
-			fmt << "Cannot activate project when state is higher than initialized (" << static_cast<int>(project.state) << ").";
-			printError(fmt.str());
-		} else 
-		{
-			auto status = project.compiler->bindings.activateProject(&project);
-			if(status != Status::STATUS_ERROR)
-				project.state = CodeState::Activated;
-			return status;
-		}
-		return Status::STATUS_ERROR;
-	}
-
 	CCodeGenerator::CCodeGenerator(ape::Engine * engine)
 		: errorPrinter(nullptr), engine(engine)
 	{
@@ -172,45 +152,55 @@ namespace ape
 		opaque = op;
 		errorPrinter = f;
 	}
+
 	void CCodeGenerator::printError(const std::string & message)
 	{
 		if(opaque && errorPrinter)
 			errorPrinter(opaque, std::string("[Generator] : " + message).c_str());
 
 	}
+
+	Status CCodeGenerator::activateProject(ProjectEx& project)
+	{
+		if (project.state > CodeState::Disabled)
+		{
+			std::stringstream fmt;
+			fmt << "Cannot activate project when state is higher than initialized (" << static_cast<int>(project.state.load()) << ").";
+			printError(fmt.str());
+			return Status::STATUS_ERROR;
+		}
+
+		auto status = project.compiler->bindings.activateProject(&project);
+		if (status != Status::STATUS_ERROR)
+			project.state = CodeState::Activated;
+		return status;
+
+		return Status::STATUS_ERROR;
+	}
+
 	Status CCodeGenerator::disableProject(ProjectEx & project, bool didMisbehave)
 	{
 		if (project.state != CodeState::Activated) 
 		{
-			printError("Cannot disable project when state isn't activated.");
+			printError("Cannot disable project when it isn't activated.");
+			return Status::STATUS_ERROR;
 		} 
-		else 
-		{
-			auto status = project.compiler->bindings.disableProject(&project, didMisbehave ? 1 : 0);
-			if(status == Status::STATUS_OK)
-				project.state = CodeState::Disabled;
-			return status;
-		}
-		return Status::STATUS_ERROR;
+
+		auto status = project.compiler->bindings.disableProject(&project, didMisbehave ? 1 : 0);
+		if(status == Status::STATUS_OK)
+			project.state = CodeState::Disabled;
+		return status;
 	}
 
 	Status CCodeGenerator::processReplacing(ProjectEx& project, float ** in, float ** out, std::size_t sampleFrames)
 	{
-		if (!project.compiler)
-		{
-			printError("No compiler exists for project.");
-		}
-		else if (project.state != CodeState::Activated) 
+		if (project.state != CodeState::Activated) 
 		{
 			printError("Access denied to processing function (plugin is not activated).");
-		} else {
-			auto status = 
-			(
-				project.compiler->bindings.processReplacing(&project, in, out, sampleFrames)
-			);
-			return status;
-		}
-		return Status::STATUS_ERROR;
+			return Status::STATUS_ERROR;
+		} 
+
+		return project.compiler->bindings.processReplacing(&project, in, out, sampleFrames);
 	}
 
 	Status CCodeGenerator::onEvent(ProjectEx& project, Event * e)
@@ -218,108 +208,24 @@ namespace ape
 		if (project.state != CodeState::Activated)
 		{
 			printError("Access denied to event function (plugin is not activated).");
+			return Status::STATUS_ERROR;
 		} 
-		else
-		{
-			return project.compiler->bindings.onEvent(&project, e);
-		}
-		return Status::STATUS_ERROR;
 
+		return project.compiler->bindings.onEvent(&project, e);
 	}
 
 	bool CCodeGenerator::compileProject(ProjectEx& project)
 	{
-		if (project.state > CodeState::None) 
+		if (project.state < CodeState::Created) 
 		{
-			printError("Cannot compile project when state is higher than none.");
+			printError("Cannot compile non-existing project.");
 		} 
+		else if(project.state > CodeState::Compiled)
+		{
+			printError("Cannot compile a project that's already initialized.");
+		}
 		else 
 		{
-			if(!project.compiler || !project.compiler->isInitialized()) 
-			{
-				// set up compiler here.
-				if (!project.languageID || !project.languageID[0])
-				{
-					printError("Null/empty file extension, not supported");
-				}
-
-				std::string fileID = project.languageID;
-				// ensure lID is valid here !
-				try
-				{
-					const libconfig::Setting & settings = engine->getRootSettings();
-					std::string langID;
-					for (auto && lang : settings["languages"])
-					{
-						if (!lang.isGroup())
-							continue;
-						for (auto && ext : lang["extensions"])
-						{
-							if (fileID == ext.c_str())
-							{
-								langID = lang.getName();
-								break;
-							}
-						}
-					}
-						
-					if (!langID.size())
-					{
-						printError("Cannot find compatible compiler for file id \"" + fileID + "\", check your extension settings");
-						return false;
-					}
-
-					const libconfig::Setting & langstts = settings["languages"][langID]["compiler"];
-
-					// compiler is automatically constructed and loaded if it doesn't exist.
-					// if it does, we get a reference to it.
-					auto compiler = &compilers[langID];
-					// one could argue this should happen in compiler::compiler
-					// but std::map and copy constructors etc. etc. we do it  here.
-					if(!compiler->isInitialized()) {
-						if(!compiler->initialize(langstts)) {
-							printError("Unable to initialize compiler!");
-							return false;
-						}
-					}
-					std::string const args = langstts["arguments"].c_str();
-					auto argString = new char[args.length() + 1];
-					std::copy(args.begin(), args.end(), argString);
-					argString[args.length()] = '\0';
-					project.arguments = argString;
-					project.compiler = compiler;
-				}
-				catch(libconfig::ParseException & e)
-				{
-					printError("Exception while parsing!");
-					printError(e.getError());
-					return false;
-				}
-				catch(libconfig::SettingNameException & e)
-				{
-					printError(e.getPath());
-					return false;
-				}
-				catch(libconfig::SettingNotFoundException & e)
-				{
-					printError("Setting not found!");
-					printError(e.getPath());
-					return false;
-				}
-				catch(libconfig::SettingException & e)
-				{
-					printError("Error in settings!");
-					printError(e.getPath());
-					return false;
-				}
-				catch(std::exception & e)
-				{
-					printError("Error while loading compiler!");
-					printError(e.what());
-					return false;
-				}
-			}
-
 			if(project.compiler->bindings.compileProject(&project, opaque, errorPrinter) == Status::STATUS_OK)
 			{
 				project.state = CodeState::Compiled;
@@ -328,41 +234,141 @@ namespace ape
 		}
 		return false;
 	}
+
 	bool CCodeGenerator::initProject(ProjectEx& project)
 	{
-		if (!project.compiler)
-		{
-			printError("No compiler exists for project.");
-		}
-		else if(project.state > CodeState::Compiled) 
+		if(project.state > CodeState::Compiled) 
 		{
 			printError("Cannot initiate project when state is higher than compiled.");
 		} 
 		else 
 		{
-			if(project.compiler->bindings.initProject(&project) == Status::STATUS_OK) {
+			if(project.compiler->bindings.initProject(&project) == Status::STATUS_OK) 
+			{
 				project.state = CodeState::Initialized;
 				return true;
 			}
 		}
 		return false;
 	}
+
+	bool CCodeGenerator::createProject(ProjectEx& project)
+	{
+		if (project.state > CodeState::None)
+		{
+			printError("Cannot create already created project.");
+		} 
+		else if (!project.compiler || !project.compiler->isInitialized())
+		{
+			// set up compiler here.
+			if (!project.languageID || !project.languageID[0])
+			{
+				printError("Null/empty file extension, not supported");
+			}
+
+			std::string fileID = project.languageID;
+			// ensure lID is valid here !
+			try
+			{
+				const libconfig::Setting & settings = engine->getRootSettings();
+				std::string langID;
+				for (auto && lang : settings["languages"])
+				{
+					if (!lang.isGroup())
+						continue;
+					for (auto && ext : lang["extensions"])
+					{
+						if (fileID == ext.c_str())
+						{
+							langID = lang.getName();
+							break;
+						}
+					}
+				}
+
+				if (!langID.size())
+				{
+					printError("Cannot find compatible compiler for file id \"" + fileID + "\", check your extension settings");
+					return false;
+				}
+
+				const libconfig::Setting & langstts = settings["languages"][langID]["compiler"];
+
+				// compiler is automatically constructed and loaded if it doesn't exist.
+				// if it does, we get a reference to it.
+				auto compiler = &compilers[langID];
+				// one could argue this should happen in compiler::compiler
+				// but std::map and copy constructors etc. etc. we do it  here.
+				if (!compiler->isInitialized()) {
+					if (!compiler->initialize(langstts)) {
+						printError("Unable to initialize compiler!");
+						return false;
+					}
+				}
+				std::string const args = langstts["arguments"].c_str();
+				auto argString = new char[args.length() + 1];
+				std::copy(args.begin(), args.end(), argString);
+				argString[args.length()] = '\0';
+				project.arguments = argString;
+				project.compiler = compiler;
+			}
+			catch (libconfig::ParseException & e)
+			{
+				printError("Exception while parsing!");
+				printError(e.getError());
+				return false;
+			}
+			catch (libconfig::SettingNameException & e)
+			{
+				printError(e.getPath());
+				return false;
+			}
+			catch (libconfig::SettingNotFoundException & e)
+			{
+				printError("Setting not found!");
+				printError(e.getPath());
+				return false;
+			}
+			catch (libconfig::SettingException & e)
+			{
+				printError("Error in settings!");
+				printError(e.getPath());
+				return false;
+			}
+			catch (std::exception & e)
+			{
+				printError("Error while loading compiler!");
+				printError(e.what());
+				return false;
+			}
+		}
+
+		if (project.compiler->bindings.createProject(&project) == Status::STATUS_OK) 
+		{
+			project.state = CodeState::Created;
+			return true;
+		}
+
+		return false;
+	}
+
+
 	bool CCodeGenerator::releaseProject(ProjectEx& project)
 	{
-		if (!project.compiler)
+		if(project.state < CodeState::Created) 
 		{
-			printError("No compiler exists for project.");
-		}
-		else if(project.state < CodeState::Compiled) 
-		{
-			printError("Cannot release project when it isn't compiled.");
+			printError("Cannot release project when it isn't created.");
+			return false;
 		} 
-		else 
+		else if (project.state == CodeState::Activated)
 		{
-			if(project.compiler->bindings.releaseProject(&project)) {
-				project.state = CodeState::Released;
-				return true;
-			}
+			printError("Warning: Releasing activated project!");
+		}
+
+		if(project.compiler->bindings.releaseProject(&project) == STATUS_OK) 
+		{
+			project.state = CodeState::Released;
+			return true;
 		}
 		return false;
 	}

@@ -38,6 +38,7 @@
 #include <cstdio>
 #include <sstream>
 #include <experimental/filesystem>
+#include <memory>
 
 namespace ape
 {
@@ -299,7 +300,7 @@ namespace ape
 				}
 				catch (const std::exception & e)
 				{
-					engine->getGraphicUI()->console->printLine(CColours::red, "Error reading default file from config... %s", e.what());
+					engine->getController().console->printLine(CColours::red, "Error reading default file from config... %s", e.what());
 				}
 				
 				if (file.length())
@@ -333,7 +334,7 @@ namespace ape
 			// check if theres anything there (and if its a group)
 			if (!langs.isGroup())
 			{
-				engine->getGraphicUI()->console->printLine(CColours::red,
+				engine->getController().console->printLine(CColours::red,
 					"[Editor] Warning: No languages specified in config. Can't open files. ");
 				return;
 			}
@@ -372,7 +373,7 @@ namespace ape
 						}
 						catch (const std::exception & e)
 						{
-							engine->getGraphicUI()->console->printLine(CColours::red,
+							engine->getController().console->printLine(CColours::red,
 								"[Editor] Warning: language %s has no defined extensions in config. "
 								"Program will not be able to open any files for that language. (%s)",
 								name.c_str(), e.what());
@@ -385,7 +386,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			engine->getGraphicUI()->console->printLine(CColours::red,
+			engine->getController().console->printLine(CColours::red,
 				"[Editor] Error parsing file type extensions in config (%s).", e.what());
 			return;
 		}
@@ -556,18 +557,18 @@ namespace ape
 		ape::FreeProjectStruct() when done with it.
 
 	*********************************************************************************************/
-	ProjectEx * CJuceEditor::getProject()
+	std::unique_ptr<ProjectEx> CJuceEditor::getProject()
 	{
 		/*
 		Implement a proper interface instead of passing shitty c strings around.
 		Consider the implementation of this.
 		*/
-		ProjectEx * project = nullptr;
+		std::unique_ptr<ProjectEx> project;
 		// for now we only support single files. 
 		// we set the appropiate values in the project struct and fill it.
 		if (isSingleFile) 
 		{
-			project = ape::CreateProjectStruct();
+			project = std::make_unique<ProjectEx>();
 			project->files = nullptr;
 			project->nFiles = 1;
 			project->uniqueID = (unsigned)-1;
@@ -605,7 +606,6 @@ namespace ape
 			}
 		}
 		// some error occured.
-		ape::FreeProjectStruct(project);
 		return nullptr;
 	}
 	/*********************************************************************************************
@@ -670,7 +670,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			engine->getGraphicUI()->console->printLine(CColours::red,
+			engine->getController().console->printLine(CColours::red,
 													   "[Editor] : Error reading editor hotkeys from config... %s", e.what());
 			return false;
 		}
@@ -932,11 +932,11 @@ namespace ape
 			}
 			else
 			{
-				engine->getGraphicUI()->console->printLine(CColours::red,
+				engine->getController().console->printLine(CColours::red,
 													"[Editor] : error opening file %s for autosave.", autoSaveFile.getName().c_str());
 			}
 			std::free(info);
-			engine->getGraphicUI()->setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
+			engine->getController().setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
 		}
 	}
 	/*********************************************************************************************
@@ -948,7 +948,7 @@ namespace ape
 	{
 		if (isInitialized && window && window->isVisible())
 			return window->getWindowHandle();
-		return engine->getGraphicUI()->getSystemWindow();
+		return engine->getController().getSystemWindow();
 	}
 	/*********************************************************************************************
 	 
@@ -1066,7 +1066,7 @@ namespace ape
 				stream = nullptr; // alternative: delete stream.release();
 
 				// report anomaly
-				engine->getGraphicUI()->console->printLine(CColours::black,
+				engine->getController().console->printLine(CColours::black,
 					"[Editor] : Invalid autosave file found - deleting... (%s)",
 					f.getFileName().toRawUTF8());
 
@@ -1085,7 +1085,7 @@ namespace ape
 					src[size] = '\0'; // nullterminate the extra byte we allocated
 				else
 				{
-					engine->getGraphicUI()->console->printLine(CColours::red,
+					engine->getController().console->printLine(CColours::red,
 						"[Editor] : Error reading file contents of %s (read %d, expected %d bytes)",
 						f.getFileName().toRawUTF8(), bytesRead, size);
 					std::free(src);

@@ -38,8 +38,10 @@
 	#include "ButtonDefinitions.h"
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
+	#include <future>
 
-	namespace ape {
+	namespace ape 
+	{
 
 		class Engine;
 		class CConsole;
@@ -47,6 +49,8 @@
 		class CCodeEditor;
 		class CSerializer;
 		class CQueueLabel;
+		class PluginState;
+		struct ProjectEx;
 
 		class UIController
 			: public CCtrlListener, public cpl::CMutex::Lockable
@@ -90,20 +94,6 @@
 				Editor(UIController & parent);
 				virtual ~Editor();
 			};
-			/*
-			this struct handles incoming events from the VSTGUI lib specific for the plugins'
-			controls. it delegates the event onto the core, to give the plugin a chance
-			to react and change appearance. if the plugin decides to not handle the event,
-			the default handler from the control is used.
-			*/
-			struct CCtrlDelegateListener // wanted to be unnamed, but cannot create a constructor then.
-				: public CCtrlListener
-			{
-				UIController * parent;
-				CCtrlDelegateListener(UIController * p) : parent(p) {};
-				virtual bool valueChanged(CBaseControl * control);
-				virtual ~CCtrlDelegateListener() {};
-			} ctrlNotifier;
 
 			UIController(ape::Engine *effect);
 			virtual ~UIController();
@@ -122,23 +112,23 @@
 			void setEditorError(int nLine);
 			void updateInfoLabel();
 			void * getSystemWindow() { return editor ? editor->getWindowHandle() : nullptr; }
-			CPluginCtrlManager ctrlManager;
+
+			std::future<std::unique_ptr<PluginState>> createPlugin();
+
+
 		  protected:
 			
-			static void * startCompilation(void * effect);
+			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project);
 			void setProjectName(const std::string & name) { projectName = name; }
 			virtual bool valueChanged(CBaseControl *);
 			
 			std::unique_ptr<CCodeEditor> externEditor;
 			ape::Engine * engine;
 			Editor * editor;
-
+			std::future<std::unique_ptr<PluginState>> compilerState;
 			std::string projectName, statusLabel;
 			CColour statusColour;
-			volatile bool bIsCompiling;
-			volatile bool bIsCompiled;
 			bool bFirstDraw;
-			volatile bool bStatusLock;
 			// these are refererences to the engine
 			volatile bool & bUseBuffers;
 			volatile bool & bUseFPUE;

@@ -66,7 +66,7 @@
 			}
 
 			// wrappers for the compiler api
-			virtual Status processReplacing(float ** in, float ** out, int frames) = 0;
+			virtual Status processReplacing(const float * const * in, float * const * out, std::size_t frames) = 0;
 			virtual Status compileProject() = 0;
 			virtual Status releaseProject() = 0;
 			virtual Status initProject() = 0;

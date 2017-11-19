@@ -77,7 +77,7 @@ namespace TCC4Ape
 		// free's the memory used
 		bool freeLocalMemory();
 		// wrappers for the compiler api
-		Status processReplacing(float ** in, float ** out, int frames) override;
+		Status processReplacing(const float * const * in, float * const * out, std::size_t frames) override;
 		Status compileProject() override;
 		Status releaseProject() override;
 		Status initProject() override;

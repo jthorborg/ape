@@ -64,13 +64,14 @@ namespace ape
 	Engine::Engine() 
 		: numBuffers(2)
 		, status()
-		, state(Status::STATUS_DISABLED)
 		, delay()
 		, programName("Default")
 		, uiRefreshInterval(80)
 		, clocksPerSample(0)
 		, autoSaveInterval(0)
+		, codeGenerator(this)
 	{
+		codeGenerator.setErrorFunc(&Engine::errPrint, this);
 		// some variables...
 		status.bUseBuffers = true;
 		status.bUseFPUE = false;
@@ -79,12 +80,11 @@ namespace ape
 		instanceID.ID = cpl::Misc::ObtainUniqueInstanceID();
 		
 		// rest of program
-		gui = std::make_unique<UIController>(this);
-		csys = std::make_unique<PluginState>(this);
+		controller = std::make_unique<UIController>(this);
 
 		// settings
 		loadSettings();
-		gui->console->printLine(CColours::black,
+		controller->console->printLine(CColours::black,
 			("[Engine] : Audio Programming Environment <%s> (instance %d) " + cpl::programInfo.version.toString() + " (%s) %s loaded.").c_str(),
 			engineType().c_str(), instanceID.ID,
 			sizeof(void*) == 8 ? "64-bit" : "32-bit",
@@ -132,9 +132,9 @@ namespace ape
 			
 			std::string log_path = cpl::Misc::DirectoryPath() + "/logs/log" + std::to_string(instanceID.ID) + ".txt";
 			
-			gui->console->setLogging(enableLogging, log_path);
+			controller->console->setLogging(enableLogging, log_path);
 			bool enableStdWriting = approot["console_std_writing"];
-			gui->console->setStdWriting(enableStdWriting);
+			controller->console->setStdWriting(enableStdWriting);
 			bool useBuffers = approot["use_buffers"];
 			status.bUseBuffers = useBuffers;
 
@@ -156,67 +156,45 @@ namespace ape
 		}
 		catch(libconfig::FileIOException & e)
 		{
-			gui->console->printLine(CColours::red, "[Engine] : Error reading config file (%s)! (%s)", (cpl::Misc::DirectoryPath() + "/config.cfg").c_str(), e.what());
+			controller->console->printLine(CColours::red, "[Engine] : Error reading config file (%s)! (%s)", (cpl::Misc::DirectoryPath() + "/config.cfg").c_str(), e.what());
 		}
 		catch(libconfig::SettingNotFoundException & e)
 		{
-			gui->console->printLine(CColours::red, "[Engine] : Error getting setting! (%s)", e.getPath());
+			controller->console->printLine(CColours::red, "[Engine] : Error getting setting! (%s)", e.getPath());
 		}
 		catch(libconfig::ParseException & e)
 		{
-			gui->console->printLine(CColours::red, "[Engine] : Error parsing config! In file %s at line %d: %s", e.getFile(), e.getLine(), e.getError());
+			controller->console->printLine(CColours::red, "[Engine] : Error parsing config! In file %s at line %d: %s", e.getFile(), e.getLine(), e.getError());
 		}
 		catch(std::exception & e)
 		{
-			gui->console->printLine(CColours::red, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
+			controller->console->printLine(CColours::red, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
 		}
 
 	}
 
-	/*********************************************************************************************
-
-		Returns a unique id, that represents this instance.
-
-	 *********************************************************************************************/
 	int Engine::uniqueInstanceID()
 	{
 		return this->instanceID.ID;
 	}
-	/*********************************************************************************************
-	 
-		Returns a unique counter, that represents this instance inside this process.
-	 
-	 *********************************************************************************************/
+
 	int Engine::instanceCounter()
 	{
 		return this->instanceID.instanceCounter;
 	}
-	/*********************************************************************************************
 
-		Returns the top-level setting
-
-	 *********************************************************************************************/
 	libconfig::Setting & Engine::getRootSettings() 
 	{
 		return config.getRoot();
 	}
-	/*********************************************************************************************
 
-		Implementation for the destructor.
-
-	 *********************************************************************************************/
 	Engine::~Engine() 
 	{
 		disablePlugin();
 		cpl::Misc::ReleaseUniqueInstanceID(instanceID.ID);
 	}
-	/*********************************************************************************************
 
-		Inform the user that he cannot write code. This gets fired if a SEGFAULT outside of our protected code
-		exception is caught: by default, we pass other exceptions as they may be more severe than
-		what we can guarantee.
 
-	 *********************************************************************************************/
 	bool Engine::pluginCrashed() 
 	{
 		cpl::Misc::MsgBox("Your plugin has performed an illegal operation and has crashed! "
@@ -227,27 +205,19 @@ namespace ape
 					 "and loops that might cause segmentation faults.",
 					 cpl::programInfo.programAbbr + " Fatal Error",
 					 cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop,
-					 gui->getSystemWindow(),
+					 controller->getSystemWindow(),
 					 false);
 		return true;
 	}
 
-	/*********************************************************************************************
 
-		Callback function associated with the compiler:
-		This will get called with the opaque data set as this,
-		and the text which is specific for the compiler.
-		Therefore, the parsing should be moved to the 
-		CCompiler class instead.
-
-	 *********************************************************************************************/
 	void Engine::errPrint(void * data, const char * text)
 	{
 		// fetch this, as this function is static
 		
 		ape::Engine *_this = reinterpret_cast<ape::Engine*>(data);
 		// print the message
-		_this->gui->console->printLine(CColours::red, (std::string("[Compiler] : ") + text).c_str());
+		_this->controller->console->printLine(CColours::red, (std::string("[Compiler] : ") + text).c_str());
 		int nLinePos(-1), i(0);
 		auto nLen = std::strlen(text);
 		for(; i < nLen; ++i) {
@@ -262,273 +232,108 @@ namespace ape
 		}
 		// set the error if the editor is open (not our responsibility), defaults to -1 
 		//which should be ignored by the func.
-		_this->gui->setEditorError(nLinePos);
+		_this->controller->setEditorError(nLinePos);
 	}
 
-	/*********************************************************************************************
+	void Engine::exchangePlugin(std::unique_ptr<PluginState> newPlugin)
+	{
+		std::unique_lock<std::shared_mutex> lock(pluginMutex);
 
-		Sets a new delay to be set at the next resume() call.
+		pluginState = std::move(newPlugin);
+	}
 
-	 *********************************************************************************************/
+
 	void Engine::changeInitialDelay(long samples)
 	{
 		delay.newDelay = samples;
 		delay.bDelayChanged = true;
 	}
-	/*********************************************************************************************
 
-		Event handler for controls.
 
-	 *********************************************************************************************/
-	Status Engine::onCtrlEvent(CBaseControl * base)
-	{
-		/*
-			everything in here should actually be delegated to ape::gui, 
-			and this should only be a thin layer of indirection
-		*/
-		// create general event
-		Event e;
-		// set type to a change of ctrl value.
-		e.eventType = CtrlValueChanged;
-		// construct ctrlValueChange event object
-		APE_Event_CtrlValueChanged aevent;
-		::memset(&aevent, 0, sizeof aevent);
-		// set new values
-		aevent.value = base->bGetValue();
-		aevent.tag = base->bGetTag();
-		e.event.eCtrlValueChanged = &aevent;
-		// run plugin's event handler
-		Status ret = STATUS_OK;
-		try 
-		{
-			ret = csys->onEvent(&e); 
-		} 
-		catch (const cpl::CProtected::CSystemException & e) 
-		{
-			gui->console->printLine(CColours::red, 
-				"[Engine] : Exception 0x%X occured while calling eventHandler code: %s Plugin disabled.", 
-				e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str());
-			state = STATUS_ERROR;
-			gui->setStatusText("Plugin crashed!", CColours::red);
-			disablePlugin(false);
-			pluginCrashed();
-			csys->projectCrashed();
-		}
-		catch (const AbortException& e)
-		{
-			state = STATUS_DISABLED;
-			gui->setStatusText("Plugin aborted", CColours::orange);
-			gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
-			disablePlugin(false);
-
-		}
-		// update event.
-		if(ret == STATUS_HANDLED) {
-			if(aevent.value != base->bGetValue()) 
-				base->bSetValue(aevent.value);
-			if(aevent.text[0])
-				base->bSetText(aevent.text);
-			if(aevent.title[0])
-				base->bSetTitle(aevent.title);
-		}
-
-		return ret;
-	}
-	/*********************************************************************************************
-
-		disables the plugin and if no error, calls the exit point. 
-		depending on fromEditor, disables the activated button (if true, will not disable button as
-		event might cause an infinite loop).
-
-	 *********************************************************************************************/
 	void Engine::disablePlugin(bool fromEditor)
 	{
-		// else the processor might start while we are doing this
-		cpl::CMutex lockGuard(this);
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+		
+		if (!pluginState)
+			return;
+		
 		status.bActivated = false;
-		try 
-		{
-			state = csys->disableProject(state != STATUS_READY);
-		} 
-		catch (const cpl::CProtected::CSystemException & e) 
-		{
-			gui->console->printLine(CColours::red,
-				"[Engine] : Exception 0x%X occured while disabling plugin: %s Plugin disabled.",
-				e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str());
-			gui->setStatusText("Plugin crashed!", CColours::red);
-			state = STATUS_ERROR;
-			pluginCrashed();
-		}
-		catch (const AbortException& e)
-		{
-			state = STATUS_DISABLED;
-			gui->setStatusText("Plugin aborted", CColours::orange);
-			gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while disabling plugin: %s.", e.what());
-		}
-		gui->console->printLine(CColours::black, state == STATUS_OK ?
+
+		pluginState->disableProject();
+
+		controller->console->printLine(CColours::black, pluginState->getState() == STATUS_OK ?
 			"[Engine] : Plugin disabled without error." :
-			"[Engine] : Unexpected return value from onUnLoad(), plugin disabled.");
+			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
 		
 		status.bActivated = false;
 		if(!fromEditor)
-			gui->setParameter(kActiveStateButton, 0.f);
-		if (state == STATUS_OK)
-			gui->setStatusText("Plugin disabled", CColours::lightgoldenrodyellow);
-		state = STATUS_DISABLED;
-		// clear all allocations made by plugin.
-		// called twice?
-		csys->getPluginAllocator().clear();
+			controller->setParameter(kActiveStateButton, 0.f);
+
+		if (pluginState->getState() == STATUS_OK)
+			controller->setStatusText("Plugin disabled", CColours::lightgoldenrodyellow);
+
 		changeInitialDelay(0);
 	}
-	/*********************************************************************************************
 
-		activates the plugin and if no error, calls the entry point and sets the state 
-		of the system accordingly.
-
-	 *********************************************************************************************/
 	bool Engine::activatePlugin()
 	{
-		if(state != STATUS_DISABLED)
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+
+		if (pluginState && pluginState->getState() != STATUS_DISABLED)
 			return false;
+
+		auto result = pluginState->activateProject();
+
 		status.bActivated = false;
 
-		try 
-		{
-			state = csys->activateProject();
-		} 
-		catch (const cpl::CProtected::CSystemException & e)
-		{
-			gui->console->printLine(
-				CColours::red, 
-				"[Engine] : Exception 0x%X occured while activating plugin: %s Plugin disabled.", 
-				e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str()
-			);
-			state = STATUS_ERROR;
-			gui->setStatusText("Plugin crashed!", CColours::red);
-			disablePlugin(false);
-			pluginCrashed();
-			csys->projectCrashed();
-		}
-		catch (const AbortException& e)
-		{
-			state = STATUS_DISABLED;
-			gui->setStatusText("Plugin aborted", CColours::orange);
-			gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while activating plugin: %s.", e.what());
-		}
-		switch(state)
+		switch(result)
 		{
 		case STATUS_DISABLED:
 		case STATUS_ERROR:
-			gui->console->printLine(CColours::red, "[Engine] : An error occured while loading the plugin.");
+			controller->console->printLine(CColours::red, "[Engine] : An error occured while loading the plugin.");
 			break;
 		case STATUS_SILENT:
 		case STATUS_WAIT:
-			gui->console->printLine(CColours::red, "[Engine] : Plugin is not ready or is silent.");
+			controller->console->printLine(CColours::red, "[Engine] : Plugin is not ready or is silent.");
 			break;
 		case STATUS_READY:
-			gui->console->printLine(CColours::black, "[Engine] : Plugin is loaded and reports no error.");
+			controller->console->printLine(CColours::black, "[Engine] : Plugin is loaded and reports no error.");
 			status.bActivated = true;
 			break;
 		default:
-			gui->console->printLine(CColours::red,
-				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", state);
-			state = STATUS_READY;
+			controller->console->printLine(CColours::red,
+				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", result);
 			status.bActivated = true;
 		}
 		return status.bActivated;
 	}
 
-	/*********************************************************************************************
-	 
-		Our processor function
-	 
-	 *********************************************************************************************/
 	void Engine::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages)
 	{
-		if (status.bActivated)
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+
+		if (status.bActivated && pluginState)
 		{
-			cpl::CMutex lockGuard(this);
-			unsigned numSamples = buffer.getNumSamples();
-			std::vector<float *> in, out; 
 
-			if(!copyInput(in, out, buffer))
-			{
-				gui->console->printLine(CColours::red, "[Engine] : Error copying input buffers!");
-				lockGuard.release();
-				disablePlugin(false);
-				goto skip;
-			}
-			// ensure disablePlugin() wont be called while the plugin is processing
-			status.bIsProcessing = true;
+			std::size_t numSamples = buffer.getNumSamples();
+			std::size_t profiledClocks = 0;
+
 			if (status.bUseFPUE)
-				csys->useFPUExceptions(true);
-			long long start(0), stop(0);
-			try
-			{
-				start = cpl::Misc::ClockCounter();
-				csys->processReplacing(in.data(), out.data(), numSamples);
-				stop = cpl::Misc::ClockCounter() - start;
-			}
-			catch (const cpl::CProtected::CSystemException & e)
-			{
-				if (status.bUseFPUE)
-					csys->useFPUExceptions(false);
+				pluginState->useFPUExceptions(true);
 
-				switch (e.data.exceptCode) 
-				{
-				case cpl::CProtected::CSystemException::access_violation:
-					// plugin code tried to access memory out of bounds - that is inside of our guarded code.
-					if (e.data.aVInProtectedMemory) 
-					{
-						gui->console->printLine(CColours::red, "[Engine] : Plugin accessed memory out of bounds. "
-							"Consider saving your project and restarting your application.");
-					}
-					else 
-					{
-						pluginCrashed();
-					}
-				default:
-					/*
-					Any exception that cannot be recovered will not be passed to this point; our program already crashed
-					then. Therefore, we can ignore anything else that passes here (INT_DIVIDE_BY_ZERO for example)
-					*/
-					gui->console->printLine(CColours::red,
-						"[Engine] : Exception 0x%X occured in plugin while processing: \"%s\". Plugin disabled.",
-						e.data.exceptCode, cpl::CProtected::formatExceptionMessage(e).c_str());
+			isProcessing.store(true, std::memory_order_release);
 
-				}
-				// release lock of this, disablePlugin() needs to acquire it
-				lockGuard.release();
-				// release plugin code
-				state = STATUS_ERROR;
-				disablePlugin(false);
-				gui->setStatusText("Plugin crashed!", CColours::red);
-				// report crash to cstate
-				csys->projectCrashed();
-			}
-			catch (const AbortException& e)
-			{
-				// release lock of this, disablePlugin() needs to acquire it
-				lockGuard.release();
-				disablePlugin(false);
+			pluginState->processReplacing(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numSamples, &profiledClocks);
 
-				gui->setStatusText("Plugin aborted", CColours::orange);
-				gui->console->printLine(CColours::red, "[Engine] : Plugin aborted while processing samples: %s.", e.what());
-			};
-			// if its still activated (ie. no error in previous code, we copy contents from plugin into 
-			// buffer (this may seem weird to overwrite input with output, but thats how juce does it)
-			if (status.bActivated)
-			{
-				clocksPerSample = static_cast<long>(stop / numSamples);
-				if(!clocksPerSample)
-					gui->console->printLine(CColours::red, "no counter? %d, %d, %d", stop, numSamples, cpl::Misc::ClockCounter());
-				if (status.bUseFPUE)
-					csys->useFPUExceptions(false);
-				status.bIsProcessing = false;
-				copyOutput(out, buffer);
-			}
+			isProcessing.store(false, std::memory_order_release);
+
+
+			if (status.bUseFPUE)
+				pluginState->useFPUExceptions(false);
+
+			clocksPerSample = static_cast<double>(profiledClocks) / numSamples;
 		}
-	skip:
+
 		// In case we have more outputs than inputs, we'll clear any output
 		// channels that didn't contain input data, (because these aren't
 		// guaranteed to be empty - they may contain garbage).
@@ -536,80 +341,30 @@ namespace ape
 		{
 			buffer.clear(i, 0, buffer.getNumSamples());
 		}
-	}
-	/*********************************************************************************************
 
-		ensures both safe buffers are large enough, 
-		makes _in & _out valid buffers and copies inputs to in
-
-	 *********************************************************************************************/
-	bool inline Engine::copyInput(std::vector<float*> & in, std::vector<float*> & out, juce::AudioSampleBuffer & buffer)
-	{
-		// [0] is in, [1] is out
-		unsigned size = buffer.getNumSamples();
-		unsigned amountOfBuffers = buffer.getNumChannels();
-
-		// reserve channels
-		in.resize(amountOfBuffers);
-		out.resize(amountOfBuffers);
-
-		for (unsigned i = 0; i < amountOfBuffers; ++i) 
-		{
-			in[i] = csys->getPMemory()[0].get<float>() + size * i;
-			out[i] = csys->getPMemory()[0].get<float>() + size * i;
-			::memcpy(in[i], buffer.getSampleData(i), size * sizeof(float));
-		}
-
-		return true;
 	}
 
-	/*********************************************************************************************
-
-		Copies the output from the plugin into the output provided by the host.
-
-	 *********************************************************************************************/
-	bool inline Engine::copyOutput(std::vector<float*> & out, juce::AudioSampleBuffer & buffer)
-	{
-		for(int i = 0; i < getNumOutputChannels(); ++i) {
-			::memcpy(buffer.getSampleData(i), out[i], buffer.getNumSamples() * sizeof(float));
-		}
-		return true;
-	}
-	/*********************************************************************************************
-	 
-		Whether we have an editor
-	 
-	 *********************************************************************************************/
 	bool Engine::hasEditor() const
 	{
-		return true; // (change this to false if you choose to not supply an editor)
-	}
-	/*********************************************************************************************
-	 
-		Creates an instance of our editor
-	 
-	 *********************************************************************************************/
-	juce::AudioProcessorEditor* Engine::createEditor()
-	{
-		return gui->create();
+		return true;
 	}
 
-	/*********************************************************************************************
-	 
-		Serializes our plugin
-	 
-	 *********************************************************************************************/
+	juce::AudioProcessorEditor* Engine::createEditor()
+	{
+		return controller->create();
+	}
+
 	void Engine::getStateInformation(juce::MemoryBlock& destData)
 	{
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+
 		CSerializer::serialize(this, destData);
 	}
-	/*********************************************************************************************
-	 
-		Restores our program from an earlier serialization
-	 
-	 *********************************************************************************************/
+
 	void Engine::setStateInformation(const void* data, int sizeInBytes)
 	{
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+
 		bool ret = false;
 		try
 		{
@@ -618,18 +373,14 @@ namespace ape
 		catch (std::exception & e)
 		{
 
-			gui->console->printLine(CColours::red, "[Engine] : Exception while serializing: %s", e.what());
+			controller->console->printLine(CColours::red, "[Engine] : Exception while serializing: %s", e.what());
 		}
 		if (!ret)
-			gui->console->printLine(CColours::red, "[Engine] : Error serializing state!");
+			controller->console->printLine(CColours::red, "[Engine] : Error serializing state!");
 		else
-			gui->console->printLine(CColours::black, "[Engine] : Succesfully serialized state!");
+			controller->console->printLine(CColours::black, "[Engine] : Succesfully serialized state!");
 	}
-	/*********************************************************************************************
-	 
-		Gets the name of the plugin
-	 
-	 *********************************************************************************************/
+
 	const juce::String Engine::getName() const
 	{
 		#ifdef JucePlugin_Name
@@ -638,91 +389,51 @@ namespace ape
 			return _PROGRAM_NAME;
 		#endif
 	}
-	/*********************************************************************************************
-	 
-		Returns number of parameters.
-	 
-	 *********************************************************************************************/
+
 	int Engine::getNumParameters()
 	{
 		return 0;
 	}
-	/*********************************************************************************************
-	 
-		Gets a parameter from an index
-	 
-	 *********************************************************************************************/
+
 	float Engine::getParameter(int index)
 	{
 		return 0.0f;
 	}
-	/*********************************************************************************************
-		
-		Sets a parameter from an index
-	 
-	 *********************************************************************************************/
+
 	void Engine::setParameter(int index, float newValue)
 	{
 	}
-	/*********************************************************************************************
-	 
-		Gets a parameter name
-	 
-	 *********************************************************************************************/
+
 	const juce::String Engine::getParameterName(int index)
 	{
 		return juce::String::empty;
 	}
-	/*********************************************************************************************
-	 
-		Gets a parameters text
-	 
-	 *********************************************************************************************/
+
 	const juce::String Engine::getParameterText(int index)
 	{
 		return juce::String::empty;
 	}
-	/*********************************************************************************************
-	 
-		Gets an inputchannelname
-	 
-	 *********************************************************************************************/
+
 	const juce::String Engine::getInputChannelName(int channelIndex) const
 	{
 		return juce::String(channelIndex + 1);
 	}
-	/*********************************************************************************************
-	 
-		Gets an outputchannelname
-	 
-	 *********************************************************************************************/
+
 	const juce::String Engine::getOutputChannelName(int channelIndex) const
 	{
 		return juce::String(channelIndex + 1);
 	}
-	/*********************************************************************************************
-	 
-		Is input channel a stereo pair? (yes)
-	 
-	 *********************************************************************************************/
+
 	bool Engine::isInputChannelStereoPair(int index) const
 	{
 		return true;
 	}
-	/*********************************************************************************************
-	 
-		Is output channel a stereo pair? (yes)
-	 
-	 *********************************************************************************************/
+
 	bool Engine::isOutputChannelStereoPair(int index) const
 	{
 		return true;
 	}
-	/*********************************************************************************************
-	 
-		Do we accept midi?
-	 
-	 *********************************************************************************************/
+
 	bool Engine::acceptsMidi() const
 	{
 		#if JucePlugin_WantsMidiInput
@@ -731,11 +442,7 @@ namespace ape
 			return false;
 		#endif
 	}
-	/*********************************************************************************************
-	 
-		Do we produce midi?
-	 
-	 *********************************************************************************************/
+
 	bool Engine::producesMidi() const
 	{
 		#if JucePlugin_ProducesMidiOutput
@@ -744,81 +451,48 @@ namespace ape
 			return false;
 		#endif
 	}
-	/*********************************************************************************************
-	 
-		Whether no input can produce an output
-	 
-	 *********************************************************************************************/
+
 	bool Engine::silenceInProducesSilenceOut() const
 	{
 		return false;
 	}
-	/*********************************************************************************************
-	 
-		How long a decay we can produce
-	 
-	 *********************************************************************************************/
+
 	double Engine::getTailLengthSeconds() const
 	{
 		return 0.0;
 	}
-	/*********************************************************************************************
-		
-		Number of programs
-	 
-	 *********************************************************************************************/
+
 	int Engine::getNumPrograms()
 	{
 		return 1;
 	}
-	/*********************************************************************************************
-	 
-		Get index of current program
-	 
-	 *********************************************************************************************/
+
 	int Engine::getCurrentProgram()
 	{
 		return 0;
 	}
-	/*********************************************************************************************
-		
-		Set index of current program
-	 
-	 *********************************************************************************************/
+
 	void Engine::setCurrentProgram(int index)
 	{
 	}
-	/*********************************************************************************************
-	 
-		Gets a program name
-	 
-	 *********************************************************************************************/
+
 	const juce::String Engine::getProgramName(int index)
 	{
 		return juce::String::empty;
 	}
-	/*********************************************************************************************
-	 
-		Change a program name
-	 
-	 *********************************************************************************************/
+
 	void Engine::changeProgramName(int index, const juce::String& newName)
 	{
 	}
 	
-	/*********************************************************************************************
-	 
-		Prepare to play, like resume()
-		Here we change the initialDelay of the system
-	 
-	 *********************************************************************************************/
 	void Engine::prepareToPlay(double sampleRate, int samplesPerBlock)
 	{
+
 		// Use this method as the place to do any pre-playback
 		// initialisation that you need..
 		if (delay.bDelayChanged)
 		{
-			gui->console->printLine(CColours::black, "initialDelay is changed to %d and reported to host.", delay.newDelay);
+			controller->console->printLine(CColours::black, "initialDelay is changed to %d and reported to host.", delay.newDelay);
 			if (delay.newDelay != delay.initialDelay)
 			{
 				this->setLatencySamples(delay.newDelay);
@@ -827,30 +501,30 @@ namespace ape
 			}
 			
 			delay.bDelayChanged = false;
+		}		
+		
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+		
+		if (pluginState)
+		{
+			pluginState->setBounds(getNumInputChannels(), getNumOutputChannels(), samplesPerBlock, getSampleRate());
+			pluginState->setPlayState(true);
 		}
 
-		csys->setBounds(2, 2, samplesPerBlock);
 	}
-	/*********************************************************************************************
-	 
-		A chance to release some resources
-	 
-	 *********************************************************************************************/
+
 	void Engine::releaseResources()
 	{
-		// When playback stops, you can use this as an opportunity to free up any
-		// spare memory, etc.
+		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+		if(pluginState)
+			pluginState->setPlayState(false);
 	}
 
 }
 #ifdef __WINDOWS__
 	static bool searchChanged = false;
 #endif
-/*********************************************************************************************
 
-	This is our 'main'
-
-*********************************************************************************************/
 #ifdef APE_VST
 	AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
 	{

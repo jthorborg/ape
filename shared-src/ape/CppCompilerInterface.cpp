@@ -39,26 +39,19 @@ using namespace ape;
 
 extern "C" 
 {
-	EXPORTED void * APE_API GetSymbol(Project * p, char * s) 
+	EXPORTED APE_Status APE_API CreateProject(APE_Project * p)
 	{
-		return nullptr;
+		ProtoCompiler * compiler = CreateCompiler();
+		p->userData = compiler;
+		return STATUS_OK;
 	}
 
 	EXPORTED Status APE_API CompileProject(Project * p, void * op, ErrorFunc e)
 	{
-		ProtoCompiler * compiler = CreateCompiler();
-		p->userData = compiler;
-		compiler->setProject(p);
-		compiler->setErrorFunc(op, e);
-		return compiler->compileProject();
-	}
-
-	EXPORTED Status	APE_API SetErrorFunc(Project * p, void * op, ErrorFunc e)
-	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);
 		compiler->setErrorFunc(op, e);
-		return STATUS_OK;
+		return compiler->compileProject();
 	}
 
 	EXPORTED Status APE_API ReleaseProject(Project * p)
@@ -91,17 +84,7 @@ extern "C"
 		return compiler->disableProject(misbehaved ? true : false);
 	}
 
-	EXPORTED Status	APE_API GetState(Project * p)
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-
-	EXPORTED Status	APE_API AddSymbol(Project * p, const char * name, void * mem)
-	{
-		return STATUS_NOT_IMPLEMENTED;
-	}
-
-	EXPORTED Status	APE_API ProcessReplacing(Project * p, float ** in, float ** out, int sampleFrames)
+	EXPORTED Status	APE_API ProcessReplacing(Project * p, const float * const * in, float * const * out, size_t sampleFrames)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
 		compiler->setProject(p);

@@ -153,7 +153,7 @@
 			int addPlot(const char * name, const float * const vals, unsigned int numVals);
 			int addKnob(const char * name, const char * unit, float * val, ape::ScaleFunc cb, float min, float max);
 			
-			virtual void reset();
+			void reset() override;
 		};
 	};
 #endif

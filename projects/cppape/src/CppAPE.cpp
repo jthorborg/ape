@@ -377,7 +377,7 @@ namespace CppAPE
 	}
 
 
-	Status ScriptCompiler::processReplacing(float ** in, float ** out, int frames)
+	Status ScriptCompiler::processReplacing(const float * const * in, float * const * out, size_t frames)
 	{
 		return plugin.processor(pluginData, getProject()->iface, in, out, frames);
 	}

@@ -33,34 +33,33 @@
 
 namespace ape 
 {
-	ProjectEx * CreateProjectStruct()
+	ProjectEx::ProjectEx()
 	{ 
-		ProjectEx * p = new ProjectEx; 
-		std::memset(p, 0, sizeof (ProjectEx));
-		return p; 
+		std::memset(this, 0, sizeof(*this));
 	}
-	void FreeProjectStruct(ProjectEx * project)
+	
+	ProjectEx::~ProjectEx()
 	{ 
 		/*
 			Nullptr check is apparantly not needed, but why not.
 		*/
-		if(project->sourceString)
-			delete[] project->sourceString;
-		if(project->rootPath)
-			delete[] project->rootPath;
-		if(project->projectName)
-			delete[] project->projectName;
-		if (project->arguments)
-			delete[] project->arguments;
-		if (project->nFiles) {
-			for (unsigned i = 0; i < project->nFiles; ++i) {
-				if (project->files && project->files[i])
-					delete[] project->files[i];
+		if(sourceString)
+			delete[] sourceString;
+		if(rootPath)
+			delete[] rootPath;
+		if(projectName)
+			delete[] projectName;
+		if (arguments)
+			delete[] arguments;
+		if (nFiles) 
+		{
+			for (unsigned i = 0; i < nFiles; ++i) {
+				if (files && files[i])
+					delete[] files[i];
 			}
 		}
-		if (project->files)
-			delete[] project->files;
-		if(project)
-			delete project;
+
+		if (files)
+			delete[] files;
 	}
 };

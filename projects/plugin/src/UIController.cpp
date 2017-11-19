@@ -33,12 +33,12 @@
 #include "Engine.h"
 #include "PluginState.h"
 #include "CConsole.h"
-#include <cpl/CThread.h>
 #include "ProjectEx.h"
 #include <stdio.h>
 #include "CQueueLabel.h"
 #include <chrono>
 #include "CCodeEditor.h"
+#include <typeinfo>
 
 namespace ape 
 {
@@ -65,9 +65,8 @@ namespace ape
 	 *********************************************************************************************/
 	UIController::UIController(ape::Engine * effect)
 		: console(nullptr), externEditor(nullptr), projectName(cpl::programInfo.programAbbr),
-		bIsCompiling(false), editor(nullptr), engine(effect), bIsCompiled(false), bIsActive(effect->status.bActivated),
-		bStatusLock(false), bUseBuffers(engine->status.bUseBuffers), bUseFPUE(engine->status.bUseFPUE),
-		ctrlNotifier(this), ctrlManager(&ctrlNotifier, CRect(138, 0, 826 - 138, 245), kTagEnd),
+		editor(nullptr), engine(effect), bIsActive(effect->status.bActivated),
+		bUseBuffers(engine->status.bUseBuffers), bUseFPUE(engine->status.bUseFPUE),
 		autoSaveCounter(0), bFirstDraw(true), incGraphicCounter(0)
 	{
 		
@@ -262,8 +261,8 @@ namespace ape
 		/*
 		 Dont render controls when the console is open
 		 */
-		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f)
-			ctrlManager.updateControls();
+		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f && engine->getCState())
+			engine->getCState()->getCtrlManager().updateControls();
 	}
 	/*********************************************************************************************
 	 
@@ -283,14 +282,9 @@ namespace ape
 		
 		parent.render();
 	}
-	/*********************************************************************************************
 
-		Destructor, cleans up memory. Waits for any compilation. 
-
-	 *********************************************************************************************/
 	UIController::~UIController()
 	{
-		cpl::Misc::SpinLock(10000, bIsCompiling);
 	}
 	/*********************************************************************************************
 	 
@@ -300,8 +294,12 @@ namespace ape
 	void UIController::editorOpened(Editor * newEditor)
 	{
 		setStatusText();
-		ctrlManager.attach(newEditor);
-		ctrlManager.createPendingControls();
+		if (engine->getCState())
+		{
+			engine->getCState()->getCtrlManager().attach(newEditor);
+			engine->getCState()->getCtrlManager().createPendingControls();
+		}
+
 		newEditor->startTimer(engine->uiRefreshInterval);
 		bFirstDraw = true;
 	}
@@ -313,7 +311,8 @@ namespace ape
 	void UIController::editorClosed()
 	{
 		editor = nullptr;
-		ctrlManager.setParent(editor);
+		if(engine->getCState())
+			engine->getCState()->getCtrlManager().setParent(editor);
 	}
 	/*********************************************************************************************
 	 
@@ -436,19 +435,11 @@ namespace ape
 			break;
 
 		case kCompileButton:
-			/*
-				compilebutton was pressed - compiled whatever we can find.
-				start this in a new thread because we can't know if it hangs or whatever.
-			*/
 
-			if(!bIsCompiling) {
-				bIsCompiling = true;
-				if(bIsCompiled) {
-					engine->disablePlugin(false);
-					ctrlManager.reset();
-				}
-				cpl::CThread compileThread(UIController::startCompilation);
-				compileThread.run(engine);
+			if(!compilerState.valid()) 
+			{
+				compilerState = createPlugin(externEditor->getProject());
+				engine->disablePlugin(false);
 			}
 			break;
 
@@ -457,34 +448,51 @@ namespace ape
 				Try to (de)activate the plugin.
 			*/
 				
-			if(value > 0.1f) {
-				if(bIsCompiling) {
-					control->bSetInternal(0);
-					setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
-					console->printLine(CColours::red, "[GUI] : cannot activate while compiling.");
-				} else {
-					if(!bIsCompiled) {
+			if(value > 0.1f) 
+			{
+				if (compilerState.valid())
+				{
+					switch (compilerState.wait_for(std::chrono::seconds(0)))
+					{
+					case std::future_status::ready:
+						engine->exchangePlugin(compilerState.get());
+						break;
+					case std::future_status::deferred:
+					case std::future_status::timeout:
 						control->bSetInternal(0);
-						setStatusText("No compiled symbols found", CColours::red, 2000);
-						console->printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
-					} else {
-						if(engine->activatePlugin()) {
-							// success
-							setStatusText("Plugin activated", CColours::green);
-							ctrlManager.createPendingControls();
-							ctrlManager.callListeners();
-						} else {
-							console->printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
-							setStatusText("Error activating plugin.", CColours::red);
-							editor->controls[kActiveStateButton]->bSetValue(0);
-						}
-						
+						setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
+						console->printLine(CColours::red, "[GUI] : cannot activate while compiling.");
+						break;
+
 					}
 				}
-			} else {
+
+				if (!engine->getCState())
+				{
+					control->bSetInternal(0);
+					setStatusText("No compiled symbols found", CColours::red, 2000);
+					console->printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
+					return false;
+				}
+
+				if (engine->activatePlugin())
+				{
+					// success
+					setStatusText("Plugin activated", CColours::green);
+					engine->getCState()->getCtrlManager().createPendingControls();
+					engine->getCState()->getCtrlManager().callListeners();
+				}
+				else
+				{
+					console->printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
+					setStatusText("Error activating plugin.", CColours::red);
+					editor->controls[kActiveStateButton]->bSetValue(0);
+				}
+			} 
+			else 
+			{
 				setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
 				engine->disablePlugin(true);
-				ctrlManager.reset();
 			}
 			break;
 		case kEditorButton:
@@ -567,58 +575,52 @@ namespace ape
 			"About " + cpl::programInfo.programAbbr + " " + cpl::programInfo.version.toString() + " project";
 		cpl::Misc::MsgBox(sDialogMessage, sTitleMessage, cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iInfo, getSystemWindow(),true);
 	}
-	/*********************************************************************************************
 
-		This is where we pass the contents to the c compiler.
-		Fired _only_ from valueChanged.
-		This function assumes a clean slate; that is - no plugin code must be running and the last
-		project must have been cleaned up.
-
-	 *********************************************************************************************/
-	void * UIController::startCompilation(void * effectPointer)
+	std::future<std::unique_ptr<PluginState>> UIController::createPlugin()
 	{
+		return createPlugin(externEditor->getProject());
+	}
 
-		Engine * _this = reinterpret_cast<Engine*>(effectPointer);
 
-		// messages should be explanatory
-		if(!_this)
-			return 0;
-		ape::UIController * _gui = _this->getGraphicUI();
-		auto start = std::chrono::high_resolution_clock::now();
-
-		ape::ProjectEx * project = _gui->externEditor->getProject();
-		if(!project)
+	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(std::unique_ptr<ProjectEx> project)
+	{
+		if (!project)
 		{
-			_gui->console->printLine(CColours::red, "[GUI] : Compilation error - "
+			console->printLine(CColours::red, "[GUI] : Compilation error - "
 				"invalid project or no text recieved from editor.");
-			_gui->setStatusText("No code to compile", CColours::red, 3000);
-			_gui->bIsCompiling = false;
-			_gui->bIsCompiled = false;
-			return 0;
+			setStatusText("No code to compile", CColours::red, 3000);
+			return {};
 		}
 
+		setProjectName(project->projectName);
+		setStatusText("Compiling...", CColours::red, 500);
 
-		_gui->setProjectName(project->projectName);
-		_gui->setStatusText("Compiling...", CColours::red, 500);
-		_this->csys->setNewProject(project);
+		return std::async(
+			[=] (auto projectToCompile)
+			{
+				std::unique_ptr<PluginState> ret;
 
-		if(_this->csys->compileCurrentProject()) {
-			auto delta = std::chrono::high_resolution_clock::now() - start;
-			auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
-			_gui->console->printLine(CColours::black, "[GUI] : Compiled successfully (%f ms).", time);
-			_gui->setStatusText("Compiled OK!", CColours::green, 2000);
-			_gui->bIsCompiling = false;
-			_gui->bIsCompiled = true;
-		}
-		else
-		{
-			_gui->console->printLine(CColours::red, "[GUI] : Error compiling project.");
-			_gui->setStatusText("Error while compiling (see console)!", CColours::red, 5000);
-			_gui->bIsCompiling = false;
-			_gui->bIsCompiled = false;
-		}
-		
-		return (void*)1;
+				try
+				{
+					auto start = std::chrono::high_resolution_clock::now();
+					ret = std::make_unique<PluginState>(*engine, engine->getCodeGenerator(), std::move(projectToCompile));
+					auto delta = std::chrono::high_resolution_clock::now() - start;
+					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
+
+					console->printLine(CColours::black, "[GUI] : Compiled successfully (%f ms).", time);
+					setStatusText("Compiled OK!", CColours::green, 2000);
+
+				}
+				catch (const std::exception& e)
+				{
+					console->printLine(CColours::red, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
+					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
+				}
+
+				return ret;
+			},
+			std::move(project)
+		);
 	}
 
 	/*********************************************************************************************
@@ -628,21 +630,5 @@ namespace ape
 		to the default handler of the control.
 
 	 *********************************************************************************************/
-	bool UIController::CCtrlDelegateListener::valueChanged(CBaseControl * control)
-	{
-		if(!control) 
-		{
-			parent->console->printLine(CColours::red,
-				"[GUI::ctrlNotifier] Error: ctrlNotifier was notified of an event, it couldn't handle (control isn't owned!)");
-			return false;
-		}
 
-		if(STATUS_HANDLED != parent->engine->onCtrlEvent(control)) 
-		{
-			// event was not handled by core/plugin, default to controls' own handler.
-			return false;
-		}
-		control->bRedraw();
-		return true;
-	}
 };

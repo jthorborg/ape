@@ -58,7 +58,7 @@
 			virtual ~CCodeEditor() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual ProjectEx * getProject() { return nullptr; }
+			virtual std::unique_ptr<ProjectEx> getProject() { return nullptr; }
 			virtual void quit() = 0;
 			virtual bool initEditor() { return false; }
 			virtual bool openEditor(bool initialVisibility = true) { return false; }

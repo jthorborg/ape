@@ -26,7 +26,7 @@
 
 typedef void ScriptInstance;
 
-typedef APE_Status (SCRIPT_API * APE_ProcessReplacer) (ScriptInstance *, APE_SharedInterface *, float**, float**, int);
+typedef APE_Status (SCRIPT_API * APE_ProcessReplacer) (ScriptInstance *, APE_SharedInterface *, const float * const *, float * const *, size_t);
 typedef APE_Status (SCRIPT_API * APE_Init) (ScriptInstance *, APE_SharedInterface *);
 typedef APE_Status (SCRIPT_API * APE_End) (ScriptInstance *, APE_SharedInterface *);
 typedef APE_Status (SCRIPT_API * APE_EventHandler) (ScriptInstance *, APE_SharedInterface *, APE_Event *);

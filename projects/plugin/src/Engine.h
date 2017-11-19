@@ -39,6 +39,9 @@
 	#include "Settings.h"
 	#include <cpl/CMutex.h>
 	#include <memory>
+	#include <cpl/ConcurrentServices.h>
+	#include <shared_mutex>
+	#include "CCodeGenerator.h"
 	
 	namespace ape {
 
@@ -51,7 +54,7 @@
 		/*
 			Main engine class
 		*/
-		class Engine : public juce::AudioProcessor, private cpl::CMutex::Lockable
+		class Engine : public juce::AudioProcessor
 		{
 			/*
 				friends
@@ -67,11 +70,6 @@
 			bool copyInput(std::vector<float *> & in, std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
 			bool copyOutput(std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
 		public:
-
-			class AbortException : public std::runtime_error
-			{
-				using std::runtime_error::runtime_error;
-			};
 
 			virtual ~Engine();
 			/*
@@ -121,41 +119,30 @@
 			void getStateInformation(juce::MemoryBlock& destData);
 			void setStateInformation(const void* data, int sizeInBytes);
 
-
-			/*
-				public functions
-			*/
-
-			Status onCtrlEvent(CBaseControl * base);
-
+			void exchangePlugin(std::unique_ptr<PluginState> plugin);
 			void changeInitialDelay(long samples);
-			void about();
 			void disablePlugin(bool fromEditor = true);
-			Status requestLinkage();
 			bool activatePlugin();
 			bool pluginCrashed();
-			UIController * getGraphicUI() { return gui.get(); }
-			PluginState * getCState() { return csys.get(); }
+			UIController& getController() { return *controller.get(); }
+			PluginState * getCState() { return pluginState.get(); }
+			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
 			void useProtectedBuffers(bool bValue) { status.bUseBuffers = bValue; }
-			libconfig::Setting & getRootSettings();
+			libconfig::Setting& getRootSettings();
 			void loadSettings();
 			int uniqueInstanceID();
 			int instanceCounter();
 			std::string engineType();
 
-			bool isInProcessingCallback() const { return status.bIsProcessing; }
+			bool isInProcessingCallback() const noexcept { return isProcessing.load(std::memory_order_acquire); }
 
 			/*
 				public data
 			*/
 
-		protected:
-			/*
-				protected data
-			*/
+		private:
 			struct {
 				volatile bool bActivated;
-				volatile bool bIsProcessing;
 				volatile bool bUseBuffers;
 				volatile bool bUseFPUE;
 
@@ -180,12 +167,15 @@
 				
 			} instanceID;
 
-			std::unique_ptr<UIController> gui;
-			Status state;
-			std::unique_ptr<PluginState> csys;
+			CCodeGenerator codeGenerator;
+			cpl::ConcurrentObjectSwapper<PluginState> rtPlugin;
+			std::unique_ptr<UIController> controller;
+			std::unique_ptr<PluginState> pluginState;
 			std::string programName;
 			libconfig::Config config;
-			volatile long clocksPerSample;
+			std::atomic<double> clocksPerSample;
+			std::atomic<bool> isProcessing;
+			std::shared_mutex pluginMutex;
 		}; // class ape
 	} //namespace ape'
 #endif

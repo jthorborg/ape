@@ -101,9 +101,9 @@
 			static bool serialize(Engine * engine, juce::MemoryBlock & destination)
 			{
 
-				std::string fileName = engine->getGraphicUI()->externEditor->getDocumentPath();
+				std::string fileName = engine->getController().externEditor->getDocumentPath();
 				bool hasAProject = fileName.size() > 2 ? true : false;
-				Status state = engine->state;
+				Status state = engine->getCState() ? engine->getCState()->getState() : STATUS_DISABLED;
 
 				// we basically quantize all engine states to running or not running
 				// anything in between is error states or intermediate states.
@@ -123,8 +123,7 @@
 					isActivated = false;
 				}
 
-				auto & controls = engine->getGraphicUI()->ctrlManager.getControls();
-				auto listSize = controls.size();
+				auto listSize = isActivated ? engine->getCState()->getCtrlManager().getControls().size() : 0;
 
 				// needed size in bytes
 				std::size_t neededSize =
@@ -137,22 +136,28 @@
 				se->size = neededSize;
 				se->structSize = sizeof(SerializedEngine);
 				se->version = 9;
-				se->editorOpened = engine->gui->externEditor->isOpen();
+				se->editorOpened = engine->controller->externEditor->isOpen();
 				se->isActivated = isActivated;
 				se->valueOffset = sizeof(SerializedEngine);
 				se->fileNameOffset = se->valueOffset + listSize * sizeof(SerializedEngine::ControlValue);
 				se->hasAProject = hasAProject;
 				se->numValues = listSize;
 				::memcpy(se->getFileName(), fileName.c_str(), fileName.size() + 1);
-				SerializedEngine::ControlValue * values = se->getValues();
-				int i = 0;
-				for (auto ctrl : controls)
-				{
-					values[i].tag = ctrl->bGetTag();
-					values[i].value = ctrl->bGetValue();
 
-					i++;
+				if (isActivated)
+				{
+					SerializedEngine::ControlValue * values = se->getValues();
+					int i = 0;
+					for (auto ctrl : engine->getCState()->getCtrlManager().getControls())
+					{
+						values[i].tag = ctrl->bGetTag();
+						values[i].value = ctrl->bGetValue();
+
+						i++;
+					}
 				}
+
+
 				destination.ensureSize(neededSize);
 				destination.copyFrom(se, 0, neededSize);
 				::free(se);
@@ -170,14 +175,14 @@
 					|| se->size != size // whether the size actual size matches reported size
 					)
 				{
-					engine->gui->console->printLine(CColours::red,
+					engine->controller->console->printLine(CColours::red,
 						"[Serializer] : Invalid memory block recieved from host (%d, %d, %d, %d)!", 
 						se, size, sizeof(SerializedEngine), se->size);
 					return false;
 				}
 				else if (se->version != 9)
 				{
-					engine->gui->console->printLine(CColours::red,
+					engine->controller->console->printLine(CColours::red,
 						"[Serializer] : Warning: Different versions detected!");
 
 					auto answer = Misc::MsgBox
@@ -190,22 +195,22 @@
 						return false;
 				}
 				// first we open the editor to ensure it's initialized
-				if(!engine->gui->externEditor->openEditor(se->editorOpened))
+				if(!engine->controller->externEditor->openEditor(se->editorOpened))
 				{
-					engine->gui->console->printLine(CColours::red,
+					engine->controller->console->printLine(CColours::red,
 						"[Serializer] : Error opening editor!");
 					return false;
 				}
-				if (engine->gui->externEditor->checkAutoSave())
+				if (engine->controller->externEditor->checkAutoSave())
 				{
-					engine->gui->console->printLine(CColours::red,
+					engine->controller->console->printLine(CColours::red,
 						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
 					return false;
 				}
 				// then, we set it to the file from last session
-				if(!engine->gui->externEditor->openFile(se->getFileNameConst()))
+				if(!engine->controller->externEditor->openFile(se->getFileNameConst()))
 				{
-					engine->gui->console->printLine(CColours::red,
+					engine->controller->console->printLine(CColours::red,
 						"[Serializer] : Error opening session file (%s)!", se->getFileNameConst());
 					return false;
 				}
@@ -213,24 +218,23 @@
 				if (se->isActivated)
 				{
 					// try to compile the project
-					CThread compileThread(UIController::startCompilation);
-					compileThread.run(engine);
-					// wait for it to finish
-					compileThread.join();
+					auto plugin = engine->getController().createPlugin().get();
 
 					// check if success
-					if (!engine->gui->bIsCompiled)
+					if(!plugin)
 					{
-						engine->gui->console->printLine(CColours::red,
+						engine->controller->console->printLine(CColours::red,
 							"[Serializer] : Error compiling session file (%s)!", se->getFileNameConst());
 						return false;
-
 					}
+
+					engine->exchangePlugin(std::move(plugin));
+
 					// project is now compiled, lets try to activate it
 					if (!engine->activatePlugin())
 					{
-						engine->gui->console->printLine(CColours::red,
-							"[Serializer] : Error activating project (%s)!", engine->gui->projectName.c_str());
+						engine->controller->console->printLine(CColours::red,
+							"[Serializer] : Error activating project (%s)!", engine->controller->projectName.c_str());
 						return false;
 
 					}
@@ -238,7 +242,7 @@
 					// get values
 					const SerializedEngine::ControlValue * values = se->getValuesConst();
 					// get control manager
-					CPluginCtrlManager & ctrlManager = engine->gui->ctrlManager;
+					CPluginCtrlManager & ctrlManager = engine->getCState()->getCtrlManager();
 				
 					for (unsigned i = 0; i < se->numValues; i++)
 					{
@@ -250,7 +254,7 @@
 							control->bSetValue(values[i].value);
 						else
 						{
-							engine->gui->console->printLine(CColours::red,
+							engine->controller->console->printLine(CColours::red,
 								"[Serializer] : Error restoring values to controls: No control found for tag %d!",
 								values[i].tag);
 							return false;
@@ -258,7 +262,7 @@
 						}
 					}
 					// all controls restored - now we update display, and were set!
-					engine->gui->ctrlManager.callListeners();
+					ctrlManager.callListeners();
 				}
 
 				return true;

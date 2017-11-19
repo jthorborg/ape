@@ -34,7 +34,7 @@
 	#define APE_CSTATE_H
 
 	#include <cpl/PlatformSpecific.h>
- #include <cpl/MacroConstants.h>
+	#include <cpl/MacroConstants.h>
 	#include "CMemoryGuard.h"
 	#include <vector>
 	#include <exception>
@@ -44,7 +44,10 @@
 	#include <ape/Events.h>
 	#include <thread>
 	#include <cpl/CMutex.h>
-	#include "ProjectEx.h"
+	#include "CControlManager.h"
+	#include <cpl/Protected.h>
+	#include <atomic>
+	#include <cpl/gui/Tools.h>
 
 	namespace ape
 	{
@@ -54,51 +57,126 @@
 		class PluginState;
 		class CCodeGenerator;
 		struct SharedInterfaceEx;
-			
-		class PluginState
+		struct ProjectEx;
+
+		class PluginState : private CBaseControl::CListener, private cpl::DestructionNotifier
 		{
 		public:
 
-			SharedInterfaceEx & getSharedInterface();
-			CAllocator & getPluginAllocator();
-			std::vector<CMemoryGuard> & getPMemory();
+#define DEFINE_EXCEPTION(X) class X : public std::runtime_error { using std::runtime_error::runtime_error; }
 
-			void setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize);
+			DEFINE_EXCEPTION(AbortException);
+			DEFINE_EXCEPTION(CompileException);
+			DEFINE_EXCEPTION(InitException);
+			DEFINE_EXCEPTION(CreateException);
+			DEFINE_EXCEPTION(DisabledException);
+			DEFINE_EXCEPTION(InvalidStateException);
 
-			PluginState(ape::Engine * effect);
+#undef DEFINE_EXCEPTION
+
+			SharedInterfaceEx& getSharedInterface();
+			CAllocator& getPluginAllocator() noexcept { return pluginAllocator; }
+			std::vector<CMemoryGuard> & getPMemory() noexcept { return protectedMemory; }
+
+			void setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize, double sampleRate);
+
+			PluginState(Engine& effect, CCodeGenerator& codeGenerator, std::unique_ptr<ProjectEx> project);
 			~PluginState();
 
-			/*
-				utility
-
-			*/
-			bool compileCurrentProject();
-			void setNewProject(ProjectEx *);
 			static void useFPUExceptions(bool b);
-			void projectCrashed();
 
 			/*
 				safe wrappers around compiler
 			*/
 			Status activateProject();
-			Status disableProject(bool didMisbehave);
-			Status processReplacing(float ** in, float ** out, std::size_t sampleFrames);
-			Status onEvent(Event * e);
+			void disableProject();
+			Status processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
+			void setPlayState(bool isPlaying);
 
+			Status getState() const noexcept { return state; }
+			CPluginCtrlManager& getCtrlManager() noexcept { return ctrlManager; }
 		private:
 
-			void createSharedObject();
+			struct IOConfig
+			{
+				std::size_t inputs, outputs, blockSize;
+				double sampleRate;
 
-			 
+				bool operator == (const IOConfig& other) const noexcept
+				{
+					return inputs == other.inputs && outputs == other.outputs && blockSize == other.blockSize && sampleRate == other.sampleRate;
+				}
+
+				bool operator != (const IOConfig& other) const noexcept { return !(*this == other); }
+			};
+
+			struct ScopedRefCount
+			{
+				ScopedRefCount(PluginState& parent)
+					: parent(parent), good(false)
+				{
+					cpl::CFastMutex expiredLock(parent.expiredMutex);
+					if (!parent.expired)
+					{
+						parent.useCount.fetch_add(1, std::memory_order_acquire);
+						good = true;
+					}
+				}
+
+				ScopedRefCount(ScopedRefCount&& other)
+					: parent(other.parent), good(other.good)
+				{
+					other.good = false;
+				}
+
+				struct ScopedDisable
+				{
+					ScopedDisable(ScopedRefCount ref)
+					{
+					}
+				};
+
+				bool valid() const noexcept { return good; }
+
+				~ScopedRefCount()
+				{
+					if (good)
+						parent.useCount.fetch_sub(1, std::memory_order_release);
+				}
+
+				bool good;
+				PluginState& parent;
+			};
+
+			template<typename Function>
+			std::pair<Status, bool> WrapPluginCall(const char * reason, Function&& f);
+
+			void performDisable();
+			void waitDisable();
+
+			void internalDisable(ScopedRefCount::ScopedDisable disable, Status errorCode);
+			bool valueChanged(CBaseControl *) override;
+
+			void dispatchPlayEvent();
+			Status dispatchEvent(const char * reason, APE_Event& event);
+
 			std::unique_ptr<SharedInterfaceEx> sharedObject;
-			std::unique_ptr<CCodeGenerator> generator;
-			Engine * engine;
+			CCodeGenerator& generator;
+			Engine& engine;
 			CAllocator pluginAllocator;
 			std::vector<CMemoryGuard> protectedMemory;
+			std::vector<float*> pluginInputs, pluginOutputs;
+			std::unique_ptr<ProjectEx> project;
+			CPluginCtrlManager ctrlManager;
 
-			std::unique_ptr<ProjectEx, ProjectDeleter> curProject;
-
-
+			bool playing;
+			IOConfig config;
+			cpl::CMutex::Lockable expiredMutex;
+			bool expired;
+			std::atomic<int> useCount;
+			std::atomic<Status> state;
+			std::atomic<bool> abnormalBehaviour;
+			std::atomic<bool> pendingDisable;
 
 		};
 	};

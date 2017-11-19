@@ -33,6 +33,7 @@
 	#define APE_PROJECTEX_H
 
 	#include <ape/Project.h>
+	#include <atomic>
 
 	namespace ape
 	{
@@ -42,6 +43,7 @@
 		enum class CodeState
 		{
 			None,
+			Created,
 			Compiled,
 			Initialized,
 			Disabled,
@@ -51,6 +53,9 @@
 
 		struct ProjectEx : APE_Project
 		{
+			ProjectEx();
+			~ProjectEx();
+
 			/// <summary>
 			/// A language string that uniquely identifies a corrosponding compiler as set
 			/// in the settings(name of language group)
@@ -64,20 +69,9 @@
 			/// <summary>
 			/// See the definition. Defines state of project.
 			/// </summary>
-			CodeState state;
-		};
-	
-		// global allocators to ensure the same allocator is used.
-		ProjectEx * CreateProjectStruct();
-		void FreeProjectStruct(ProjectEx * project);
+			std::atomic<CodeState> state;
 
-		class ProjectDeleter
-		{
-		public:
-			void operator () (ProjectEx * project)
-			{
-				FreeProjectStruct(project);
-			}
 		};
 	};
+
 #endif

@@ -38,34 +38,259 @@
 #include "CConsole.h"
 #include <sstream>
 #include <cpl/Protected.h>
+#include <cpl/gui/Tools.h>
 
 namespace ape
 {
 	thread_local unsigned int fpuMask;
 
-	PluginState::PluginState(Engine * engine) 
-		: engine(engine), curProject(nullptr)
+	struct ProjectReleaser
 	{
-		generator = std::make_unique<CCodeGenerator>(engine);
-		generator->setErrorFunc(engine->errPrint, engine);
-		createSharedObject();
-		#ifndef __WINDOWS__
-			registerHandlers();
-		#endif
+		ProjectEx* project = nullptr;
+		CCodeGenerator* gen = nullptr;
+		~ProjectReleaser() { if (project && gen) gen->releaseProject(*project);	}
+	};
+
+	PluginState::PluginState(Engine& engine, CCodeGenerator& codeGenerator, std::unique_ptr<ProjectEx> projectToUse) 
+		: engine(engine)
+		, generator(codeGenerator)
+		, project(std::move(projectToUse))
+		, ctrlManager(this, CRect(138, 0, 826 - 138, 245), kTagEnd)
+		, expired(true)
+		, useCount(0)
+		, state(STATUS_DISABLED)
+		, config{}
+		, playing(false)
+		, pendingDisable(false)
+		, abnormalBehaviour(false)
+	{
+		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
+		project->iface = sharedObject.get();
+
+		if (!generator.createProject(*project))
+			throw CreateException("Error creating project...");
+
+		ProjectReleaser scopedRelease { project.get(), &generator };
+
+		if (!generator.compileProject(*project))
+			throw CompileException("Error compiling project...");
+
+		if (!generator.initProject(*project))
+			throw InitException("Error initializing project...");
+
+		scopedRelease = ProjectReleaser{};
 	}
 
 	PluginState::~PluginState() 
 	{
-		if (curProject)  
-		{
-			generator->releaseProject(*curProject);
-		}
-
+		ProjectReleaser scopedRelease { project.get(), &generator };
+		disableProject();
 	}
 
-	void PluginState::createSharedObject() 
+	bool PluginState::valueChanged(CBaseControl * control)
 	{
-		sharedObject = std::make_unique<SharedInterfaceEx>(*engine, *this);
+		ScopedRefCount ref(*this);
+		if (!ref.valid())
+			return false;
+
+		Event e;
+		// set type to a change of ctrl value.
+		e.eventType = CtrlValueChanged;
+		// construct ctrlValueChange event object
+		Events::CtrlValueChanged aevent = {};
+		// set new values
+		aevent.value = control->bGetValue();
+		aevent.tag = control->bGetTag();
+		e.event.eCtrlValueChanged = &aevent; 
+
+		auto ret = WrapPluginCall("valueChanged() event",
+			[&]
+			{
+				return generator.onEvent(*project, &e);
+			}
+		);
+
+		if (ret.second)
+		{
+			internalDisable(std::move(ref), ret.first);
+		}
+		else if(ret.first == STATUS_HANDLED)
+		{
+			control->bRedraw();
+			return true;
+		}
+
+		return false;
+	}
+
+	void PluginState::setPlayState(bool isPlaying)
+	{
+		if (isPlaying == playing)
+			return;
+
+		playing = isPlaying;
+
+		Event e;
+		e.eventType = PlayStateChanged;
+		Events::PlayStateChanged aevent = { isPlaying };
+		e.event.ePlayStateChanged = &aevent;
+
+		dispatchEvent("playStateChanged()", e);
+	}
+
+
+	Status PluginState::processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles) noexcept
+	{
+		ScopedRefCount ref(*this);
+		if (!ref.valid())
+			return Status::STATUS_DISABLED;
+		
+		auto ret = WrapPluginCall("processReplacing()",
+			[&]
+			{
+				for (std::size_t i = 0; i < config.inputs; ++i)
+				{
+					pluginInputs[i] = protectedMemory[0].get<float>() + sampleFrames * i;
+					std::memcpy(pluginInputs[i], in[i], sampleFrames * sizeof(float));
+				}
+
+				for (std::size_t i = 0; i < config.outputs; ++i)
+				{
+					pluginOutputs[i] = protectedMemory[1].get<float>() + sampleFrames * i;
+				}
+
+				auto start = cpl::Misc::ClockCounter();
+				auto result = generator.processReplacing(*project, pluginInputs.data(), pluginOutputs.data(), sampleFrames);
+
+				if (profiledCycles != nullptr)
+					*profiledCycles = cpl::Misc::ClockCounter() - start;
+
+				for (std::size_t i = 0; i < config.outputs; ++i)
+				{
+					std::memcpy(out[i], pluginOutputs[i], sampleFrames * sizeof(float));
+				}
+
+				return result;
+			}
+		);
+
+		if(ret.second)
+		{
+			internalDisable(std::move(ref), ret.first);
+		}
+
+		return ret.first;
+	}
+
+	void PluginState::disableProject()
+	{
+		ScopedRefCount ref(*this);
+		if (ref.valid())
+			internalDisable(std::move(ref), Status::STATUS_OK);
+
+		waitDisable();
+	}
+
+	Status PluginState::activateProject()
+	{
+		{
+			cpl::CMutex lock(expiredMutex);
+
+			if (!expired)
+				throw InvalidStateException("Double activation of project");
+
+			if (useCount != 0)
+				throw InvalidStateException("Corrupt reference count");
+		}
+
+
+		auto ret = WrapPluginCall("activating project",
+			[&]
+			{
+				return generator.activateProject(*project);
+			}
+		);
+
+		if (ret.second || ret.first != Status::STATUS_READY)
+			return Status::STATUS_ERROR;
+
+		cpl::CMutex lock(expiredMutex);
+		expired = false;
+		useCount = 1;
+
+		Event e;
+		e.eventType = IOChanged;
+		Events::IOChanged aevent{ config.inputs, config.outputs, config.blockSize, config.sampleRate };
+		e.event.eIOChanged = &aevent;
+		dispatchEvent("initial ioChanged() event", e);
+
+		if (playing)
+		{
+			Events::PlayStateChanged pevent{ true };
+			e.event.ePlayStateChanged = &pevent;
+			e.eventType = PlayStateChanged;
+			dispatchEvent("initial playStateChanged() event", e);
+		}
+
+		return Status::STATUS_OK;
+	}
+
+	void PluginState::waitDisable()
+	{
+		if (pendingDisable.load())
+		{
+			if (juce::MessageManager::getInstance()->isThisTheMessageThread())
+			{
+				notifyDestruction();
+				performDisable();
+			}
+			else
+			{
+				// TODO: Potential deadlock on the message thread.
+				while (pendingDisable.load(std::memory_order_relaxed))
+					std::this_thread::yield();
+			}
+		}
+	}
+
+	void PluginState::internalDisable(PluginState::ScopedRefCount::ScopedDisable disable, Status errorCode)
+	{
+		{
+			cpl::CFastMutex lock(expiredMutex);
+			bool prev = pendingDisable.exchange(true);
+			if (prev || state == STATUS_DISABLED)
+				return;
+			abnormalBehaviour = errorCode != Status::STATUS_OK;
+			state = STATUS_DISABLED;
+			expired = true;
+		}
+
+		if (juce::MessageManager::getInstance()->isThisTheMessageThread())
+			performDisable();
+		else
+			cpl::GUIUtils::MainEvent(*this, [this] { if(pendingDisable) performDisable(); });
+	}
+
+	void PluginState::performDisable()
+	{
+		useCount--;
+
+		while (useCount.load(std::memory_order_relaxed) > 0)
+			std::this_thread::yield();
+
+		auto ret = WrapPluginCall("Disabling plugin",
+			[&]
+			{
+				return generator.disableProject(*project, abnormalBehaviour);
+			}
+		);
+
+		// TODO: check RET code.
+
+		pluginAllocator.clear();
+		ctrlManager.reset();
+		abnormalBehaviour = false;
+		pendingDisable = false;
 	}
 
 	SharedInterfaceEx & PluginState::getSharedInterface()
@@ -73,139 +298,115 @@ namespace ape
 		return *sharedObject.get();
 	}
 
-	void PluginState::setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize)
+	void PluginState::setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize, double sampleRate)
 	{
 		while (protectedMemory.size() < 2)
 			protectedMemory.emplace_back().setProtect(CMemoryGuard::protection::readwrite);
 
 		if (!protectedMemory[0].resize<float>(numInputs * blockSize) || !protectedMemory[1].resize<float>(numOutputs * blockSize))
 			CPL_SYSTEM_EXCEPTION("Error allocating virtual protected memory for buffers");
+
+		pluginInputs.resize(numInputs);
+		pluginOutputs.resize(numOutputs);
+
+
+		IOConfig current{ numInputs, numOutputs, blockSize, sampleRate };
+
+		if (current == config)
+			return;
+
+		config = current;
+
+		Event e;
+		e.eventType = IOChanged;
+		Events::IOChanged aevent{ config.inputs, config.outputs, config.blockSize, config.sampleRate };
+		e.event.eIOChanged = &aevent;
+
+		dispatchEvent("ioChanged() event", e);
 	}
 
-	/*********************************************************************************************
-
-		Getter for the plugin allocator.
-
-	 *********************************************************************************************/
-	ape::CAllocator & PluginState::getPluginAllocator() 
+	Status PluginState::dispatchEvent(const char * reason, APE_Event& event)
 	{
-		return pluginAllocator;
-	}
-	/*********************************************************************************************
+		ScopedRefCount ref(*this);
+		if (!ref.valid())
+			return STATUS_DISABLED;
 
-		Getter for the protected memory.
-
-	 *********************************************************************************************/
-	std::vector<ape::CMemoryGuard> & PluginState::getPMemory() 
-	{
-		return protectedMemory;
-	}
-
-	/*********************************************************************************************
-
-		Tells compiler to compile this->project.
-
-	 *********************************************************************************************/
-	bool PluginState::compileCurrentProject()
-	{
-		if (curProject)
-		{
-			this->curProject->iface = sharedObject.get();
-			if (!generator->compileProject(*curProject))
-				return false;
-			if (!generator->initProject(*curProject))
-				return false;
-		}
-		return true;
-	}
-	/*********************************************************************************************
-
-		Calls compilers activate function.
-
-	 *********************************************************************************************/
-	Status PluginState::activateProject()
-	{
-		Status ret = Status::STATUS_ERROR;
-		cpl::CProtected::instance().runProtectedCode( 
+		auto ret = WrapPluginCall(reason,
 			[&]
 			{
-				ret = generator->activateProject(*curProject);
+				return generator.onEvent(*project, &event);
 			}
 		);
-		return ret;
-	}
-	/*********************************************************************************************
 
-		Calls compilers disable function.
-
-	 *********************************************************************************************/
-	Status PluginState::disableProject(bool didMisbehave)
-	{
-		Status ret = Status::STATUS_ERROR;
-		
-		if (curProject)
+		if (ret.second)
 		{
+			internalDisable(std::move(ref), ret.first);
+		}
+
+		return ret.first;
+	}
+
+	template<typename Function>
+	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, Function&& f)
+	{
+		try
+		{
+			Status ret;
+
 			cpl::CProtected::instance().runProtectedCode(
-				[&]
+				[&] { ret = f(); }
+			);
+
+			return { ret, false };
+		}
+		catch (const cpl::CProtected::CSystemException& exp)
+		{
+			engine.getController().console->printLine(
+				CColours::red,
+				"[PluginState] : Exception 0x%X occured in plugin at operation: %s: \"%s\". Plugin disabled.",
+				exp.data.exceptCode, 
+				reason,
+				cpl::CProtected::formatExceptionMessage(exp).c_str()
+			);
+
+			switch (exp.data.exceptCode)
+			{
+				case cpl::CProtected::CSystemException::access_violation:
 				{
-					ret = generator->disableProject(*curProject, didMisbehave);
+					bool bad = true;
+					for (auto& mem : protectedMemory)
+					{
+						if (mem.in_range(exp.data.attemptedAddr))
+						{
+							bad = false;
+							break;
+						}
+					}
+					
+					if (!bad)
+					{
+						engine.getController().console->printLine(CColours::red, "[PluginState] : Plugin accessed memory out of bounds. "
+							"Consider saving your project and restarting your application.");
+					}
+					else
+					{
+						// TODO: Move in here.
+						engine.pluginCrashed();
+					}
 				}
+			}
+		}
+		catch (const AbortException& exp)
+		{
+			engine.getController().console->printLine(
+				CColours::orange,
+				"[PluginState] : Plugin aborted at operation: %s: \"%s\". Plugin disabled.",
+				reason,
+				exp.what()
 			);
 		}
 
-		return ret;
-	}
-	/*********************************************************************************************
-
-		Calls plugin's processReplacer
-
-	 *********************************************************************************************/
-	Status PluginState::processReplacing(float ** in, float ** out, std::size_t sampleFrames)
-	{
-		Status ret = Status::STATUS_ERROR;
-		if (curProject)
-		{
-			cpl::CProtected::instance().runProtectedCode(
-				[&]
-				{
-					ret = generator->processReplacing(*curProject, in, out, sampleFrames);
-				}
-			);
-		}
-		return ret;
-
-	}
-	/*********************************************************************************************
-
-		Calls plugin's onEvent handler
-
-	 *********************************************************************************************/
-	Status PluginState::onEvent(Event * e)
-	{
-		Status ret = Status::STATUS_ERROR;
-		if (curProject)
-		{
-			cpl::CProtected::instance().runProtectedCode(
-				[&]
-				{
-					ret = generator->onEvent(*curProject, e);
-				}
-			);
-		}
-		return ret;
-	}
-	/*********************************************************************************************
-
-		Releases old project and updates it to new one. Does not check whether project is used!!
-
-	 *********************************************************************************************/
-	void PluginState::setNewProject(ape::ProjectEx * project)
-	{
-		if(curProject)  
-		{
-			generator->releaseProject(*curProject);
-		}
-		curProject.reset(project);
+		return { STATUS_ERROR, true };
 	}
 
 	/*
@@ -264,11 +465,6 @@ namespace ape
 				_MM_SET_EXCEPTION_MASK(fpuMask);
 			}
 		#endif
-	}
-
-	void PluginState::projectCrashed()
-	{
-		curProject->state = CodeState::Disabled;
 	}
 
 }

@@ -41,10 +41,30 @@
 		bool unused;
 	};
 
+	/// <summary>
+	/// Guaranteed to be mutually exclusive to any concurrent processing.
+	/// </summary>
+	struct APE_Event_IOChanged
+	{
+		size_t inputs;
+		size_t outputs;
+		size_t blockSize;
+		double sampleRate;
+	};
+
+	/// <summary>
+	/// Guaranteed to be mutually exclusive to any concurrent processing.
+	/// </summary>
+	struct APE_Event_PlayStateChanged
+	{
+		bool isPlaying;
+	};
+
 	typedef enum 
 	{
-		CtrlValueChanged = 0
-
+		CtrlValueChanged = 0,
+		IOChanged,
+		PlayStateChanged
 	} APE_EventType;
 
 	struct APE_Event
@@ -53,7 +73,8 @@
 		union
 		{
 			APE_Event_CtrlValueChanged * eCtrlValueChanged;
-
+			APE_Event_IOChanged * eIOChanged;
+			APE_Event_PlayStateChanged * ePlayStateChanged;
 		} event;
 	};
 
@@ -63,6 +84,8 @@
 			struct Events
 			{
 				using CtrlValueChanged = APE_Event_CtrlValueChanged;
+				using IOChanged = APE_Event_IOChanged;
+				using PlayStateChanged = APE_Event_PlayStateChanged;
 			};
 
 			using Event = APE_Event;

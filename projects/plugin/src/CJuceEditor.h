@@ -194,7 +194,7 @@
 			bool closeEditor() override;
 			bool exists() override { return true; }
 			bool openFile(const std::string & fileName) override;
-			ProjectEx * getProject() override;
+			std::unique_ptr<ProjectEx> getProject() override;
 			std::string getDocumentName() override;
 			std::string getDocumentPath() override;
 			void autoSave() override;

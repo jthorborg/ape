@@ -34,17 +34,15 @@
 extern  "C"
 {
 #endif
-	EXPORTED void * APE_API GetSymbol(APE_Project * p, char * s);
+	EXPORTED APE_Status APE_API CreateProject(APE_Project * p);
 	EXPORTED APE_Status APE_API CompileProject(APE_Project * p, void * op, APE_ErrorFunc e);
-	EXPORTED APE_Status APE_API SetErrorFunc(APE_Project * p, void * op, APE_ErrorFunc e);
-	EXPORTED APE_Status APE_API ReleaseProject(APE_Project * p);
 	EXPORTED APE_Status APE_API InitProject(APE_Project * p);
 	EXPORTED APE_Status APE_API ActivateProject(APE_Project * p);
 	EXPORTED APE_Status APE_API DisableProject(APE_Project * p, int misbehaved);
-	EXPORTED APE_Status APE_API GetState(APE_Project * p);
-	EXPORTED APE_Status APE_API AddSymbol(APE_Project * p, const char * name, void * mem);
-	EXPORTED APE_Status	APE_API ProcessReplacing(APE_Project * p, float ** in, float ** out, int sampleFrames);
+	EXPORTED APE_Status	APE_API ProcessReplacing(APE_Project * p, const float * const * in, float * const * out, size_t sampleFrames);
 	EXPORTED APE_Status	APE_API OnEvent(APE_Project * p, APE_Event * e);
+	EXPORTED APE_Status APE_API ReleaseProject(APE_Project * p);
+
 #ifdef __cplusplus
 }
 #endif

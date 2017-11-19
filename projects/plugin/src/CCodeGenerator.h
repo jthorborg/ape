@@ -31,7 +31,7 @@
 	#define _CCODEGENERATOR_H
 
 	#include <cpl/CModule.h>
- #include <cpl/MacroConstants.h>
+	#include <cpl/MacroConstants.h>
 	#include <string>
 	#include "CApi.h"
 	#include <map>
@@ -52,16 +52,14 @@
 		*/
 		enum class ExportIndex
 		{
-			GetSymbol,
+			CreateProject,
 			CompileProject,
-			ReleaseProject,
 			InitProject,
 			ActivateProject,
 			DisableProject,
-			GetState,
-			AddSymbol,
 			ProcessReplacing,
 			OnEvent,
+			ReleaseProject,
 			end
 		};
 
@@ -90,16 +88,14 @@
 
 				union {
 					struct {
-						decltype(GetSymbol) * getSymbol;
+						decltype(CreateProject) * createProject;
 						decltype(CompileProject) * compileProject;
-						decltype(ReleaseProject) * releaseProject;
 						decltype(InitProject) * initProject;
 						decltype(ActivateProject) * activateProject;
 						decltype(DisableProject) * disableProject;
-						decltype(GetState) * getState;
-						decltype(AddSymbol) * addSymbol;
 						decltype(ProcessReplacing) * processReplacing;
 						decltype(OnEvent) * onEvent;
+						decltype(ReleaseProject) * releaseProject;
 					};
 					/* sizeof(previous struct) / sizeof (void*) */
 					void * _table[MaxExports()];
@@ -147,8 +143,10 @@
 			Status disableProject(ProjectEx & project, bool didMisbehave);
 			Status onEvent(ProjectEx & project, Event * e);
 
+
 			bool compileProject(ProjectEx & project);
-			bool initProject(ProjectEx & project); 
+			bool initProject(ProjectEx & project);
+			bool createProject(ProjectEx & project); 
 			bool releaseProject(ProjectEx & project);
 
 		};

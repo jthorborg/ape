@@ -1452,9 +1452,6 @@
     <ClCompile Include="..\..\src\CAllocator.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Project.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CValueLabel.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1501,6 +1498,9 @@
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\UIController.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ProjectEx.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
   </ItemGroup>
