@@ -351,12 +351,14 @@ namespace CppAPE
 			return false;
 		}
 
+		volatile auto localPluginData = pluginData;
+		pluginData = nullptr;
+
 		if (globalData->wantsToSelfAlloc)
 		{
-			if (globalData->PluginAlloc && globalData->PluginFree && pluginData)
+			if (globalData->PluginAlloc && globalData->PluginFree && localPluginData)
 			{
-				globalData->PluginFree(pluginData);
-				pluginData = nullptr;
+				globalData->PluginFree(localPluginData);
 				return true;
 			}
 			else
@@ -365,10 +367,9 @@ namespace CppAPE
 				return false;
 			}
 		}
-		else if(pluginData)
+		else if(localPluginData)
 		{
-			std::free(pluginData);
-			pluginData = nullptr;
+			std::free(localPluginData);
 			return true;
 		}
 

@@ -197,16 +197,7 @@ namespace ape
 
 	bool Engine::pluginCrashed() 
 	{
-		cpl::Misc::MsgBox("Your plugin has performed an illegal operation and has crashed! "
-					 "it is adviced that you immediately save your project (perhaps in a new "
-					 "file) and restart your "
-					 "application, as memory might have been corrupted. Consider going through "
-					 "your code and double-check it for errors, especially pointer dereferences "
-					 "and loops that might cause segmentation faults.",
-					 cpl::programInfo.programAbbr + " Fatal Error",
-					 cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop,
-					 controller->getSystemWindow(),
-					 false);
+
 		return true;
 	}
 
@@ -240,6 +231,11 @@ namespace ape
 		std::unique_lock<std::shared_mutex> lock(pluginMutex);
 
 		pluginState = std::move(newPlugin);
+		if (pluginState)
+		{
+			pluginState->setBounds(ioConfig);
+			pluginState->setPlayState(isPlaying);
+		}
 	}
 
 
@@ -259,9 +255,9 @@ namespace ape
 		
 		status.bActivated = false;
 
-		pluginState->disableProject();
+		auto result = pluginState->disableProject();
 
-		controller->console->printLine(CColours::black, pluginState->getState() == STATUS_OK ?
+		controller->console->printLine(CColours::black, result == STATUS_OK ?
 			"[Engine] : Plugin disabled without error." :
 			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
 		
@@ -269,7 +265,7 @@ namespace ape
 		if(!fromEditor)
 			controller->setParameter(kActiveStateButton, 0.f);
 
-		if (pluginState->getState() == STATUS_OK)
+		if (result == STATUS_OK)
 			controller->setStatusText("Plugin disabled", CColours::lightgoldenrodyellow);
 
 		changeInitialDelay(0);
@@ -454,7 +450,7 @@ namespace ape
 
 	bool Engine::silenceInProducesSilenceOut() const
 	{
-		return false;
+		return true;
 	}
 
 	double Engine::getTailLengthSeconds() const
@@ -505,19 +501,26 @@ namespace ape
 		
 		std::shared_lock<std::shared_mutex> lock(pluginMutex);
 		
+		isPlaying = true;
+		ioConfig.blockSize = samplesPerBlock;
+		ioConfig.sampleRate = sampleRate;
+		ioConfig.inputs = getNumInputChannels();
+		ioConfig.outputs = getNumOutputChannels();
+
 		if (pluginState)
 		{
-			pluginState->setBounds(getNumInputChannels(), getNumOutputChannels(), samplesPerBlock, getSampleRate());
-			pluginState->setPlayState(true);
+			pluginState->setBounds(ioConfig);
+			pluginState->setPlayState(isPlaying);
 		}
 
 	}
 
 	void Engine::releaseResources()
 	{
+		isPlaying = false;
 		std::shared_lock<std::shared_mutex> lock(pluginMutex);
 		if(pluginState)
-			pluginState->setPlayState(false);
+			pluginState->setPlayState(isPlaying);
 	}
 
 }

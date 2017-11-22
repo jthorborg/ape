@@ -48,6 +48,7 @@
 	#include <cpl/Protected.h>
 	#include <atomic>
 	#include <cpl/gui/Tools.h>
+	#include "Settings.h"
 
 	namespace ape
 	{
@@ -78,7 +79,7 @@
 			CAllocator& getPluginAllocator() noexcept { return pluginAllocator; }
 			std::vector<CMemoryGuard> & getPMemory() noexcept { return protectedMemory; }
 
-			void setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize, double sampleRate);
+			void setBounds(const IOConfig& o);
 
 			PluginState(Engine& effect, CCodeGenerator& codeGenerator, std::unique_ptr<ProjectEx> project);
 			~PluginState();
@@ -89,26 +90,14 @@
 				safe wrappers around compiler
 			*/
 			Status activateProject();
-			void disableProject();
+			Status disableProject();
 			Status processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
 			void setPlayState(bool isPlaying);
 
 			Status getState() const noexcept { return state; }
 			CPluginCtrlManager& getCtrlManager() noexcept { return ctrlManager; }
+
 		private:
-
-			struct IOConfig
-			{
-				std::size_t inputs, outputs, blockSize;
-				double sampleRate;
-
-				bool operator == (const IOConfig& other) const noexcept
-				{
-					return inputs == other.inputs && outputs == other.outputs && blockSize == other.blockSize && sampleRate == other.sampleRate;
-				}
-
-				bool operator != (const IOConfig& other) const noexcept { return !(*this == other); }
-			};
 
 			struct ScopedRefCount
 			{

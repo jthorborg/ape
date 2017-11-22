@@ -185,7 +185,7 @@ namespace ape
 			printError("Cannot disable project when it isn't activated.");
 			return Status::STATUS_ERROR;
 		} 
-
+		project.state = CodeState::Disabled;
 		auto status = project.compiler->bindings.disableProject(&project, didMisbehave ? 1 : 0);
 		if(status == Status::STATUS_OK)
 			project.state = CodeState::Disabled;

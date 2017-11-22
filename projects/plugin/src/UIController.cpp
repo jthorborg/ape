@@ -441,6 +441,23 @@ namespace ape
 				compilerState = createPlugin(externEditor->getProject());
 				engine->disablePlugin(false);
 			}
+			else
+			{
+				switch (compilerState.wait_for(std::chrono::seconds(0)))
+				{
+				case std::future_status::ready:
+					compilerState = createPlugin(externEditor->getProject());
+					engine->disablePlugin(false);
+					break;
+				case std::future_status::deferred:
+				case std::future_status::timeout:
+					control->bSetInternal(0);
+					setStatusText("Already compiling, please wait...", CColours::red, 2000);
+					console->printLine(CColours::red, "[GUI] : cannot compiler while compiling.");
+					break;
+
+				}
+			}
 			break;
 
 		case kActiveStateButton:

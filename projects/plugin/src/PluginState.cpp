@@ -182,13 +182,15 @@ namespace ape
 		return ret.first;
 	}
 
-	void PluginState::disableProject()
+	Status PluginState::disableProject()
 	{
 		ScopedRefCount ref(*this);
 		if (ref.valid())
 			internalDisable(std::move(ref), Status::STATUS_OK);
 
 		waitDisable();
+
+		return state == STATUS_DISABLED ? Status::STATUS_OK : Status::STATUS_ERROR;
 	}
 
 	Status PluginState::activateProject()
@@ -218,6 +220,8 @@ namespace ape
 		expired = false;
 		useCount = 1;
 
+		state = Status::STATUS_READY;
+
 		Event e;
 		e.eventType = IOChanged;
 		Events::IOChanged aevent{ config.inputs, config.outputs, config.blockSize, config.sampleRate };
@@ -232,7 +236,7 @@ namespace ape
 			dispatchEvent("initial playStateChanged() event", e);
 		}
 
-		return Status::STATUS_OK;
+		return Status::STATUS_READY;
 	}
 
 	void PluginState::waitDisable()
@@ -298,24 +302,21 @@ namespace ape
 		return *sharedObject.get();
 	}
 
-	void PluginState::setBounds(std::size_t numInputs, std::size_t numOutputs, std::size_t blockSize, double sampleRate)
+	void PluginState::setBounds(const IOConfig& newSettings)
 	{
 		while (protectedMemory.size() < 2)
 			protectedMemory.emplace_back().setProtect(CMemoryGuard::protection::readwrite);
 
-		if (!protectedMemory[0].resize<float>(numInputs * blockSize) || !protectedMemory[1].resize<float>(numOutputs * blockSize))
+		if (!protectedMemory[0].resize<float>(newSettings.inputs * newSettings.blockSize) || !protectedMemory[1].resize<float>(newSettings.outputs * newSettings.blockSize))
 			CPL_SYSTEM_EXCEPTION("Error allocating virtual protected memory for buffers");
 
-		pluginInputs.resize(numInputs);
-		pluginOutputs.resize(numOutputs);
+		pluginInputs.resize(newSettings.inputs);
+		pluginOutputs.resize(newSettings.outputs);
 
-
-		IOConfig current{ numInputs, numOutputs, blockSize, sampleRate };
-
-		if (current == config)
+		if (newSettings == config)
 			return;
 
-		config = current;
+		config = newSettings;
 
 		Event e;
 		e.eventType = IOChanged;
@@ -390,8 +391,22 @@ namespace ape
 					}
 					else
 					{
-						// TODO: Move in here.
-						engine.pluginCrashed();
+						const char * errString = "Your plugin has performed an illegal operation and has crashed! "
+							"it is adviced that you immediately save your project (perhaps in a new file) and restart your "
+							"application, as memory might have been corrupted. Consider going through "
+							"your code and double-check it for errors, especially pointer dereferences "
+							"and loops that might cause segmentation faults.";
+
+						auto errorNotification = [&]()
+						{
+							cpl::Misc::MsgBox(errString, cpl::programInfo.name + " Fatal Error",
+								cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, engine.getController().getSystemWindow(), false);
+						};
+
+						if (!juce::MessageManager::getInstance()->isThisTheMessageThread())
+							errorNotification();
+						else
+							cpl::GUIUtils::MainEvent(*this, errorNotification);
 					}
 				}
 			}

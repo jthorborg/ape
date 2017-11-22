@@ -173,6 +173,8 @@
 			std::unique_ptr<PluginState> pluginState;
 			std::string programName;
 			libconfig::Config config;
+			IOConfig ioConfig;
+			bool isPlaying = false;
 			std::atomic<double> clocksPerSample;
 			std::atomic<bool> isProcessing;
 			std::shared_mutex pluginMutex;

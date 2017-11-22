@@ -46,6 +46,21 @@
 
 
 		};
+
+		// TODO: move to common
+		struct IOConfig
+		{
+			std::size_t inputs = 0, outputs = 0, blockSize = 0;
+			double sampleRate = 0;
+
+			bool operator == (const IOConfig& other) const noexcept
+			{
+				return inputs == other.inputs && outputs == other.outputs && blockSize == other.blockSize && sampleRate == other.sampleRate;
+			}
+
+			bool operator != (const IOConfig& other) const noexcept { return !(*this == other); }
+		};
+
 	}
 
 	
