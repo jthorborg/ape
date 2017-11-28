@@ -141,7 +141,7 @@ namespace ape
 		std::memset(this, 0, sizeof(*this));
 	}
 
-	CCodeGenerator::CCodeGenerator(ape::Engine * engine)
+	CCodeGenerator::CCodeGenerator(const ape::Engine& engine)
 		: errorPrinter(nullptr), engine(engine)
 	{
 
@@ -264,15 +264,16 @@ namespace ape
 			if (!project.languageID || !project.languageID[0])
 			{
 				printError("Null/empty file extension, not supported");
+				return false;
 			}
 
 			std::string fileID = project.languageID;
 			// ensure lID is valid here !
 			try
 			{
-				const libconfig::Setting & settings = engine->getRootSettings();
+				const libconfig::Setting& languages = engine.getSettings().root()["languages"];
 				std::string langID;
-				for (auto && lang : settings["languages"])
+				for (auto && lang : languages)
 				{
 					if (!lang.isGroup())
 						continue;
@@ -292,15 +293,18 @@ namespace ape
 					return false;
 				}
 
-				const libconfig::Setting & langstts = settings["languages"][langID]["compiler"];
+				const libconfig::Setting & langstts = languages[langID]["compiler"];
 
 				// compiler is automatically constructed and loaded if it doesn't exist.
 				// if it does, we get a reference to it.
-				auto compiler = &compilers[langID];
+				auto& compiler = compilers[langID];
+
 				// one could argue this should happen in compiler::compiler
 				// but std::map and copy constructors etc. etc. we do it  here.
-				if (!compiler->isInitialized()) {
-					if (!compiler->initialize(langstts)) {
+				if (!compiler.isInitialized()) 
+				{
+					if (!compiler.initialize(langstts)) 
+					{
 						printError("Unable to initialize compiler!");
 						return false;
 					}
@@ -310,7 +314,7 @@ namespace ape
 				std::copy(args.begin(), args.end(), argString);
 				argString[args.length()] = '\0';
 				project.arguments = argString;
-				project.compiler = compiler;
+				project.compiler = &compiler;
 			}
 			catch (libconfig::ParseException & e)
 			{

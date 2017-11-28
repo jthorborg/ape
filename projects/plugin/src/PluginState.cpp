@@ -145,6 +145,8 @@ namespace ape
 		if (!ref.valid())
 			return Status::STATUS_DISABLED;
 		
+		processing.store(true, std::memory_order_release);
+
 		auto ret = WrapPluginCall("processReplacing()",
 			[&]
 			{
@@ -173,6 +175,8 @@ namespace ape
 				return result;
 			}
 		);
+
+		processing.store(false, std::memory_order_release);
 
 		if(ret.second)
 		{
@@ -362,7 +366,7 @@ namespace ape
 		}
 		catch (const cpl::CProtected::CSystemException& exp)
 		{
-			engine.getController().console->printLine(
+			engine.getController().console().printLine(
 				CColours::red,
 				"[PluginState] : Exception 0x%X occured in plugin at operation: %s: \"%s\". Plugin disabled.",
 				exp.data.exceptCode, 
@@ -386,7 +390,7 @@ namespace ape
 					
 					if (!bad)
 					{
-						engine.getController().console->printLine(CColours::red, "[PluginState] : Plugin accessed memory out of bounds. "
+						engine.getController().console().printLine(CColours::red, "[PluginState] : Plugin accessed memory out of bounds. "
 							"Consider saving your project and restarting your application.");
 					}
 					else
@@ -413,7 +417,7 @@ namespace ape
 		}
 		catch (const AbortException& exp)
 		{
-			engine.getController().console->printLine(
+			engine.getController().console().printLine(
 				CColours::orange,
 				"[PluginState] : Plugin aborted at operation: %s: \"%s\". Plugin disabled.",
 				reason,

@@ -54,93 +54,73 @@
 		/*
 			Main engine class
 		*/
-		class Engine : public juce::AudioProcessor
+		class Engine : public juce::AudioProcessor, private Settings::Listener
 		{
-			/*
-				friends
-			*/
+
 			friend class PluginState;
 			friend class UIController;
 			friend class CSerializer;
-			typedef unsigned fpumask;
-			// protect copy constructor
-			Engine(const Engine &);
-		private:
-			void static errPrint(void * data, const char * text);
-			bool copyInput(std::vector<float *> & in, std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
-			bool copyOutput(std::vector<float *> & out, juce::AudioSampleBuffer & buffer);
+
 		public:
 
-			virtual ~Engine();
-			/*
-				overloads
-			*/
-
 			Engine();
-			//==============================================================================
-			void prepareToPlay(double sampleRate, int samplesPerBlock);
-			void releaseResources();
+			virtual ~Engine();
 
-			void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages);
-
-			//==============================================================================
-			juce::AudioProcessorEditor* createEditor();
-			bool hasEditor() const;
-
-			//==============================================================================
-			const juce::String getName() const;
-
-			int getNumParameters();
-
-			float getParameter(int index);
-			void setParameter(int index, float newValue);
-
-			const juce::String getParameterName(int index);
-			const juce::String getParameterText(int index);
-
-			const juce::String getInputChannelName(int channelIndex) const;
-			const juce::String getOutputChannelName(int channelIndex) const;
-			bool isInputChannelStereoPair(int index) const;
-			bool isOutputChannelStereoPair(int index) const;
-
-			bool acceptsMidi() const;
-			bool producesMidi() const;
-			bool silenceInProducesSilenceOut() const;
-			double getTailLengthSeconds() const;
-
-			//==============================================================================
-			int getNumPrograms();
-			int getCurrentProgram();
-			void setCurrentProgram(int index);
-			const juce::String getProgramName(int index);
-			void changeProgramName(int index, const juce::String& newName);
-
-			//==============================================================================
-			void getStateInformation(juce::MemoryBlock& destData);
-			void setStateInformation(const void* data, int sizeInBytes);
-
-			void exchangePlugin(std::unique_ptr<PluginState> plugin);
-			void changeInitialDelay(long samples);
-			void disablePlugin(bool fromEditor = true);
-			bool activatePlugin();
-			bool pluginCrashed();
 			UIController& getController() { return *controller.get(); }
 			PluginState * getCState() { return pluginState.get(); }
 			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
+			Settings& getSettings() noexcept { return settings; }
+			const Settings& getSettings() const noexcept { return settings; }
+			void exchangePlugin(std::unique_ptr<PluginState> plugin);
+			void disablePlugin(bool fromEditor = true);
+			bool activatePlugin();
 			void useProtectedBuffers(bool bValue) { status.bUseBuffers = bValue; }
-			libconfig::Setting& getRootSettings();
-			void loadSettings();
-			int uniqueInstanceID();
-			int instanceCounter();
-			std::string engineType();
+			std::int32_t uniqueInstanceID() const noexcept;
+			std::int32_t instanceCounter() const noexcept;
+			void changeInitialDelay(long samples) noexcept;
 
-			bool isInProcessingCallback() const noexcept { return isProcessing.load(std::memory_order_acquire); }
+		protected:
 
-			/*
-				public data
-			*/
+			void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+			void releaseResources() override;
+			void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages) override;
+			juce::AudioProcessorEditor* createEditor() override;
+			const juce::String getName() const override;
+			bool hasEditor() const override;
+			//==============================================================================
+			int getNumParameters() override;
+			float getParameter(int index) override;
+			void setParameter(int index, float newValue) override;
+			const juce::String getParameterName(int index) override;
+			const juce::String getParameterText(int index) override;
+			//==============================================================================
+			const juce::String getInputChannelName(int channelIndex) const override;
+			const juce::String getOutputChannelName(int channelIndex) const override;
+			bool isInputChannelStereoPair(int index) const override;
+			bool isOutputChannelStereoPair(int index) const override;
+			//==============================================================================
+			bool acceptsMidi() const override;
+			bool producesMidi() const override;
+			bool silenceInProducesSilenceOut() const override;
+			double getTailLengthSeconds() const override;
+			//==============================================================================
+			int getNumPrograms() override;
+			int getCurrentProgram() override;
+			void setCurrentProgram(int index) override;
+			const juce::String getProgramName(int index) override;
+			void changeProgramName(int index, const juce::String& newName) override;
+			//==============================================================================
+			void getStateInformation(juce::MemoryBlock& destData) override;
+			void setStateInformation(const void* data, int sizeInBytes) override;
+			//==============================================================================
 
 		private:
+
+			void loadSettings();
+			std::string engineType() const noexcept;
+			
+			void onSettingsChanged(const Settings& s, const libconfig::Setting& setting) override;
+
 			struct {
 				volatile bool bActivated;
 				volatile bool bUseBuffers;
@@ -152,32 +132,20 @@
 				long initialDelay;
 				long newDelay;
 			} delay;
-			unsigned uiRefreshInterval;
-			unsigned autoSaveInterval;
 			unsigned numBuffers;
 			
-			union
-			{
-				unsigned int ID;
-				struct
-				{
-					unsigned char instanceCounter;
-					unsigned int pID : 24;
-				};
-				
-			} instanceID;
-
+			std::int32_t instanceID;
 			CCodeGenerator codeGenerator;
 			cpl::ConcurrentObjectSwapper<PluginState> rtPlugin;
 			std::unique_ptr<UIController> controller;
 			std::unique_ptr<PluginState> pluginState;
 			std::string programName;
-			libconfig::Config config;
+			Settings settings;
 			IOConfig ioConfig;
 			bool isPlaying = false;
 			std::atomic<double> clocksPerSample;
-			std::atomic<bool> isProcessing;
 			std::shared_mutex pluginMutex;
-		}; // class ape
-	} //namespace ape'
+
+		}; 
+	}
 #endif

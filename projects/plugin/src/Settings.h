@@ -26,9 +26,10 @@
 
 *************************************************************************************/
 
-#ifndef _SETTINGS_H
-	#define _SETTINGS_H
- #include <cpl/MacroConstants.h>
+#ifndef APE_SETTINGS_H
+	#define APE_SETTINGS_H
+
+	#include <cpl/MacroConstants.h>
 
 	#ifdef CPL_MSVC
 
@@ -36,32 +37,144 @@
 		#pragma warning (disable: 4290)
 
 	#endif
+
 	#include <libconfig.hh>
+	#include "Common.h"
+	#include <cpl/Core.h>
+	#include <filesystem>
+	#include <optional>
+	#include <set>
 
 	namespace ape
 	{
 		class Settings
 		{
-			Settings();
+		public:
 
-
-		};
-
-		// TODO: move to common
-		struct IOConfig
-		{
-			std::size_t inputs = 0, outputs = 0, blockSize = 0;
-			double sampleRate = 0;
-
-			bool operator == (const IOConfig& other) const noexcept
+			class Listener
 			{
-				return inputs == other.inputs && outputs == other.outputs && blockSize == other.blockSize && sampleRate == other.sampleRate;
+			public:
+				virtual void onSettingsChanged(const Settings& parent, const libconfig::Setting& setting) = 0;
+				virtual ~Listener() {}
+			};
+			
+			Settings(bool saveOnDestruction, cpl::fs::path path)
+				: saveOnDestruction(saveOnDestruction), path(std::move(path))
+			{
+				reloadSettings();
 			}
 
-			bool operator != (const IOConfig& other) const noexcept { return !(*this == other); }
+			~Settings()
+			{
+				if (saveOnDestruction)
+				{
+					saveSettings();
+				}
+			}
+
+			void addListener(Listener * list)
+			{
+				listeners.emplace(list);
+			}
+
+			void removeListener(Listener * list)
+			{
+				listeners.erase(list);
+			}
+
+			void changed(libconfig::Setting& s)
+			{
+				for (auto listener : listeners)
+					listener->onSettingsChanged(*this, s);
+			}
+
+			const cpl::fs::path& getPath() const noexcept
+			{
+				return path;
+			}
+
+			const libconfig::Setting& root() const noexcept
+			{
+				return config.getRoot();
+			}
+
+			libconfig::Setting& root() 
+			{
+				return config.getRoot();
+			}
+
+			const std::optional<std::string>& getErrors() const noexcept
+			{
+				return lastErrorMessage;
+			}
+
+			void saveSettings()
+			{
+				config.writeFile(path.string().c_str());
+			}
+
+			void reloadSettings()
+			{
+				try 
+				{
+					config.readFile(path.string().c_str());
+
+					libconfig::Setting & approot = root()["application"];
+
+					auto ensure = [&approot](const auto& s, auto def, auto type)
+					{
+						if (!approot.exists(s))
+							approot.add(s, type);
+					};
+
+					ensure("log_console", false, libconfig::Setting::TypeBoolean);
+					ensure("console_std_writing", false, libconfig::Setting::TypeBoolean);
+					ensure("use_fpe", false, libconfig::Setting::TypeBoolean);
+					ensure("ui_refresh_interval", 50, libconfig::Setting::TypeInt);
+					ensure("autosave_interval", 60, libconfig::Setting::TypeInt);
+					ensure("unique_id", 'apeX', libconfig::Setting::TypeInt);
+					ensure("greeting_shown", true, libconfig::Setting::TypeBoolean);
+					ensure("render_opengl", false, libconfig::Setting::TypeBoolean);
+
+				}
+				catch (libconfig::FileIOException & e)
+				{
+					lastErrorMessage = cpl::format("Error reading config file (%s)! (%s)", path.string().c_str(), e.what());
+				}
+				catch (libconfig::SettingNotFoundException & e)
+				{
+					lastErrorMessage = cpl::format("Error getting setting! (%s)", e.getPath());
+				}
+				catch (libconfig::ParseException & e)
+				{
+					lastErrorMessage = cpl::format("Error parsing config! In file %s at line %d: %s", e.getFile(), e.getLine(), e.getError());
+				}
+				catch (std::exception & e)
+				{
+					lastErrorMessage = cpl::format("Unknown error occured while reading settings! (%s)", e.what());
+				}
+
+			}
+
+		private:
+
+			std::set<Listener*> listeners;
+			bool saveOnDestruction;
+			std::optional<std::string> lastErrorMessage;
+			libconfig::Config config;
+			cpl::fs::path path;
 		};
 
-	}
+		inline bool operator == (const libconfig::Setting& a, const libconfig::Setting& b)
+		{
+			return &a == &b;
+		}
 
+		inline bool operator != (const libconfig::Setting& a, const libconfig::Setting& b)
+		{
+			return &a != &b;
+		}
+
+	}
 	
 #endif

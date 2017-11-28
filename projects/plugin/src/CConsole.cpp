@@ -111,12 +111,12 @@ namespace ape
 	 	Toggles loggin on, and logs into specified dir.
 
 	 *********************************************************************************************/
-	void CConsole::setLogging(bool toggle, const std::string & file)
+	void CConsole::setLogging(bool toggle, const cpl::fs::path& file)
 	{
 		logging = toggle;
 		if(logging)
 		{
-			debugFile.open(file);
+			debugFile.open(file.string());
 
 		}
 

@@ -43,18 +43,17 @@
 	namespace ape
 	{
 		struct ProjectEx;
-#pragma message("fix")
-
-		// ideally the editor should not know about the engine, but library design doesn't
-		// really allow this.
-		class Engine;
+		class UIController;
+		class Settings;
 
 		class CCodeEditor
 		{
 		protected:
-			Engine * engine;
+			UIController& controller;
+			const Settings& settings;
+			int instanceID;
 		public:
-			CCodeEditor(Engine * e) : engine(e) {};
+			CCodeEditor(UIController& c, const Settings& s, int instanceID) : controller(c), settings(s), instanceID(instanceID) {};
 			virtual ~CCodeEditor() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
@@ -73,19 +72,7 @@
 			virtual bool exists() = 0;
 		};
 
-		class CDefaultCodeEditor : public CCodeEditor
-		{
-		public:
-			CDefaultCodeEditor(Engine * e) : CCodeEditor(e) {};
-			void setErrorLine(int) {};
-			bool getDocumentText(std::string &) { return false; }
-			void quit() {};
-			void show() {};
-			void hide() {};
-			bool exists() { return false; }
-		};
-
-		std::unique_ptr<CCodeEditor> MakeCodeEditor(Engine * e);
+		std::unique_ptr<CCodeEditor> MakeCodeEditor(UIController& c, const Settings& s, int instanceID);
 
 	};
 #endif

@@ -42,6 +42,8 @@
 
 namespace ape 
 {
+	using namespace std::string_literals;
+
 	/*********************************************************************************************
 	 
 		Some data about our buttons behaviour
@@ -63,22 +65,37 @@ namespace ape
 		some of the engine's state to itself (button toggles, for instance.)
 
 	 *********************************************************************************************/
-	UIController::UIController(ape::Engine * effect)
-		: console(nullptr), externEditor(nullptr), projectName(cpl::programInfo.programAbbr),
-		editor(nullptr), engine(effect), bIsActive(effect->status.bActivated),
-		bUseBuffers(engine->status.bUseBuffers), bUseFPUE(engine->status.bUseFPUE),
-		autoSaveCounter(0), bFirstDraw(true), incGraphicCounter(0)
+	UIController::UIController(ape::Engine& effect)
+		: projectName(cpl::programInfo.programAbbr)
+		, editor(nullptr)
+		, engine(effect)
+		, bIsActive(effect.status.bActivated)
+		, bUseBuffers(engine.status.bUseBuffers)
+		, bUseFPUE(engine.status.bUseFPUE)
+		, autoSaveCounter(0)
+		, bFirstDraw(true)
+		, incGraphicCounter(0)
+		, consolePtr(std::make_unique<CConsole>())
 	{
 		
+		auto& app = effect.getSettings().root()["application"];
+
 		// create console
-		console = new CConsole();
+		if(app["log_console"])
+			console().setLogging(true, cpl::Misc::DirFSPath() / "logs" / ("log"s + std::to_string(engine.instanceCounter()) + ".txt"));
+
+		if (app["console_std_writing"])
+			console().setStdWriting(true);
+
+		autoSaveInterval = app["autosave_interval"];
+		uiRefreshInterval = app["ui_refresh_interval"];
 		// create the editor
-		externEditor = MakeCodeEditor(effect);
+		externEditor = MakeCodeEditor(*this, effect.getSettings(), effect.uniqueInstanceID());
 		
 		// 0.025 is pretty smooth
 		clockData.pole = 0.025f;
 		clockData.averageClocks = 0;
-		clockData.lastSample = engine->clocksPerSample;
+		clockData.lastSample = engine.clocksPerSample;
 		
 		// manually load resources in case a host is frantic and calls
 		// serializing without initiating out editor (hello reaper bridge)
@@ -91,11 +108,21 @@ namespace ape
 		Constructor for the editor. Creates all graphical components. Notifies parent
 	 
 	 *********************************************************************************************/
-	UIController::Editor::Editor(UIController & p)
+	UIController::Editor::Editor(UIController& p)
 		: parent(p), AudioProcessorEditor(p.engine),
 		repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
 		//,testImage(juce::Image::PixelFormat::ARGB, 800,300, false, *new juce::OpenGLImageType())
 	{
+
+		/*
+		if (!approot["greeting_shown"])
+		{
+			cpl::Misc::MsgBox("Hello and welcome to " + cpl::programInfo.name + "! Before you start using this program, "
+				"please take time to read the readme and agree to all licenses + disclaimers found in /licenses. "
+				"Have fun!", cpl::programInfo.name, cpl::Misc::MsgIcon::iInfo);
+			approot["greeting_shown"] = true;
+		} */
+
 		// get background
 		background.setImage(bImage);
 		addAndMakeVisible(background);
@@ -158,7 +185,7 @@ namespace ape
 		garbageCollection.push_back(statusLabel);
 		// create the editor
 		// spawn console
-		parent.console->create(CRect(b->getWidth(), 0, getWidth() - b->getWidth(), getHeight() - (getHeight() / 6)));
+		parent.console().create(CRect(b->getWidth(), 0, getWidth() - b->getWidth(), getHeight() - (getHeight() / 6)));
 		
 		
 		/*
@@ -177,7 +204,7 @@ namespace ape
 		oglc.detach();
 		for (auto garbage : garbageCollection)
 			delete garbage;
-		parent.console->close();
+		parent.console().close();
 		if (isTimerRunning())
 			stopTimer();
 		parent.editorClosed();
@@ -201,6 +228,45 @@ namespace ape
 		
 		parent.editorOpened(this);	
 	}
+
+	void UIController::errorPrint(void * data, const char * text)
+	{
+		if (!data || !text)
+			return;
+
+		UIController * controller = static_cast<UIController*>(data);
+
+		if (controller->magic != magic_value)
+			return;
+
+		controller->onErrorMessage(text);
+	}
+
+
+	void UIController::onErrorMessage(const cpl::zstr_view text)
+	{
+		console().printLine(CColours::red, "[Compiler] : %s", text.c_str());
+
+		int nLinePos(-1), i(0);
+
+		for (; i < text.size(); ++i) 
+		{
+			// layout of error message: "<%file%>:%line%: error: %msg%
+			if (text[i] == '>')
+			{
+				i += 2; // skip '>:'
+				if (i >= text.size())
+					break;
+				sscanf(text.c_str() + i, "%d", &nLinePos);
+				break;
+			}
+		}
+
+		// set the error if the editor is open (not our responsibility), defaults to -1 
+		// which should be ignored by the func.
+		setEditorError(nLinePos);
+	}
+
 	/*********************************************************************************************
 	 
 		Updates the info label with new data.
@@ -210,15 +276,15 @@ namespace ape
 	{
 		if (!editor)
 		{
-			console->printLine(CColours::red, "[GUI] : error! Request to update clock counter from invalid editor!");
+			console().printLine(CColours::red, "[GUI] : error! Request to update clock counter from invalid editor!");
 		}
 		
-		clockData.lastSample = engine->clocksPerSample;
+		clockData.lastSample = engine.clocksPerSample;
 		clockData.averageClocks = clockData.averageClocks + clockData.pole * (clockData.lastSample - clockData.averageClocks);
 		char buf[200];
 		
 		sprintf_s(buf, "Instance %d - accps: ~%d (%d)",
-				  engine->instanceID.instanceCounter,
+				  engine.instanceCounter(),
 				  (unsigned)clockData.averageClocks,
 				  clockData.lastSample);;
 		
@@ -233,11 +299,10 @@ namespace ape
 	void UIController::render()
 	{
 		incGraphicCounter++;
-		int autoSaveInterval = engine->autoSaveInterval;
-		if (autoSaveInterval)
+		if (autoSaveInterval > 0)
 		{
 			autoSaveCounter++;
-			if ((autoSaveCounter * engine->uiRefreshInterval / 1000.f) > autoSaveInterval)
+			if ((autoSaveCounter * uiRefreshInterval / 1000.f) > autoSaveInterval)
 			{
 				externEditor->autoSave();
 				autoSaveCounter = 0;
@@ -261,8 +326,8 @@ namespace ape
 		/*
 		 Dont render controls when the console is open
 		 */
-		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f && engine->getCState())
-			engine->getCState()->getCtrlManager().updateControls();
+		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f && engine.getCState())
+			engine.getCState()->getCtrlManager().updateControls();
 	}
 	/*********************************************************************************************
 	 
@@ -294,13 +359,13 @@ namespace ape
 	void UIController::editorOpened(Editor * newEditor)
 	{
 		setStatusText();
-		if (engine->getCState())
+		if (engine.getCState())
 		{
-			engine->getCState()->getCtrlManager().attach(newEditor);
-			engine->getCState()->getCtrlManager().createPendingControls();
+			engine.getCState()->getCtrlManager().attach(newEditor);
+			engine.getCState()->getCtrlManager().createPendingControls();
 		}
 
-		newEditor->startTimer(engine->uiRefreshInterval);
+		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
 		bFirstDraw = true;
 	}
 	/*********************************************************************************************
@@ -311,8 +376,8 @@ namespace ape
 	void UIController::editorClosed()
 	{
 		editor = nullptr;
-		if(engine->getCState())
-			engine->getCState()->getCtrlManager().setParent(editor);
+		if(engine.getCState())
+			engine.getCState()->getCtrlManager().setParent(editor);
 	}
 	/*********************************************************************************************
 	 
@@ -322,17 +387,13 @@ namespace ape
 	UIController::Editor * UIController::create()
 	{
 		if (editor)
-			console->printLine(CColours::red, "[GUI] : error! Request to create new editor while old one still exists. "
+			console().printLine(CColours::red, "[GUI] : error! Request to create new editor while old one still exists. "
 			"Reference to old editor lost!");
 		editor = new Editor(*this);
+
 		bool bUseOpenGL(false);
-		try {
-			bUseOpenGL = engine->getRootSettings()["application"]["render_opengl"];
-			
-		} catch (const std::exception & e)
-		{
-			console->printLine(CColours::red, "[GUI] : Error reading graphic settings (%s)", e.what());
-		}
+		bUseOpenGL = engine.getSettings().root()["application"]["render_opengl"];
+
 		
 		editor->initialize(bUseOpenGL);
 		
@@ -416,7 +477,7 @@ namespace ape
 		*/
 		if (!editor)
 		{
-			console->printLine(CColours::red, "[GUI] : error! Control events received with no editor available!");
+			console().printLine(CColours::red, "[GUI] : error! Control events received with no editor available!");
 			return false;
 		}
 
@@ -429,9 +490,9 @@ namespace ape
 				console button was pressed - add it to the frame viewcontainer.
 			*/
 			if (value > 0.1f)
-				editor->addAndMakeVisible(console->getView());
+				editor->addAndMakeVisible(console().getView());
 			else
-				editor->removeChildComponent(console->getView());
+				editor->removeChildComponent(console().getView());
 			break;
 
 		case kCompileButton:
@@ -439,7 +500,7 @@ namespace ape
 			if(!compilerState.valid()) 
 			{
 				compilerState = createPlugin(externEditor->getProject());
-				engine->disablePlugin(false);
+				engine.disablePlugin(false);
 			}
 			else
 			{
@@ -447,13 +508,13 @@ namespace ape
 				{
 				case std::future_status::ready:
 					compilerState = createPlugin(externEditor->getProject());
-					engine->disablePlugin(false);
+					engine.disablePlugin(false);
 					break;
 				case std::future_status::deferred:
 				case std::future_status::timeout:
 					control->bSetInternal(0);
 					setStatusText("Already compiling, please wait...", CColours::red, 2000);
-					console->printLine(CColours::red, "[GUI] : cannot compiler while compiling.");
+					console().printLine(CColours::red, "[GUI] : cannot compiler while compiling.");
 					break;
 
 				}
@@ -472,36 +533,37 @@ namespace ape
 					switch (compilerState.wait_for(std::chrono::seconds(0)))
 					{
 					case std::future_status::ready:
-						engine->exchangePlugin(compilerState.get());
+						engine.exchangePlugin(compilerState.get());
 						break;
 					case std::future_status::deferred:
 					case std::future_status::timeout:
 						control->bSetInternal(0);
 						setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
-						console->printLine(CColours::red, "[GUI] : cannot activate while compiling.");
+						console().printLine(CColours::red, "[GUI] : cannot activate while compiling.");
 						break;
 
 					}
 				}
 
-				if (!engine->getCState())
+				if (!engine.getCState())
 				{
 					control->bSetInternal(0);
 					setStatusText("No compiled symbols found", CColours::red, 2000);
-					console->printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
+					console().printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
 					return false;
 				}
 
-				if (engine->activatePlugin())
+				if (engine.activatePlugin())
 				{
 					// success
 					setStatusText("Plugin activated", CColours::green);
-					engine->getCState()->getCtrlManager().createPendingControls();
-					engine->getCState()->getCtrlManager().callListeners();
+					engine.getCState()->getCtrlManager().attach(editor);
+					engine.getCState()->getCtrlManager().createPendingControls();
+					engine.getCState()->getCtrlManager().callListeners();
 				}
 				else
 				{
-					console->printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
+					console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
 					setStatusText("Error activating plugin.", CColours::red);
 					editor->controls[kActiveStateButton]->bSetValue(0);
 				}
@@ -509,7 +571,8 @@ namespace ape
 			else 
 			{
 				setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
-				engine->disablePlugin(true);
+				engine.getCState()->getCtrlManager().detach();
+				engine.disablePlugin(true);
 			}
 			break;
 		case kEditorButton:
@@ -529,11 +592,11 @@ namespace ape
 			about();
 			break;
 		case tagUseBuffer:
-			engine->useProtectedBuffers( value > 0.1f ? true : false );
+			engine.useProtectedBuffers( value > 0.1f ? true : false );
 			if(value > 0.1f)
-				console->printLine(CColours::black, "[GUI] : Activated protected buffers.");
+				console().printLine(CColours::black, "[GUI] : Activated protected buffers.");
 			else
-				console->printLine(CColours::black, "[GUI] : Disabled protected buffers.");
+				console().printLine(CColours::black, "[GUI] : Disabled protected buffers.");
 			break;
 		case tagUseFPU:
 			auto proxy = value > 0.1f ? true : false;
@@ -544,7 +607,7 @@ namespace ape
 				if(ret == cpl::Misc::MsgButton::bYes) {
 					bUseFPUE = true;
 					control->bSetInternal(1.0f);
-					console->printLine(CColours::black, "[GUI] : Activated floating-point unit exceptions.");
+					console().printLine(CColours::black, "[GUI] : Activated floating-point unit exceptions.");
 				}
 				else
 				{
@@ -554,7 +617,7 @@ namespace ape
 			}
 			else
 			{
-				console->printLine(CColours::black, "[GUI] : Disabled floating-point unit exceptions.");
+				console().printLine(CColours::black, "[GUI] : Disabled floating-point unit exceptions.");
 				bUseFPUE = false;
 			}
 		}
@@ -567,13 +630,13 @@ namespace ape
 	{
 		if (!editor)
 		{
-			console->printLine(CColours::red, "[GUI] : Request to alter parameter denied; no editor exists.");
+			console().printLine(CColours::red, "[GUI] : Request to alter parameter denied; no editor exists.");
 			return;
 		}
 		auto ctrl = editor->controls[index];
 		if (!ctrl)
 		{
-			console->printLine(CColours::red, "[GUI] : Request to alter parameter denied; index out of bounds.");
+			console().printLine(CColours::red, "[GUI] : Request to alter parameter denied; index out of bounds.");
 			return;
 		}
 		ctrl->bSetValue(value);
@@ -603,7 +666,7 @@ namespace ape
 	{
 		if (!project)
 		{
-			console->printLine(CColours::red, "[GUI] : Compilation error - "
+			console().printLine(CColours::red, "[GUI] : Compilation error - "
 				"invalid project or no text recieved from editor.");
 			setStatusText("No code to compile", CColours::red, 3000);
 			return {};
@@ -620,17 +683,17 @@ namespace ape
 				try
 				{
 					auto start = std::chrono::high_resolution_clock::now();
-					ret = std::make_unique<PluginState>(*engine, engine->getCodeGenerator(), std::move(projectToCompile));
+					ret = std::make_unique<PluginState>(engine, engine.getCodeGenerator(), std::move(projectToCompile));
 					auto delta = std::chrono::high_resolution_clock::now() - start;
 					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
 
-					console->printLine(CColours::black, "[GUI] : Compiled successfully (%f ms).", time);
+					console().printLine(CColours::black, "[GUI] : Compiled successfully (%f ms).", time);
 					setStatusText("Compiled OK!", CColours::green, 2000);
 
 				}
 				catch (const std::exception& e)
 				{
-					console->printLine(CColours::red, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
+					console().printLine(CColours::red, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
 					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
 				}
 

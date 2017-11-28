@@ -124,11 +124,11 @@
 			ErrorFunc errorPrinter;
 			void * opaque;
 			std::map<std::string, CCompiler> compilers;
-			ape::Engine * engine;
+			const ape::Engine& engine;
 
 		public:
 
-			CCodeGenerator(ape::Engine * engine);
+			CCodeGenerator(const ape::Engine& engine);
 			void setErrorFunc(ErrorFunc f, void * op);
 			void printError(const std::string & message);
 

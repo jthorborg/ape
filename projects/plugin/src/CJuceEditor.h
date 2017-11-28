@@ -31,7 +31,7 @@
 #ifndef APE_JUCEEDITOR_H
 	#define APE_JUCEEDITOR_H
 
- #include <cpl/MacroConstants.h>
+	#include <cpl/MacroConstants.h>
 	#include "Common.h"
 	#include "CCodeEditor.h"
 	#include <cpl/CExclusiveFile.h>
@@ -163,26 +163,9 @@
 		*/
 		class CJuceEditor : public CCodeEditor, public juce::ApplicationCommandTarget
 		{
-			/*
-				ApplicationCommandTarget overloads	
-			*/
-			ApplicationCommandTarget * getNextCommandTarget() override { return nullptr; }
-			void getAllCommands(juce::Array<juce::CommandID> & commands) override;
-			void getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result) override;
-			bool perform(const InvocationInfo & info) override;
 
-			/*
-				instance variables	
-			*/
-			juce::ApplicationCommandManager appCM;
-			CWindow * window;
-			std::string fullPath, appName;
-			juce::CodeDocument doc;
-			cpl::CExclusiveFile autoSaveFile;
-			bool isInitialized, isSingleFile, isActualFile, autoSaveChecked, wasRestored;
-			std::map<int, std::string> userHotKeys;
 		public:
-			CJuceEditor(Engine * e);
+			CJuceEditor(UIController& ui, const Settings& s, int instanceID);
 			virtual ~CJuceEditor();
 			/*
 				CCodeEditor overrides
@@ -219,7 +202,22 @@
 			bool restoreAutoSave(AutoSaveInfo * info, juce::File &);
 			void setContents(const juce::String &);
 			void * getParentWindow();
-			
+
+			//ApplicationCommandTarget overloads
+			ApplicationCommandTarget * getNextCommandTarget() override { return nullptr; }
+			void getAllCommands(juce::Array<juce::CommandID> & commands) override;
+			void getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result) override;
+			bool perform(const InvocationInfo & info) override;
+
+			// instance stuff
+			juce::ApplicationCommandManager appCM;
+			CWindow * window;
+			std::string fullPath, appName;
+			juce::CodeDocument doc;
+			cpl::CExclusiveFile autoSaveFile;
+			bool isInitialized, isSingleFile, isActualFile, autoSaveChecked, wasRestored;
+			std::map<int, std::string> userHotKeys;
+
 		};
 	}; // class ape
 #endif

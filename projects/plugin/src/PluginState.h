@@ -86,12 +86,10 @@
 
 			static void useFPUExceptions(bool b);
 
-			/*
-				safe wrappers around compiler
-			*/
 			Status activateProject();
 			Status disableProject();
 			Status processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
+			bool isProcessing() const noexcept { return processing.load(std::memory_order_acquire); }
 			void setPlayState(bool isPlaying);
 
 			Status getState() const noexcept { return state; }
@@ -164,8 +162,11 @@
 			bool expired;
 			std::atomic<int> useCount;
 			std::atomic<Status> state;
-			std::atomic<bool> abnormalBehaviour;
-			std::atomic<bool> pendingDisable;
+			std::atomic<bool>
+				abnormalBehaviour,
+				pendingDisable,
+				processing;
+			
 
 		};
 	};

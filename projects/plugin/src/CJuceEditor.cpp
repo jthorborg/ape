@@ -44,9 +44,9 @@ namespace ape
 {
 	namespace fs = std::experimental::filesystem;
 
-	std::unique_ptr<CCodeEditor> MakeCodeEditor(Engine * e)
+	std::unique_ptr<CCodeEditor> MakeCodeEditor(UIController& ui, const Settings& s, int instanceID)
 	{
-		return std::make_unique<CJuceEditor>(e);
+		return std::make_unique<CJuceEditor>(ui, s, instanceID);
 	}
 
 	/*********************************************************************************************
@@ -253,9 +253,16 @@ namespace ape
 		Implementation for the juceeditor constructor
 
 	*********************************************************************************************/
-	CJuceEditor::CJuceEditor(Engine * e)
-		: CCodeEditor(e), window(nullptr), isInitialized(false), isSingleFile(true), fullPath("Untitled"),
-		appName(cpl::programInfo.programAbbr + " Editor"), isActualFile(false), wasRestored(false), autoSaveChecked(false)
+	CJuceEditor::CJuceEditor(UIController& ui, const Settings& s, int instanceID)
+		: CCodeEditor(ui, s, instanceID)
+		, window(nullptr)
+		, isInitialized(false)
+		, isSingleFile(true)
+		, fullPath("Untitled")
+		, appName(cpl::programInfo.programAbbr + " Editor")
+		, isActualFile(false)
+		, wasRestored(false)
+		, autoSaveChecked(false)
 	{
 		doc.setSavePoint();
 	}
@@ -295,12 +302,11 @@ namespace ape
 				std::string file;
 				try
 				{
-					auto & root = engine->getRootSettings();
-					root["languages"].lookupValue("default_file", file);
+					settings.root()["languages"].lookupValue("default_file", file);
 				}
 				catch (const std::exception & e)
 				{
-					engine->getController().console->printLine(CColours::red, "Error reading default file from config... %s", e.what());
+					controller.console().printLine(CColours::red, "Error reading default file from config... %s", e.what());
 				}
 				
 				if (file.length())
@@ -327,14 +333,12 @@ namespace ape
 
 		try
 		{
-			// get root settings
-			libconfig::Setting & stts = engine->getRootSettings();
 			// look up languages part
-			auto & langs = stts["languages"];
+			const auto& langs = settings.root()["languages"];
 			// check if theres anything there (and if its a group)
 			if (!langs.isGroup())
 			{
-				engine->getController().console->printLine(CColours::red,
+				controller.console().printLine(CColours::red,
 					"[Editor] Warning: No languages specified in config. Can't open files. ");
 				return;
 			}
@@ -345,13 +349,12 @@ namespace ape
 				// iterate over languages
 				for (int x = 0; x < elements; ++x)
 				{
-					// get name of current language
-					std::string name = langs[x].getName();
-					if (langs[x].isGroup()) {
+					if (langs[x].isGroup()) 
+					{
 						// look up list of extensions
 						try
 						{
-							libconfig::Setting & exts = langs[x]["extensions"];
+							const auto& exts = langs[x]["extensions"];
 							if (!exts.isList())
 							{
 								// this is not really ideal control transfer, 
@@ -373,10 +376,10 @@ namespace ape
 						}
 						catch (const std::exception & e)
 						{
-							engine->getController().console->printLine(CColours::red,
+							controller.console().printLine(CColours::red,
 								"[Editor] Warning: language %s has no defined extensions in config. "
 								"Program will not be able to open any files for that language. (%s)",
-								name.c_str(), e.what());
+								langs[x].getName(), e.what());
 						}
 					}
 				}
@@ -386,7 +389,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			engine->getController().console->printLine(CColours::red,
+			controller.console().printLine(CColours::red,
 				"[Editor] Error parsing file type extensions in config (%s).", e.what());
 			return;
 		}
@@ -419,7 +422,7 @@ namespace ape
 	void CJuceEditor::setTitle()
 	{
 		std::string title;
-		title += appName + " (" + std::to_string(engine->instanceCounter()) + ")";
+		title += appName + " (" + std::to_string(instanceID & 0xFF) + ")";
 		if (isDirty())
 			title += " * ";
 		else
@@ -660,7 +663,7 @@ namespace ape
 		try
 		{
 			std::string temp;
-			auto & root = engine->getRootSettings();
+			const auto& root = settings.root();
 			if(root["editor"].lookupValue("hkey_save", temp))
 				userHotKeys[Command::FileSave] = temp;
 			if(root["editor"].lookupValue("hkey_new", temp))
@@ -670,7 +673,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			engine->getController().console->printLine(CColours::red,
+			controller.console().printLine(CColours::red,
 													   "[Editor] : Error reading editor hotkeys from config... %s", e.what());
 			return false;
 		}
@@ -899,7 +902,7 @@ namespace ape
 			if(!autoSaveFile.isOpened())
 			{
 				std::string path = cpl::Misc::DirectoryPath() + "/logs/autosave"
-				+ std::to_string(engine->uniqueInstanceID()) + ".ape";
+				+ std::to_string(instanceID) + ".ape";
 				autoSaveFile.open(path);
 			}
 			else
@@ -932,11 +935,11 @@ namespace ape
 			}
 			else
 			{
-				engine->getController().console->printLine(CColours::red,
+				controller.console().printLine(CColours::red,
 													"[Editor] : error opening file %s for autosave.", autoSaveFile.getName().c_str());
 			}
 			std::free(info);
-			engine->getController().setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
+			controller.setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
 		}
 	}
 	/*********************************************************************************************
@@ -948,7 +951,7 @@ namespace ape
 	{
 		if (isInitialized && window && window->isVisible())
 			return window->getWindowHandle();
-		return engine->getController().getSystemWindow();
+		return controller.getSystemWindow();
 	}
 	/*********************************************************************************************
 	 
@@ -1066,7 +1069,7 @@ namespace ape
 				stream = nullptr; // alternative: delete stream.release();
 
 				// report anomaly
-				engine->getController().console->printLine(CColours::black,
+				controller.console().printLine(CColours::black,
 					"[Editor] : Invalid autosave file found - deleting... (%s)",
 					f.getFileName().toRawUTF8());
 
@@ -1085,7 +1088,7 @@ namespace ape
 					src[size] = '\0'; // nullterminate the extra byte we allocated
 				else
 				{
-					engine->getController().console->printLine(CColours::red,
+					controller.console().printLine(CColours::red,
 						"[Editor] : Error reading file contents of %s (read %d, expected %d bytes)",
 						f.getFileName().toRawUTF8(), bytesRead, size);
 					std::free(src);

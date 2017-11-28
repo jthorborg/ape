@@ -61,7 +61,7 @@ namespace ape
 	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
 		REQUIRES_NOTNULL(iface);
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 		return static_cast<float>(engine.getSampleRate());
 	}
 
@@ -77,14 +77,14 @@ namespace ape
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(fmt);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
 		std::va_list args;
 		va_start(args, fmt);
 		std::string msg ("[Plugin] : ");
 		msg += fmt;
 		juce::Colour colour(nColor);
-		int nRet = engine.getController().console->printLine(colour.withAlpha(1.0f), msg.c_str(), args);
+		int nRet = engine.getController().console().printLine(colour.withAlpha(1.0f), msg.c_str(), args);
 
 		va_end(args);
 
@@ -99,11 +99,11 @@ namespace ape
 
 		va_list args;
 		va_start(args, fmt);
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addLabel(name, fmt, args);
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addLabel(name, fmt, args);
 
 		va_end(args);
 		if(tag == -1)
-			IEx::upcast(*iface).getEngine().getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			IEx::downcast(*iface).getEngine().getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -114,7 +114,7 @@ namespace ape
 		REQUIRES_NOTNULL(text);
 		REQUIRES_NOTNULL(title);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 		return cpl::Misc::MsgBox(text, title, nStyle, engine.getController().getSystemWindow(), nBlocking ? true : false);
 
 	}
@@ -125,10 +125,10 @@ namespace ape
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addKnob(name, extVal, static_cast<CKnobEx::type>(type));
+		auto& engine = IEx::downcast(*iface).getEngine();
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addKnob(name, extVal, static_cast<CKnobEx::type>(type));
 		if(tag == -1)
-			engine.getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -141,11 +141,11 @@ namespace ape
 		REQUIRES_NOTNULL(values);
 		REQUIRES_NOTNULL(unit);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addKnob(name, extVal, values, unit);
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addKnob(name, extVal, values, unit);
 		if(tag == -1)
-			engine.getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -156,11 +156,11 @@ namespace ape
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addMeter(name, extVal);
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addMeter(name, extVal);
 		if(tag == -1)
-			engine.getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -171,11 +171,11 @@ namespace ape
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addToggle(name, extVal);
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addToggle(name, extVal);
 		if(tag == -1)
-			engine.getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -240,20 +240,20 @@ namespace ape
 	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size) 
 	{
 		REQUIRES_NOTNULL(iface);
-		return IEx::upcast(*iface).getCState().getPluginAllocator().alloc(label, size);
+		return IEx::downcast(*iface).getCState().getPluginAllocator().alloc(label, size);
 	}
 
 	void APE_API free(APE_SharedInterface * iface, void * ptr) 
 	{
 		REQUIRES_NOTNULL(iface);
 
-		IEx::upcast(*iface).getCState().getPluginAllocator().free(ptr);
+		IEx::downcast(*iface).getCState().getPluginAllocator().free(ptr);
 	}
 
 	void APE_API setInitialDelay(APE_SharedInterface * iface, int samples) 
 	{
 		REQUIRES_NOTNULL(iface);
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
 		engine.changeInitialDelay(samples);
 	}
@@ -261,7 +261,7 @@ namespace ape
 	int APE_API getNumInputs(APE_SharedInterface * iface) 
 	{
 		REQUIRES_NOTNULL(iface);
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
 		return engine.getNumInputChannels();
 	}
@@ -269,7 +269,7 @@ namespace ape
 	int APE_API getNumOutputs(APE_SharedInterface * iface) 
 	{
 		REQUIRES_NOTNULL(iface);
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
 		return engine.getNumOutputChannels();
 	}
@@ -277,9 +277,9 @@ namespace ape
 	double APE_API getBPM(APE_SharedInterface * iface)
 	{
 		REQUIRES_NOTNULL(iface);
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
-		if (!engine.isInProcessingCallback())
+		if (!IEx::downcast(*iface).getCState().isProcessing())
 			THROW("Can only be called from a processing callback");
 
 		double ret = 0.0;
@@ -308,7 +308,7 @@ namespace ape
 	{
 		REQUIRES_NOTNULL(iface);
 
-		CBaseControl * c = IEx::upcast(*iface).getCState().getCtrlManager().getControl(ID);
+		CBaseControl * c = IEx::downcast(*iface).getCState().getCtrlManager().getControl(ID);
 		if(c)
 			c->bSetValue(value);
 		else
@@ -319,7 +319,7 @@ namespace ape
 	{
 		REQUIRES_NOTNULL(iface);
 
-		CBaseControl * c = IEx::upcast(*iface).getCState().getCtrlManager().getControl(ID);
+		CBaseControl * c = IEx::downcast(*iface).getCState().getCtrlManager().getControl(ID);
 		if(c)
 			return c->bGetValue();
 		else  
@@ -333,11 +333,11 @@ namespace ape
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(vals);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addPlot(name, vals, numVals);
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addPlot(name, vals, numVals);
 		if (tag == -1)
-			engine.getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -350,11 +350,11 @@ namespace ape
 		REQUIRES_NOTNULL(extVal);
 		REQUIRES_NOTNULL(scaleCB);
 
-		auto& engine = IEx::upcast(*iface).getEngine();
+		auto& engine = IEx::downcast(*iface).getEngine();
 
-		int tag = IEx::upcast(*iface).getCState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
+		int tag = IEx::downcast(*iface).getCState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
 		if (tag == -1)
-			engine.getController().console->printLine(juce::Colours::red, "No more space for controls!");
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 

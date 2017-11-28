@@ -66,27 +66,27 @@ namespace ape
 		, status()
 		, delay()
 		, programName("Default")
-		, uiRefreshInterval(80)
 		, clocksPerSample(0)
-		, autoSaveInterval(0)
-		, codeGenerator(this)
+		, codeGenerator(*this)
+		, settings(true, cpl::Misc::DirFSPath() / "config.cfg")
 	{
-		codeGenerator.setErrorFunc(&Engine::errPrint, this);
+
 		// some variables...
 		status.bUseBuffers = true;
 		status.bUseFPUE = false;
 		programName = "Default";
 		
-		instanceID.ID = cpl::Misc::ObtainUniqueInstanceID();
+		instanceID = cpl::Misc::AcquireUniqueInstanceID();
 		
 		// rest of program
-		controller = std::make_unique<UIController>(this);
+		controller = std::make_unique<UIController>(*this);
+		codeGenerator.setErrorFunc(&UIController::errorPrint, controller.get());
 
 		// settings
 		loadSettings();
-		controller->console->printLine(CColours::black,
+		controller->console().printLine(CColours::black,
 			("[Engine] : Audio Programming Environment <%s> (instance %d) " + cpl::programInfo.version.toString() + " (%s) %s loaded.").c_str(),
-			engineType().c_str(), instanceID.ID,
+			engineType().c_str(), instanceID,
 			sizeof(void*) == 8 ? "64-bit" : "32-bit",
 			#if defined(_DEBUG) || defined(DEBUG)
 				"debug");
@@ -95,7 +95,7 @@ namespace ape
 			#endif
 	}
 	
-	std::string Engine::engineType()
+	std::string Engine::engineType() const noexcept
 	{
 		switch(wrapperType)
 		{
@@ -116,6 +116,13 @@ namespace ape
 		}
 		
 	}
+
+	void Engine::onSettingsChanged(const Settings& s, const libconfig::Setting& changed)
+	{
+
+	}
+
+
 	/*********************************************************************************************
 
 		Applies common settings found in confing.application to engine.
@@ -123,107 +130,37 @@ namespace ape
 	 *********************************************************************************************/
 	void Engine::loadSettings()
 	{
-		int unid = -1;
-		try {
-			config.readFile((cpl::Misc::DirectoryPath() + "/config.cfg").c_str());
+		try 
+		{
 
-			const libconfig::Setting & approot = getRootSettings()["application"];
-			bool enableLogging = approot["log_console"];
-			
-			std::string log_path = cpl::Misc::DirectoryPath() + "/logs/log" + std::to_string(instanceID.ID) + ".txt";
-			
-			controller->console->setLogging(enableLogging, log_path);
-			bool enableStdWriting = approot["console_std_writing"];
-			controller->console->setStdWriting(enableStdWriting);
-			bool useBuffers = approot["use_buffers"];
+			bool useBuffers = settings.root()["application"]["use_buffers"];
 			status.bUseBuffers = useBuffers;
 
-			bool usefpe = approot["use_fpe"];
+			bool usefpe = settings.root()["application"]["use_fpe"];
 			status.bUseFPUE = usefpe;
-			int refreshTimer = approot["ui_refresh_interval"];
-			if (refreshTimer > 10 && refreshTimer < 10000)
-				this->uiRefreshInterval = refreshTimer;
-			autoSaveInterval = approot["autosave_interval"];
-			unid = approot["unique_id"];
-			bool g_shown = approot["greeting_shown"];
-			if(!g_shown) {
-				cpl::Misc::MsgBox("Hello and welcome to " + cpl::programInfo.name + "! Before you start using this program, "
-				"please take time to read the readme and agree to all licenses + disclaimers found in /licenses. "
-				"Have fun!", cpl::programInfo.name, cpl::Misc::MsgIcon::iInfo);
-				approot["greeting_shown"] = true;
-			}
 			
-		}
-		catch(libconfig::FileIOException & e)
-		{
-			controller->console->printLine(CColours::red, "[Engine] : Error reading config file (%s)! (%s)", (cpl::Misc::DirectoryPath() + "/config.cfg").c_str(), e.what());
-		}
-		catch(libconfig::SettingNotFoundException & e)
-		{
-			controller->console->printLine(CColours::red, "[Engine] : Error getting setting! (%s)", e.getPath());
-		}
-		catch(libconfig::ParseException & e)
-		{
-			controller->console->printLine(CColours::red, "[Engine] : Error parsing config! In file %s at line %d: %s", e.getFile(), e.getLine(), e.getError());
 		}
 		catch(std::exception & e)
 		{
-			controller->console->printLine(CColours::red, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
+			controller->console().printLine(CColours::red, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
 		}
 
 	}
 
-	int Engine::uniqueInstanceID()
+	std::int32_t Engine::uniqueInstanceID() const noexcept
 	{
-		return this->instanceID.ID;
+		return instanceID;
 	}
 
-	int Engine::instanceCounter()
+	std::int32_t Engine::instanceCounter() const noexcept
 	{
-		return this->instanceID.instanceCounter;
-	}
-
-	libconfig::Setting & Engine::getRootSettings() 
-	{
-		return config.getRoot();
+		return instanceID & 0xFF;
 	}
 
 	Engine::~Engine() 
 	{
 		disablePlugin();
-		cpl::Misc::ReleaseUniqueInstanceID(instanceID.ID);
-	}
-
-
-	bool Engine::pluginCrashed() 
-	{
-
-		return true;
-	}
-
-
-	void Engine::errPrint(void * data, const char * text)
-	{
-		// fetch this, as this function is static
-		
-		ape::Engine *_this = reinterpret_cast<ape::Engine*>(data);
-		// print the message
-		_this->controller->console->printLine(CColours::red, (std::string("[Compiler] : ") + text).c_str());
-		int nLinePos(-1), i(0);
-		auto nLen = std::strlen(text);
-		for(; i < nLen; ++i) {
-			// layout of error message: "<%file%>:%line%: error: %msg%
-			if(text[i] == '>') {
-				i += 2; // skip '>:'
-				if (i >= nLen)
-					break;
-				sscanf(text + i, "%d", &nLinePos);
-				break;
-			}
-		}
-		// set the error if the editor is open (not our responsibility), defaults to -1 
-		//which should be ignored by the func.
-		_this->controller->setEditorError(nLinePos);
+		cpl::Misc::ReleaseUniqueInstanceID(instanceID);
 	}
 
 	void Engine::exchangePlugin(std::unique_ptr<PluginState> newPlugin)
@@ -239,7 +176,7 @@ namespace ape
 	}
 
 
-	void Engine::changeInitialDelay(long samples)
+	void Engine::changeInitialDelay(long samples) noexcept
 	{
 		delay.newDelay = samples;
 		delay.bDelayChanged = true;
@@ -257,7 +194,7 @@ namespace ape
 
 		auto result = pluginState->disableProject();
 
-		controller->console->printLine(CColours::black, result == STATUS_OK ?
+		controller->console().printLine(CColours::black, result == STATUS_OK ?
 			"[Engine] : Plugin disabled without error." :
 			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
 		
@@ -286,18 +223,18 @@ namespace ape
 		{
 		case STATUS_DISABLED:
 		case STATUS_ERROR:
-			controller->console->printLine(CColours::red, "[Engine] : An error occured while loading the plugin.");
+			controller->console().printLine(CColours::red, "[Engine] : An error occured while loading the plugin.");
 			break;
 		case STATUS_SILENT:
 		case STATUS_WAIT:
-			controller->console->printLine(CColours::red, "[Engine] : Plugin is not ready or is silent.");
+			controller->console().printLine(CColours::red, "[Engine] : Plugin is not ready or is silent.");
 			break;
 		case STATUS_READY:
-			controller->console->printLine(CColours::black, "[Engine] : Plugin is loaded and reports no error.");
+			controller->console().printLine(CColours::black, "[Engine] : Plugin is loaded and reports no error.");
 			status.bActivated = true;
 			break;
 		default:
-			controller->console->printLine(CColours::red,
+			controller->console().printLine(CColours::red,
 				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", result);
 			status.bActivated = true;
 		}
@@ -317,12 +254,7 @@ namespace ape
 			if (status.bUseFPUE)
 				pluginState->useFPUExceptions(true);
 
-			isProcessing.store(true, std::memory_order_release);
-
 			pluginState->processReplacing(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numSamples, &profiledClocks);
-
-			isProcessing.store(false, std::memory_order_release);
-
 
 			if (status.bUseFPUE)
 				pluginState->useFPUExceptions(false);
@@ -369,12 +301,12 @@ namespace ape
 		catch (std::exception & e)
 		{
 
-			controller->console->printLine(CColours::red, "[Engine] : Exception while serializing: %s", e.what());
+			controller->console().printLine(CColours::red, "[Engine] : Exception while serializing: %s", e.what());
 		}
 		if (!ret)
-			controller->console->printLine(CColours::red, "[Engine] : Error serializing state!");
+			controller->console().printLine(CColours::red, "[Engine] : Error serializing state!");
 		else
-			controller->console->printLine(CColours::black, "[Engine] : Succesfully serialized state!");
+			controller->console().printLine(CColours::black, "[Engine] : Succesfully serialized state!");
 	}
 
 	const juce::String Engine::getName() const
@@ -488,7 +420,7 @@ namespace ape
 		// initialisation that you need..
 		if (delay.bDelayChanged)
 		{
-			controller->console->printLine(CColours::black, "initialDelay is changed to %d and reported to host.", delay.newDelay);
+			controller->console().printLine(CColours::black, "initialDelay is changed to %d and reported to host.", delay.newDelay);
 			if (delay.newDelay != delay.initialDelay)
 			{
 				this->setLatencySamples(delay.newDelay);
@@ -528,48 +460,30 @@ namespace ape
 	static bool searchChanged = false;
 #endif
 
-#ifdef APE_VST
-	AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
-	{
-		/*
-			This part is super crucial: Since we are hosted by another application, windows will search
-			for our dependencies (dll's like scilexer and libtcc) in our host's folder - vstplugins folder
-			is usually not inside that, so we add another path based off DirectoryPath.
-		*/
-		#ifdef __WINDOWS__
-			if (!searchChanged) {
-				SetDllDirectory(ape::Misc::DirectoryPath.c_str());
-				searchChanged = true;
-			}
-		#endif
-		return new ape::Engine(audioMaster);
-	}
-#elif defined(APE_JUCE)
-	juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-	{
-		#ifdef __WINDOWS__
-			if (!searchChanged) {
-				SetDllDirectory(cpl::Misc::DirectoryPath().c_str());
-				searchChanged = true;
-			}
-		#endif
-		
-		ape::Engine * effect = nullptr;
-		try
-		{
-			effect = new ape::Engine();
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+	#ifdef __WINDOWS__
+		if (!searchChanged) {
+			SetDllDirectory(cpl::Misc::DirectoryPath().c_str());
+			searchChanged = true;
 		}
-		catch (const std::exception & e)
-		{
-			std::stringstream csf;
-			csf << "Exception while creating effect: " << e.what() << ".\nCheck /logs/ for more information ";
-			csf << "(logging can be enabled in config.cfg.application.log_console)";
-			fputs(csf.str().c_str(), stderr);
-			cpl::Misc::MsgBox(csf.str(), cpl::programInfo.programAbbr + " construction error!",
-				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, nullptr, true);
-		}
+	#endif
 		
-		return effect;
-		
+	ape::Engine * effect = nullptr;
+	try
+	{
+		effect = new ape::Engine();
 	}
-#endif
+	catch (const std::exception & e)
+	{
+		std::stringstream csf;
+		csf << "Exception while creating effect: " << e.what() << ".\nCheck /logs/ for more information ";
+		csf << "(logging can be enabled in config.cfg.application.log_console)";
+		fputs(csf.str().c_str(), stderr);
+		cpl::Misc::MsgBox(csf.str(), cpl::programInfo.programAbbr + " construction error!",
+			cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, nullptr, true);
+	}
+		
+	return effect;
+		
+}

@@ -27,8 +27,9 @@
 
 *************************************************************************************/
 
-#ifndef _CONSOLE_H
-	#define _CONSOLE_H
+#ifndef APE_CONSOLE_H
+	#define APE_CONSOLE_H
+
 	#include "Common.h"
 	#include <vector>
 	#include <string>
@@ -36,6 +37,8 @@
 	#include <stdarg.h>
 	#include "GraphicComponents.h"
 	#include <cpl/CExclusiveFile.h>
+	#include <cpl/Core.h>
+	#include <filesystem>
 
 	namespace ape
 	{
@@ -85,7 +88,7 @@
 			void handleAsyncUpdate() override;
 			void renderConsole();
 			void removeHistory(std::list<ConsoleMessage>::reverse_iterator & it);
-			void setLogging(bool toggle, const std::string & file);
+			void setLogging(bool toggle, const cpl::fs::path& file);
 			bool loggingEnabled() { return logging; }
 			void setStdWriting(bool toggle);
 			void setVisibilty(bool toggle) 

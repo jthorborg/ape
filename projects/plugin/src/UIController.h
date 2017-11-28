@@ -39,6 +39,7 @@
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 	#include <future>
+	#include <memory>
 
 	namespace ape 
 	{
@@ -55,6 +56,9 @@
 		class UIController
 			: public CCtrlListener, public cpl::CMutex::Lockable
 		{
+			static constexpr std::size_t magic_value = 0xDEADBEEF;
+			const std::size_t magic = magic_value;
+
 		  public:
 			
 			class Editor;
@@ -95,7 +99,7 @@
 				virtual ~Editor();
 			};
 
-			UIController(ape::Engine *effect);
+			UIController(ape::Engine& effect);
 			virtual ~UIController();
 
 			void setParameter(int index, float value);
@@ -104,7 +108,7 @@
 			void editorClosed();
 			void render();
 			Editor * create();
-			ape::CConsole * console;
+			ape::CConsole& console() noexcept { return *consolePtr.get();	};
 			void setStatusText(const std::string &, CColour color = juce::Colours::lightgoldenrodyellow);
 			void setStatusText(const std::string &, CColour color, int timeout);
 			void setStatusText();
@@ -115,15 +119,19 @@
 
 			std::future<std::unique_ptr<PluginState>> createPlugin();
 
+			static void errorPrint(void * data, const char * text);
 
-		  protected:
+		private:
 			
+			void onErrorMessage(const cpl::zstr_view text);
+
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project);
 			void setProjectName(const std::string & name) { projectName = name; }
 			virtual bool valueChanged(CBaseControl *);
 			
+			std::unique_ptr<CConsole> consolePtr;
 			std::unique_ptr<CCodeEditor> externEditor;
-			ape::Engine * engine;
+			ape::Engine& engine;
 			Editor * editor;
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			std::string projectName, statusLabel;
@@ -133,6 +141,8 @@
 			volatile bool & bUseBuffers;
 			volatile bool & bUseFPUE;
 			volatile bool & bIsActive;
+			int autoSaveInterval;
+			int uiRefreshInterval;
 			unsigned int autoSaveCounter;
 			unsigned int incGraphicCounter;
 			

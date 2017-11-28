@@ -80,7 +80,7 @@
 			const Engine & getEngine() const noexcept { return engine; }
 			const PluginState & getCState() const noexcept { return cstate; }
 
-			static SharedInterfaceEx & upcast(APE_SharedInterface & base) noexcept { return static_cast<SharedInterfaceEx &>(base); }
+			static SharedInterfaceEx & downcast(APE_SharedInterface & base) noexcept { return static_cast<SharedInterfaceEx &>(base); }
 
 			SharedInterfaceEx(Engine & engine, PluginState & cstate)
 				: engine(engine), cstate(cstate)

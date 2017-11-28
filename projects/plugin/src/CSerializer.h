@@ -136,7 +136,7 @@
 				se->size = neededSize;
 				se->structSize = sizeof(SerializedEngine);
 				se->version = 9;
-				se->editorOpened = engine->controller->externEditor->isOpen();
+				se->editorOpened = engine->getController().externEditor->isOpen();
 				se->isActivated = isActivated;
 				se->valueOffset = sizeof(SerializedEngine);
 				se->fileNameOffset = se->valueOffset + listSize * sizeof(SerializedEngine::ControlValue);
@@ -175,14 +175,14 @@
 					|| se->size != size // whether the size actual size matches reported size
 					)
 				{
-					engine->controller->console->printLine(CColours::red,
+					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Invalid memory block recieved from host (%d, %d, %d, %d)!", 
 						se, size, sizeof(SerializedEngine), se->size);
 					return false;
 				}
 				else if (se->version != 9)
 				{
-					engine->controller->console->printLine(CColours::red,
+					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Warning: Different versions detected!");
 
 					auto answer = Misc::MsgBox
@@ -195,22 +195,22 @@
 						return false;
 				}
 				// first we open the editor to ensure it's initialized
-				if(!engine->controller->externEditor->openEditor(se->editorOpened))
+				if(!engine->getController().externEditor->openEditor(se->editorOpened))
 				{
-					engine->controller->console->printLine(CColours::red,
+					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Error opening editor!");
 					return false;
 				}
-				if (engine->controller->externEditor->checkAutoSave())
+				if (engine->getController().externEditor->checkAutoSave())
 				{
-					engine->controller->console->printLine(CColours::red,
+					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
 					return false;
 				}
 				// then, we set it to the file from last session
-				if(!engine->controller->externEditor->openFile(se->getFileNameConst()))
+				if(!engine->getController().externEditor->openFile(se->getFileNameConst()))
 				{
-					engine->controller->console->printLine(CColours::red,
+					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Error opening session file (%s)!", se->getFileNameConst());
 					return false;
 				}
@@ -223,7 +223,7 @@
 					// check if success
 					if(!plugin)
 					{
-						engine->controller->console->printLine(CColours::red,
+						engine->getController().console().printLine(CColours::red,
 							"[Serializer] : Error compiling session file (%s)!", se->getFileNameConst());
 						return false;
 					}
@@ -233,8 +233,8 @@
 					// project is now compiled, lets try to activate it
 					if (!engine->activatePlugin())
 					{
-						engine->controller->console->printLine(CColours::red,
-							"[Serializer] : Error activating project (%s)!", engine->controller->projectName.c_str());
+						engine->getController().console().printLine(CColours::red,
+							"[Serializer] : Error activating project (%s)!", engine->getController().projectName.c_str());
 						return false;
 
 					}
@@ -254,7 +254,7 @@
 							control->bSetValue(values[i].value);
 						else
 						{
-							engine->controller->console->printLine(CColours::red,
+							engine->getController().console().printLine(CColours::red,
 								"[Serializer] : Error restoring values to controls: No control found for tag %d!",
 								values[i].tag);
 							return false;
