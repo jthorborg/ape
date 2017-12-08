@@ -156,10 +156,12 @@ inline bool operator != (const Y& left, const complex<T>& right)
 }
 
 #define CMPLX_OP(op) \
-template<class T, class Y> \
-inline complex<T> operator op (complex<T> left, const Y& right) { return left op ## = right; } \
-template<class T, class Y> \
-inline complex<T> operator op (const Y& left, complex<T> right) { return right op ## = left; }
+template<class T> \
+inline complex<T> operator op (complex<T> left, const T& right) { return left op ## = right; } \
+template<class T> \
+inline complex<T> operator op (const T& left, complex<T> right) { return right op ## = left; } \
+template<class T> \
+inline complex<T> operator op (complex<T> left, const complex<T>& right) { return left op ## = right; } \
 
 CMPLX_OP(+);
 CMPLX_OP(-);

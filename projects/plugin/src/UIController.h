@@ -123,7 +123,7 @@
 
 		private:
 			
-			void onErrorMessage(const cpl::zstr_view text);
+			void onErrorMessage(const cpl::string_ref text);
 
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project);
 			void setProjectName(const std::string & name) { projectName = name; }

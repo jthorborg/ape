@@ -243,7 +243,7 @@ namespace ape
 	}
 
 
-	void UIController::onErrorMessage(const cpl::zstr_view text)
+	void UIController::onErrorMessage(const cpl::string_ref text)
 	{
 		console().printLine(CColours::red, "[Compiler] : %s", text.c_str());
 

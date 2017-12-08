@@ -7,7 +7,7 @@ TEST_CASE("Basic API tests", "[Engine]")
 {
 	auto engine = std::make_unique<ape::Engine>();
 
-	REQUIRE(engine->getGraphicUI() != nullptr);
+	REQUIRE(engine->getController() != nullptr);
 	REQUIRE(engine->getCState() != nullptr);
 
 }

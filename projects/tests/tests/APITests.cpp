@@ -2,7 +2,7 @@
 #include "SharedInterfaceEx.h"
 #include <cpl/stdext.h>
 #include "Engine.h"
-#include "CState.h"
+#include "PluginState.h"
 #include <memory>
 #include "BindingsHelper.h"
 
@@ -22,7 +22,7 @@ TEST_CASE("All API functions are callable without crashes with invalid arguments
 	{
 		std::size_t cf = 0;
 		cf++; REQUIRE_THROWS(sharedInterface.abortPlugin(nullptr, ""));
-		cf++; REQUIRE_THROWS(sharedInterface.alloc(nullptr, 0));
+		cf++; REQUIRE_THROWS(sharedInterface.alloc(nullptr, (APE_AllocationLabel)0, 0));
 		cf++; REQUIRE_THROWS(sharedInterface.createKnob(nullptr, nullptr, nullptr, 0));
 		cf++; REQUIRE_THROWS(sharedInterface.createKnobEx(nullptr, nullptr, nullptr, nullptr, nullptr));
 		cf++; REQUIRE_THROWS(sharedInterface.createLabel(nullptr, nullptr, nullptr));
