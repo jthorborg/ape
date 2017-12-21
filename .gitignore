@@ -34,3 +34,4 @@ make/skeleton/compilers/CppAPE/szal.c
 projects/cppape/builds/VisualStudio/Win32/
 projects/tests/builds/VisualStudio/TestsRelease/
 projects/tests/builds/VisualStudio/Release/
+make/skeleton/compilers/CppAPE/build/szal.c
