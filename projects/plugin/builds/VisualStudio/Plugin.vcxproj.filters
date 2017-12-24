@@ -1503,6 +1503,9 @@
     <ClCompile Include="..\..\src\ProjectEx.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\external\signalizer\Source\Unity\SignalizerSource.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
