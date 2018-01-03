@@ -34,6 +34,7 @@
 #include <cpl/Common.h>
 #include <cpl/CExclusiveFile.h>
 #include "TranslationUnit.h"
+#include <fstream>
 
 namespace cpl
 {
@@ -64,60 +65,6 @@ void DeleteCompiler(ape::ProtoCompiler * toBeDeleted)
 namespace CppAPE
 {
 
-	const cpl::Args ScriptCompiler::sizeTypeDefines = []()
-	{
-		cpl::Args ret;
-		#ifdef CPL_M_64BIT
-
-			#ifdef CPL_WINDOWS
-				// Windows 64 bit
-				ret
-					.argPair("-D", "__SIZE_TYPE__=\"unsigned long long\"")
-					.argPair("-D", "__PTRDIFF_TYPE__=\"signed long long\"")
-					.argPair("-D", "__WINT_TYPE__=\"unsigned short\"")
-					.argPair("-D", "__WCHAR_TYPE__=\"short\"");
-
-			#else
-				// Unix LP 64 bit
-				ret.
-					.argPair("-D", "__LP64__=1")
-					.argPair("-D", "__SIZE_TYPE__=\"unsigned long\"")
-					.argPair("-D", "__PTRDIFF_TYPE__=\"signed long\"")
-					.argPair("-D", "__WINT_TYPE__=\"int\"")
-					.argPair("-D", "__WCHAR_TYPE__=\"int\"");
-
-
-			#endif
-
-		#else
-
-			#ifdef CPL_WINDOWS
-				// Windows 32 bit
-				ret
-					.argPair("-D", "__SIZE_TYPE__=\"unsigned int\"")
-					.argPair("-D", "__PTRDIFF_TYPE__=\"int\"")
-					.argPair("-D", "__WINT_TYPE__=\"unsigned short\"")
-					.argPair("-D", "__WCHAR_TYPE__=\"short\"");
-			#else
-				// Unix LP 32 bit
-				ret
-					.argPair("-D", "__LP64__=1")
-					.argPair("-D", "__SIZE_TYPE__=\"unsigned int\"")
-					.argPair("-D", "__PTRDIFF_TYPE__=\"int\"")
-					.argPair("-D", "__WINT_TYPE__=\"int\"")
-					.argPair("-D", "__WCHAR_TYPE__=\"int\"");
-			#endif
-		#endif
-
-		return ret;
-	}();
-
-	const TranslationUnit::CommonOptions& ScriptCompiler::userTranslationOptions()
-	{
-		static const TranslationUnit::CommonOptions translationOptions(fs::path("build"), fs::path("build") / "szal.gen.h");
-
-		return translationOptions;
-	}
 
 	ScriptCompiler::ScriptCompiler() {}
 
@@ -132,15 +79,15 @@ namespace CppAPE
 
 	Status ScriptCompiler::compileProject()
 	{
-		const TCCBindings::CompilerAccess compiler;
+	//	const TCCBindings::CompilerAccess compiler;
 
 		fs::path dirRoot = cpl::Misc::DirectoryPath();
 
-		if (!compiler.isLinked())
+		/*if (!compiler.isLinked())
 		{
 			print("[CppAPE] : Error linking against TCC, module is either not found or invalid.");
 			return Status::STATUS_ERROR;
-		}
+		} */
 
 		cpl::CExclusiveFile lockFile;
 
@@ -157,7 +104,62 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 		
-		userTranslationOptions().clean();
+		try
+		{
+
+
+			CxxTranslationUnit::Builder builder;
+			builder.onMessage([this](auto err, auto msg) { print(msg); });
+			auto root = fs::path(getProject()->rootPath);
+
+			std::string source;
+
+			if (getProject()->isSingleString)
+			{
+				source += getProject()->sourceString;
+			}
+
+			std::string startingPlace;
+
+			if (getProject()->workingDirectory)
+			{
+				startingPlace = getProject()->workingDirectory;
+			}
+			else if (getProject()->files && getProject()->files[0])
+			{
+				startingPlace = fs::path(getProject()->files[0]).parent_path().string();
+			}
+
+			builder.includeDirs({ startingPlace, (root / "includes").string(), (root / "includes" / "tcc").string() });
+
+			if (std::ifstream postfix((dirRoot / "build" / "postfix.cpp").string().c_str()); postfix.good())
+			{
+				std::string temp;
+				while (std::getline(postfix, temp))
+					source += temp + "\n";
+			}
+
+			builder.args().argPair("-std=", "c++17", cpl::Args::NoSpace);
+
+
+			auto projectUnit = builder.fromString(source);
+			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.ll").string());
+
+			state = std::make_unique<CxxJitContext>();
+			state->setCallback([this](auto err, auto msg) { print(msg); });
+			state->addTranslationUnit(projectUnit);
+			state->addTranslationUnit(runtimeUnit);
+
+		}
+		catch (const std::exception& e)
+		{
+			print(std::string("Exception while compiling: ") + e.what());
+			return Status::STATUS_ERROR;
+		}
+
+
+
+		/*userTranslationOptions().clean();
 
 		state = UniqueTCC(compiler.createState());
 
@@ -165,7 +167,7 @@ namespace CppAPE
 		{
 			print("[CppAPE] : Error allocating state for TCC compiler");
 			return Status::STATUS_ERROR;
-		}
+		} 
 
 		compiler.setLibPath(state.get(), dirRoot.string().c_str());
 
@@ -229,7 +231,7 @@ namespace CppAPE
 		{
 			print((std::string("Exception while compiling: ") + e.what()).c_str());
 			return Status::STATUS_ERROR;
-		}
+		}*/
 
 		return Status::STATUS_OK;
 	}
@@ -243,28 +245,59 @@ namespace CppAPE
 	Status ScriptCompiler::initProject()
 	{
 		globalData = nullptr;
-		const TCCBindings::CompilerAccess compiler;
 
-		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO) == -1)
+		if (!state)
 		{
-			print("[CppAPE] : Error relocating compiled plugin.");
+			print("[CppAPE] : No existing jit context.");
 			return Status::STATUS_ERROR;
 		}
 
-		plugin.entrypoint 
-			= reinterpret_cast<decltype(plugin.entrypoint)>(compiler.getSymbol(state.get(), SYMBOL_INIT));
-		plugin.exitpoint 
-			= reinterpret_cast<decltype(plugin.exitpoint)>(compiler.getSymbol(state.get(), SYMBOL_END));
-		plugin.processor 
-			= reinterpret_cast<decltype(plugin.processor)>(compiler.getSymbol(state.get(), SYMBOL_PROCESS_REPLACE));
-		plugin.handler 
-			= reinterpret_cast<decltype(plugin.handler)>(compiler.getSymbol(state.get(), SYMBOL_EVENT_HANDLER));
-
-		if(!plugin.test(true)) 
+		try
 		{
-			print("[CppAPE] : Not all functions required to run plugin was found.");
+			state->finalize();
+
+			plugin.entrypoint = state->getSymbol<APE_Init>(SYMBOL_INIT);
+			plugin.exitpoint = state->getSymbol<APE_End>(SYMBOL_END);
+			plugin.processor = state->getSymbol<APE_ProcessReplacer>(SYMBOL_PROCESS_REPLACE);
+			plugin.handler = state->getSymbol<APE_EventHandler>(SYMBOL_EVENT_HANDLER);
+
+			if (!plugin.test(true))
+			{
+				print("[CppAPE] : Not all functions required to run plugin was found.");
+				return Status::STATUS_ERROR;
+			}
+
+			globalData = state->getSymbol<PluginGlobalData>(SYMBOL_GLOBAL_DATA);
+			if(!globalData)
+			{
+				print("[CppAPE] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+					"after you declared your PluginData struct?");
+				return Status::STATUS_ERROR;
+			}
+
+			#ifdef _DEBUG
+				char buf[8192];
+				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_INIT, plugin.entrypoint);
+				print(buf);
+				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_END, plugin.exitpoint);
+				print(buf);
+				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_PROCESS_REPLACE, plugin.processor);
+				print(buf);
+				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_EVENT_HANDLER, plugin.handler);
+				print(buf);
+
+
+			#endif
+
+		}
+		catch (const std::exception& e)
+		{
+			print((std::string)"[CppApe] : error initializing project: " + e.what());
 			return Status::STATUS_ERROR;
 		}
+
+
+
 
 		/* if(!compiler.getSymbol(state.get(), "check"))
 		{
@@ -272,27 +305,7 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		} */
 
-		globalData = reinterpret_cast<PluginGlobalData *>(compiler.getSymbol(state.get(), SYMBOL_GLOBAL_DATA));
-		if(!globalData)
-		{
-			print("[CppAPE] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
-				"after you declared your PluginData struct?");
-			return Status::STATUS_ERROR;
-		}
 
-		#ifdef _DEBUG
-		char buf[8192];
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_INIT, compiler.getSymbol(state.get(), SYMBOL_INIT));
-		print(buf);
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_END, compiler.getSymbol(state.get(), SYMBOL_END));
-		print(buf);
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_PROCESS_REPLACE, compiler.getSymbol(state.get(), SYMBOL_PROCESS_REPLACE));
-		print(buf);
-		sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_EVENT_HANDLER, compiler.getSymbol(state.get(), SYMBOL_EVENT_HANDLER));
-		print(buf);
-
-
-		#endif
 
 		return Status::STATUS_OK;
 	}
@@ -380,7 +393,7 @@ namespace CppAPE
 
 	Status ScriptCompiler::processReplacing(const float * const * in, float * const * out, size_t frames)
 	{
-		return plugin.processor(pluginData, getProject()->iface, in, out, frames);
+		return (*plugin.processor)(pluginData, getProject()->iface, in, out, frames);
 	}
 	
 	Status ScriptCompiler::activateProject()
@@ -388,7 +401,7 @@ namespace CppAPE
 		if (!initLocalMemory())
 			return Status::STATUS_ERROR;
 
-		return plugin.entrypoint(pluginData, getProject()->iface); 
+		return (*plugin.entrypoint)(pluginData, getProject()->iface);
 	}
 
 	Status ScriptCompiler::disableProject(bool didMisbehave)
@@ -397,7 +410,7 @@ namespace CppAPE
 		
 		if (!didMisbehave)
 		{
-			ret = plugin.exitpoint(pluginData, getProject()->iface);
+			ret = (*plugin.exitpoint)(pluginData, getProject()->iface);
 
 			if (!freeLocalMemory())
 				return Status::STATUS_ERROR;
@@ -412,7 +425,7 @@ namespace CppAPE
 	Status ScriptCompiler::onEvent(Event * e)
 	{
 		if(plugin.hasEventHandler())
-			return plugin.handler(pluginData, getProject()->iface, e); 
+			return (*plugin.handler)(pluginData, getProject()->iface, e);
 
 		return Status::STATUS_NOT_IMPLEMENTED;
 	}

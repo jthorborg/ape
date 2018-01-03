@@ -105,6 +105,9 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\iterator.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\libCppJit.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -122,5 +125,8 @@
     <Filter Include="Plugin\Runtime">
       <UniqueIdentifier>{f8fe5387-6d67-47b9-8927-9a48e0cdc363}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\solutions\VisualStudio\x64\Debug\libCppJit.lib" />
   </ItemGroup>
 </Project>

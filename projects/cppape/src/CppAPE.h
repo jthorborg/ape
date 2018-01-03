@@ -62,10 +62,10 @@ namespace CppAPE
 			return handler != nullptr;
 		}
 
-		APE_ProcessReplacer processor;
-		APE_Init entrypoint;
-		APE_End exitpoint;
-		APE_EventHandler handler;
+		APE_ProcessReplacer* processor;
+		APE_Init* entrypoint;
+		APE_End* exitpoint;
+		APE_EventHandler* handler;
 		Status pluginStatus;
 	};
 
@@ -93,16 +93,12 @@ namespace CppAPE
 
 	private:
 
-		static const cpl::Args ScriptCompiler::sizeTypeDefines;
-
-
 		/// <summary>
 		/// Mutual (os-wide) exclusion should be provided by the parent caller.
 		/// </summary>
 		bool SetupEnvironment();
-		static const TranslationUnit::CommonOptions& userTranslationOptions();
 
-		UniqueTCC state;
+		std::unique_ptr<CxxJitContext> state;
 		ScriptPlugin plugin;
 
 		ScriptInstance * pluginData = nullptr;

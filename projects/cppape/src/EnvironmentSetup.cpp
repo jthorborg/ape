@@ -69,6 +69,30 @@ namespace CppAPE
 			return true;
 
 
+		CxxTranslationUnit::Builder builder;
+
+		builder
+			.onMessage([this](auto e, auto msg) { print(msg); })
+			.includeDirs({
+				(root / "runtime").string(),
+				(root / ".." / ".." / "includes" / "tcc").string(),
+				(root / ".." / ".." / "includes").string() }
+			);
+
+		try
+		{
+			builder
+				.fromFile((root / "runtime" / "runtime.cpp").string())
+				.save((root / "runtime" / "runtime.ll").string());
+
+			return true;
+		}
+		catch (const CxxTranslationUnit::CompilationException& e)
+		{
+			print(std::string("Exception while compiling: ") + e.what());
+			return false;
+		}
+		/*
 		ape::TCCBindings::CompilerAccess bindings;
 
 		UniqueTCC tcc(bindings.createState());
@@ -169,6 +193,6 @@ namespace CppAPE
 		}
 
 		return true;
-
+		*/
 	}
 }

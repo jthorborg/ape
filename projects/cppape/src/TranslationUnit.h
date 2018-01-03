@@ -30,258 +30,260 @@
 #define CPPAPE_TRANSLATIONUNIT_H
 #include <cpl/Misc.h>
 #include <cpl/Process.h>
-#include <fstream>
 #include <experimental/filesystem>
-#include <future>
+#include "libCppJit.h"
+#include <memory>
 
 namespace CppAPE
 {
-	namespace fs = std::experimental::filesystem;
-	using namespace ape;
-
-	class TranslationUnit
+	class LibCppJitExceptionBase : public std::exception
 	{
-
-		TranslationUnit(std::string source, std::string name)
-			: input(std::move(source))
-			, name(std::move(name))
-		{
-			preArguments
-				// unset system headers
-				.arg("-I-")
-				// include directory of file itself
-				.argPair("-I", fs::path(name).parent_path().string(), preArguments.NoSpace | preArguments.Escaped)
-				// compile C++ source compability
-				.arg("-+")
-				.argPair("-D", "__cplusplus=199711L", preArguments.NoSpace)
-				.argPair("-V", "199901L", preArguments.NoSpace)
-				// cfront does not support signed, ignore
-				.argPair("-D", "signed=\"\"", preArguments.NoSpace)
-				.argPair("-D", "__cfront", preArguments.NoSpace)
-				.argPair("-W", "0", preArguments.NoSpace);
-	
-			cppArguments
-				// support long doubles
-				.arg("+a1");
-		}
-
 	public:
 
-		struct CommonOptions
+		LibCppJitExceptionBase(jit_error_t error) : error(error) {}
+
+		jit_error_t error;
+
+		const char * what() const override
 		{
-			fs::path szalFile;
-			fs::path constructorSinkFile;
-			fs::path destructorSinkFile;
-			fs::path globalSymSinkFile;
+			return jit_format_error(error);
+		}
+	};
 
-			explicit CommonOptions(const fs::path& root, const fs::path& szalFile, const std::string& prefix = "")
-				: szalFile(szalFile)
-				, constructorSinkFile(root / (prefix + "ctors.gen.inl"))
-				, destructorSinkFile(root / (prefix + "dtors.gen.inl"))
-				, globalSymSinkFile(root / (prefix + "sym.gen.h"))
+	class CxxJitContext;
+
+	class CxxTranslationUnit
+	{
+		typedef translation_unit InternalUnit;
+		friend class CxxJitContext;
+	public:
+
+		class CompilationException : public LibCppJitExceptionBase { using LibCppJitExceptionBase::LibCppJitExceptionBase; };
+
+		class Builder : private cpl::Args
+		{
+			friend class CxxTranslationUnit;
+			typedef std::function<void(jit_error_t errorType, const char * msg)> ErrorCallback;
+		public:
+
+			CxxTranslationUnit fromString(const cpl::string_ref contents)
 			{
+				trs_unit_options options{};
+				options.size = sizeof(trs_unit_options);
+				options.argc = (int)argc();
+				if(argc())
+					options.argv = argv();
 
+				options.opaque = this;
+				options.callback = onCompiler;
+
+				translation_unit* localUnit(nullptr);
+
+				auto ret = trs_unit_from_string(contents.c_str(), &options, &localUnit);
+
+				if (ret != jit_error_none)
+				{
+					throw CompilationException{ ret };
+				}
+
+				return { localUnit };
 			}
 
-			void ensureCreated() const
+			CxxTranslationUnit fromFile(const cpl::string_ref contents)
 			{
-				for (auto f : {szalFile, constructorSinkFile, destructorSinkFile, globalSymSinkFile})
-				{
-					if (f.is_relative())
-					{
-						f = cpl::Misc::DirectoryPath() / f;
-					}
-					std::fclose(std::fopen(f.string().c_str(), "a+"));
+				trs_unit_options options{};
+				options.size = sizeof(trs_unit_options);
+				options.argc = (int)argc();
+				if (argc())
+					options.argv = argv();
 
+				options.opaque = this;
+				options.callback = onCompiler;
+
+				translation_unit* localUnit(nullptr);
+
+				if (auto ret = trs_unit_from_file(contents.c_str(), &options, &localUnit); ret != jit_error_none)
+				{
+					throw CompilationException{ ret };
+				}
+
+				return { localUnit };
+			}
+
+			Builder& includeDirs(const std::vector<std::string>& dirs)
+			{
+				for (auto& dir : dirs)
+					argPair("-I", dir, NoSpace | Escaped);
+
+				return *this;
+			}
+
+			Builder& onMessage(ErrorCallback onMessageCallback)
+			{
+				callback = std::move(onMessageCallback);
+				return *this;
+			}
+
+			cpl::Args& args()
+			{
+				return *this;
+			}
+
+		private:
+
+			static void onCompiler(void* op, const char* msg, jit_error_t error)
+			{
+				if (Builder* b = static_cast<Builder*>(op))
+				{
+					if (b->callback)
+						b->callback(error, msg);
 				}
 			}
 
-			void clean() const
-			{
-				for (auto f : {szalFile, constructorSinkFile, destructorSinkFile, globalSymSinkFile})
-				{
-					if (f.is_relative())
-					{
-						f = cpl::Misc::DirectoryPath() / f;
-					}
+			ErrorCallback callback;
+		};
 
-					std::remove(f.string().c_str());
-				}
+		static CxxTranslationUnit loadSaved(cpl::string_ref where)
+		{
+			translation_unit* unit = nullptr;
+			if (auto ret = trs_unit_load_saved(where.c_str(), &unit); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+
+			return { unit };
+		}
+
+		void save(cpl::string_ref where) const
+		{
+			if (auto ret = trs_unit_save(unit.get(), where.c_str()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+		}
+		
+	private:
+
+		CxxTranslationUnit(InternalUnit* ptr)
+			: unit(ptr)
+		{
+
+		}
+
+		class UnitDeleter
+		{
+		public:
+			void operator () (InternalUnit* unit)
+			{
+				if (unit)
+					trs_unit_delete(unit);
 			}
 		};
 
-		static TranslationUnit FromSource(std::string source, std::string name)
-		{
-			return { source, name };
-		}
+		std::unique_ptr<InternalUnit, UnitDeleter> unit;
+	};
 
-		static TranslationUnit FromFile(std::string path)
-		{
-			auto contents = cpl::Misc::ReadFile(path);
+	class CxxJitContext
+	{
+		typedef jit_context InternalContext;
 
-			if (!contents.first)
+	public:
+
+		typedef std::function<void(jit_error_t errorType, const char * msg)> ErrorCallback;
+
+		CxxJitContext()
+		{
+			jit_context* localCtx;
+			if (auto ret = jit_create_context(&localCtx); ret != jit_error_none)
 			{
-				CPL_RUNTIME_EXCEPTION("Couldn't read file: " + path);
+				throw LibCppJitExceptionBase{ ret };
 			}
 
-			return { std::move(contents.second), std::move(path) };
+			ctx.reset(localCtx);
 		}
 
-		static TranslationUnit FromFile(fs::path path)
+		template<typename T>
+		T* getSymbol(const cpl::string_ref name)
 		{
-			return FromFile(path.string());
+			void * loc;
+			if (auto ret = jit_get_symbol(ctx.get(), name.c_str(), &loc); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+
+			return reinterpret_cast<T*>(loc);
 		}
 
-		TranslationUnit& addSource(fs::path path)
+		template<typename T>
+		void injectSymbol(const cpl::string_ref name, T* location)
 		{
-			return addSource(cpl::Misc::ReadFile(path.string()).second);
+			if (auto ret = jit_inject_symbol(ctx.get(), location); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
 		}
 
-		TranslationUnit& addSource(const std::string& contents)
+		void addTranslationUnit(const CxxTranslationUnit& unit)
 		{
-			input += "\n";
-			input += contents;
-			return *this;
+			if (auto ret = jit_add_translation_unit(ctx.get(), unit.unit.get()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
 		}
 
-		TranslationUnit & options(const CommonOptions& options)
+		void finalize()
 		{
-			if(fs::exists(options.szalFile))
-				cppArguments.argPair("+x", options.szalFile.string(), preArguments.NoSpace);
-
-			cppArguments.argPair("+y", options.constructorSinkFile.string(), preArguments.NoSpace);
-			cppArguments.argPair("+z", options.destructorSinkFile.string(), preArguments.NoSpace);
-			cppArguments.argPair("+q", options.globalSymSinkFile.string(), preArguments.NoSpace);
-
-			return *this;
+			if (auto ret = jit_finalize(ctx.get()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
 		}
 
-		TranslationUnit & includeDirs(const std::vector<std::string>& idirs)
+		void setCallback(ErrorCallback cb)
 		{
-			for (auto & d : idirs)
-				preArguments.argPair("-I", d, preArguments.NoSpace | preArguments.Escaped);
-
-			return *this;
+			callback = std::move(cb);
+			jit_set_callback(ctx.get(), this, onError);
 		}
 
-		TranslationUnit & preArgs(cpl::Args args)
+		void openRuntime()
 		{
-			preArguments += std::move(args);
-			return *this;
+			if (auto ret = jit_open(ctx.get()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
 		}
 
-		TranslationUnit & cppArgs(cpl::Args args)
+		void closeRuntime()
 		{
-			cppArguments += std::move(args);
-			return *this;
-		}
-
-		bool translate() 
-		{
-			using namespace cpl;
-
-			fs::path root = cpl::Misc::DirectoryPath();
-			auto allStreams = Process::IOStreamFlags::In | Process::IOStreamFlags::Out | Process::IOStreamFlags::Err;
-
-			auto pp = Process::Builder((root / "mcpp.exe").string())
-				.workingDir(root.string())
-				.launch(preArguments, allStreams);
-
-			std::ofstream 
-				preOut((root / "build" / "mcpp_out.cpp").c_str()),
-				cfOut((root / "build" / "cfront_out.c").c_str());
-
-			auto cfront = Process::Builder((root / "cfront.exe").string())
-				.workingDir(root.string())
-				.launch(cppArguments, allStreams);
-
-			auto pipingProcess = std::async(
-				[&]() 
-				{
-					std::string s;
-					while (std::getline(pp.cout(), s))
-					{
-						cfront.cin() << s << '\n';
-						preOut << s << '\n';
-					}
-
-					cfront.cin() << std::endl;
-					cfront.cin().close();
-				}
-			);
-
-			auto resultProcess = std::async(
-				[&]()
-				{
-					std::string s;
-					while (std::getline(cfront.cout(), s))
-						translation += s + '\n';
-				}
-			);
-
-			auto errorCfrontProcess = std::async(
-				[&]()
-				{
-					std::string comb;
-					std::string s;
-					while (std::getline(cfront.cerr(), s))
-						comb += "C++: " + s + "\n";
-
-					return comb;
-				}
-			);
-
-			auto errorPPProcess = std::async(
-				[&]()
-				{
-					std::string comb;
-					std::string s;
-					while (std::getline(pp.cerr(), s))
-						comb += "PP: " + s + "\n";
-
-					return comb;
-				}
-			);
-
-			pp.cin() << "#line 2 \"" << fs::path(name).filename() << "\"" << std::endl;
-			pp.cin() << "#line 1 \"" << fs::path(name).filename() << "\"" << std::endl;
-
-			pp.cin() << input << std::endl;
-			pp.cin().close();
-
-			pipingProcess.wait();
-			resultProcess.wait();
-
-			error += errorPPProcess.get();
-			error += errorCfrontProcess.get();
-
-			cfOut << translation << std::endl;
-
-			pp.join();
-			cfront.join();
-
-			return pp.getExitCode() == EXIT_SUCCESS && cfront.getExitCode() == EXIT_SUCCESS;
-
-		}
-
-
-
-		const std::string & getTranslation() const noexcept
-		{
-			return translation;
-		}
-
-		const std::string & getError() const noexcept
-		{
-			return error;
+			if (auto ret = jit_open(ctx.get()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
 		}
 
 	private:
 
-		cpl::Args preArguments, cppArguments;
-		std::string input, error, name, translation;
-	};
+		class CtxDeleter
+		{
+		public:
+			void operator () (InternalContext* unit)
+			{
+				if (unit)
+					jit_delete_context(unit);
+			}
+		};
 
+		static void onError(void* op, const char* msg, jit_error_t error)
+		{
+			if (CxxJitContext* c = static_cast<CxxJitContext*>(op))
+			{
+				if (c->callback)
+					c->callback(error, msg);
+			}
+		}
+		ErrorCallback callback;
+		std::unique_ptr<InternalContext, CtxDeleter> ctx;
+	};
 };
 
 
