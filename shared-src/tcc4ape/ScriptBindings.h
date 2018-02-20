@@ -1,7 +1,7 @@
 #ifndef TCC4APE_SCRIPTBINDINGS_H
 #define TCC4APE_SCRIPTBINDINGS_H
 
-#include "../ape/ape.h"
+#include "../ape/APE.h"
 #include "../ape/Events.h"
 #include "../ape/SharedInterface.h"
 

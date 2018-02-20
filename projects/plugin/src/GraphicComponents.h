@@ -146,8 +146,10 @@
 			float size;
 			CColour colour;
 			juce::Justification just;
+			juce::String fontName;
 		public:
 			CTextLabel();
+			void setFontName(const juce::String& name);
 			void setFontSize(float newSize);
 			void setColour(CColour newColour);
 			virtual void setText(const std::string & newText);

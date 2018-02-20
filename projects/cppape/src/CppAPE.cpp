@@ -130,7 +130,16 @@ namespace CppAPE
 				startingPlace = fs::path(getProject()->files[0]).parent_path().string();
 			}
 
-			builder.includeDirs({ startingPlace, (root / "includes").string(), (root / "includes" / "tcc").string() });
+			if (startingPlace.size())
+				builder.includeDirs({ startingPlace });
+
+			builder.includeDirs({ 
+				(root / "includes").string(), 
+				/*(root / "includes" / "tcc").string(), */
+				(root / "includes" / "usrstd").string(),
+				(root / "includes" / "usrlib").string(),
+
+			});
 
 			if (std::ifstream postfix((dirRoot / "build" / "postfix.cpp").string().c_str()); postfix.good())
 			{
@@ -139,16 +148,21 @@ namespace CppAPE
 					source += temp + "\n";
 			}
 
-			builder.args().argPair("-std=", "c++17", cpl::Args::NoSpace);
+			builder.args()
+				.arg("-v")
+				//.arg("fno-short-wchar")
+				.arg("-fms-extensions")
+				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
+				.argPair("-std=", "c++17", cpl::Args::NoSpace);
 
 
 			auto projectUnit = builder.fromString(source);
-			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.ll").string());
+			//auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.ll").string());
 
 			state = std::make_unique<CxxJitContext>();
 			state->setCallback([this](auto err, auto msg) { print(msg); });
 			state->addTranslationUnit(projectUnit);
-			state->addTranslationUnit(runtimeUnit);
+			//state->addTranslationUnit(runtimeUnit);
 
 		}
 		catch (const std::exception& e)
@@ -256,10 +270,10 @@ namespace CppAPE
 		{
 			state->finalize();
 
-			plugin.entrypoint = state->getSymbol<APE_Init>(SYMBOL_INIT);
-			plugin.exitpoint = state->getSymbol<APE_End>(SYMBOL_END);
-			plugin.processor = state->getSymbol<APE_ProcessReplacer>(SYMBOL_PROCESS_REPLACE);
-			plugin.handler = state->getSymbol<APE_EventHandler>(SYMBOL_EVENT_HANDLER);
+			plugin.entrypoint = state->getFunction<APE_Init>(SYMBOL_INIT);
+			plugin.exitpoint = state->getFunction<APE_End>(SYMBOL_END);
+			plugin.processor = state->getFunction<APE_ProcessReplacer>(SYMBOL_PROCESS_REPLACE);
+			plugin.handler = state->getFunction<APE_EventHandler>(SYMBOL_EVENT_HANDLER);
 
 			if (!plugin.test(true))
 			{
@@ -267,7 +281,7 @@ namespace CppAPE
 				return Status::STATUS_ERROR;
 			}
 
-			globalData = state->getSymbol<PluginGlobalData>(SYMBOL_GLOBAL_DATA);
+			globalData = state->getGlobal<PluginGlobalData>(SYMBOL_GLOBAL_DATA);
 			if(!globalData)
 			{
 				print("[CppAPE] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "

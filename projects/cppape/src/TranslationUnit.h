@@ -66,13 +66,16 @@ namespace CppAPE
 			typedef std::function<void(jit_error_t errorType, const char * msg)> ErrorCallback;
 		public:
 
-			CxxTranslationUnit fromString(const cpl::string_ref contents)
+			CxxTranslationUnit fromString(const cpl::string_ref contents, const cpl::string_ref name = "")
 			{
 				trs_unit_options options{};
 				options.size = sizeof(trs_unit_options);
 				options.argc = (int)argc();
 				if(argc())
 					options.argv = argv();
+
+				if (name.size())
+					options.name = name.c_str();
 
 				options.opaque = this;
 				options.callback = onCompiler;
@@ -203,7 +206,7 @@ namespace CppAPE
 		}
 
 		template<typename T>
-		T* getSymbol(const cpl::string_ref name)
+		T* getGlobal(const cpl::string_ref name)
 		{
 			void * loc;
 			if (auto ret = jit_get_symbol(ctx.get(), name.c_str(), &loc); ret != jit_error_none)
@@ -212,6 +215,18 @@ namespace CppAPE
 			}
 
 			return reinterpret_cast<T*>(loc);
+		}
+
+		template<typename T>
+		T getFunction(const cpl::string_ref name)
+		{
+			void * loc;
+			if (auto ret = jit_get_symbol(ctx.get(), name.c_str(), &loc); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+
+			return reinterpret_cast<T>(loc);
 		}
 
 		template<typename T>

@@ -62,10 +62,10 @@ namespace CppAPE
 			return handler != nullptr;
 		}
 
-		APE_ProcessReplacer* processor;
-		APE_Init* entrypoint;
-		APE_End* exitpoint;
-		APE_EventHandler* handler;
+		APE_ProcessReplacer processor;
+		APE_Init entrypoint;
+		APE_End exitpoint;
+		APE_EventHandler handler;
 		Status pluginStatus;
 	};
 
