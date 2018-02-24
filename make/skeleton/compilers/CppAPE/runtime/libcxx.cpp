@@ -1,0 +1,5 @@
+#include "src/string.cpp"
+#include "src/exception.cpp"
+#include "src/vector.cpp"
+#include "src/stdexcept.cpp"
+#include "src/typeinfo.cpp"
