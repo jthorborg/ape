@@ -65,7 +65,7 @@ namespace CppAPE
 	{
 		auto root = fs::path(cpl::Misc::DirectoryPath());
 
-		if (fs::exists(root / "runtime" / "runtime.o"))
+		if (fs::exists(root / "runtime" / "runtime.ll"))
 			return true;
 
 
@@ -75,12 +75,24 @@ namespace CppAPE
 			.onMessage([this](auto e, auto msg) { print(msg); })
 			.includeDirs({
 				(root / "runtime").string(),
-				(root / ".." / ".." / "includes" / "tcc").string(),
+				(root / ".." / ".." / "includes" / "usrstd").string(),
+				(root / ".." / ".." / "includes" / "usrlib").string(),
 				(root / ".." / ".." / "includes").string() }
 			);
 
 		try
 		{
+			builder.args()
+				.arg("-v")
+				//.arg("fno-short-wchar")
+				.arg("-fms-extensions")
+				.arg("-fcxx-exceptions")
+				.arg("-O2")
+				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+
+				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
+				.argPair("-std=", "c++17", cpl::Args::NoSpace);
+
 			builder
 				.fromFile((root / "runtime" / "runtime.cpp").string())
 				.save((root / "runtime" / "runtime.ll").string());

@@ -152,17 +152,24 @@ namespace CppAPE
 				.arg("-v")
 				//.arg("fno-short-wchar")
 				.arg("-fms-extensions")
+				.arg("-O2")
+				//.arg("--stdlib=libc++")
+				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+				.arg("-fcxx-exceptions")
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace);
 
 
 			auto projectUnit = builder.fromString(source);
-			//auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.ll").string());
+#ifdef _DEBUG
+			projectUnit.save((dirRoot / "build" / "compiled_source.ll").string().c_str());
+#endif
+			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.ll").string());
 
 			state = std::make_unique<CxxJitContext>();
 			state->setCallback([this](auto err, auto msg) { print(msg); });
 			state->addTranslationUnit(projectUnit);
-			//state->addTranslationUnit(runtimeUnit);
+			state->addTranslationUnit(runtimeUnit);
 
 		}
 		catch (const std::exception& e)
@@ -268,6 +275,7 @@ namespace CppAPE
 
 		try
 		{
+			state->injectSymbol<void>("??_7type_info@@6B@", (void*)0x213);
 			state->finalize();
 
 			plugin.entrypoint = state->getFunction<APE_Init>(SYMBOL_INIT);
@@ -412,26 +420,56 @@ namespace CppAPE
 	
 	Status ScriptCompiler::activateProject()
 	{
-		if (!initLocalMemory())
-			return Status::STATUS_ERROR;
+		try
+		{
+			state->openRuntime();
 
-		return (*plugin.entrypoint)(pluginData, getProject()->iface);
+			if (!initLocalMemory())
+				return Status::STATUS_ERROR;
+			return (*plugin.entrypoint)(pluginData, getProject()->iface);
+		}
+		catch (const LibCppJitExceptionBase& e)
+		{
+			print((std::string)"JIT Error while activing project: \n" + e.what());
+		}
+		catch (const std::exception& e)
+		{
+			print((std::string)"Unknown error while activating project: \n" + e.what());
+		}
+
+		return Status::STATUS_ERROR;
+
 	}
 
 	Status ScriptCompiler::disableProject(bool didMisbehave)
 	{
 		Status ret = Status::STATUS_OK;
-		
-		if (!didMisbehave)
-		{
-			ret = (*plugin.exitpoint)(pluginData, getProject()->iface);
 
-			if (!freeLocalMemory())
-				return Status::STATUS_ERROR;
+		try
+		{
+			
+			if (!didMisbehave)
+			{
+				ret = (*plugin.exitpoint)(pluginData, getProject()->iface);
+
+				if (!freeLocalMemory())
+					return Status::STATUS_ERROR;
+			}
+		
+			pluginData = nullptr;
+
+			// TODO: Always call?
+			state->closeRuntime();
+
 		}
-		
-		pluginData = nullptr;
-		
+		catch (const LibCppJitExceptionBase& e)
+		{
+			print((std::string)"JIT Error while disabling project: \n" + e.what());
+		}
+		catch (const std::exception& e)
+		{
+			print((std::string)"Unknown error while disabling project: \n" + e.what());
+		}
 
 		return ret;
 	}

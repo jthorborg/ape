@@ -232,7 +232,7 @@ namespace CppAPE
 		template<typename T>
 		void injectSymbol(const cpl::string_ref name, T* location)
 		{
-			if (auto ret = jit_inject_symbol(ctx.get(), location); ret != jit_error_none)
+			if (auto ret = jit_inject_symbol(ctx.get(), name.c_str(), location); ret != jit_error_none)
 			{
 				throw LibCppJitExceptionBase{ ret };
 			}
@@ -270,7 +270,7 @@ namespace CppAPE
 
 		void closeRuntime()
 		{
-			if (auto ret = jit_open(ctx.get()); ret != jit_error_none)
+			if (auto ret = jit_close(ctx.get()); ret != jit_error_none)
 			{
 				throw LibCppJitExceptionBase{ ret };
 			}
