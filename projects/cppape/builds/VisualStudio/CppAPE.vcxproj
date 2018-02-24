@@ -831,9 +831,6 @@
     <ClInclude Include="..\..\src\TranslationUnit.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\cfront\builds\VisualStudio\cfront.vcxproj">
-      <Project>{cd0de58c-0e83-423b-bf7b-8fb9a4a89ce3}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\tinycc\builds\VisualStudio\tinycc.vcxproj">
       <Project>{49b2c525-7c50-453d-99e9-65dde637c78f}</Project>
     </ProjectReference>
