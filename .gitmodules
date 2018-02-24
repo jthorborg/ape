@@ -16,3 +16,6 @@
 	path = external/cfront-core
 	url = https://bitbucket.org/Mayae/cfront-core.git
 	branch = dev/modern
+[submodule "external/libcxx"]
+	path = external/libcxx
+	url = git://github.com/jthorborg/libcxx.git
