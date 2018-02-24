@@ -136,8 +136,8 @@ namespace CppAPE
 			builder.includeDirs({ 
 				(root / "includes").string(), 
 				/*(root / "includes" / "tcc").string(), */
-				(root / "includes" / "usrstd").string(),
-				(root / "includes" / "usrlib").string(),
+				(root / "includes" / "libcxx").string(),
+				(root / "includes" / "ccore").string(),
 
 			});
 

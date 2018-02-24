@@ -306,6 +306,54 @@
     <ClInclude Include="..\..\..\..\external\libcxx\include\wctype.h">
       <Filter>Plugin\libcxx\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\__stddef_max_align_t.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\_mingw.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\errno.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\float.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\limits.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\malloc.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\math.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdalign.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdarg.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdatomic.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stddef.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdint.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdlib.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\string.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\vadefs.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\wchar.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -331,6 +379,9 @@
     </Filter>
     <Filter Include="Plugin\libcxx\include">
       <UniqueIdentifier>{31a5a9b3-5c7b-40cd-854d-e69768019cf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin\ccore">
+      <UniqueIdentifier>{10b6eb16-581d-43c6-963a-d35ca143d611}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

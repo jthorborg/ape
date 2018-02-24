@@ -75,8 +75,8 @@ namespace CppAPE
 			.onMessage([this](auto e, auto msg) { print(msg); })
 			.includeDirs({
 				(root / "runtime").string(),
-				(root / ".." / ".." / "includes" / "usrstd").string(),
-				(root / ".." / ".." / "includes" / "usrlib").string(),
+				(root / ".." / ".." / "includes" / "libcxx").string(),
+				(root / ".." / ".." / "includes" / "ccore").string(),
 				(root / ".." / ".." / "includes").string() }
 			);
 
