@@ -385,9 +385,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\solutions\VisualStudio\x64\Debug\libCppJit.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_fallback.ipp">
       <Filter>Plugin\libcxx\source</Filter>
     </None>
@@ -741,5 +738,8 @@
     <Text Include="..\..\..\..\external\libcxx\include\CMakeLists.txt">
       <Filter>Plugin\libcxx\include</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libCppJit.lib" />
   </ItemGroup>
 </Project>

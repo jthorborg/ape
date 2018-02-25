@@ -1,6 +1,8 @@
 import os
 import configparser
+from urllib.request import urlopen
 from shutil import copyfile
+import zipfile
 
 print(">> Updating submodules...")
 os.system("git submodule update --init --recursive")
@@ -40,7 +42,24 @@ for filename in os.listdir("projects"):
 
 
 print(">> Setting up skeletons...")
+print(">> Downloading latest cpp-jit binaries...")
 
-copyfile(os.path.join("external", "cfront-core", "cfront-dist", "source", "szal.c"), os.path.join("make", "skeleton", "compilers", "CppAPE", "build", "szal.c"))
+latest_cppjit = urlopen("https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.1-windows.zip")
+with open("temp.zip", "wb") as out:
+	out.write(latest_cppjit.read())
+
+print(">> Extracting cpp-jit...")
+
+with zipfile.ZipFile("temp.zip") as cppjit:
+	with cppjit.open("libCppJit.dll") as dll:
+		with open(os.path.join("make", "skeleton", "compilers", "CppAPE", "libCppJit.dll"), "wb") as outdll:
+		   outdll.write(dll.read())
+
+	with cppjit.open("libCppJit.lib") as lib:
+		with open(os.path.join("projects", "cppape", "builds", "VisualStudio", "libCppJit.lib"), "wb") as outlib:
+		   outlib.write(lib.read())
+
+if os.path.exists("temp.zip"):
+	os.remove("temp.zip")
 
 print(">> Dev environment setup without errors.")

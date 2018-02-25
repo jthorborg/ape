@@ -996,9 +996,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\solutions\VisualStudio\x64\Debug\libCppJit.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\..\..\external\libcxx\include\algorithm" />
     <None Include="..\..\..\..\external\libcxx\include\any" />
     <None Include="..\..\..\..\external\libcxx\include\array" />
@@ -1226,6 +1223,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\..\external\libcxx\include\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libCppJit.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
