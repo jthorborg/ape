@@ -155,6 +155,7 @@ namespace CppAPE
 				.arg("-O2")
 				//.arg("--stdlib=libc++")
 				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+				.arg("-fexceptions")
 				.arg("-fcxx-exceptions")
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace);
@@ -178,82 +179,6 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 
-
-
-		/*userTranslationOptions().clean();
-
-		state = UniqueTCC(compiler.createState());
-
-		if(!state) 
-		{
-			print("[CppAPE] : Error allocating state for TCC compiler");
-			return Status::STATUS_ERROR;
-		} 
-
-		compiler.setLibPath(state.get(), dirRoot.string().c_str());
-
-		if (getProject()->arguments)
-			compiler.setOptions(state.get(), getProject()->arguments);
-
-		compiler.setOutputType(state.get(), TCC_OUTPUT_MEMORY);
-		compiler.setErrorFunc(state.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
-
-
-		if(!getProject()->isSingleString) 
-		{
-			print("[CppAPE] : Error - Compiler only supports compiling single strings (one file).");
-			return Status::STATUS_ERROR;
-		}
-
-		try
-		{
-			auto unit = TranslationUnit::FromSource(getProject()->sourceString, getProject()->files[0]);
-			auto root = fs::path(getProject()->rootPath);
-
-			unit
-				.includeDirs({(root / "includes").string(), (root / "includes" / "tcc").string()})
-				.preArgs(sizeTypeDefines)
-				.options(userTranslationOptions())
-				.addSource(dirRoot / "build" / "postfix.cpp");
-
-			auto result = unit.translate();
-
-			if(unit.getError().size())
-				print(unit.getError().c_str());
-
-			if (!result)
-			{
-				return Status::STATUS_ERROR;
-			}
-
-			userTranslationOptions().ensureCreated();
-
-			compiler.addIncludePath(state.get(), (root / "includes" / "tcc").string().c_str());
-
-			if (!compiler.compileString(state.get(), "#include <math.h>\n"))
-				return Status::STATUS_ERROR;
-
-			if(!compiler.compileString(state.get(), unit.getTranslation().c_str()))
-				return Status::STATUS_ERROR;
-
-			// ugly hack to prevent message of ODR of vtables violation in runtime.o....
-			compiler.setErrorFunc(state.get(), nullptr, nullptr);
-
-			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "runtime.o").string().c_str()))
-				return Status::STATUS_ERROR;
-
-			compiler.setErrorFunc(state.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
-
-			if (!compiler.addFile(state.get(), (dirRoot / "runtime" / "ctorsdtors.c").string().c_str()))
-				return Status::STATUS_ERROR;
-
-		}
-		catch (const std::exception& e)
-		{
-			print((std::string("Exception while compiling: ") + e.what()).c_str());
-			return Status::STATUS_ERROR;
-		}*/
-
 		return Status::STATUS_OK;
 	}
 
@@ -275,7 +200,6 @@ namespace CppAPE
 
 		try
 		{
-			state->injectSymbol<void>("??_7type_info@@6B@", (void*)0x213);
 			state->finalize();
 
 			plugin.entrypoint = state->getFunction<APE_Init>(SYMBOL_INIT);
@@ -432,10 +356,6 @@ namespace CppAPE
 		{
 			print((std::string)"JIT Error while activing project: \n" + e.what());
 		}
-		catch (const std::exception& e)
-		{
-			print((std::string)"Unknown error while activating project: \n" + e.what());
-		}
 
 		return Status::STATUS_ERROR;
 
@@ -465,10 +385,6 @@ namespace CppAPE
 		catch (const LibCppJitExceptionBase& e)
 		{
 			print((std::string)"JIT Error while disabling project: \n" + e.what());
-		}
-		catch (const std::exception& e)
-		{
-			print((std::string)"Unknown error while disabling project: \n" + e.what());
 		}
 
 		return ret;

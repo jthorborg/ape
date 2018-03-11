@@ -85,6 +85,8 @@ namespace CppAPE
 			builder.args()
 				.arg("-v")
 				//.arg("fno-short-wchar")
+				.arg("-fexceptions")
+
 				.arg("-fms-extensions")
 				.arg("-fcxx-exceptions")
 				.arg("-O2")
