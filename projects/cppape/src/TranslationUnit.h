@@ -66,52 +66,9 @@ namespace CppAPE
 			typedef std::function<void(jit_error_t errorType, const char * msg)> ErrorCallback;
 		public:
 
-			CxxTranslationUnit fromString(const cpl::string_ref contents, const cpl::string_ref name = "")
-			{
-				trs_unit_options options{};
-				options.size = sizeof(trs_unit_options);
-				options.argc = (int)argc();
-				if(argc())
-					options.argv = argv();
+			CxxTranslationUnit fromString(const cpl::string_ref contents, const cpl::string_ref name = "", CxxJitContext* optionalMemoryContext = nullptr);
 
-				if (name.size())
-					options.name = name.c_str();
-
-				options.opaque = this;
-				options.callback = onCompiler;
-
-				translation_unit* localUnit(nullptr);
-
-				auto ret = trs_unit_from_string(contents.c_str(), &options, &localUnit);
-
-				if (ret != jit_error_none)
-				{
-					throw CompilationException{ ret };
-				}
-
-				return { localUnit };
-			}
-
-			CxxTranslationUnit fromFile(const cpl::string_ref contents)
-			{
-				trs_unit_options options{};
-				options.size = sizeof(trs_unit_options);
-				options.argc = (int)argc();
-				if (argc())
-					options.argv = argv();
-
-				options.opaque = this;
-				options.callback = onCompiler;
-
-				translation_unit* localUnit(nullptr);
-
-				if (auto ret = trs_unit_from_file(contents.c_str(), &options, &localUnit); ret != jit_error_none)
-				{
-					throw CompilationException{ ret };
-				}
-
-				return { localUnit };
-			}
+			CxxTranslationUnit fromFile(const cpl::string_ref contents, CxxJitContext* optionalMemoryContext = nullptr);
 
 			Builder& includeDirs(const std::vector<std::string>& dirs)
 			{
@@ -146,16 +103,7 @@ namespace CppAPE
 			ErrorCallback callback;
 		};
 
-		static CxxTranslationUnit loadSaved(cpl::string_ref where)
-		{
-			translation_unit* unit = nullptr;
-			if (auto ret = trs_unit_load_saved(where.c_str(), &unit); ret != jit_error_none)
-			{
-				throw LibCppJitExceptionBase{ ret };
-			}
-
-			return { unit };
-		}
+		static CxxTranslationUnit loadSaved(cpl::string_ref where, CxxJitContext* jitContextMemoryToUse = nullptr);
 
 		void save(cpl::string_ref where) const
 		{
@@ -189,6 +137,7 @@ namespace CppAPE
 	class CxxJitContext
 	{
 		typedef jit_context InternalContext;
+		typedef jit_shared_mcontext MemoryContext;
 
 	public:
 
@@ -196,8 +145,16 @@ namespace CppAPE
 
 		CxxJitContext()
 		{
-			jit_context* localCtx;
-			if (auto ret = jit_create_context(&localCtx); ret != jit_error_none)
+			MemoryContext* localMemory;
+			if (auto ret = jit_create_mcontext(&localMemory); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+
+			memory.reset(localMemory);
+
+			InternalContext* localCtx;
+			if (auto ret = jit_create_context(&localCtx, localMemory); ret != jit_error_none)
 			{
 				throw LibCppJitExceptionBase{ ret };
 			}
@@ -276,6 +233,11 @@ namespace CppAPE
 			}
 		}
 
+		MemoryContext* getMemoryContext() noexcept
+		{
+			return memory.get();
+		}
+
 	private:
 
 		class CtxDeleter
@@ -288,6 +250,16 @@ namespace CppAPE
 			}
 		};
 
+		class MemoryDeleter
+		{
+		public:
+			void operator () (MemoryContext* unit)
+			{
+				if (unit)
+					jit_delete_mcontext(unit);
+			}
+		};
+
 		static void onError(void* op, const char* msg, jit_error_t error)
 		{
 			if (CxxJitContext* c = static_cast<CxxJitContext*>(op))
@@ -297,8 +269,72 @@ namespace CppAPE
 			}
 		}
 		ErrorCallback callback;
+		std::unique_ptr<MemoryContext, MemoryDeleter> memory;
 		std::unique_ptr<InternalContext, CtxDeleter> ctx;
 	};
+
+
+	inline CxxTranslationUnit CxxTranslationUnit::loadSaved(cpl::string_ref where, CxxJitContext* jitContextMemoryToUse)
+	{
+		translation_unit* unit = nullptr;
+
+		if (auto ret = trs_unit_load_saved(where.c_str(), &unit, jitContextMemoryToUse ? jitContextMemoryToUse->getMemoryContext() : nullptr); ret != jit_error_none)
+		{
+			throw LibCppJitExceptionBase{ ret };
+		}
+
+		return { unit };
+	}
+
+	inline CxxTranslationUnit CxxTranslationUnit::Builder::fromString(const cpl::string_ref contents, const cpl::string_ref name, CxxJitContext* optionalMemoryContext)
+	{
+		trs_unit_options options{};
+		options.size = sizeof(trs_unit_options);
+		options.argc = (int)argc();
+		if (argc())
+			options.argv = argv();
+
+		if (name.size())
+			options.name = name.c_str();
+
+		options.opaque = this;
+		options.callback = onCompiler;
+		options.memory_context = optionalMemoryContext ? optionalMemoryContext->getMemoryContext() : nullptr;
+
+		translation_unit* localUnit(nullptr);
+
+		auto ret = trs_unit_from_string(contents.c_str(), &options, &localUnit);
+
+		if (ret != jit_error_none)
+		{
+			throw CompilationException{ ret };
+		}
+
+		return { localUnit };
+	}
+
+	inline CxxTranslationUnit CxxTranslationUnit::Builder::fromFile(const cpl::string_ref contents, CxxJitContext* optionalMemoryContext)
+	{
+		trs_unit_options options{};
+		options.size = sizeof(trs_unit_options);
+		options.argc = (int)argc();
+		if (argc())
+			options.argv = argv();
+
+		options.opaque = this;
+		options.callback = onCompiler;
+		options.memory_context = optionalMemoryContext ? optionalMemoryContext->getMemoryContext() : nullptr;
+
+		translation_unit* localUnit(nullptr);
+
+		if (auto ret = trs_unit_from_file(contents.c_str(), &options, &localUnit); ret != jit_error_none)
+		{
+			throw CompilationException{ ret };
+		}
+
+		return { localUnit };
+	}
+
 };
 
 

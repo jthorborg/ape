@@ -160,18 +160,18 @@ namespace CppAPE
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace);
 
-
-			auto projectUnit = builder.fromString(source);
-#ifdef _DEBUG
-			projectUnit.save((dirRoot / "build" / "compiled_source.ll").string().c_str());
-#endif
-			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.ll").string());
-
 			state = std::make_unique<CxxJitContext>();
 			state->setCallback([this](auto err, auto msg) { print(msg); });
+
+			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
+#ifdef _DEBUG
+			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
+#endif
+			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get());
+
+
 			state->addTranslationUnit(projectUnit);
 			state->addTranslationUnit(runtimeUnit);
-
 		}
 		catch (const std::exception& e)
 		{

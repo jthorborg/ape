@@ -8,6 +8,7 @@
 
 typedef struct JitContext jit_context;
 typedef struct TranslationUnit translation_unit;
+typedef struct JitSharedMContext jit_shared_mcontext;
 
 typedef enum
 {
@@ -15,7 +16,7 @@ typedef enum
 	jit_error_unknown,
 	jit_error_argument,
 	jit_error_not_found,
-	jit_error_unresolved_external,
+	jit_error_unresolved_external, 
 	jit_error_unfit_stage,
 	jit_error_at_previous_stage,
 	jit_error_verbose,
@@ -36,17 +37,22 @@ struct trs_unit_options
 	jit_error_callback callback;
 	void* opaque;
 	const char* name;
+	jit_shared_mcontext* memory_context;
 };
+
+LIBCPPJIT_EXPORT jit_error_t jit_create_mcontext(jit_shared_mcontext** mcontext);
+LIBCPPJIT_EXPORT jit_error_t jit_delete_mcontext(jit_shared_mcontext* mcontext);
 
 LIBCPPJIT_EXPORT jit_error_t trs_unit_from_string(const char* contents, trs_unit_options* options, translation_unit ** result);
 LIBCPPJIT_EXPORT jit_error_t trs_unit_from_file(const char* code_file, const trs_unit_options* options, translation_unit** result);
-LIBCPPJIT_EXPORT jit_error_t trs_unit_load_saved(const char* where, translation_unit** result);
+LIBCPPJIT_EXPORT jit_error_t trs_unit_load_saved(const char* where, translation_unit** result, jit_shared_mcontext* mcontext);
 LIBCPPJIT_EXPORT jit_error_t trs_unit_save(translation_unit * unit, const char* where);
+LIBCPPJIT_EXPORT jit_error_t trs_unit_save_textual(translation_unit * unit, const char* where);
 
 LIBCPPJIT_EXPORT jit_error_t trs_unit_delete(translation_unit * unit);
 
 LIBCPPJIT_EXPORT const char * jit_format_error(jit_error_t error);
-LIBCPPJIT_EXPORT jit_error_t jit_create_context(jit_context** result);
+LIBCPPJIT_EXPORT jit_error_t jit_create_context(jit_context** result, jit_shared_mcontext* mcontext);
 LIBCPPJIT_EXPORT jit_error_t jit_add_translation_unit(jit_context * c, const translation_unit* unit);
 LIBCPPJIT_EXPORT jit_error_t jit_set_callback(jit_context * c, void * callback_context, jit_error_callback cb);
 LIBCPPJIT_EXPORT jit_error_t jit_delete_context(jit_context * c);
