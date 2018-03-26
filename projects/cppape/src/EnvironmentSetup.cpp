@@ -65,7 +65,7 @@ namespace CppAPE
 	{
 		auto root = fs::path(cpl::Misc::DirectoryPath());
 
-		if (fs::exists(root / "runtime" / "runtime.bc"))
+		if (fs::exists(root / "runtime" / "runtime.bc") && fs::exists(root / "runtime" / "libcxx.bc"))
 			return true;
 
 
@@ -98,6 +98,14 @@ namespace CppAPE
 			builder
 				.fromFile((root / "runtime" / "runtime.cpp").string())
 				.save((root / "runtime" / "runtime.bc").string());
+
+			print("runtime.cpp -> runtime.bc");
+
+			builder
+				.fromFile((root / "runtime" / "libcxx.cpp").string())
+				.save((root / "runtime" / "libcxx.bc").string());
+
+			print("libcxx.cpp -> libcxx.bc");
 
 			return true;
 		}

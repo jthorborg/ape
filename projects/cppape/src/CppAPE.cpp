@@ -64,6 +64,11 @@ void DeleteCompiler(ape::ProtoCompiler * toBeDeleted)
 
 namespace CppAPE
 {
+	std::shared_ptr<CxxJitContext> ScriptCompiler::acquireCxxRuntime()
+	{
+		static std::shared_ptr<CxxJitContext> cxxRuntime;
+		return cxxRuntime;
+	}
 
 
 	ScriptCompiler::ScriptCompiler() {}
@@ -171,7 +176,8 @@ namespace CppAPE
 
 
 			state->addTranslationUnit(projectUnit);
-			state->addTranslationUnit(runtimeUnit);
+			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get()));
+			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "libcxx.bc").string(), state.get()));
 		}
 		catch (const std::exception& e)
 		{

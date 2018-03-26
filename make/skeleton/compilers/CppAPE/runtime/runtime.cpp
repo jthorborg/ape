@@ -169,5 +169,3 @@ extern "C"
 	}
 
 };
-
-#include "libcxx.cpp"

@@ -97,13 +97,14 @@ namespace CppAPE
 		/// Mutual (os-wide) exclusion should be provided by the parent caller.
 		/// </summary>
 		bool SetupEnvironment();
+		static std::shared_ptr<CxxJitContext> acquireCxxRuntime();
 
 		std::unique_ptr<CxxJitContext> state;
 		ScriptPlugin plugin;
 
 		ScriptInstance * pluginData = nullptr;
 		PluginGlobalData * globalData = nullptr;
-
+		std::shared_ptr<CxxTranslationUnit> cxxRuntime;
 	};
 };
 
