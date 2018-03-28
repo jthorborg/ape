@@ -16,14 +16,125 @@
     <ClCompile Include="..\..\src\EnvironmentSetup.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.c">
-      <Filter>Plugin\Runtime</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\runtime.cpp">
       <Filter>Plugin\Runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\build\postfix.cpp">
       <Filter>Plugin\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\libcxx.cpp">
+      <Filter>Plugin\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\algorithm.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\any.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\bind.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\chrono.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\condition_variable.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\debug.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\experimental\filesystem\directory_iterator.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\exception.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\functional.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\future.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\hash.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\ios.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\iostream.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\locale.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\support\win32\locale_win32.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\memory.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\experimental\memory_resource.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\mutex.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\new.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\experimental\filesystem\operations.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\optional.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\experimental\filesystem\path.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\random.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\regex.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\shared_mutex.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\stdexcept.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\string.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\strstream.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\support\win32\support.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\system_error.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\thread.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\typeinfo.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\utility.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\valarray.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\variant.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\vector.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\support\solaris\xlocale.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -63,47 +174,185 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\effect.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\memory.h">
-      <Filter>Plugin\Public Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\processor.h">
       <Filter>Plugin\Public Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\vector.h">
-      <Filter>Plugin\Public Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\ctorsdtors.h">
-      <Filter>Plugin\Runtime</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\parameter.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\mathlib.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\src\libCppJit.h">
+      <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\meta.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\src\include\atomic_support.h">
+      <Filter>Plugin\libcxx\source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\complex.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\src\include\config_elast.h">
+      <Filter>Plugin\libcxx\source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\algorithm.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\src\experimental\filesystem\filesystem_time_helper.h">
+      <Filter>Plugin\libcxx\source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\string.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\src\include\refstring.h">
+      <Filter>Plugin\libcxx\source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\string_view.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\android\locale_bionic.h">
+      <Filter>Plugin\libcxx\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\assert.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\fuchsia\xlocale.h">
+      <Filter>Plugin\libcxx\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\utility.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\ibm\limits.h">
+      <Filter>Plugin\libcxx\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\make\skeleton\includes\iterator.h">
-      <Filter>Plugin\Public Headers</Filter>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\ibm\locale_mgmt_aix.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\ibm\support.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\ibm\xlocale.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\musl\xlocale.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\newlib\xlocale.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\solaris\floatingpoint.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\solaris\wchar.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\solaris\xlocale.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\win32\limits_msvc_win32.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\win32\locale_win32.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\xlocale\xlocale.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\xlocale\__nop_locale_mgmt.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\xlocale\__posix_l_fallback.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\support\xlocale\__strtonum_fallback.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\__bsd_locale_defaults.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\__bsd_locale_fallbacks.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\complex.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\ctype.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\errno.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\float.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\inttypes.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\limits.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\locale.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\math.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\setjmp.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\stdbool.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\stddef.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\stdint.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\stdio.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\stdlib.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\string.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\tgmath.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\wchar.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libcxx\include\wctype.h">
+      <Filter>Plugin\libcxx\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\__stddef_max_align_t.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\_mingw.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\errno.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\float.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\limits.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\malloc.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\math.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdalign.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdarg.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdatomic.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stddef.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdint.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\stdlib.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\string.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\vadefs.h">
+      <Filter>Plugin\ccore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\ccore\include\wchar.h">
+      <Filter>Plugin\ccore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -122,5 +371,375 @@
     <Filter Include="Plugin\Runtime">
       <UniqueIdentifier>{f8fe5387-6d67-47b9-8927-9a48e0cdc363}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Plugin\libcxx">
+      <UniqueIdentifier>{e4ade589-e059-406f-a48a-14fd8b13769d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin\libcxx\source">
+      <UniqueIdentifier>{d32bc97e-dd89-470f-9fcb-480c71bb9b1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin\libcxx\include">
+      <UniqueIdentifier>{31a5a9b3-5c7b-40cd-854d-e69768019cf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin\ccore">
+      <UniqueIdentifier>{10b6eb16-581d-43c6-963a-d35ca143d611}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_fallback.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_glibcxx.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_libcxxabi.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_libcxxrt.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_msvc.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_pointer_cxxabi.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_pointer_glibcxx.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_pointer_msvc.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\exception_pointer_unimplemented.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\solaris\mbsnrtowcs.inc">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\runtime\new_handler_fallback.ipp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\src\support\solaris\wcsnrtombs.inc">
+      <Filter>Plugin\libcxx\source</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__bit_reference">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__config">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__config_site.in">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__debug">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__functional_03">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__functional_base">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__functional_base_03">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__hash_table">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__libcpp_version">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__locale">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__mutex_base">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__nullptr">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__split_buffer">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__sso_allocator">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__std_stream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__string">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__threading_support">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__tree">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__tuple">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\__undef_macros">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\algorithm">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\any">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\array">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\atomic">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\bitset">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cassert">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ccomplex">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cctype">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cerrno">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cfenv">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cfloat">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\chrono">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cinttypes">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ciso646">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\climits">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\clocale">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cmath">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\codecvt">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\complex">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\condition_variable">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\csetjmp">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\csignal">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstdarg">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstdbool">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstddef">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstdint">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstdio_minimal">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstdio_old">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstdlib">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cstring">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ctgmath">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ctime">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cwchar">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\cwctype">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\deque">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\exception">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\forward_list">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\fstream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\functional">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\future">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\initializer_list">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\iomanip">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ios">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\iosfwd">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\iostream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\istream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\iterator">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\limits">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\list">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\locale">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\map">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\memory">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\module.modulemap">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\mutex">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\new">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\numeric">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\optional">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ostream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\queue">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\random">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\ratio">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\regex">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\scoped_allocator">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\set">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\shared_mutex">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\sstream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\stack">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\stdexcept">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\streambuf">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\string">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\string_view">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\strstream">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\system_error">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\thread">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\tuple">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\type_traits">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\typeindex">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\typeinfo">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\unordered_map">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\unordered_set">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\utility">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\valarray">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\variant">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+    <None Include="..\..\..\..\external\libcxx\include\vector">
+      <Filter>Plugin\libcxx\include</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\external\libcxx\include\CMakeLists.txt">
+      <Filter>Plugin\libcxx\include</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libCppJit.lib" />
   </ItemGroup>
 </Project>

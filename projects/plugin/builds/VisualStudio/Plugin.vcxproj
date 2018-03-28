@@ -2199,9 +2199,6 @@
     <ProjectReference Include="..\..\..\..\external\libconfig\lib\libconfig++.vcxproj">
       <Project>{a0c36ce7-d908-4573-8b69-249eeeb7d2be}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\cfront\builds\VisualStudio\cfront.vcxproj">
-      <Project>{cd0de58c-0e83-423b-bf7b-8fb9a4a89ce3}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\cppape\builds\VisualStudio\CppAPE.vcxproj">
       <Project>{47bda949-c47f-4e4a-b112-b3d27fe4ade0}</Project>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>

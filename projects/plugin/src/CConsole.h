@@ -45,7 +45,7 @@
 		class CConsole;
 		class CTextLabel;
 		const int nPixelPerLine = 15; // height of an text-line
-		const float nPixelPerChar = 6.4f; // length of an single character in pixels (average, safe bet)
+		const float nPixelPerChar = 8.2f; // length of an single character in pixels (average, safe bet)
 
 		/*
 			struct ConsoleMessage - everything thats printed to the console is stored in a object like this

@@ -93,21 +93,18 @@ namespace CppAPE
 
 	private:
 
-		static const cpl::Args ScriptCompiler::sizeTypeDefines;
-
-
 		/// <summary>
 		/// Mutual (os-wide) exclusion should be provided by the parent caller.
 		/// </summary>
 		bool SetupEnvironment();
-		static const TranslationUnit::CommonOptions& userTranslationOptions();
+		static std::shared_ptr<CxxJitContext> acquireCxxRuntime();
 
-		UniqueTCC state;
+		std::unique_ptr<CxxJitContext> state;
 		ScriptPlugin plugin;
 
 		ScriptInstance * pluginData = nullptr;
 		PluginGlobalData * globalData = nullptr;
-
+		std::shared_ptr<CxxTranslationUnit> cxxRuntime;
 	};
 };
 

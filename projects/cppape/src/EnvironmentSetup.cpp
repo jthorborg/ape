@@ -65,10 +65,56 @@ namespace CppAPE
 	{
 		auto root = fs::path(cpl::Misc::DirectoryPath());
 
-		if (fs::exists(root / "runtime" / "runtime.o"))
+		if (fs::exists(root / "runtime" / "runtime.bc") && fs::exists(root / "runtime" / "libcxx.bc"))
 			return true;
 
 
+		CxxTranslationUnit::Builder builder;
+
+		builder
+			.onMessage([this](auto e, auto msg) { print(msg); })
+			.includeDirs({
+				(root / "runtime").string(),
+				(root / ".." / ".." / "includes" / "libcxx").string(),
+				(root / ".." / ".." / "includes" / "ccore").string(),
+				(root / ".." / ".." / "includes").string() }
+			);
+
+		try
+		{
+			builder.args()
+				.arg("-v")
+				//.arg("fno-short-wchar")
+				.arg("-fexceptions")
+
+				.arg("-fms-extensions")
+				.arg("-fcxx-exceptions")
+				.arg("-O2")
+				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+
+				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
+				.argPair("-std=", "c++17", cpl::Args::NoSpace);
+
+			builder
+				.fromFile((root / "runtime" / "runtime.cpp").string())
+				.save((root / "runtime" / "runtime.bc").string());
+
+			print("runtime.cpp -> runtime.bc");
+
+			builder
+				.fromFile((root / "runtime" / "libcxx.cpp").string())
+				.save((root / "runtime" / "libcxx.bc").string());
+
+			print("libcxx.cpp -> libcxx.bc");
+
+			return true;
+		}
+		catch (const CxxTranslationUnit::CompilationException& e)
+		{
+			print(std::string("Exception while compiling: ") + e.what());
+			return false;
+		}
+		/*
 		ape::TCCBindings::CompilerAccess bindings;
 
 		UniqueTCC tcc(bindings.createState());
@@ -169,6 +215,6 @@ namespace CppAPE
 		}
 
 		return true;
-
+		*/
 	}
 }

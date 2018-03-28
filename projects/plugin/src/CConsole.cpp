@@ -94,12 +94,13 @@ namespace ape
 		// the line on the fly, but can't find a cross platform alternative.
 		nLineSize = int(fakeSize.getWidth() / nPixelPerChar);
 		lines.reserve(nLines);
-		for (int i = 0; i < nLines; i++) {
-
+		for (int i = 0; i < nLines; i++) 
+		{
 			lines.push_back(new CTextLabel());
 			lines[i]->setBounds(5, i * nPixelPerLine, fakeSize.getWidth() - cont->getSCB()->getWidth(), nPixelPerLine);
-			lines[i]->setFontSize(14);
+			lines[i]->setFontSize(13);
 			lines[i]->setColour(juce::Colours::black);
+			lines[i]->setFontName(juce::Font::getDefaultMonospacedFontName());
 			cont->getVContainer()->addAndMakeVisible(lines[i]);
 		}
 

@@ -12,10 +12,13 @@
 [submodule "external/ape-snippets"]
 	path = external/ape-snippets
 	url = https://bitbucket.org/Mayae/ape-snippets.git
-[submodule "external/cfront-core"]
-	path = external/cfront-core
-	url = https://bitbucket.org/Mayae/cfront-core.git
-	branch = dev/modern
 [submodule "external/signalizer"]
 	path = external/signalizer
 	url = https://bitbucket.org/Mayae/signalizer.git
+[submodule "external/libcxx"]
+	path = external/libcxx
+	url = git://github.com/jthorborg/libcxx.git
+	branch = embedded/minimal-jit
+[submodule "external/ccore"]
+	path = external/ccore
+	url = https://bitbucket.org/Mayae/ccore.git

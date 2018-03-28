@@ -293,6 +293,11 @@ namespace ape
 		repaint();
 	}
 
+	void CTextLabel::setFontName(const juce::String& name)
+	{
+		fontName = name;
+	}
+
 	void CTextLabel::setColour(CColour newColour)
 	{
 		this->colour = newColour;
@@ -307,7 +312,8 @@ namespace ape
 
 	void CTextLabel::paint(juce::Graphics & g)
 	{
-		g.setFont(size);
+		juce::Font f(fontName.length() ? fontName : juce::Font::getDefaultSansSerifFontName(), size, juce::Font::plain);
+		g.setFont(f);
 		g.setColour(colour);
 		g.drawText(text, CRect(0, 0, getWidth(), getHeight()), just, false);
 	}

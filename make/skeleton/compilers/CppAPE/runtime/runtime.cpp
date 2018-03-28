@@ -1,9 +1,8 @@
 #include <baselib.h>
 #include <processor.h>
 #include <shared-src/tcc4ape/ScriptBindings.h>
-#include "ctorsdtors.h"
-#include <stdarg.h>
-#include <mathlib.h>
+#include <cstdarg>
+#include <cmath>
 
 APE_SharedInterface * lastIFace;
 FactoryBase::ProcessorCreater pluginCreater;
@@ -22,6 +21,8 @@ APE_SharedInterface& getInterface()
 extern "C"
 {
 	int vsnprintf(char * s, size_t n, const char * format, va_list arg);
+	int snprintf(char * s, size_t n, const char * format, ...);
+
 	void abort();
 };
 
@@ -74,7 +75,6 @@ extern "C"
 
 	void * SCRIPT_API PluginCreate(APE_SharedInterface * iface)
 	{
-		runtime_init();
 		lastIFace = iface;
 		if (!pluginCreater)
 		{
@@ -88,7 +88,6 @@ extern "C"
 	void SCRIPT_API PluginDelete(ScriptInstance * instance)
 	{
 		delete (Processor*)instance;
-		runtime_exit();
 	}
 
 	PluginGlobalData NAME_GLOBAL_DATA = {
@@ -104,15 +103,15 @@ extern "C"
 
 
 
-void *operator new(unsigned int am)
+void *operator new(std::size_t am)
 {
 	return lastIFace->alloc(lastIFace, APE_Alloc_Tiny, am);
 }
-
-void *operator new(unsigned int am, void * loc)
+/*
+void *operator new(std::size_t am, void * loc)
 {
 	return loc;
-}
+} */
 
 
 void operator delete(void * loc)

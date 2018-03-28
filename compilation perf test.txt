@@ -1,0 +1,31 @@
+VANILLA
+
+Cold compilation W rt debug: 4000
+Cold compilation W/O rt debug: 2000
+Warm compilation W/O rt debug: 1912
+
+Runtime size: 2381kb
+Source size: 180kb
+
+Getting first symbol: 1151ms (jitting)
+
+Clang source: 676ms
+
+printing 180kb source: 8ms
+
+parsing source llvm ir: 13 ms
+parsing runtime llvm ir: 100 ms
+
+IMPLEMENTING BITCODE
+
+Runtime size: 534kb
+Source size: 54kb
+
+printing 54kb source: 11ms
+
+Cold compilation W rt debug: 4174
+Cold compilation W/O rt debug: 2000
+Warm compilation W/O rt debug: 1800
+
+parsing source llvm ir: N/A
+parsing runtime llvm ir: 43 ms
