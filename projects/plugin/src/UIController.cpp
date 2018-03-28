@@ -109,8 +109,10 @@ namespace ape
 	 
 	 *********************************************************************************************/
 	UIController::Editor::Editor(UIController& p)
-		: parent(p), AudioProcessorEditor(p.engine),
-		repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
+		: parent(p)
+		, AudioProcessorEditor(p.engine)
+		, repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
+		, scope(p.engine.getOscilloscopeData())
 		//,testImage(juce::Image::PixelFormat::ARGB, 800,300, false, *new juce::OpenGLImageType())
 	{
 

@@ -187,7 +187,7 @@ namespace ape
 		numFrames = knobGraphics.getHeight() / knobGraphics.getWidth();
 		sideLength = knobGraphics.getWidth();
 		setTextBoxStyle(NoTextBox, 0, 0, 0);
-		setSize(ControlSize, ControlSize);
+		setSize(APE_DEPRECATED_CONTROL_SIZE, APE_DEPRECATED_CONTROL_SIZE);
 		this->setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
 
 	}
@@ -204,13 +204,13 @@ namespace ape
 			//else if (0 > value )
 			//	value = 0;
 			//g.drawImage(knobGraphics, 0, 0, getWidth(), getHeight(), 0, value * sideLength, sideLength, sideLength);
-			g.drawImage(knobGraphics, ControlSize / 4, ControlSize / 4, sideLength, sideLength, 0, value * sideLength, sideLength, sideLength);
+			g.drawImage(knobGraphics, APE_DEPRECATED_CONTROL_SIZE / 4, APE_DEPRECATED_CONTROL_SIZE / 4, sideLength, sideLength, 0, value * sideLength, sideLength, sideLength);
 		}
 		g.setFont(TextSize::smallerText);
 		g.setColour(juce::Colours::lightgoldenrodyellow);
 
-		g.drawText(title, CRect(getWidth(), ControlSize / 4), juce::Justification::horizontallyCentred, false);
-		g.drawText(text, CRect(0, ControlSize - (ControlSize / 4), getWidth(), ControlSize / 4), juce::Justification::centred, false);
+		g.drawText(title, CRect(getWidth(), APE_DEPRECATED_CONTROL_SIZE / 4), juce::Justification::horizontallyCentred, false);
+		g.drawText(text, CRect(0, APE_DEPRECATED_CONTROL_SIZE - (APE_DEPRECATED_CONTROL_SIZE / 4), getWidth(), APE_DEPRECATED_CONTROL_SIZE / 4), juce::Justification::centred, false);
 	}
 
 	float CKnob::bGetValue()
@@ -239,7 +239,7 @@ namespace ape
 		: CBaseControl(this), cbox(CResourceManager::getImage("checkbox"))
 	{
 		addListener(this);
-		setSize(ControlSize, 20);
+		setSize(APE_DEPRECATED_CONTROL_SIZE, 20);
 	}
 
 	void CToggle::paint(juce::Graphics & g)

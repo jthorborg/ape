@@ -1506,6 +1506,9 @@
     <ClCompile Include="..\..\..\..\external\signalizer\Source\Unity\SignalizerSource.cpp">
       <Filter>External</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SignalizerWindow.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -2931,6 +2934,9 @@
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\UIController.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SignalizerWindow.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
   </ItemGroup>

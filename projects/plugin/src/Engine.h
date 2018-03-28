@@ -42,6 +42,8 @@
 	#include <cpl/ConcurrentServices.h>
 	#include <shared_mutex>
 	#include "CCodeGenerator.h"
+	// TODO: remove
+	#include "SignalizerWindow.h"
 	
 	namespace ape {
 
@@ -66,6 +68,7 @@
 			Engine();
 			virtual ~Engine();
 
+			OscilloscopeData& getOscilloscopeData() { return scopeData; }
 			UIController& getController() { return *controller.get(); }
 			PluginState * getCState() { return pluginState.get(); }
 			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
@@ -145,7 +148,7 @@
 			bool isPlaying = false;
 			std::atomic<double> clocksPerSample;
 			std::shared_mutex pluginMutex;
-
+			OscilloscopeData scopeData;
 		}; 
 	}
 #endif

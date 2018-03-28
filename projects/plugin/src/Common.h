@@ -97,7 +97,7 @@
 		#endif
 		class CBaseControl;
 
-		#define ControlSize 80
+		#define APE_DEPRECATED_CONTROL_SIZE 80
 
 		enum TextSize
 		{

@@ -28,14 +28,15 @@
 
 *************************************************************************************/
 
-#ifndef _GUI_H
-	#define _GUI_H
+#ifndef APE_UICONTROLLER_H
+	#define APE_UICONTROLLER_H
 
 	#include "Common.h"
 	#include "GraphicComponents.h"
 	#include <vector>
 	#include "CControlManager.h"
 	#include "ButtonDefinitions.h"
+	#include "SignalizerWindow.h"
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 	#include <future>
@@ -89,7 +90,7 @@
 				int repaintCallBackCounter;
 				
 				juce::OpenGLContext oglc;
-				
+				SignalizerWindow scope;
 			public:
 				UIController & parent;
 				void initialize(bool useOpenGL = false);
