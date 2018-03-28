@@ -98,9 +98,10 @@ namespace ape
 
 		return valid;
 	}
-	bool CCompiler::initialize(const libconfig::Setting & languageSettings)
+	bool CCompiler::initialize(const libconfig::Setting& languageSettings)
 	{
-		if(!initialized) {
+		if(!initialized)
+		{
 
 			compilerName = languageSettings["name"].c_str();
 			compilerPath = languageSettings["path"].c_str();
@@ -110,14 +111,17 @@ namespace ape
 			// more checks on this.
 			const libconfig::Setting & settings = languageSettings["exports"];
 
-			if(!compilerPath.length()) {
+			if(!compilerPath.length()) 
+			{
 				std::stringstream fmt;
 				fmt << "Invalid (empty) path for compiler \'" << compilerName << "\' for language \'"
 					<<  language << "\'.";
 				throw std::runtime_error(fmt.str());
 			}
+			module.addSearchPath(cpl::fs::path(cpl::Misc::DirectoryPath() + compilerPath).parent_path());
 			auto error = module.load(cpl::Misc::DirectoryPath() + compilerPath);
-			if(error) {
+			if(error)
+			{
 				std::stringstream fmt;
 				fmt << "Error loading compiler module \'" << compilerName << "\' for language \'"
 					<<  language << "\' " << " at " << "\'" << cpl::Misc::DirectoryPath() + compilerPath << "\'. OS returns " << error << ".";

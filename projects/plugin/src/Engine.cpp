@@ -456,19 +456,9 @@ namespace ape
 	}
 
 }
-#ifdef __WINDOWS__
-	static bool searchChanged = false;
-#endif
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-	#ifdef __WINDOWS__
-		if (!searchChanged) {
-			SetDllDirectory(cpl::Misc::DirectoryPath().c_str());
-			searchChanged = true;
-		}
-	#endif
-		
 	ape::Engine * effect = nullptr;
 	try
 	{
