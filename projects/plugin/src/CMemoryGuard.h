@@ -189,7 +189,7 @@
 						reset();
 						return false;
 					}
-					if(!VirtualProtect(regions[1], bankSize, dwProtection, &dwOldProtect)) {
+					if(size && !VirtualProtect(regions[1], bankSize, dwProtection, &dwOldProtect)) {
 						reset();
 						return false;
 					}

@@ -40,12 +40,23 @@ namespace ape
 		, data(oData)
 		, scope(data.getBehaviour(), data.getName(), data.getStream(), &data.getContent())
 	{
-		setSize(800, 600);
 		setVisible(true);
+		editor = data.getContent().createEditor();
+		editor->setSize(600, 200);
+		editor->setVisible(true);
+		editor->setCentrePosition(1000, 1000);
+		editor->setOpaque(true);
+		editor->addToDesktop(juce::ComponentPeer::StyleFlags::windowIsResizable | juce::ComponentPeer::StyleFlags::windowHasCloseButton | juce::ComponentPeer::StyleFlags::windowHasTitleBar);
+		scope.setSize(800, 600);
+
+		setContentComponent(&scope, true, true);
+
+		scope.attachToOpenGL(context);
 	}
 
 	SignalizerWindow::~SignalizerWindow()
 	{
+		scope.detachFromOpenGL(context);
 	}
 
 }

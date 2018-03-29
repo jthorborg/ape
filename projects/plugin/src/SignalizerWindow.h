@@ -69,8 +69,6 @@
 			Signalizer::SystemView view;
 			Signalizer::OscilloscopeContent content;
 
-
-
 		};
 
 		class SignalizerWindow : public juce::DocumentWindow
@@ -83,6 +81,8 @@
 		private:
 			OscilloscopeData& data;
 			Signalizer::Oscilloscope scope;
+			std::unique_ptr<Signalizer::StateEditor> editor;
+			juce::OpenGLContext context;
 		};
 	};
 

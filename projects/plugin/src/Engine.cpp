@@ -260,6 +260,8 @@ namespace ape
 				pluginState->useFPUExceptions(false);
 
 			clocksPerSample = static_cast<double>(profiledClocks) / numSamples;
+
+			scopeData.getStream().processIncomingRTAudio(buffer.getArrayOfWritePointers(), ioConfig.inputs, numSamples, *getPlayHead());
 		}
 
 		// In case we have more outputs than inputs, we'll clear any output
@@ -291,8 +293,6 @@ namespace ape
 
 	void Engine::setStateInformation(const void* data, int sizeInBytes)
 	{
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-
 		bool ret = false;
 		try
 		{
@@ -444,6 +444,15 @@ namespace ape
 			pluginState->setBounds(ioConfig);
 			pluginState->setPlayState(isPlaying);
 		}
+
+		auto info = scopeData.getStream().getInfo();
+		info.anticipatedChannels = ioConfig.inputs;
+		info.anticipatedSize = ioConfig.blockSize;
+		info.sampleRate = ioConfig.sampleRate;
+		info.callAsyncListeners = true;
+		info.isFrozen = info.isSuspended = false;
+
+		scopeData.getStream().initializeInfo(info);
 
 	}
 
