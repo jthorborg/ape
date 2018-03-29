@@ -291,8 +291,6 @@ namespace ape
 
 	void Engine::setStateInformation(const void* data, int sizeInBytes)
 	{
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-
 		bool ret = false;
 		try
 		{

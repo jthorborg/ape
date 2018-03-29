@@ -38,9 +38,12 @@
 	#include "CConsole.h"
 	#include <cpl/CThread.h>
 	#include "CCodeEditor.h"
+	#include <cpl/state/Serialization.h>
 
 	namespace ape
 	{
+		static const cpl::Version CurrentVersion(0, 1, 0);
+
 		/*
 			It is of pretty high importance to standardize the layout of this 
 			struct os-, architechture- and compiler independent (for obvious reasons)
@@ -100,6 +103,9 @@
 
 			static bool serialize(Engine * engine, juce::MemoryBlock & destination)
 			{
+				cpl::CCheckedSerializer serializer("Audio Programming Environment");
+				auto& archive = serializer.getArchiver();
+				archive.setMasterVersion(CurrentVersion);
 
 				std::string fileName = engine->getController().externEditor->getDocumentPath();
 				bool hasAProject = fileName.size() > 2 ? true : false;
@@ -123,45 +129,128 @@
 					isActivated = false;
 				}
 
-				auto listSize = isActivated ? engine->getCState()->getCtrlManager().getControls().size() : 0;
+				archive["fileName"] << engine->getController().externEditor->getDocumentPath();
+				//archive["scope"] << engine->getOscilloscopeData().getContent();
 
-				// needed size in bytes
-				std::size_t neededSize =
-					sizeof(SerializedEngine) +
-					listSize * sizeof(SerializedEngine::ControlValue) +
-					fileName.size() + 1;
-
-				SerializedEngine * se = reinterpret_cast<SerializedEngine*>(malloc(neededSize));
-				::memset(se, 0, neededSize);
-				se->size = neededSize;
-				se->structSize = sizeof(SerializedEngine);
-				se->version = 9;
-				se->editorOpened = engine->getController().externEditor->isOpen();
-				se->isActivated = isActivated;
-				se->valueOffset = sizeof(SerializedEngine);
-				se->fileNameOffset = se->valueOffset + listSize * sizeof(SerializedEngine::ControlValue);
-				se->hasAProject = hasAProject;
-				se->numValues = listSize;
-				::memcpy(se->getFileName(), fileName.c_str(), fileName.size() + 1);
+				archive << hasAProject;
+				archive << isActivated;
+				archive << engine->getController().externEditor->isOpen();
 
 				if (isActivated)
 				{
-					SerializedEngine::ControlValue * values = se->getValues();
-					int i = 0;
+					// TODO: Remove, turn into actual audio parameters
+					auto& list = archive["parameters"];
+					std::size_t count = engine->getCState()->getCtrlManager().getControls().size();
+					std::size_t i = 0;
+					archive["parameter-count"] << count;
 					for (auto ctrl : engine->getCState()->getCtrlManager().getControls())
 					{
-						values[i].tag = ctrl->bGetTag();
-						values[i].value = ctrl->bGetValue();
-
-						i++;
+						list[i++] << SerializedEngine::ControlValue { ctrl->bGetValue(), (SerializedEngine::SeIntType) ctrl->bGetTag() };
 					}
 				}
 
+				auto content = serializer.compile(true);
 
-				destination.ensureSize(neededSize);
-				destination.copyFrom(se, 0, neededSize);
-				::free(se);
+				destination.append(content.getBlock(), content.getSize());
+
 				return true;
+			}
+
+			static bool restoreNewVersion(Engine* engine, const void* block, unsigned size)
+			{
+				cpl::CCheckedSerializer serializer("Audio Programming Environment");
+				if (!serializer.build({ block, size }))
+					return false;
+
+				auto builder = serializer.getBuilder();
+
+				std::string filePath;
+
+				bool hasProject, isActivated, isOpen;
+
+				builder["fileName"] >> filePath;
+				builder >> hasProject >> isActivated >> isOpen;
+				//builder["scope"] >> engine->getOscilloscopeData().getContent();
+
+
+				// first we open the editor to ensure it's initialized
+				if (!engine->getController().externEditor->openEditor(isOpen))
+				{
+					engine->getController().console().printLine(CColours::red,
+						"[Serializer] : Error opening editor!");
+					return false;
+				}
+				if (engine->getController().externEditor->checkAutoSave())
+				{
+					engine->getController().console().printLine(CColours::red,
+						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
+					return false;
+				}
+				// then, we set it to the file from last session
+				if (!engine->getController().externEditor->openFile(filePath))
+				{
+					engine->getController().console().printLine(CColours::red,
+						"[Serializer] : Error opening session file (%s)!", filePath.c_str());
+					return false;
+				}
+				
+				if (!isActivated)
+					return true;
+
+				// try to compile the project
+				auto plugin = engine->getController().createPlugin().get();
+
+				// check if success
+				if (!plugin)
+				{
+					engine->getController().console().printLine(CColours::red,
+						"[Serializer] : Error compiling session file (%s)!", filePath.c_str());
+					return false;
+				}
+
+				engine->exchangePlugin(std::move(plugin));
+
+				// project is now compiled, lets try to activate it
+				if (!engine->activatePlugin())
+				{
+					engine->getController().console().printLine(CColours::red,
+						"[Serializer] : Error activating project (%s)!", engine->getController().projectName.c_str());
+					return false;
+
+				}
+
+				if (builder.findForKey("parameters"))
+				{
+					auto& list = builder["parameters"];
+					auto counts = builder.findForKey("parameter-count");
+					std::size_t parameters = 0;
+					if (builder.findForKey("parameter-count"))
+						builder["parameter-count"] >> parameters;
+
+					CPluginCtrlManager & ctrlManager = engine->getCState()->getCtrlManager();
+
+					for (std::size_t i = 0; i < parameters; ++i)
+					{
+						SerializedEngine::ControlValue value;
+						list[i] >> value;
+
+						auto control = ctrlManager.getControl(value.tag);
+
+						if (control)
+							control->bSetValue(value.value);
+						else
+						{
+							engine->getController().console().printLine(CColours::red,
+								"[Serializer] : Error restoring values to controls: No control found for tag %d!",
+								value.value);
+							return false;
+
+						}
+					}
+				}
+
+				return true;
+
 			}
 
 			static bool restore(Engine * engine, const void * block, unsigned size)
@@ -175,24 +264,18 @@
 					|| se->size != size // whether the size actual size matches reported size
 					)
 				{
-					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Invalid memory block recieved from host (%d, %d, %d, %d)!", 
-						se, size, sizeof(SerializedEngine), se->size);
-					return false;
+					if (!restoreNewVersion(engine, block, size))
+					{
+						engine->getController().console().printLine(CColours::red,
+							"[Serializer] : Invalid memory block recieved from host (%d, %d, %d, %d)!",
+							se, size, sizeof(SerializedEngine), se->size);
+						return false;
+					}
+					return true;
 				}
 				else if (se->version != 9)
 				{
-					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Warning: Different versions detected!");
-
-					auto answer = Misc::MsgBox
-						(
-						"Warning: You're trying to restore an instance from a different version (0) of this plugin, continue?", 
-							cpl::programInfo.name + " warning",
-						Misc::MsgStyle::sYesNoCancel | Misc::MsgIcon::iWarning
-						);
-					if (answer != Misc::MsgButton::bYes)
-						return false;
+					return restoreNewVersion(engine, block, size);
 				}
 				// first we open the editor to ensure it's initialized
 				if(!engine->getController().externEditor->openEditor(se->editorOpened))
