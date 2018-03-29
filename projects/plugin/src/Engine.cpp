@@ -451,8 +451,10 @@ namespace ape
 		info.sampleRate = ioConfig.sampleRate;
 		info.callAsyncListeners = true;
 		info.isFrozen = info.isSuspended = false;
-
+		info.audioHistorySize = sampleRate;
+		info.audioHistoryCapacity = sampleRate;
 		scopeData.getStream().initializeInfo(info);
+		
 
 	}
 

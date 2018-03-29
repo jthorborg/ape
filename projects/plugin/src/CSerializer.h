@@ -136,6 +136,8 @@
 				archive << isActivated;
 				archive << engine->getController().externEditor->isOpen();
 
+				archive["scope-data"]["state"] << engine->getOscilloscopeData().getContent();
+
 				if (isActivated)
 				{
 					// TODO: Remove, turn into actual audio parameters
@@ -171,6 +173,12 @@
 				builder["fileName"] >> filePath;
 				builder >> hasProject >> isActivated >> isOpen;
 				//builder["scope"] >> engine->getOscilloscopeData().getContent();
+
+				if (builder.findForKey("scope-data"))
+				{
+					auto& scope = builder["scope-data"];
+					scope["state"] >> engine->getOscilloscopeData().getContent();
+				}
 
 
 				// first we open the editor to ensure it's initialized
