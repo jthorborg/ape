@@ -67,8 +67,9 @@ namespace CppAPE
 		public:
 
 			CxxTranslationUnit fromString(const cpl::string_ref contents, const cpl::string_ref name = "", CxxJitContext* optionalMemoryContext = nullptr);
-
 			CxxTranslationUnit fromFile(const cpl::string_ref contents, CxxJitContext* optionalMemoryContext = nullptr);
+			void generatePCH(const cpl::fs::path& header, const cpl::fs::path& destination);
+
 
 			Builder& includeDirs(const std::vector<std::string>& dirs)
 			{
@@ -84,11 +85,18 @@ namespace CppAPE
 				return *this;
 			}
 
+			Builder& addMemoryFile(std::string name, const char* data, std::size_t size)
+			{
+				memoryFileNames.emplace_back(std::move(name));
+				memoryFiles.emplace_back(jit_memory_file{ memoryFileNames.back().c_str(), data, size });
+				return *this;
+			}
+
 			cpl::Args& args()
 			{
 				return *this;
 			}
-
+			
 		private:
 
 			static void onCompiler(void* op, const char* msg, jit_error_t error)
@@ -99,7 +107,8 @@ namespace CppAPE
 						b->callback(error, msg);
 				}
 			}
-
+			std::vector<std::string> memoryFileNames;
+			std::vector<jit_memory_file> memoryFiles;
 			ErrorCallback callback;
 		};
 
@@ -111,6 +120,13 @@ namespace CppAPE
 			{
 				throw LibCppJitExceptionBase{ ret };
 			}
+
+#ifdef _DEBUG
+			if (auto ret = trs_unit_save_textual(unit.get(), (where.string() + ".ll").c_str()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+#endif
 		}
 		
 	private:
@@ -301,6 +317,9 @@ namespace CppAPE
 		options.callback = onCompiler;
 		options.memory_context = optionalMemoryContext ? optionalMemoryContext->getMemoryContext() : nullptr;
 
+		if (options.memory_file_count = memoryFileNames.size())
+			options.memory_files = memoryFiles.data();
+
 		translation_unit* localUnit(nullptr);
 
 		auto ret = trs_unit_from_string(contents.c_str(), &options, &localUnit);
@@ -325,6 +344,9 @@ namespace CppAPE
 		options.callback = onCompiler;
 		options.memory_context = optionalMemoryContext ? optionalMemoryContext->getMemoryContext() : nullptr;
 
+		if (options.memory_file_count = memoryFileNames.size())
+			options.memory_files = memoryFiles.data();
+
 		translation_unit* localUnit(nullptr);
 
 		if (auto ret = trs_unit_from_file(contents.c_str(), &options, &localUnit); ret != jit_error_none)
@@ -333,6 +355,28 @@ namespace CppAPE
 		}
 
 		return { localUnit };
+	}
+
+	inline void CxxTranslationUnit::Builder::generatePCH(const cpl::fs::path& header, const cpl::fs::path& destination)
+	{
+		trs_unit_options options{};
+		options.size = sizeof(trs_unit_options);
+		options.argc = (int)argc();
+		if (argc())
+			options.argv = argv();
+
+		options.opaque = this;
+		options.callback = onCompiler;
+		options.memory_context = nullptr;
+
+		if (options.memory_file_count = memoryFileNames.size())
+			options.memory_files = memoryFiles.data();
+		
+
+		if (auto ret = pch_unit_from_file(header.string().c_str(), destination.string().c_str(), &options); ret != jit_error_none)
+		{
+			throw CompilationException{ ret };
+		}
 	}
 
 };

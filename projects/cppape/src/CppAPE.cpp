@@ -84,15 +84,7 @@ namespace CppAPE
 
 	Status ScriptCompiler::compileProject()
 	{
-	//	const TCCBindings::CompilerAccess compiler;
-
 		fs::path dirRoot = cpl::Misc::DirectoryPath();
-
-		/*if (!compiler.isLinked())
-		{
-			print("[CppAPE] : Error linking against TCC, module is either not found or invalid.");
-			return Status::STATUS_ERROR;
-		} */
 
 		cpl::CExclusiveFile lockFile;
 
@@ -102,13 +94,28 @@ namespace CppAPE
 			return Status::STATUS_ERROR;
 		}
 
-		// TODO: More state.
 		if(!SetupEnvironment())
 		{
 			print("[CppAPE] : Error setting up environment.");
 			return Status::STATUS_ERROR;
 		}
-		
+
+		// TODO: Cache static
+		if (memoryEffectPCH.empty())
+		{
+			std::ifstream pchfile(dirRoot / "runtime" / "effect.h.pch", std::ios::binary | std::ios::ate);
+			std::streamsize size = pchfile.tellg();
+			pchfile.seekg(0, std::ios::beg);
+
+			memoryEffectPCH.resize(size);
+			if (size == 0 || size == -1 || !pchfile.read(memoryEffectPCH.data(), size))
+			{
+				print("[CppAPE] : Failed to read pchfile into memory");
+				return Status::STATUS_ERROR;
+			}
+		}
+
+
 		try
 		{
 
@@ -159,11 +166,14 @@ namespace CppAPE
 				.arg("-fms-extensions")
 				.arg("-O2")
 				//.arg("--stdlib=libc++")
-				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+				//.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
 				.arg("-fexceptions")
 				.arg("-fcxx-exceptions")
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
-				.argPair("-std=", "c++17", cpl::Args::NoSpace);
+				.argPair("-std=", "c++17", cpl::Args::NoSpace)
+				.argPair("-include-pch", (dirRoot / "runtime" / "effect.h.pch").string());
+
+			builder.addMemoryFile("effect.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
 			state = std::make_unique<CxxJitContext>();
 			state->setCallback([this](auto err, auto msg) { print(msg); });
@@ -247,17 +257,6 @@ namespace CppAPE
 			print((std::string)"[CppApe] : error initializing project: " + e.what());
 			return Status::STATUS_ERROR;
 		}
-
-
-
-
-		/* if(!compiler.getSymbol(state.get(), "check"))
-		{
-			print("[CppAPE] : Unable to find certain symbols, did you forget to include \"CInterface.h\"?");
-			return Status::STATUS_ERROR;
-		} */
-
-
 
 		return Status::STATUS_OK;
 	}
