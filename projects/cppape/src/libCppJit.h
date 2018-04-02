@@ -29,11 +29,20 @@ typedef enum
 
 typedef void(*jit_error_callback)(void * ctx, const char * message, jit_error_t error_type);
 
+struct jit_memory_file
+{
+	const char* name;
+	const char* data;
+	size_t size;
+};
+
 struct trs_unit_options
 {
 	size_t size;
 	int argc;
 	const char* const* argv;
+	size_t memory_file_count;
+	jit_memory_file* memory_files;
 	jit_error_callback callback;
 	void* opaque;
 	const char* name;
@@ -42,6 +51,8 @@ struct trs_unit_options
 
 LIBCPPJIT_EXPORT jit_error_t jit_create_mcontext(jit_shared_mcontext** mcontext);
 LIBCPPJIT_EXPORT jit_error_t jit_delete_mcontext(jit_shared_mcontext* mcontext);
+
+LIBCPPJIT_EXPORT jit_error_t pch_unit_from_file(const char* code_file, const char* out_file, const trs_unit_options* options);
 
 LIBCPPJIT_EXPORT jit_error_t trs_unit_from_string(const char* contents, trs_unit_options* options, translation_unit ** result);
 LIBCPPJIT_EXPORT jit_error_t trs_unit_from_file(const char* code_file, const trs_unit_options* options, translation_unit** result);

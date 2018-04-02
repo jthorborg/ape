@@ -3,6 +3,12 @@
 
 #include "baselib.h"
 #include "processor.h"
+#include "parameter.h"
+#include <complex>
+#include <map>
+#include <functional>
+#include <algorithm>
+#include <typeinfo>
 
 class Effect : public Processor
 {
