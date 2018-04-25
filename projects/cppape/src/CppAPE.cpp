@@ -217,6 +217,7 @@ namespace CppAPE
 		try
 		{
 			state->finalize();
+			state->prepareGlobals();
 
 			plugin.entrypoint = state->getFunction<APE_Init>(SYMBOL_INIT);
 			plugin.exitpoint = state->getFunction<APE_End>(SYMBOL_END);
