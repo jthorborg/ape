@@ -247,12 +247,14 @@ namespace ape
 
 		if (status.bActivated && pluginState)
 		{
-
 			std::size_t numSamples = buffer.getNumSamples();
 			std::size_t profiledClocks = 0;
+			auxMatrix.softBufferResize(numSamples);
 
 			if (status.bUseFPUE)
 				pluginState->useFPUExceptions(true);
+
+			auxMatrix.copy(buffer.getArrayOfReadPointers(), 0, ioConfig.inputs);
 
 			pluginState->processReplacing(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numSamples, &profiledClocks);
 
@@ -261,7 +263,9 @@ namespace ape
 
 			clocksPerSample = static_cast<double>(profiledClocks) / numSamples;
 
-			scopeData.getStream().processIncomingRTAudio(buffer.getArrayOfWritePointers(), ioConfig.inputs, numSamples, *getPlayHead());
+			auxMatrix.copy(buffer.getArrayOfReadPointers(), ioConfig.inputs, ioConfig.inputs);
+
+			scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs, numSamples, *getPlayHead());
 		}
 
 		// In case we have more outputs than inputs, we'll clear any output
@@ -446,7 +450,7 @@ namespace ape
 		}
 
 		auto info = scopeData.getStream().getInfo();
-		info.anticipatedChannels = ioConfig.inputs;
+		info.anticipatedChannels = ioConfig.inputs + ioConfig.outputs;
 		info.anticipatedSize = ioConfig.blockSize;
 		info.sampleRate = ioConfig.sampleRate;
 		info.callAsyncListeners = true;
@@ -455,7 +459,19 @@ namespace ape
 		info.audioHistoryCapacity = sampleRate;
 		scopeData.getStream().initializeInfo(info);
 		
+		std::size_t counter = 0;
 
+		for (std::size_t i = 0; i < ioConfig.inputs; ++i, counter++)
+		{
+			scopeData.getStream().enqueueChannelName(counter, "input " + std::to_string(i));
+		}
+
+		for (std::size_t i = 0; i < ioConfig.outputs; ++i, counter++)
+		{
+			scopeData.getStream().enqueueChannelName(counter, "output " + std::to_string(i));
+		}
+
+		auxMatrix.resizeChannels(ioConfig.inputs + ioConfig.outputs);
 	}
 
 	void Engine::releaseResources()

@@ -2939,6 +2939,9 @@
     <ClInclude Include="..\..\src\SignalizerWindow.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\EngineStructures.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">

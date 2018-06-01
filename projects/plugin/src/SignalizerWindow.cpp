@@ -29,6 +29,7 @@
 
 #include <cpl/Common.h>
 #include "SignalizerWindow.h"
+#include "Common/SignalizerDesign.h"
 #include "Engine.h"
 
 namespace ape 

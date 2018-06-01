@@ -188,8 +188,7 @@ namespace ape
 		// create the editor
 		// spawn console
 		parent.console().create(CRect(b->getWidth(), 0, getWidth() - b->getWidth(), getHeight() - (getHeight() / 6)));
-		
-		
+	
 		/*
 			set buttons according to engine
 		*/
@@ -366,7 +365,7 @@ namespace ape
 			engine.getCState()->getCtrlManager().attach(newEditor);
 			engine.getCState()->getCtrlManager().createPendingControls();
 		}
-
+		engine.getOscilloscopeData().initializeColours();
 		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
 		bFirstDraw = true;
 	}

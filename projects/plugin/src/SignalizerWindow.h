@@ -48,6 +48,32 @@
 			{
 				behaviour.hideWidgetsOnMouseExit = true;
 				behaviour.stopProcessingOnSuspend = true;
+
+				initializeColours();
+			}
+
+			void initializeColours()
+			{
+				constexpr std::uint32_t multiplier = 0x34729;
+				constexpr double scale = 0.4;
+				constexpr double offset = 0.2;
+
+				std::uint32_t colourIndex = 1;
+
+				for (std::size_t i = 0; i < Signalizer::OscilloscopeContent::NumColourChannels; ++i)
+				{
+					auto& colour = content.getColour(i);
+					colourIndex *= multiplier;
+
+					auto red = (colourIndex & 0x3) * scale + offset;
+					auto green = ((colourIndex >> 0x4) & 0x3) * scale + offset;
+					auto blue = ((colourIndex >> 0x9) & 0x3) * scale + offset;
+					colour.getValueIndex(cpl::ColourValue::A).setNormalizedValue(1);
+					colour.getValueIndex(cpl::ColourValue::R).setNormalizedValue(red);
+					colour.getValueIndex(cpl::ColourValue::G).setNormalizedValue(green);
+					colour.getValueIndex(cpl::ColourValue::B).setNormalizedValue(blue);
+
+				}
 			}
 
 		public:

@@ -44,6 +44,7 @@
 	#include "CCodeGenerator.h"
 	// TODO: remove
 	#include "SignalizerWindow.h"
+	#include "EngineStructures.h"
 	
 	namespace ape {
 
@@ -149,6 +150,8 @@
 			std::atomic<double> clocksPerSample;
 			std::shared_mutex pluginMutex;
 			OscilloscopeData scopeData;
+			AuxMatrix auxMatrix;
+
 		}; 
 	}
 #endif

@@ -1704,6 +1704,7 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
+    <ClInclude Include="..\..\src\EngineStructures.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
     <ClInclude Include="..\..\src\ButtonDefinitions.h" />
