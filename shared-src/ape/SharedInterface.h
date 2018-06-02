@@ -73,6 +73,7 @@
 		void		(APE_API * setCtrlValue)	(struct APE_SharedInterface * iface, int iD, float value);
 		int			(APE_API * createPlot)		(struct APE_SharedInterface * iface, const char * name, const float * const values, const unsigned int numVals);
 		int			(APE_API * createRangeKnob)	(struct APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, APE_ScaleFunc scaleCB, float min, float max);
+		int			(APE_API * presentTrace)	(struct APE_SharedInterface * iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
 
 		struct APE_SIExtra extra;
 	};

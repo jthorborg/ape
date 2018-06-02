@@ -172,6 +172,7 @@ namespace ape
 		{
 			pluginState->setBounds(ioConfig);
 			pluginState->setPlayState(isPlaying);
+			tracerState = TracerState();
 		}
 	}
 
@@ -247,7 +248,7 @@ namespace ape
 
 		if (status.bActivated && pluginState)
 		{
-			std::size_t numSamples = buffer.getNumSamples();
+			const std::size_t numSamples = buffer.getNumSamples();
 			std::size_t profiledClocks = 0;
 			auxMatrix.softBufferResize(numSamples);
 
@@ -256,16 +257,23 @@ namespace ape
 
 			auxMatrix.copy(buffer.getArrayOfReadPointers(), 0, ioConfig.inputs);
 
+			tracerState.beginPhase(&auxMatrix, ioConfig.inputs + ioConfig.outputs);
+
 			pluginState->processReplacing(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numSamples, &profiledClocks);
+
+			if (tracerState.changesPending())
+				consumeTracerChanges(tracerState);
+
+			tracerState.endPhase();
 
 			if (status.bUseFPUE)
 				pluginState->useFPUExceptions(false);
 
 			clocksPerSample = static_cast<double>(profiledClocks) / numSamples;
 
-			auxMatrix.copy(buffer.getArrayOfReadPointers(), ioConfig.inputs, ioConfig.inputs);
+			auxMatrix.copy(buffer.getArrayOfReadPointers(), ioConfig.inputs, ioConfig.outputs);
 
-			scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs, numSamples, *getPlayHead());
+			scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + tracerState.getTraceCount(), numSamples, *getPlayHead());
 		}
 
 		// In case we have more outputs than inputs, we'll clear any output
@@ -277,6 +285,24 @@ namespace ape
 		}
 
 	}
+
+	void Engine::consumeTracerChanges(TracerState& state)
+	{
+		if (state.getTraceCount() != 0)
+		{
+			auto& stream = scopeData.getStream();
+			auto info = stream.getInfo();
+			info.anticipatedChannels = ioConfig.inputs + ioConfig.outputs + state.getTraceCount();
+			stream.initializeInfo(info);
+
+			for (std::size_t i = 0; i < state.getTraceCount(); ++i)
+				stream.enqueueChannelName(ioConfig.inputs + ioConfig.outputs + i, state.dequeueName());
+		}
+
+		// TODO: Move to another place
+		scopeData.initializeColours(ioConfig.inputs + ioConfig.outputs + state.getTraceCount());
+	}
+
 
 	bool Engine::hasEditor() const
 	{
@@ -474,7 +500,7 @@ namespace ape
 
 		scopeData.getContent().triggeringChannel = ioConfig.inputs;
 
-		auxMatrix.resizeChannels(ioConfig.inputs + ioConfig.outputs);
+		auxMatrix.resizeChannels(Signalizer::OscilloscopeContent::NumColourChannels);
 	}
 
 	void Engine::releaseResources()
@@ -484,6 +510,12 @@ namespace ape
 		if(pluginState)
 			pluginState->setPlayState(isPlaying);
 	}
+
+	void Engine::handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount)
+	{
+		tracerState.handleTrace(names, nameCount, values, valueCount);
+	}
+
 
 }
 

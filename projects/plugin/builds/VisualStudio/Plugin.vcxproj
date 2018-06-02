@@ -182,6 +182,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -234,6 +235,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -288,6 +290,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -340,6 +343,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -390,6 +394,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -442,6 +447,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -491,6 +497,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -541,6 +548,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <AdditionalOptions>/wd4100 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

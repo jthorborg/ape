@@ -52,6 +52,10 @@ namespace ape
 	if(param == nullptr) \
 			THROW(APE_STRINGIFY(param) " cannot be null");
 
+#define REQUIRES_NOTZERO(param) \
+	if(param == 0) \
+			THROW(APE_STRINGIFY(param) " cannot be zero");
+
 	void APE_API abortPlugin(APE_SharedInterface * iface, const char * reason)
 	{
 		REQUIRES_NOTNULL(iface);
@@ -359,4 +363,23 @@ namespace ape
 		return tag;
 
 	}
+
+	int	APE_API	presentTrace(APE_SharedInterface* iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(nameTuple);
+		REQUIRES_NOTNULL(values);
+		REQUIRES_NOTZERO(numNames);
+		REQUIRES_NOTZERO(numValues);
+
+		auto& engine = IEx::downcast(*iface).getEngine();
+
+		if (!engine.getCState()->isProcessing())
+			THROW("Can only be called from a processing callback");
+
+		engine.handleTraceCallback(nameTuple, numNames, values, numValues);
+
+		return 1;
+	}
+
 }

@@ -67,6 +67,7 @@
 				APE_GTOL(setCtrlValue);
 				APE_GTOL(createPlot);
 				APE_GTOL(createRangeKnob);
+				APE_GTOL(presentTrace);
 
 				std::memset(&extra, 0, sizeof(extra));
 #undef APE_GTOL

@@ -82,6 +82,8 @@
 			std::int32_t uniqueInstanceID() const noexcept;
 			std::int32_t instanceCounter() const noexcept;
 			void changeInitialDelay(long samples) noexcept;
+			void handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount);
+
 
 		protected:
 
@@ -120,6 +122,8 @@
 
 		private:
 
+			void consumeTracerChanges(TracerState& state);
+
 			void loadSettings();
 			std::string engineType() const noexcept;
 			
@@ -143,6 +147,7 @@
 			cpl::ConcurrentObjectSwapper<PluginState> rtPlugin;
 			std::unique_ptr<UIController> controller;
 			std::unique_ptr<PluginState> pluginState;
+			TracerState tracerState;
 			std::string programName;
 			Settings settings;
 			IOConfig ioConfig;

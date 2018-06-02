@@ -8,6 +8,12 @@
 APE_SharedInterface * lastIFace;
 FactoryBase::ProcessorCreater pluginCreater;
 
+namespace Tracing
+{
+	Tracer GlobalTracer;
+
+}
+
 void FactoryBase::SetCreater(ProcessorCreater factory)
 {
 	pluginCreater = factory;
@@ -125,12 +131,22 @@ extern "C"
 
 	APE_Status SCRIPT_API NAME_PROCESS_REPLACE(ScriptInstance * instance, APE_SharedInterface * iface, float ** inputs, float ** outputs, int frames)
 	{
+		Tracing::GlobalTracer.reset();
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
 		if (!p)
 			return Status(Status::Error);
 
 		p->process(inputs, outputs, frames);
+
+		const auto& traces = Tracing::GlobalTracer.getTraces();
+
+		for (const auto& trace : traces)
+		{
+			const char* traceNames[2] = { trace.first.first, trace.first.second };
+			iface->presentTrace(iface, traceNames, 2, trace.second.data.data(), trace.second.index);
+		}
+
 		return Status(Status::Ok);
 	}
 

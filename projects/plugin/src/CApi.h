@@ -131,5 +131,7 @@
 		/// Adds a ranged knob
 		/// </summary>
 		int			APE_API			createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max);
+
+		int			APE_API			presentTrace(APE_SharedInterface* iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
 	};
 #endif

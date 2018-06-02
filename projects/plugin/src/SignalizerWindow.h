@@ -49,10 +49,10 @@
 				behaviour.hideWidgetsOnMouseExit = true;
 				behaviour.stopProcessingOnSuspend = true;
 
-				initializeColours();
+				initializeColours(Signalizer::OscilloscopeContent::NumColourChannels);
 			}
 
-			void initializeColours()
+			void initializeColours(std::size_t count)
 			{
 				constexpr std::uint32_t multiplier = 0x34729;
 				constexpr double scale = 0.4;
@@ -60,18 +60,17 @@
 
 				std::uint32_t colourIndex = 1;
 
+				count = std::min(count, Signalizer::OscilloscopeContent::NumColourChannels);
+
 				for (std::size_t i = 0; i < Signalizer::OscilloscopeContent::NumColourChannels; ++i)
 				{
 					auto& colour = content.getColour(i);
-					colourIndex *= multiplier;
+					auto prototype = juce::Colour::fromHSV(i / (count - 1.0f), 0.7f, 0.7f, 1.0f);
 
-					auto red = (colourIndex & 0x3) * scale + offset;
-					auto green = ((colourIndex >> 0x4) & 0x3) * scale + offset;
-					auto blue = ((colourIndex >> 0x9) & 0x3) * scale + offset;
 					colour.getValueIndex(cpl::ColourValue::A).setNormalizedValue(1);
-					colour.getValueIndex(cpl::ColourValue::R).setNormalizedValue(red);
-					colour.getValueIndex(cpl::ColourValue::G).setNormalizedValue(green);
-					colour.getValueIndex(cpl::ColourValue::B).setNormalizedValue(blue);
+					colour.getValueIndex(cpl::ColourValue::R).setNormalizedValue(prototype.getFloatRed());
+					colour.getValueIndex(cpl::ColourValue::G).setNormalizedValue(prototype.getFloatGreen());
+					colour.getValueIndex(cpl::ColourValue::B).setNormalizedValue(prototype.getFloatBlue());
 
 				}
 			}

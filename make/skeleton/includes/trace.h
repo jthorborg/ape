@@ -46,6 +46,8 @@ namespace Tracing
 				pair.second.reset();
 		}
 
+		const std::map<Twine, Trace<float>>& getTraces() const noexcept { return traces; }
+
 	private:
 		std::map<Twine, Trace<float>> traces;
 	};
