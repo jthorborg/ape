@@ -471,6 +471,9 @@ namespace ape
 			scopeData.getStream().enqueueChannelName(counter, "output " + std::to_string(i));
 		}
 
+
+		scopeData.getContent().triggeringChannel = ioConfig.inputs;
+
 		auxMatrix.resizeChannels(ioConfig.inputs + ioConfig.outputs);
 	}
 

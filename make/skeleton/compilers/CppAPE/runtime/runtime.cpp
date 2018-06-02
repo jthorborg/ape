@@ -3,6 +3,7 @@
 #include <shared-src/tcc4ape/ScriptBindings.h>
 #include <cstdarg>
 #include <cmath>
+#include <trace.h>
 
 APE_SharedInterface * lastIFace;
 FactoryBase::ProcessorCreater pluginCreater;

@@ -354,6 +354,9 @@
     <ClInclude Include="..\..\..\..\external\ccore\include\wchar.h">
       <Filter>Plugin\ccore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\trace.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
