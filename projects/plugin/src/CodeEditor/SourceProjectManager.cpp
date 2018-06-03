@@ -21,14 +21,14 @@
  
  **************************************************************************************
  
-	 file:CJuceEditor.cpp
+	 file:SourceProjectManager.cpp
 	 
-		Implementation of the juce editor
+		Implementation of the source project manager
  
  *************************************************************************************/
 
 
-#include "CJuceEditor.h"
+#include "SourceProjectManager.h"
 #include <cpl/misc.h>
 #include "../Engine.h"
 #include "../UIController.h"
@@ -45,217 +45,12 @@ namespace ape
 
 	std::unique_ptr<CCodeEditor> MakeCodeEditor(UIController& ui, const Settings& s, int instanceID)
 	{
-		return std::make_unique<CJuceEditor>(ui, s, instanceID);
+		return std::make_unique<SourceProjectManager>(ui, s, instanceID);
 	}
 
-	/*********************************************************************************************
-
-		Tokeniser implementation
-
-	*********************************************************************************************/
-	int CTokeniser::readNextToken(juce::CodeDocument::Iterator& source)
-	{
-		return juce::CppTokeniserFunctions::readNextToken(source);
-	}
-	/*******************************************************************************/
-	juce::CodeEditorComponent::ColourScheme CTokeniser::getDefaultColourScheme()
-	{
-		struct Type
-		{
-			const char* name;
-			CColour colour;
-		};
-
-		const Type types[] =
-		{
-			{ "Error", CColours::darkred },
-			{ "Comment", CColours::green },
-			{ "Keyword", CColours::blue },
-			{ "Operator", CColours::darkred },
-			{ "Identifier", CColours::black },
-			{ "Integer", CColours::black },
-			{ "Float", CColours::black },
-			{ "String", CColours::grey },
-			{ "Bracket", CColours::darkred },
-			{ "Punctuation", CColours::darkred },
-			{ "Preprocessor Text", CColours::darkolivegreen }
-		};
-
-		juce::CodeEditorComponent::ColourScheme cs;
-
-		for (unsigned int i = 0; i < sizeof (types) / sizeof (types[0]); ++i)  // (NB: numElementsInArray doesn't work here in GCC4.2)
-			cs.set(types[i].name, CColour(types[i].colour));
-
-		return cs;
-	}
-	/*********************************************************************************************
-	 
-		Whether the token is a reserved keyword
-	 
-	 *********************************************************************************************/
-	bool CTokeniser::isReservedKeyword(const juce::String& token) noexcept
-	{
-		return juce::CppTokeniserFunctions::isReservedKeyword(token.getCharPointer(), token.length());
-	}
-
-	/*********************************************************************************************
-
-		Menu implementations
-
-	*********************************************************************************************/
-	#ifdef __MAC__
-		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::commandModifier
-	#else
-		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::ctrlModifier
-	#endif
-
-	const MenuEntry CommandTable[][6] =
-	{
-		// File
-		{
-			{"",0,0,Command::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
-			{ "New File",	'n', CTRLCOMMANDKEY, Command::FileNew },
-			{ "Open...",	'o', CTRLCOMMANDKEY, Command::FileOpen },
-			{ "Save",		's', CTRLCOMMANDKEY,Command::FileSave },
-			{ "Save As...", 0, 0, Command::FileSaveAs },
-			{ "Exit", 0, 0, Command::FileExit}
-		},
-		// Edit
-
-	};
-	/*********************************************************************************************
-
-		Window implementations - constructor
-
-	*********************************************************************************************/
-	CWindow::CWindow(juce::CodeDocument & cd)
-		: DocumentWindow(cpl::programInfo.name + " editor",
-		CColours::white,
-		DocumentWindow::TitleBarButtons::allButtons),
-		cec(nullptr)
-	{
-
-		cec = new juce::CodeEditorComponent(cd, &tokeniser);
-		cec->setVisible(true);
-		setMenuBar(this);
-		setResizable(true, true);
-		setBounds(100, 100, 400, 400);
-		setUsingNativeTitleBar(true);
-		setContentNonOwned(cec,false);
-		cec->setLineNumbersShown(true);
-	}
-	/*********************************************************************************************
-		
-		Destructor of CWindow
-	 
-	 *********************************************************************************************/
-	CWindow::~CWindow()
-	{
-		setMenuBar(nullptr);
-		// dont delete menu - it is owned by DocumentWindow
-		if (cec)
-			delete cec;
-	}
-	/*********************************************************************************************
-	 
-		Returns a popupmenu with entries from our applicationCommandManager
-	 
-	 *********************************************************************************************/
-	juce::PopupMenu CWindow::getMenuForIndex(int topLevelMenuIndex, const juce::String & menuName)
-	{
-		juce::PopupMenu ret;
-
-		switch (topLevelMenuIndex)
-		{
-			case Menus::File:
-			{
-				for (int i = Command::Start; i < Command::End; ++i)
-					ret.addCommandItem(appCM, i);
-				break;
-			}
-			case Menus::Edit:
-			{
-
-				break;
-			}
-		}
-		return ret;
-	}
-	/*********************************************************************************************
-	 
-		This is unused: use CJuceEditor::perform instead (called from applicationCommandManager)
-	 
-	 *********************************************************************************************/
-	void CWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex)
-	{
-	}
-	/*********************************************************************************************
-	 
-		Resizes our contents of the documentwindow
-	 
-	 *********************************************************************************************/
-	void CWindow::resized()
-	{
-		/*
-			temporary code: when the switch is done to setContentOwned() (see CWindow::CWindow),
-			resize() shouldn't be overloaded anymore - ResizableWindow automagically resizes child
-			components.
-		*/
-		// call our resizing firstly
-		DocumentWindow::resized();
-		// resize the code editor
-		/*CRect bounds = getBounds();
-		bounds.setX(0);
-		bounds.setY(0);
-		// offset the menu size
-		// the codeeditorcomponent clips the first line no matter what (for some reason)
-		bounds.setTop((getMenuBarComponent() ? getMenuBarComponent()->getHeight() : 0) + getTitleBarHeight() );
-		// for some reason, the parent is 2 pixels narrower than what it states. account for this
-		bounds.setHeight(bounds.getHeight() - 1);
-		// resize code editor
-		cec->setBounds(bounds);*/
-	}
-	/*********************************************************************************************
-	
-		Returns an array of the menu bar names
-	 
-	 *********************************************************************************************/
-	juce::StringArray CWindow::getMenuBarNames()
-	{
-		juce::StringArray ret;
-		ret.add("File");
-		//ret.add("Edit");
-		return ret;
-	}
-	/*********************************************************************************************
-	 
-		Hides our window when the user clicks 'x'
-	 
-	 *********************************************************************************************/
-	void CWindow::closeButtonPressed()
-	{
-		setVisible(false);
-	}
-	/*********************************************************************************************
-	 
-		Attaches an application command manager to our window, and adds a keylistener
-	 
-	 *********************************************************************************************/
-	void CWindow::setAppCM(juce::ApplicationCommandManager * acm)
-	{
-		// set the application command manager that is associated with this window
-		appCM = acm;
-		if (appCM)
-			addKeyListener(appCM->getKeyMappings());
-	}
-	/*********************************************************************************************
-
-		Implementation for the juceeditor constructor
-
-	*********************************************************************************************/
-	CJuceEditor::CJuceEditor(UIController& ui, const Settings& s, int instanceID)
+	SourceProjectManager::SourceProjectManager(UIController& ui, const Settings& s, int instanceID)
 		: CCodeEditor(ui, s, instanceID)
-		, window(nullptr)
+		, editorWindow(nullptr)
 		, isInitialized(false)
 		, isSingleFile(true)
 		, fullPath("Untitled")
@@ -266,35 +61,24 @@ namespace ape
 	{
 		doc.setSavePoint();
 	}
-	/*********************************************************************************************
-	 
-		Destructor. Checks if user wants to save file
-	 
-	 *********************************************************************************************/
-	CJuceEditor::~CJuceEditor()
+
+	SourceProjectManager::~SourceProjectManager()
 	{
 		saveIfUnsure();
-		if (isInitialized && window)
-			delete window;
 		// if we successfully close (like now), we delete autosave state
 		autoSaveFile.remove();
 	}
-	/*********************************************************************************************
-	 
-		Initializes our editor.
-		Opens the default file.
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::initEditor()
+
+	bool SourceProjectManager::initEditor()
 	{
 		if (!isInitialized)
 		{
-			window = new CWindow(doc);
-			if (window)
+			editorWindow = std::make_unique<JuceEditorWindow>(doc);
+			if (editorWindow)
 			{
-				window->setSize(800, 900);
+				editorWindow->setSize(800, 900);
 				loadHotkeys();
-				window->setAppCM(&appCM);
+				editorWindow->setAppCM(&appCM);
 
 				/*
 					open a default file from settings
@@ -320,12 +104,8 @@ namespace ape
 			return true;
 		return false;
 	}
-	/*********************************************************************************************
-	 
-		Prompts the user to open a file
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::openAFile()
+
+	void SourceProjectManager::openAFile()
 	{
 		// array of types. these are read from the config and defines what sources
 		// the program can open
@@ -414,12 +194,8 @@ namespace ape
 		}
 
 	}
-	/*********************************************************************************************
-	 
-		Sets the title of our window
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::setTitle()
+
+	void SourceProjectManager::setTitle()
 	{
 		std::string title;
 		title += appName + " (" + std::to_string(instanceID & 0xFF) + ")";
@@ -428,15 +204,11 @@ namespace ape
 		else
 			title += " - ";
 		title += fullPath;
-		if (window)
-			window->setName(title);
+		if (editorWindow)
+			editorWindow->setName(title);
 	}
-	/*********************************************************************************************
-	 
-		Ensures our editor is opened, and shows it if initialVisibility is true
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::openEditor(bool initialVisibility)
+
+	bool SourceProjectManager::openEditor(bool initialVisibility)
 	{
 		if (!isInitialized) {
 
@@ -446,42 +218,30 @@ namespace ape
 			// on first open, we check autosave
 			checkAutoSave();
 		}
-		window->setVisible(initialVisibility);
-		window->setMinimised(false);
+		editorWindow->setVisible(initialVisibility);
+		editorWindow->setMinimised(false);
 		// extremely buggy:
-		//window->toFront(true);
+		//editorWindow->toFront(true);
 		return true;
 	}
-	/*********************************************************************************************
-	 
-		Returns the path of the current document
-	 
-	 *********************************************************************************************/
-	std::string CJuceEditor::getDocumentPath()
+
+	std::string SourceProjectManager::getDocumentPath()
 	{
 		return fullPath;
 	}
-	/*********************************************************************************************
-	 
-		Hides our editor
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::closeEditor()
+
+	bool SourceProjectManager::closeEditor()
 	{
 		if (isInitialized)
 		{
-			window->setVisible(false);
+			editorWindow->setVisible(false);
 			return true;
 		}
 		else
 			return false;
 	}
-	/*********************************************************************************************
-	 
-		Returns info about commands
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result)
+
+	void SourceProjectManager::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result)
 	{
 		auto & cDesc = CommandTable[Menus::File][commandID];
 		juce::ApplicationCommandInfo aci(cDesc.command);
@@ -496,24 +256,16 @@ namespace ape
 		aci.setActive(true);
 		result = aci;
 	}
-	/*********************************************************************************************
-	 
-		Returns all the commands our instance support
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::getAllCommands(juce::Array<juce::CommandID> & commands)
+
+	void SourceProjectManager::getAllCommands(juce::Array<juce::CommandID> & commands)
 	{
-		for (int c = Command::FileNew; c < Command::End; c++ /* lol c++ */)
+		for (int c = Command::FileNew; c < Command::End; ++c)
 		{
 			commands.add(c);
 		}
 	}
-	/*********************************************************************************************
-	 
-		Sets an empty document. Do not call directly!
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::newDocument()
+
+	void SourceProjectManager::newDocument()
 	{
 		fullPath = "Untitled";
 		doc.clearUndoHistory();
@@ -522,12 +274,8 @@ namespace ape
 		setTitle();
 		isActualFile = false;
 	}
-	/*********************************************************************************************
-	 
-		Eventhandler
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::perform(const InvocationInfo & info)
+
+	bool SourceProjectManager::perform(const InvocationInfo & info)
 	{
 		
 		switch (info.commandID)
@@ -554,13 +302,8 @@ namespace ape
 		}
 		return true;
 	}
-	/*********************************************************************************************
 
-		Returns a project struct that describes the current project. Must be deallocated with
-		ape::FreeProjectStruct() when done with it.
-
-	*********************************************************************************************/
-	std::unique_ptr<ProjectEx> CJuceEditor::getProject()
+	std::unique_ptr<ProjectEx> SourceProjectManager::getProject()
 	{
 		/*
 		Implement a proper interface instead of passing shitty c strings around.
@@ -611,51 +354,31 @@ namespace ape
 		// some error occured.
 		return nullptr;
 	}
-	/*********************************************************************************************
-	 
-		Marks an line as an error
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::setErrorLine(int line)
+
+	void SourceProjectManager::setErrorLine(int line)
 	{
 
 
 	}
-	/*********************************************************************************************
-	 
-		Appends all of the document text into the buffer
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::getDocumentText(std::string & buffer)
+
+	bool SourceProjectManager::getDocumentText(std::string & buffer)
 	{
 		buffer.append( doc.getAllContent().toRawUTF8());
 		return true;
 	}
-	/*********************************************************************************************
 
-		Returns the document name.
-
-	*********************************************************************************************/
-	std::string CJuceEditor::getDocumentName() 
+	std::string SourceProjectManager::getDocumentName() 
 	{
 		return fs::path(fullPath).filename().string();
 	}
-	/*********************************************************************************************
 
-		Returns the directory the document reside in.
-
-	*********************************************************************************************/
-	std::string CJuceEditor::getDirectory() 
+	std::string SourceProjectManager::getDirectory() 
 	{
 		// TODO: fullpath -> std::path
 		return fs::path(fullPath).parent_path().string();
 	}
-	/*********************************************************************************************
-	 
-		Tries to load the hotkeys from the config file
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::loadHotkeys()
+
+	bool SourceProjectManager::loadHotkeys()
 	{
 		/*
 		 try to read the hotkeys from editor {}
@@ -683,12 +406,8 @@ namespace ape
 		
 		return true;
 	}
-	/*********************************************************************************************
 
-		Returns the directory the document reside in.
-
-	*********************************************************************************************/
-	std::string CJuceEditor::getExtension()
+	std::string SourceProjectManager::getExtension()
 	{
 		for (signed int i = static_cast<signed int>(fullPath.length());
 			i >= 0;
@@ -700,12 +419,8 @@ namespace ape
 		}
 		return "";
 	}
-	/*********************************************************************************************
 
-		Returns the name of the project
-
-	*********************************************************************************************/
-	std::string CJuceEditor::getProjectName()
+	std::string SourceProjectManager::getProjectName()
 	{
 		if (isInitialized) {
 			if (isSingleFile) {
@@ -723,21 +438,13 @@ namespace ape
 		}
 		return "";
 	}
-	/*********************************************************************************************
-	 
-		Whether the document contains unsaved changes
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::isDirty()
+
+	bool SourceProjectManager::isDirty()
 	{
 		return doc.hasChangedSinceSavePoint();
 	}
-	/*********************************************************************************************
-	 
-		Asks the user if he wants to save the document if it is marked as unsaved.
-	 
-	 *********************************************************************************************/
-	int CJuceEditor::saveIfUnsure()
+
+	int SourceProjectManager::saveIfUnsure()
 	{
 		using namespace cpl::Misc;
 		if (isDirty()) {
@@ -755,23 +462,15 @@ namespace ape
 		}
 		return MsgButton::bYes;
 	}
-	/*********************************************************************************************
 
-		Starts a saving sequence
-
-	*********************************************************************************************/
-	void CJuceEditor::saveCurrentFile() {
+	void SourceProjectManager::saveCurrentFile() {
 		if (isActualFile)
 			doSaveFile(fullPath);
 		else
 			saveAs();
 	}
-	/*********************************************************************************************
 
-		Opens a file with the filename given
-
-	*********************************************************************************************/
-	bool CJuceEditor::openFile(const std::string & fileName)
+	bool SourceProjectManager::openFile(const std::string & fileName)
 	{
 
 		fullPath = fileName;
@@ -780,12 +479,6 @@ namespace ape
 		if (s.openedOk()) {
 			setTitle();
 			doc.replaceAllContent("");
-			auto cec = window->getCodeEditor();
-			if (cec)
-			{
-				// juce can crash if the window is scrolled further than the new files content. lol
-				//cec->scrollToLine(0);
-			}
 			doc.loadFromStream(s);
 		}
 		else {
@@ -800,12 +493,8 @@ namespace ape
 		isActualFile = true;
 		return true;
 	}
-	/*********************************************************************************************
 
-		Save as a new file
-
-	*********************************************************************************************/
-	void CJuceEditor::saveAs() {
+	void SourceProjectManager::saveAs() {
 		 
 		juce::File suggestedPath(isActualFile ? fullPath : cpl::Misc::DirectoryPath());
 
@@ -825,12 +514,8 @@ namespace ape
 				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iWarning, getParentWindow());
 		}
 	}
-	/*********************************************************************************************
-		
-		Saves contents into fileName and sets editor to use fileName as new file
 
-	*********************************************************************************************/
-	void CJuceEditor::doSaveFile(const std::string & fileName)
+	void SourceProjectManager::doSaveFile(const std::string & fileName)
 	{
 		fullPath = fileName;
 		FILE *fp = nullptr;
@@ -866,11 +551,7 @@ namespace ape
 			MsgBox(fmt.str(), cpl::programInfo.programAbbr + " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 		}
 	}
-	/*********************************************************************************************
-	 
-		The structure of an autosave file
-	 
-	 *********************************************************************************************/
+
 	struct AutoSaveInfo
 	{
 		int wasDirty;
@@ -888,12 +569,7 @@ namespace ape
 		}
 	};
 
-	/*********************************************************************************************
-	 
-		Does an autosave.
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::autoSave()
+	void SourceProjectManager::autoSave()
 	{
 		// only create an autosave file if current contents are unsaved
 		if (isDirty())
@@ -942,23 +618,15 @@ namespace ape
 			controller.setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
 		}
 	}
-	/*********************************************************************************************
-	 
-		Returns a parent window, if any.
-	 
-	 *********************************************************************************************/
-	void * CJuceEditor::getParentWindow()
+
+	void * SourceProjectManager::getParentWindow()
 	{
-		if (isInitialized && window && window->isVisible())
-			return window->getWindowHandle();
+		if (isInitialized && editorWindow && editorWindow->isVisible())
+			return editorWindow->getWindowHandle();
 		return controller.getSystemWindow();
 	}
-	/*********************************************************************************************
-	 
-		Asks user if he wants to restore a state from an autosave file
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::restoreAutoSave(AutoSaveInfo * info, juce::File & parentFile)
+
+	bool SourceProjectManager::restoreAutoSave(AutoSaveInfo * info, juce::File & parentFile)
 	{
 		using namespace cpl::Misc;
 		bool ret = false; // whether we actually restored a state
@@ -1012,21 +680,13 @@ namespace ape
 		}
 		return ret;
 	}
-	/*********************************************************************************************
-	 
-		Sets the content of our document
-	 
-	 *********************************************************************************************/
-	void CJuceEditor::setContents(const juce::String & newContent)
+
+	void SourceProjectManager::setContents(const juce::String & newContent)
 	{
 		doc.replaceAllContent(newContent);
 	}
-	/*********************************************************************************************
-	 
-		Iterates /logs/ to find any autosave files.		
-	 
-	 *********************************************************************************************/
-	bool CJuceEditor::checkAutoSave()
+
+	bool SourceProjectManager::checkAutoSave()
 	{
 		// prevent multiple instances of this plugin to access the same files at once
 		static cpl::CMutex::Lockable autoSaveMutex;
@@ -1122,4 +782,4 @@ namespace ape
 		autoSaveChecked = true;
 		return restored;
 	}
-};
+}

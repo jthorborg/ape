@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include "CQueueLabel.h"
 #include <chrono>
-#include "CCodeEditor.h"
+#include "CodeEditor/CCodeEditor.h"
 #include <typeinfo>
 
 namespace ape 

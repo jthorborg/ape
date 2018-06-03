@@ -48,17 +48,12 @@
 
 		class CCodeEditor
 		{
-		protected:
-			UIController& controller;
-			const Settings& settings;
-			int instanceID;
 		public:
 			CCodeEditor(UIController& c, const Settings& s, int instanceID) : controller(c), settings(s), instanceID(instanceID) {};
 			virtual ~CCodeEditor() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
 			virtual std::unique_ptr<ProjectEx> getProject() { return nullptr; }
-			virtual void quit() = 0;
 			virtual bool initEditor() { return false; }
 			virtual bool openEditor(bool initialVisibility = true) { return false; }
 			virtual bool closeEditor() { return false; }
@@ -70,9 +65,16 @@
 			// true: a project was restored, false: nothing happened
 			virtual bool checkAutoSave() { return false; }
 			virtual bool exists() = 0;
+
+		protected:
+			UIController& controller;
+			const Settings& settings;
+			int instanceID;
+
 		};
 
 		std::unique_ptr<CCodeEditor> MakeCodeEditor(UIController& c, const Settings& s, int instanceID);
+
 
 	};
 #endif

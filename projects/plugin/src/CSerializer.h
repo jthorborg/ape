@@ -37,7 +37,7 @@
 	#include "Common.h"
 	#include "CConsole.h"
 	#include <cpl/CThread.h>
-	#include "CCodeEditor.h"
+	#include "CodeEditor/CCodeEditor.h"
 	#include <cpl/state/Serialization.h>
 
 	namespace ape

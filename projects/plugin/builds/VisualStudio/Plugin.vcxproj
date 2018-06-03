@@ -599,7 +599,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tests|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\CodeEditor\CJuceEditor.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\CodeTokeniser.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\JuceEditorWindow.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />
     <ClCompile Include="..\..\src\Engine.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
@@ -1713,7 +1715,9 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
     <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h" />
-    <ClInclude Include="..\..\src\CodeEditor\CJuceEditor.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CodeTokeniser.h" />
+    <ClInclude Include="..\..\src\CodeEditor\JuceEditorWindow.h" />
+    <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
     <ClInclude Include="..\..\src\EngineStructures.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
