@@ -56,17 +56,17 @@ namespace ape
 	};
 
 	JuceEditorWindow::JuceEditorWindow(juce::CodeDocument& cd)
-		: DocumentWindow(cpl::programInfo.name + " editor", juce::Colours::white, DocumentWindow::TitleBarButtons::allButtons)
-		, cec(cd, &tokeniser)
+		: DocumentWindow(cpl::programInfo.name + " editor", juce::Colours::grey, DocumentWindow::TitleBarButtons::allButtons)
+		, codeEditor(cd)
 		, appCM(nullptr)
 	{
-		cec.setVisible(true);
+		codeEditor.setVisible(true);
 		setMenuBar(this);
 		setResizable(true, true);
-		setBounds(100, 100, 400, 400);
 		setUsingNativeTitleBar(true);
-		setContentNonOwned(&cec, false);
-		cec.setLineNumbersShown(true);
+		setContentNonOwned(&codeEditor, false);
+
+		setBounds(getBounds().withPosition(100, 100));
 	}
 
 	JuceEditorWindow::~JuceEditorWindow()
@@ -96,17 +96,6 @@ namespace ape
 	}
 
 	void JuceEditorWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex) { }
-
-	void JuceEditorWindow::resized()
-	{
-		/*
-			temporary code: when the switch is done to setContentOwned() (see JuceEditorWindow::JuceEditorWindow),
-			resize() shouldn't be overloaded anymore - ResizableWindow automagically resizes child
-			components.
-		*/
-		// call our resizing firstly
-		DocumentWindow::resized();
-	}
 
 
 	juce::StringArray JuceEditorWindow::getMenuBarNames()

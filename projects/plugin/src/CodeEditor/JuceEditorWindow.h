@@ -93,16 +93,60 @@
 
 		extern const MenuEntry CommandTable[][6];
 
+		class CodeEditorComponent : public juce::CodeEditorComponent
+		{
+			using juce::CodeEditorComponent::CodeEditorComponent;
+		};
+
+		class LineTraceComponent : public juce::Component
+		{
+			void paint(juce::Graphics& g) override
+			{
+				g.fillAll(juce::Colours::green);
+			}
+		};
+
+		class InternalCodeEditorComponent : public juce::Component
+		{
+		public:
+
+			InternalCodeEditorComponent(juce::CodeDocument& doc)
+				: cec(doc, &tokeniser)
+			{
+				addChildComponent(cec);
+				addChildComponent(tracer);
+				cec.setLineNumbersShown(true);
+
+				cec.setVisible(true);
+				tracer.setVisible(true);
+			}
+
+			void resized() override
+			{
+				auto bounds = getBounds().withPosition({ 0, 5 });
+
+				tracer.setBounds(bounds.withRight(20));
+				cec.setBounds(bounds.withLeft(20));
+			}
+
+		private:
+			CodeTokeniser tokeniser;
+			CodeEditorComponent cec;
+			LineTraceComponent tracer;
+
+		};
+
+
+
 		class JuceEditorWindow : public juce::DocumentWindow, public juce::MenuBarModel
 		{
 		public:
 
 			JuceEditorWindow(juce::CodeDocument& cd);
 			virtual ~JuceEditorWindow();
-			// override resize to size codeeditorcomponent
-			void resized() override;
 			void closeButtonPressed() override;
 			void setAppCM(juce::ApplicationCommandManager* acm);
+
 		private:
 
 			juce::StringArray getMenuBarNames() override;
@@ -110,10 +154,8 @@
 			void menuItemSelected(int menuItemID, int topLevelMenuIndex) override;
 
 			// instance data
-			CodeTokeniser tokeniser;
 			juce::ApplicationCommandManager* appCM;
-			juce::CodeEditorComponent cec;
-
+			InternalCodeEditorComponent codeEditor;
 		};
 
 	}; // class ape

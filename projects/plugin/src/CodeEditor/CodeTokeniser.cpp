@@ -32,26 +32,6 @@
 
 namespace ape
 {
-	struct Type
-	{
-		const char* name;
-		juce::Colour colour;
-	};
-
-	const Type types[] =
-	{
-		{ "Error", juce::Colours::darkred },
-		{ "Comment", juce::Colours::green },
-		{ "Keyword", juce::Colours::blue },
-		{ "Operator", juce::Colours::darkred },
-		{ "Identifier", juce::Colours::black },
-		{ "Integer", juce::Colours::black },
-		{ "Float", juce::Colours::black },
-		{ "String", juce::Colours::grey },
-		{ "Bracket", juce::Colours::darkred },
-		{ "Punctuation", juce::Colours::darkred },
-		{ "Preprocessor Text", juce::Colours::darkolivegreen }
-	};
 
 	int CodeTokeniser::readNextToken(juce::CodeDocument::Iterator& source)
 	{
@@ -60,6 +40,28 @@ namespace ape
 
 	juce::CodeEditorComponent::ColourScheme CodeTokeniser::getDefaultColourScheme()
 	{
+		struct Type
+		{
+			const char* name;
+			juce::Colour colour;
+		};
+
+		static const Type types[] =
+		{
+			{ "Error", juce::Colours::darkred },
+			{ "Comment", juce::Colours::green },
+			{ "Keyword", juce::Colours::blue },
+			{ "Operator", juce::Colours::darkred },
+			{ "Identifier", juce::Colours::black },
+			{ "Integer", juce::Colours::black },
+			{ "Float", juce::Colours::black },
+			{ "String", juce::Colours::grey },
+			{ "Bracket", juce::Colours::darkred },
+			{ "Punctuation", juce::Colours::darkred },
+			{ "Preprocessor Text", juce::Colours::darkolivegreen }
+		};
+
+
 		juce::CodeEditorComponent::ColourScheme cs;
 
 		for (auto& type : types)
