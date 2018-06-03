@@ -599,6 +599,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tests|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\CJuceEditor.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />
     <ClCompile Include="..\..\src\Engine.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
@@ -606,7 +607,6 @@
     <ClCompile Include="..\..\src\CCodeGenerator.cpp" />
     <ClCompile Include="..\..\src\CConsole.cpp" />
     <ClCompile Include="..\..\src\CControlManager.cpp" />
-    <ClCompile Include="..\..\src\CJuceEditor.cpp" />
     <ClCompile Include="..\..\src\CValueLabel.cpp" />
     <ClCompile Include="..\..\src\GraphicComponents.cpp" />
     <ClCompile Include="..\..\src\SignalizerWindow.cpp" />
@@ -1712,6 +1712,8 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CJuceEditor.h" />
     <ClInclude Include="..\..\src\EngineStructures.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
@@ -1719,10 +1721,8 @@
     <ClInclude Include="..\..\src\CAllocator.h" />
     <ClInclude Include="..\..\src\CApi.h" />
     <ClInclude Include="..\..\src\CBaseControl.h" />
-    <ClInclude Include="..\..\src\CCodeEditor.h" />
     <ClInclude Include="..\..\src\CConsole.h" />
     <ClInclude Include="..\..\src\CControlManager.h" />
-    <ClInclude Include="..\..\src\CJuceEditor.h" />
     <ClInclude Include="..\..\src\CMemoryGuard.h" />
     <ClInclude Include="..\..\src\Common.h" />
     <ClInclude Include="..\..\src\CQueueLabel.h" />

@@ -331,6 +331,12 @@
     <Filter Include="Audio Programming Environment\Shared">
       <UniqueIdentifier>{cd474b71-cbd2-423d-9e8d-ca082268a72d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio Programming Environment\Source\CodeEditor">
+      <UniqueIdentifier>{f491feec-8bd6-4a1d-8ea3-7902e88531d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio Programming Environment\Headers\CodeEditor">
+      <UniqueIdentifier>{cbdf552e-1e53-4242-b223-e85c10eb87d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1473,9 +1479,6 @@
     <ClCompile Include="..\..\src\CControlManager.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CJuceEditor.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp">
       <Filter>External</Filter>
     </ClCompile>
@@ -1508,6 +1511,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SignalizerWindow.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\CJuceEditor.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2849,9 +2855,6 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>Juce Library Code</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CCodeEditor.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CApi.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -2886,9 +2889,6 @@
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\CSerializer.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\CJuceEditor.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\CQueueLabel.h">
@@ -2941,6 +2941,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\EngineStructures.h">
       <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\CJuceEditor.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

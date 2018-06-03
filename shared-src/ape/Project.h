@@ -88,6 +88,11 @@
 			The compiler or runtime can keep it's instance data here.
 		*/
 		void * userData;
+
+		/// <summary>
+		/// Logical source lines that should be traced
+		/// </summary>
+		const int * traceLines;
 	};
 	
 	#ifdef __cplusplus

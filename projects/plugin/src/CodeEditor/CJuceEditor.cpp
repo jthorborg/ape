@@ -30,10 +30,9 @@
 
 #include "CJuceEditor.h"
 #include <cpl/misc.h>
-#include "Engine.h"
-#include "UIController.h"
-#include "CConsole.h"
-#include "ProjectEx.h"
+#include "../Engine.h"
+#include "../UIController.h"
+#include "../CConsole.h"
 #include <ctime>
 #include <cstdio>
 #include <sstream>
@@ -143,6 +142,7 @@ namespace ape
 		setBounds(100, 100, 400, 400);
 		setUsingNativeTitleBar(true);
 		setContentNonOwned(cec,false);
+		cec->setLineNumbersShown(true);
 	}
 	/*********************************************************************************************
 		

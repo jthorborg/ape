@@ -32,10 +32,10 @@
 	#define APE_JUCEEDITOR_H
 
 	#include <cpl/MacroConstants.h>
-	#include "Common.h"
+	#include "../Common.h"
 	#include "CCodeEditor.h"
 	#include <cpl/CExclusiveFile.h>
-	#include "ProjectEx.h"
+	#include "../ProjectEx.h"
 	#include <string>
 	#include <map>
 
@@ -143,8 +143,8 @@
 			juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String & menuName) override;
 			void menuItemSelected(int menuItemID, int topLevelMenuIndex) override;
 			// instance data
-			juce::ApplicationCommandManager * appCM;
-			juce::CodeEditorComponent * cec;
+			std::vector<juce::ApplicationCommandManager> appCM;
+			std::unique_ptr<juce::CodeEditorComponent> cec;
 
 			CTokeniser tokeniser;
 		public:
@@ -155,7 +155,7 @@
 			void resized() override;
 			void closeButtonPressed() override;
 			void setAppCM(juce::ApplicationCommandManager * acm);
-			juce::CodeEditorComponent * getCodeEditor() { return cec; }
+			juce::CodeEditorComponent&mf		w getCodeEditor() { return cec.get(); }
 		};
 
 		/*

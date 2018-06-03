@@ -51,10 +51,14 @@ namespace ape
 			delete[] projectName;
 		if (arguments)
 			delete[] arguments;
-		if (nFiles) 
+		if (traceLines)
+			delete[] traceLines;
+
+
+		if (nFiles && files)
 		{
 			for (unsigned i = 0; i < nFiles; ++i) {
-				if (files && files[i])
+				if (files[i])
 					delete[] files[i];
 			}
 		}
