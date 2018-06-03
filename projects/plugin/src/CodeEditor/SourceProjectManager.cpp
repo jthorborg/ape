@@ -76,6 +76,7 @@ namespace ape
 			editorWindow = std::make_unique<JuceEditorWindow>(doc);
 			if (editorWindow)
 			{
+				editorWindow->getLineTracer().addTraceListener(this);
 				editorWindow->setSize(800, 900);
 				loadHotkeys();
 				editorWindow->setAppCM(&appCM);
@@ -210,20 +211,27 @@ namespace ape
 
 	bool SourceProjectManager::openEditor(bool initialVisibility)
 	{
-		if (!isInitialized) {
-
+		if (!isInitialized) 
+		{
 			if (!initEditor())
 				return false;
 			isInitialized = true;
 			// on first open, we check autosave
 			checkAutoSave();
 		}
+
 		editorWindow->setVisible(initialVisibility);
 		editorWindow->setMinimised(false);
 		// extremely buggy:
 		//editorWindow->toFront(true);
 		return true;
 	}
+
+	void SourceProjectManager::onTracesChanged(const std::set<int>& traces)
+	{
+		controller.onTracesChanged(traces);
+	}
+
 
 	std::string SourceProjectManager::getDocumentPath()
 	{
@@ -347,6 +355,18 @@ namespace ape
 				assignCStr(fullPath, fileLocations[0]))
 			{
 				project->nFiles = 1;
+
+				if (editorWindow)
+				{
+					const auto& tracedLines = editorWindow->getLineTracer().getTracedLines();
+					auto copiedLines = new int[tracedLines.size()];
+					std::size_t counter = 0;
+					for (auto line : tracedLines)
+						copiedLines[counter++] = line;
+
+					project->traceLines = copiedLines;
+				}
+
 				project->state = CodeState::None;
 				return project;
 			}

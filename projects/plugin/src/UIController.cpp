@@ -243,6 +243,11 @@ namespace ape
 		controller->onErrorMessage(text);
 	}
 
+	void UIController::onTracesChanged(const std::set<int>& newTraces)
+	{
+		recompile();
+	}
+
 
 	void UIController::onErrorMessage(const cpl::string_ref text)
 	{
@@ -496,29 +501,8 @@ namespace ape
 			break;
 
 		case kCompileButton:
-
-			if(!compilerState.valid()) 
-			{
-				compilerState = createPlugin(externEditor->getProject());
-				engine.disablePlugin(false);
-			}
-			else
-			{
-				switch (compilerState.wait_for(std::chrono::seconds(0)))
-				{
-				case std::future_status::ready:
-					compilerState = createPlugin(externEditor->getProject());
-					engine.disablePlugin(false);
-					break;
-				case std::future_status::deferred:
-				case std::future_status::timeout:
-					control->bSetInternal(0);
-					setStatusText("Already compiling, please wait...", CColours::red, 2000);
-					console().printLine(CColours::red, "[GUI] : cannot compiler while compiling.");
-					break;
-
-				}
-			}
+			recompile();
+			control->bSetInternal(0);
 			break;
 
 		case kActiveStateButton:
@@ -641,6 +625,32 @@ namespace ape
 		}
 		ctrl->bSetValue(value);
 	}
+
+	void UIController::recompile()
+	{
+		if (!compilerState.valid())
+		{
+			compilerState = createPlugin(externEditor->getProject());
+			engine.disablePlugin(false);
+		}
+		else
+		{
+			switch (compilerState.wait_for(std::chrono::seconds(0)))
+			{
+			case std::future_status::ready:
+				compilerState = createPlugin(externEditor->getProject());
+				engine.disablePlugin(false);
+				break;
+			case std::future_status::deferred:
+			case std::future_status::timeout:
+				setStatusText("Already compiling, please wait...", CColours::red, 2000);
+				console().printLine(CColours::red, "[GUI] : cannot compiler while compiling.");
+				break;
+
+			}
+		}
+	}
+
 	void UIController::about()
 	{
 		static std::string sDialogMessage =

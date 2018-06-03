@@ -84,7 +84,6 @@
 			void changeInitialDelay(long samples) noexcept;
 			void handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount);
 
-
 		protected:
 
 			void prepareToPlay(double sampleRate, int samplesPerBlock) override;

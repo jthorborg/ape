@@ -44,15 +44,17 @@
 		
 		struct AutoSaveInfo;
 
-		class SourceProjectManager : public CCodeEditor, public juce::ApplicationCommandTarget
+		class SourceProjectManager 
+			: public CCodeEditor
+			, public juce::ApplicationCommandTarget
+			, private LineTraceComponent::TraceListener
 		{
 
 		public:
 			SourceProjectManager(UIController& ui, const Settings& s, int instanceID);
 			virtual ~SourceProjectManager();
-			/*
-				CCodeEditor overrides
-			*/
+
+			// CCodeEditor overrides
 			void setErrorLine(int) override;
 			bool getDocumentText(std::string &) override;
 			bool openEditor(bool initialVisibilty = true) override;
@@ -64,10 +66,13 @@
 			std::string getDocumentPath() override;
 			void autoSave() override;
 			bool checkAutoSave() override;
-			/*
-				Utilty
-			*/
+
+		protected:
+
+			void onTracesChanged(const std::set<int>& traces) override;
+
 		private:
+
 			bool loadHotkeys();
 			bool initEditor();
 			void setTitle();

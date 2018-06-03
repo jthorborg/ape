@@ -117,7 +117,8 @@
 			void setEditorError(int nLine);
 			void updateInfoLabel();
 			void * getSystemWindow() { return editor ? editor->getWindowHandle() : nullptr; }
-
+			void onTracesChanged(const std::set<int>& newTraces);
+			void recompile();
 			std::future<std::unique_ptr<PluginState>> createPlugin();
 
 			static void errorPrint(void * data, const char * text);
