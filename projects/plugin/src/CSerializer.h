@@ -206,7 +206,7 @@
 					return true;
 
 				// try to compile the project
-				auto plugin = engine->getController().createPlugin().get();
+				auto plugin = engine->getController().createPlugin(false).get();
 
 				// check if success
 				if (!plugin)
@@ -309,7 +309,7 @@
 				if (se->isActivated)
 				{
 					// try to compile the project
-					auto plugin = engine->getController().createPlugin().get();
+					auto plugin = engine->getController().createPlugin(false).get();
 
 					// check if success
 					if(!plugin)

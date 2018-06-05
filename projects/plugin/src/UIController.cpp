@@ -340,27 +340,41 @@ namespace ape
 				}
 			}
 
-			if (!engine.getCurrentPluginState())
+			if (auto currentState = engine.getCurrentPluginState())
+			{
+				if (currentState->getState() != STATUS_DISABLED)
+				{
+					console().printLine(CColours::red, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
+					setStatusText("Error activating plugin.", CColours::red);
+					return false;
+				}
+
+				if (engine.activatePlugin())
+				{
+					// success
+					setStatusText("Plugin activated", CColours::green);
+					if (editor)
+					{
+						editor->onPluginStateChanged(*currentState, true);
+					}
+
+				}
+				else
+				{
+					console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
+					setStatusText("Error activating plugin.", CColours::red);
+					editor->controls[kActiveStateButton]->bSetValue(0);
+				}
+			}
+			else
 			{
 				setStatusText("No compiled symbols found", CColours::red, 2000);
 				console().printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
 				return false;
 			}
+			
 
-			if (engine.activatePlugin())
-			{
-				// success
-				setStatusText("Plugin activated", CColours::green);
-				engine.getCurrentPluginState()->getCtrlManager().attach(editor);
-				engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
-				engine.getCurrentPluginState()->getCtrlManager().callListeners();
-			}
-			else
-			{
-				console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
-				setStatusText("Error activating plugin.", CColours::red);
-				editor->controls[kActiveStateButton]->bSetValue(0);
-			}
+
 
 			break;
 		}
@@ -372,10 +386,12 @@ namespace ape
 				if (plugin->getState() != STATUS_DISABLED)
 				{
 					setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
-					plugin->getCtrlManager().detach();
+					if (editor)
+						editor->onPluginStateChanged(*plugin, false);
 					engine.disablePlugin(true);
 				}
 			}
+			break;
 		}
 
 		case Commands::OpenSourceEditor:
@@ -402,132 +418,6 @@ namespace ape
 		return true;
 	}
 
-	bool UIController::valueChanged(CBaseControl * control)
-	{
-		/*
-			This really shouldn't happen (this function is called from editor)	
-		*/
-		if (!editor)
-		{
-			console().printLine(CColours::red, "[GUI] : error! Control events received with no editor available!");
-			return false;
-		}
-
-		long tag = control->bGetTag();
-		float value = control->bGetValue();
-		switch(tag)
-		{
-		case kConsoleButton:
-			/*
-				console button was pressed - add it to the frame viewcontainer.
-			*/
-			if (value > 0.1f)
-				editor->addAndMakeVisible(console().getView());
-			else
-				editor->removeChildComponent(console().getView());
-			break;
-
-		case kCompileButton:
-			recompile();
-			control->bSetInternal(0);
-			break;
-
-		case kActiveStateButton:
-			/*
-				Try to (de)activate the plugin.
-			*/
-				
-			if(value > 0.1f) 
-			{
-				if (compilerState.valid())
-				{
-					switch (compilerState.wait_for(std::chrono::seconds(0)))
-					{
-					case std::future_status::ready:
-						engine.disablePlugin(true);
-						engine.exchangePlugin(compilerState.get());
-						break;
-					case std::future_status::deferred:
-					case std::future_status::timeout:
-						control->bSetInternal(0);
-						setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
-						console().printLine(CColours::red, "[GUI] : cannot activate while compiling.");
-						break;
-
-					}
-				}
-
-				if (!engine.getCurrentPluginState())
-				{
-					control->bSetInternal(0);
-					setStatusText("No compiled symbols found", CColours::red, 2000);
-					console().printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
-					return false;
-				}
-
-				if (engine.activatePlugin())
-				{
-					// success
-					setStatusText("Plugin activated", CColours::green);
-					engine.getCurrentPluginState()->getCtrlManager().attach(editor);
-					engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
-					engine.getCurrentPluginState()->getCtrlManager().callListeners();
-				}
-				else
-				{
-					console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
-					setStatusText("Error activating plugin.", CColours::red);
-					editor->controls[kActiveStateButton]->bSetValue(0);
-				}
-			} 
-			else 
-			{
-				setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
-				engine.getCurrentPluginState()->getCtrlManager().detach();
-				engine.disablePlugin(true);
-			}
-			break;
-		case kEditorButton:
-			// show the editor
-			
-
-
-
-		case tagUseBuffer:
-			engine.useProtectedBuffers( value > 0.1f ? true : false );
-			if(value > 0.1f)
-				console().printLine(CColours::black, "[GUI] : Activated protected buffers.");
-			else
-				console().printLine(CColours::black, "[GUI] : Disabled protected buffers.");
-			break;
-		case tagUseFPU:
-			auto proxy = value > 0.1f ? true : false;
-			if(proxy) {
-				auto ret = cpl::Misc::MsgBox("Warning: Enabling floating-point exceptions can result in errornous behaviour, since "
-					"most DAW's have concurrent threads not checking exceptions. Resume?", cpl::programInfo.programAbbr,
-					cpl::Misc::MsgStyle::sYesNoCancel | cpl::Misc::MsgIcon::iQuestion, this->getSystemWindow(), true);
-				if(ret == cpl::Misc::MsgButton::bYes) {
-					bUseFPUE = true;
-					control->bSetInternal(1.0f);
-					console().printLine(CColours::black, "[GUI] : Activated floating-point unit exceptions.");
-				}
-				else
-				{
-					bUseFPUE = false;
-					control->bSetInternal(0.0f);
-				}
-			}
-			else
-			{
-				console().printLine(CColours::black, "[GUI] : Disabled floating-point unit exceptions.");
-				bUseFPUE = false;
-			}
-		}
-		// sighh
-		editor->repaint();
-		// tells the control that sent the event that it should handle it itself
-		return false;
-	}
 
 	void UIController::setParameter(int index, float value)
 	{
@@ -543,22 +433,6 @@ namespace ape
 			return;
 		}
 		ctrl->bSetValue(value);
-	}
-
-	void UIController::swapPlugins()
-	{
-		if (compilerState.valid())
-		{
-			switch (compilerState.wait_for(std::chrono::seconds(1)))
-			{
-			case std::future_status::ready:
-				engine.disablePlugin(true);
-				engine.exchangePlugin(compilerState.get());
-				engine.activatePlugin();
-				break;
-			}
-		}
-
 	}
 
 	void UIController::recompile()
@@ -586,13 +460,13 @@ namespace ape
 		}
 	}
 
-	std::future<std::unique_ptr<PluginState>> UIController::createPlugin()
+	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(bool enableHotReload)
 	{
-		return createPlugin(externEditor->getProject());
+		return createPlugin(externEditor->getProject(), enableHotReload);
 	}
 
 
-	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(std::unique_ptr<ProjectEx> project)
+	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload)
 	{
 		if (!project)
 		{
@@ -626,7 +500,8 @@ namespace ape
 					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
 				}
 				
-				cpl::GUIUtils::MainEvent(*this, [&] { swapPlugins(); });
+				if(enableHotReload)
+					cpl::GUIUtils::MainEvent(*this, [&] { performCommand(Commands::Activate); });
 
 				return ret;
 			},

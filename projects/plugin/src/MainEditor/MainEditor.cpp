@@ -33,6 +33,7 @@
 #include <string>
 #include "../Engine.h"
 #include "../CConsole.h"
+#include "../PluginState.h"
 
 namespace ape 
 {
@@ -82,7 +83,7 @@ namespace ape
 		CButton * b = nullptr;
 		for (int i = 0; i < std::extent<decltype(ButtonDefs)>::value; i++)
 		{
-			b = new CButton(ButtonDefs[i].toggled, ButtonDefs[i].untoggled, &parent);
+			b = new CButton(ButtonDefs[i].toggled, ButtonDefs[i].untoggled, this);
 			b->bSetTag(ButtonDefs[i].tag);
 			controls[ButtonDefs[i].tag] = b;
 			b->bSetPos(0, i * b->getHeight());
@@ -98,7 +99,7 @@ namespace ape
 		toggle->bSetSize(CRect(b->getWidth(), getHeight() - 20, 200, 20));
 		if (parent.bUseBuffers)
 			toggle->bSetValue(1);
-		toggle->bSetListener(&parent);
+		toggle->bSetListener(this);
 		toggle->bSetText("Use protected buffers");
 		toggle->bSetTag(kTags::tagUseBuffer);
 		garbageCollection.push_back(toggle);
@@ -108,7 +109,7 @@ namespace ape
 		toggle->bSetSize(CRect(b->getWidth() + 200, getHeight() - 20, 200, 20));
 		if (parent.bUseFPUE)
 			toggle->bSetValue(1);
-		toggle->bSetListener(&parent);
+		toggle->bSetListener(this);
 		toggle->bSetTag(kTags::tagUseFPU);
 		toggle->bSetText("Use FPU exceptions");
 		garbageCollection.push_back(toggle);
@@ -151,6 +152,80 @@ namespace ape
 			stopTimer();
 		parent.editorClosed();
 	}
+
+	bool Editor::valueChanged(CBaseControl* control)
+	{
+		using Cmd = UIController::Commands;
+		bool toggled = control->bGetValue() > 0.5f;
+		bool result = toggled;
+
+		switch (control->bGetTag())
+		{
+		case tagConsole: 
+			if(toggled)
+				addAndMakeVisible(parent.console().getView());
+			else
+				removeChildComponent(parent.console().getView());
+			break;
+		case tagCompile: 
+			parent.performCommand(Cmd::Recompile); 
+			break;
+		case tagActiveState: 
+		{
+			if (!toggled)
+			{
+				if (parent.performCommand(Cmd::Deactivate))
+					control->bSetInternal(0.0f);
+			}
+			else
+			{
+				if (parent.performCommand(Cmd::Activate))
+					control->bSetInternal(1.0f);
+			}
+			break;
+		}
+		case tagEditor: 
+		{
+			if (toggled)
+			{
+				if (parent.performCommand(Cmd::OpenSourceEditor))
+					control->bSetInternal(1.0f);
+			}
+			else
+			{
+				if (parent.performCommand(Cmd::CloseSourceEditor))
+					control->bSetInternal(0.0f);
+			}
+			break;
+		}
+		case tagAbout: 
+			about(); 
+			break;
+
+		}
+
+		// TODO: Remove
+		repaint();
+		return false;
+	}
+
+	void Editor::onPluginStateChanged(PluginState& plugin, bool activated)
+	{
+		if (activated)
+		{
+			plugin.getCtrlManager().attach(this);
+			plugin.getCtrlManager().createPendingControls();
+			plugin.getCtrlManager().callListeners();
+			controls[tagActiveState]->bSetInternal(1.0f);
+		}
+		else
+		{
+			plugin.getCtrlManager().detach();
+			controls[tagActiveState]->bSetInternal(0.0f);
+
+		}
+	}
+
 
 	void Editor::paint(juce::Graphics & g)
 	{

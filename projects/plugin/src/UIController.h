@@ -56,12 +56,12 @@
 		class Editor;
 
 		class UIController
-			: public CCtrlListener
-			, public cpl::CMutex::Lockable
+			: public cpl::CMutex::Lockable
 			, public cpl::DestructionNotifier
 		{
 			enum class Commands
 			{
+				Invalid,
 				Recompile,
 				Activate,
 				Deactivate,
@@ -97,20 +97,19 @@
 			void * getSystemWindow();
 			void onTracesChanged(const std::set<int>& newTraces);
 			void recompile();
-			std::future<std::unique_ptr<PluginState>> createPlugin();
+			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
 
 			static void errorPrint(void * data, const char * text);
 			bool performCommand(Commands command);
 
 		private:
 			
-			void swapPlugins();
 			void onErrorMessage(const cpl::string_ref text);
 
-			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project);
+			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
 			void setProjectName(const std::string & name) { projectName = name; }
-			virtual bool valueChanged(CBaseControl *);
-			
+
+
 			std::unique_ptr<CConsole> consolePtr;
 			std::unique_ptr<CCodeEditor> externEditor;
 			ape::Engine& engine;

@@ -159,6 +159,9 @@
 
 					for (std::size_t i = 0; i < numNames; ++i)
 					{
+						if (!nameTuple[i])
+							break;
+
 						std::size_t k = 0;
 						for (; (k + c) < str.size() && nameTuple[i][k]; ++k)
 							str[k + c] = nameTuple[i][k];

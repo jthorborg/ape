@@ -55,8 +55,10 @@
 		struct ProjectEx;
 
 
-		class Editor
-			: public juce::AudioProcessorEditor, public juce::Timer
+		class Editor final
+			: public juce::AudioProcessorEditor
+			, private juce::Timer
+			, private CCtrlListener
 		{
 			friend class UIController;
 		public:
@@ -67,8 +69,12 @@
 			Editor(UIController & parent);
 			virtual ~Editor();
 			void about();
+			void onPluginStateChanged(PluginState& state, bool activated);
 
 		private:
+
+			bool valueChanged(CBaseControl *) override;
+
 			UIController& parent;
 			std::vector<juce::Component *> garbageCollection;
 			std::map<int, CBaseControl *> controls;
