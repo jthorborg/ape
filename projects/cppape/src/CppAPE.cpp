@@ -35,6 +35,7 @@
 #include <cpl/CExclusiveFile.h>
 #include "TranslationUnit.h"
 #include <fstream>
+#include <sstream>
 
 namespace cpl
 {
@@ -159,6 +160,8 @@ namespace CppAPE
 				while (std::getline(postfix, temp))
 					source += temp + "\n";
 			}
+
+			transformSource(*getProject(), source);
 
 			builder.args()
 				.arg("-v")
@@ -340,6 +343,43 @@ namespace CppAPE
 		print("[CppAPE] : error freeing memory for the sharedObject.");
 		return false;
 	}
+
+	bool ScriptCompiler::transformSource(const Project& project, std::string& source)
+	{
+		if (project.traceLines != nullptr && project.numTraceLines != 0)
+		{
+			std::stringstream stream(source);
+			source.resize(0);
+			std::string result, line;
+			std::size_t lineCounter = 0;
+
+			while (std::getline(stream, line))
+			{
+				if (std::find(project.traceLines, project.traceLines + project.numTraceLines, lineCounter) != project.traceLines + project.numTraceLines)
+				{
+					auto terminal = line.find_first_of(';');
+					if (terminal == std::string::npos)
+					{
+						print("[CppApe] error: Breakpoints can only be set at single expressions, at line " + std::to_string(lineCounter) + ":\n " + line);
+						return false;
+					}
+					else
+					{
+						source += "TRC(" + line.substr(0, terminal) + ")" + line.substr(terminal) + "\n";
+					}
+				}
+				else
+				{
+					source += line + "\n";
+				}
+
+				lineCounter++;
+			}
+		}
+
+		return true;
+	}
+
 
 
 	Status ScriptCompiler::processReplacing(const float * const * in, float * const * out, size_t frames)

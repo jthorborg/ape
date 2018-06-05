@@ -356,6 +356,7 @@ namespace ape
 
 	UIController::~UIController()
 	{
+		notifyDestruction();
 	}
 	/*********************************************************************************************
 	 
@@ -517,6 +518,7 @@ namespace ape
 					switch (compilerState.wait_for(std::chrono::seconds(0)))
 					{
 					case std::future_status::ready:
+						engine.disablePlugin(true);
 						engine.exchangePlugin(compilerState.get());
 						break;
 					case std::future_status::deferred:
@@ -610,6 +612,7 @@ namespace ape
 		// tells the control that sent the event that it should handle it itself
 		return false;
 	}
+
 	void UIController::setParameter(int index, float value)
 	{
 		if (!editor)
@@ -626,12 +629,28 @@ namespace ape
 		ctrl->bSetValue(value);
 	}
 
+	void UIController::swapPlugins()
+	{
+		if (compilerState.valid())
+		{
+			switch (compilerState.wait_for(std::chrono::seconds(1)))
+			{
+			case std::future_status::ready:
+				engine.disablePlugin(true);
+				engine.exchangePlugin(compilerState.get());
+				engine.activatePlugin();
+				break;
+			}
+		}
+
+	}
+
 	void UIController::recompile()
 	{
 		if (!compilerState.valid())
 		{
 			compilerState = createPlugin(externEditor->getProject());
-			engine.disablePlugin(false);
+			//engine.disablePlugin(false);
 		}
 		else
 		{
@@ -639,12 +658,12 @@ namespace ape
 			{
 			case std::future_status::ready:
 				compilerState = createPlugin(externEditor->getProject());
-				engine.disablePlugin(false);
+				//engine.disablePlugin(false);
 				break;
 			case std::future_status::deferred:
 			case std::future_status::timeout:
 				setStatusText("Already compiling, please wait...", CColours::red, 2000);
-				console().printLine(CColours::red, "[GUI] : cannot compiler while compiling.");
+				console().printLine(CColours::red, "[GUI] : cannot compile while compiling.");
 				break;
 
 			}
@@ -684,7 +703,6 @@ namespace ape
 
 		setProjectName(project->projectName);
 		setStatusText("Compiling...", CColours::red, 500);
-
 		return std::async(
 			[=] (auto projectToCompile)
 			{
@@ -706,6 +724,8 @@ namespace ape
 					console().printLine(CColours::red, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
 					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
 				}
+				
+				cpl::GUIUtils::MainEvent(*this, [&] { swapPlugins(); });
 
 				return ret;
 			},

@@ -93,6 +93,8 @@ namespace CppAPE
 
 	private:
 
+		bool transformSource(const Project& project, std::string& source);
+
 		/// <summary>
 		/// Mutual (os-wide) exclusion should be provided by the parent caller.
 		/// </summary>

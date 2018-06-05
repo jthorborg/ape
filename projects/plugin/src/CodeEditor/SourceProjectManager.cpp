@@ -365,6 +365,7 @@ namespace ape
 						copiedLines[counter++] = line;
 
 					project->traceLines = copiedLines;
+					project->numTraceLines = counter;
 				}
 
 				project->state = CodeState::None;

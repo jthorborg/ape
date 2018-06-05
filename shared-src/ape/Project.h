@@ -93,6 +93,10 @@
 		/// Logical source lines that should be traced
 		/// </summary>
 		const int * traceLines;
+		/// <summary>
+		/// ^ number of trace lines
+		/// </summary>
+		size_t numTraceLines;
 	};
 	
 	#ifdef __cplusplus

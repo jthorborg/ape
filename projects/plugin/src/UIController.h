@@ -55,7 +55,9 @@
 		struct ProjectEx;
 
 		class UIController
-			: public CCtrlListener, public cpl::CMutex::Lockable
+			: public CCtrlListener
+			, public cpl::CMutex::Lockable
+			, public cpl::DestructionNotifier
 		{
 			static constexpr std::size_t magic_value = 0xDEADBEEF;
 			const std::size_t magic = magic_value;
@@ -125,6 +127,7 @@
 
 		private:
 			
+			void swapPlugins();
 			void onErrorMessage(const cpl::string_ref text);
 
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project);
