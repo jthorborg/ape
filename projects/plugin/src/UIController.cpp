@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:GUI.cpp
+	file:UIController.cpp
 		
 		Core implementation of the GUI and interactions inbetween.
 
@@ -39,25 +39,11 @@
 #include <chrono>
 #include "CodeEditor/CCodeEditor.h"
 #include <typeinfo>
+#include "MainEditor/MainEditor.h"
 
 namespace ape 
 {
 	using namespace std::string_literals;
-
-	/*********************************************************************************************
-	 
-		Some data about our buttons behaviour
-	 
-	 *********************************************************************************************/
-	struct sButton { int tag;  const char * untoggled, *toggled; bool sticky; };
-
-	sButton ButtonDefs[] = {
-		{ tagConsole, "Console", "Hide", true},
-		{ tagCompile, "Compile", "Compile", false },
-		{ tagActiveState, "Activate", "Deactivate", true },
-		{ tagEditor, "Show editor", "Hide editor", true },
-		{ tagAbout, "About", "About", false }
-	};
 
 	/*********************************************************************************************
 
@@ -102,132 +88,6 @@ namespace ape
 		CResourceManager::instance().loadResources();
 		
 		setStatusText("Ready");
-	}
-	/*********************************************************************************************
-	 
-		Constructor for the editor. Creates all graphical components. Notifies parent
-	 
-	 *********************************************************************************************/
-	UIController::Editor::Editor(UIController& p)
-		: parent(p)
-		, AudioProcessorEditor(p.engine)
-		, repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
-		, scope(p.engine.getOscilloscopeData())
-		//,testImage(juce::Image::PixelFormat::ARGB, 800,300, false, *new juce::OpenGLImageType())
-	{
-
-		/*
-		if (!approot["greeting_shown"])
-		{
-			cpl::Misc::MsgBox("Hello and welcome to " + cpl::programInfo.name + "! Before you start using this program, "
-				"please take time to read the readme and agree to all licenses + disclaimers found in /licenses. "
-				"Have fun!", cpl::programInfo.name, cpl::Misc::MsgIcon::iInfo);
-			approot["greeting_shown"] = true;
-		} */
-
-		// get background
-		background.setImage(bImage);
-		addAndMakeVisible(background);
-		// background and sizing off gui
-		// everything is sized relative to the background image
-		CPoint size(background.getWidth(), background.getHeight());
-		setSize(size.x, size.y);
-
-		// add buttons
-		CButton * b = nullptr;
-		for (int i = 0; i < std::extent<decltype(ButtonDefs)>::value; i++)
-		{
-			b = new CButton(ButtonDefs[i].toggled, ButtonDefs[i].untoggled, &parent);
-			b->bSetTag(ButtonDefs[i].tag);
-			controls[ButtonDefs[i].tag] = b;
-			b->bSetPos(0, i * b->getHeight());
-			if (ButtonDefs[i].sticky)
-				b->setMultiToggle(true);
-			this->addChildComponent(b);
-			garbageCollection.push_back(b);
-		}
-
-		// create toggles
-		// this is the protected buffer
-		auto toggle = new CToggle();
-		toggle->bSetSize(CRect(b->getWidth(), getHeight() - 20, 200, 20));
-		if (parent.bUseBuffers)
-			toggle->bSetValue(1);
-		toggle->bSetListener(&parent);
-		toggle->bSetText("Use protected buffers");
-		toggle->bSetTag(kTags::tagUseBuffer);
-		garbageCollection.push_back(toggle);
-		addAndMakeVisible(toggle);
-		// add exceptions toggle
-		toggle = new CToggle();
-		toggle->bSetSize(CRect(b->getWidth() + 200, getHeight() - 20, 200, 20));
-		if (parent.bUseFPUE)
-			toggle->bSetValue(1);
-		toggle->bSetListener(&parent);
-		toggle->bSetTag(kTags::tagUseFPU);
-		toggle->bSetText("Use FPU exceptions");
-		garbageCollection.push_back(toggle);
-		addAndMakeVisible(toggle);
-
-		// labels
-		infoLabel = new CTextControl();
-		infoLabel->bSetPos(b->getWidth() + 5, getHeight() - 40);
-		infoLabel->setSize(220, 20);
-		infoLabel->setColour(CColours::lightgoldenrodyellow);
-		infoLabel->setFontSize(TextSize::smallText);
-		addAndMakeVisible(infoLabel);
-		garbageCollection.push_back(infoLabel);
-
-		statusLabel = new CQueueLabel();
-		statusLabel->setBounds(CRect(getWidth() - 300, getHeight() - 25 , 290, 20));
-		statusLabel->setFontSize(TextSize::largeText);
-		statusLabel->setJustification(juce::Justification::centredRight);
-		statusLabel->setColour(CColours::lightgoldenrodyellow);
-		addAndMakeVisible(statusLabel);
-		garbageCollection.push_back(statusLabel);
-		// create the editor
-		// spawn console
-		parent.console().create(CRect(b->getWidth(), 0, getWidth() - b->getWidth(), getHeight() - (getHeight() / 6)));
-	
-		/*
-			set buttons according to engine
-		*/
-		
-		controls[kTags::tagActiveState]->bSetInternal(parent.bIsActive ? 1.f : 0.f);
-	}
-	/*********************************************************************************************
-	 
-		Destructor. Delets graphic elements, stops timers and notifies parent
-	 
-	 *********************************************************************************************/
-	UIController::Editor::~Editor()
-	{
-		oglc.detach();
-		for (auto garbage : garbageCollection)
-			delete garbage;
-		parent.console().close();
-		if (isTimerRunning())
-			stopTimer();
-		parent.editorClosed();
-	}
-	/*********************************************************************************************
-	 
-		Paint loop for the editor. Calls the paren't rendering loop
-	 
-	 *********************************************************************************************/
-	void UIController::Editor::paint(juce::Graphics & g)
-	{
-		// draw background image
-		//g.drawImage(background, 0, 0, getWidth(), getHeight(), 0, 0, background.getWidth(), background.getHeight());
-		parent.render();
-	}
-	void UIController::Editor::initialize(bool useOpenGL)
-	{
-		if(useOpenGL)
-			oglc.attachTo(*this);
-		
-		
-		parent.editorOpened(this);	
 	}
 
 	void UIController::errorPrint(void * data, const char * text)
@@ -332,26 +192,8 @@ namespace ape
 		/*
 		 Dont render controls when the console is open
 		 */
-		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f && engine.getCState())
-			engine.getCState()->getCtrlManager().updateControls();
-	}
-	/*********************************************************************************************
-	 
-		Timer callback. Calls the parent's render loop
-	 
-	 *********************************************************************************************/
-	void UIController::Editor::timerCallback()
-	{
-		statusLabel->updateMessage();
-		// force a repaint every second (it wont itself, necessarily, even tho childs are set as dirty!! ugh)
-		repaintCallBackCounter++;
-		if ((repaintCallBackCounter * getTimerInterval() / 1000.f) > 1)
-		{
-			//repaint();
-			repaintCallBackCounter = 0;
-		}
-		
-		parent.render();
+		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f && engine.getCurrentPluginState())
+			engine.getCurrentPluginState()->getCtrlManager().updateControls();
 	}
 
 	UIController::~UIController()
@@ -366,10 +208,10 @@ namespace ape
 	void UIController::editorOpened(Editor * newEditor)
 	{
 		setStatusText();
-		if (engine.getCState())
+		if (engine.getCurrentPluginState())
 		{
-			engine.getCState()->getCtrlManager().attach(newEditor);
-			engine.getCState()->getCtrlManager().createPendingControls();
+			engine.getCurrentPluginState()->getCtrlManager().attach(newEditor);
+			engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
 		}
 		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
 		bFirstDraw = true;
@@ -382,15 +224,15 @@ namespace ape
 	void UIController::editorClosed()
 	{
 		editor = nullptr;
-		if(engine.getCState())
-			engine.getCState()->getCtrlManager().setParent(editor);
+		if(engine.getCurrentPluginState())
+			engine.getCurrentPluginState()->getCtrlManager().setParent(editor);
 	}
 	/*********************************************************************************************
 	 
 		Creates an instance of the graphical editor
 	 
 	 *********************************************************************************************/
-	UIController::Editor * UIController::create()
+	Editor * UIController::create()
 	{
 		if (editor)
 			console().printLine(CColours::red, "[GUI] : error! Request to create new editor while old one still exists. "
@@ -469,13 +311,97 @@ namespace ape
 		return statusLabel;
 	}
 
-	/*********************************************************************************************
+	bool UIController::performCommand(Commands command)
+	{
+		switch (command)
+		{
 
-		valueChanged - this is the main control logic of the program.
-		we control everything through events, and in theory, all code
-		should be called from here.
+		case Commands::Recompile:
+		{
+			recompile();
+			break;
+		}
 
-	 *********************************************************************************************/
+		case Commands::Activate:
+		{
+			if (compilerState.valid())
+			{
+				switch (compilerState.wait_for(std::chrono::seconds(0)))
+				{
+				case std::future_status::ready:
+					engine.disablePlugin(true);
+					engine.exchangePlugin(compilerState.get());
+					break;
+				case std::future_status::deferred:
+				case std::future_status::timeout:
+					setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
+					console().printLine(CColours::red, "[GUI] : cannot activate while compiling.");
+					return false;
+				}
+			}
+
+			if (!engine.getCurrentPluginState())
+			{
+				setStatusText("No compiled symbols found", CColours::red, 2000);
+				console().printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
+				return false;
+			}
+
+			if (engine.activatePlugin())
+			{
+				// success
+				setStatusText("Plugin activated", CColours::green);
+				engine.getCurrentPluginState()->getCtrlManager().attach(editor);
+				engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
+				engine.getCurrentPluginState()->getCtrlManager().callListeners();
+			}
+			else
+			{
+				console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
+				setStatusText("Error activating plugin.", CColours::red);
+				editor->controls[kActiveStateButton]->bSetValue(0);
+			}
+
+			break;
+		}
+
+		case Commands::Deactivate:
+		{
+			if (auto plugin = engine.getCurrentPluginState())
+			{
+				if (plugin->getState() != STATUS_DISABLED)
+				{
+					setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
+					plugin->getCtrlManager().detach();
+					engine.disablePlugin(true);
+				}
+			}
+		}
+
+		case Commands::OpenSourceEditor:
+		{
+			if (!externEditor->exists())
+			{
+				cpl::Misc::MsgBox("No code editor available!", cpl::programInfo.programAbbr + " error!");
+				return false;
+			}
+			externEditor->openEditor();
+			break;
+		}
+
+		case Commands::CloseSourceEditor:
+		{
+			externEditor->closeEditor();
+			break;
+		}
+
+		default:
+			break;
+		}
+
+		return true;
+	}
+
 	bool UIController::valueChanged(CBaseControl * control)
 	{
 		/*
@@ -531,7 +457,7 @@ namespace ape
 					}
 				}
 
-				if (!engine.getCState())
+				if (!engine.getCurrentPluginState())
 				{
 					control->bSetInternal(0);
 					setStatusText("No compiled symbols found", CColours::red, 2000);
@@ -543,9 +469,9 @@ namespace ape
 				{
 					// success
 					setStatusText("Plugin activated", CColours::green);
-					engine.getCState()->getCtrlManager().attach(editor);
-					engine.getCState()->getCtrlManager().createPendingControls();
-					engine.getCState()->getCtrlManager().callListeners();
+					engine.getCurrentPluginState()->getCtrlManager().attach(editor);
+					engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
+					engine.getCurrentPluginState()->getCtrlManager().callListeners();
 				}
 				else
 				{
@@ -557,26 +483,16 @@ namespace ape
 			else 
 			{
 				setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
-				engine.getCState()->getCtrlManager().detach();
+				engine.getCurrentPluginState()->getCtrlManager().detach();
 				engine.disablePlugin(true);
 			}
 			break;
 		case kEditorButton:
 			// show the editor
 			
-			if(value > 0.1f) {
-				if(!externEditor->exists())
-					cpl::Misc::MsgBox("No code editor available!", cpl::programInfo.programAbbr + " error!");
-				externEditor->openEditor();
-			}
-			else
-				externEditor->closeEditor();
-			break;
 
-		case kAboutButton:
-			// show about box
-			about();
-			break;
+
+
 		case tagUseBuffer:
 			engine.useProtectedBuffers( value > 0.1f ? true : false );
 			if(value > 0.1f)
@@ -670,21 +586,6 @@ namespace ape
 		}
 	}
 
-	void UIController::about()
-	{
-		static std::string sDialogMessage =
-			cpl::programInfo.name + " is written by Janus Lynggard Thorborg"
-			" in the period of 2012-2017. " + cpl::programInfo.programAbbr + " utilizes "
-			"juce as central program structure. All rights reserved to their respective owners,"
-			" see /licenses/ for licenses for using this program. Thanks to everyone"
-			" that has made this project possible; thanks for the great libraries and I hope"
-			" you do enjoy using this program. See more at www.jthorborg.com/index.html?ipage=ape";
-
-		static std::string sTitleMessage =
-			"About " + cpl::programInfo.programAbbr + " " + cpl::programInfo.version.toString() + " project";
-		cpl::Misc::MsgBox(sDialogMessage, sTitleMessage, cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iInfo, getSystemWindow(),true);
-	}
-
 	std::future<std::unique_ptr<PluginState>> UIController::createPlugin()
 	{
 		return createPlugin(externEditor->getProject());
@@ -733,12 +634,13 @@ namespace ape
 		);
 	}
 
-	/*********************************************************************************************
+	void * UIController::getSystemWindow() 
+	{ 
+		return editor ? editor->getWindowHandle() : nullptr; 
+	}
 
-		This function is the main passage of events to the user-created controls. This passes the
-		events to the core and the subsystem. If the event isn't handled there, the event is passed
-		to the default handler of the control.
-
-	 *********************************************************************************************/
-
+	juce::AudioProcessorEditor* Engine::createEditor()
+	{
+		return controller->create();
+	}
 };

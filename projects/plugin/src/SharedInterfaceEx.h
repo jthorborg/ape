@@ -77,9 +77,9 @@
 		struct SharedInterfaceEx : public BindingsInterfaceResolver
 		{
 			Engine & getEngine() noexcept { return engine; }
-			PluginState & getCState() noexcept { return cstate; }
+			PluginState & getCurrentPluginState() noexcept { return cstate; }
 			const Engine & getEngine() const noexcept { return engine; }
-			const PluginState & getCState() const noexcept { return cstate; }
+			const PluginState & getCurrentPluginState() const noexcept { return cstate; }
 
 			static SharedInterfaceEx & downcast(APE_SharedInterface & base) noexcept { return static_cast<SharedInterfaceEx &>(base); }
 

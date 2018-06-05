@@ -71,7 +71,7 @@
 
 			OscilloscopeData& getOscilloscopeData() { return scopeData; }
 			UIController& getController() { return *controller.get(); }
-			PluginState * getCState() { return pluginState.get(); }
+			PluginState * getCurrentPluginState() { return pluginState.get(); }
 			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
 			Settings& getSettings() noexcept { return settings; }
 			const Settings& getSettings() const noexcept { return settings; }

@@ -602,6 +602,7 @@
     <ClCompile Include="..\..\src\CodeEditor\CodeTokeniser.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\JuceEditorWindow.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
+    <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />
     <ClCompile Include="..\..\src\Engine.cpp" />
     <ClCompile Include="..\..\src\CAllocator.cpp" />
@@ -1719,6 +1720,7 @@
     <ClInclude Include="..\..\src\CodeEditor\JuceEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
     <ClInclude Include="..\..\src\EngineStructures.h" />
+    <ClInclude Include="..\..\src\MainEditor\MainEditor.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
     <ClInclude Include="..\..\src\ButtonDefinitions.h" />

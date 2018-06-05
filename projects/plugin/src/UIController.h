@@ -53,60 +53,36 @@
 		class CQueueLabel;
 		class PluginState;
 		struct ProjectEx;
+		class Editor;
 
 		class UIController
 			: public CCtrlListener
 			, public cpl::CMutex::Lockable
 			, public cpl::DestructionNotifier
 		{
+			enum class Commands
+			{
+				Recompile,
+				Activate,
+				Deactivate,
+				OpenSourceEditor,
+				CloseSourceEditor
+			};
+
 			static constexpr std::size_t magic_value = 0xDEADBEEF;
 			const std::size_t magic = magic_value;
 
 		  public:
-			
-			class Editor;
 			
 			friend class ape::Engine;
 			friend class CCodeEditor;
 			friend class CSerializer;
 			friend class Editor;
 
-			/*
-				We have to use composition instead of inheritance 
-				due to the way the editor gets destructed on window
-				closure, ie. no way to save state.
-				Therefore, this proxy object delegates everything
-				to the main editor.
-			*/
-			class Editor
-				: public juce::AudioProcessorEditor, public juce::Timer
-			{
-				friend class UIController;
-				std::vector<juce::Component *> garbageCollection;
-				std::map<int, CBaseControl *> controls;
-				CTextControl * infoLabel;
-				CQueueLabel * statusLabel;
-				juce::DrawableImage background;
-				juce::Image bImage;
-				juce::Image testImage;
-				int repaintCallBackCounter;
-				
-				juce::OpenGLContext oglc;
-				SignalizerWindow scope;
-			public:
-				UIController & parent;
-				void initialize(bool useOpenGL = false);
-				void paint(juce::Graphics & g);
-				void timerCallback();
-				Editor(UIController & parent);
-				virtual ~Editor();
-			};
-
 			UIController(ape::Engine& effect);
 			virtual ~UIController();
 
 			void setParameter(int index, float value);
-			void about();
 			void editorOpened(Editor * newEditor);
 			void editorClosed();
 			void render();
@@ -118,12 +94,13 @@
 			std::string getStatusText();
 			void setEditorError(int nLine);
 			void updateInfoLabel();
-			void * getSystemWindow() { return editor ? editor->getWindowHandle() : nullptr; }
+			void * getSystemWindow();
 			void onTracesChanged(const std::set<int>& newTraces);
 			void recompile();
 			std::future<std::unique_ptr<PluginState>> createPlugin();
 
 			static void errorPrint(void * data, const char * text);
+			bool performCommand(Commands command);
 
 		private:
 			

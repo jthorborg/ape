@@ -109,7 +109,7 @@
 
 				std::string fileName = engine->getController().externEditor->getDocumentPath();
 				bool hasAProject = fileName.size() > 2 ? true : false;
-				Status state = engine->getCState() ? engine->getCState()->getState() : STATUS_DISABLED;
+				Status state = engine->getCurrentPluginState() ? engine->getCurrentPluginState()->getState() : STATUS_DISABLED;
 
 				// we basically quantize all engine states to running or not running
 				// anything in between is error states or intermediate states.
@@ -142,10 +142,10 @@
 				{
 					// TODO: Remove, turn into actual audio parameters
 					auto& list = archive["parameters"];
-					std::size_t count = engine->getCState()->getCtrlManager().getControls().size();
+					std::size_t count = engine->getCurrentPluginState()->getCtrlManager().getControls().size();
 					std::size_t i = 0;
 					archive["parameter-count"] << count;
-					for (auto ctrl : engine->getCState()->getCtrlManager().getControls())
+					for (auto ctrl : engine->getCurrentPluginState()->getCtrlManager().getControls())
 					{
 						list[i++] << SerializedEngine::ControlValue { ctrl->bGetValue(), (SerializedEngine::SeIntType) ctrl->bGetTag() };
 					}
@@ -235,7 +235,7 @@
 					if (builder.findForKey("parameter-count"))
 						builder["parameter-count"] >> parameters;
 
-					CPluginCtrlManager & ctrlManager = engine->getCState()->getCtrlManager();
+					CPluginCtrlManager & ctrlManager = engine->getCurrentPluginState()->getCtrlManager();
 
 					for (std::size_t i = 0; i < parameters; ++i)
 					{
@@ -333,7 +333,7 @@
 					// get values
 					const SerializedEngine::ControlValue * values = se->getValuesConst();
 					// get control manager
-					CPluginCtrlManager & ctrlManager = engine->getCState()->getCtrlManager();
+					CPluginCtrlManager & ctrlManager = engine->getCurrentPluginState()->getCtrlManager();
 				
 					for (unsigned i = 0; i < se->numValues; i++)
 					{

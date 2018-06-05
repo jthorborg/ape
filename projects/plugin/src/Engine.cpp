@@ -309,11 +309,6 @@ namespace ape
 		return true;
 	}
 
-	juce::AudioProcessorEditor* Engine::createEditor()
-	{
-		return controller->create();
-	}
-
 	void Engine::getStateInformation(juce::MemoryBlock& destData)
 	{
 		std::shared_lock<std::shared_mutex> lock(pluginMutex);

@@ -337,6 +337,12 @@
     <Filter Include="Audio Programming Environment\Headers\CodeEditor">
       <UniqueIdentifier>{cbdf552e-1e53-4242-b223-e85c10eb87d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio Programming Environment\Source\MainEditor">
+      <UniqueIdentifier>{738e9c65-dfbe-4dee-8ca5-ece754919017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio Programming Environment\Headers\MainEditor">
+      <UniqueIdentifier>{21853edb-42e6-4601-b28f-785475583046}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1520,6 +1526,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp">
+      <Filter>Audio Programming Environment\Source\MainEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2959,6 +2968,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\MainEditor\MainEditor.h">
+      <Filter>Audio Programming Environment\Headers\MainEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
