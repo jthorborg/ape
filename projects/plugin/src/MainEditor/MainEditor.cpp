@@ -162,8 +162,11 @@ namespace ape
 		switch (control->bGetTag())
 		{
 		case tagConsole: 
-			if(toggled)
+			if (toggled)
+			{
 				addAndMakeVisible(parent.console().getView());
+				parent.console().refresh();
+			}
 			else
 				removeChildComponent(parent.console().getView());
 			break;

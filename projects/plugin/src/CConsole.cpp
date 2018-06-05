@@ -180,10 +180,17 @@ namespace ape
 
 	void CConsole::handleAsyncUpdate()
 	{
-		cont->repaint();
-		cont->setDirty();
+		refresh();
 	}
 
+	void CConsole::refresh()
+	{
+		if (cont)
+		{
+			cont->repaint();
+			cont->setDirty();
+		}
+	}
 
 	/*********************************************************************************************
 

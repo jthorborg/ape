@@ -136,6 +136,9 @@
     <ClCompile Include="..\..\..\..\external\libcxx\src\support\solaris\xlocale.cpp">
       <Filter>Plugin\libcxx\source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\misc_tasks.cpp">
+      <Filter>Plugin\Runtime</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CppAPE.h">
@@ -356,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\trace.h">
       <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\misc_tasks.h">
+      <Filter>Plugin\Runtime</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

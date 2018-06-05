@@ -161,7 +161,8 @@ namespace CppAPE
 					source += temp + "\n";
 			}
 
-			transformSource(*getProject(), source);
+			if (!transformSource(*getProject(), source))
+				return Status::STATUS_ERROR;
 
 			builder.args()
 				.arg("-v")
@@ -176,6 +177,9 @@ namespace CppAPE
 				.argPair("-std=", "c++17", cpl::Args::NoSpace)
 				.argPair("-include-pch", (dirRoot / "runtime" / "effect.h.pch").string());
 
+			if (getProject()->numTraceLines > 0)
+				builder.args().argPair("-D", "CPPAPE_TRACING_ENABLED", cpl::Args::NoSpace);
+
 			builder.addMemoryFile("effect.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
 			state = std::make_unique<CxxJitContext>();
@@ -187,8 +191,10 @@ namespace CppAPE
 #endif
 			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get());
 
+			auto tasks = builder.fromFile((dirRoot / "runtime" / "misc_tasks.cpp").string());
 
 			state->addTranslationUnit(projectUnit);
+			state->addTranslationUnit(tasks);
 			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get()));
 			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "libcxx.bc").string(), state.get()));
 		}
@@ -348,10 +354,10 @@ namespace CppAPE
 	{
 		if (project.traceLines != nullptr && project.numTraceLines != 0)
 		{
-			std::stringstream stream(source);
+			std::stringstream stream("#include <trace.h>\n" + source);
 			source.resize(0);
 			std::string result, line;
-			std::size_t lineCounter = 0;
+			int lineCounter = -1;
 
 			while (std::getline(stream, line))
 			{
@@ -360,7 +366,7 @@ namespace CppAPE
 					auto terminal = line.find_first_of(';');
 					if (terminal == std::string::npos)
 					{
-						print("[CppApe] error: Breakpoints can only be set at single expressions, at line " + std::to_string(lineCounter) + ":\n " + line);
+						print("[CppApe] error: Breakpoints can only be set at single expressions, at line " + std::to_string(lineCounter + 1) + ":\n " + line);
 						return false;
 					}
 					else

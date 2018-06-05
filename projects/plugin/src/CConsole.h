@@ -80,6 +80,7 @@
 		public:
 			CConsole();
 			~CConsole();
+			void refresh();
 			void create(const CRect & inSize);
 			void close();
 			int printLine(CColour color, const char * fmt, ... );

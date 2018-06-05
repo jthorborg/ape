@@ -3,16 +3,11 @@
 #include <shared-src/tcc4ape/ScriptBindings.h>
 #include <cstdarg>
 #include <cmath>
-#include <trace.h>
+#include "misc_tasks.h"
 
 APE_SharedInterface * lastIFace;
 FactoryBase::ProcessorCreater pluginCreater;
 
-namespace Tracing
-{
-	Tracer GlobalTracer;
-
-}
 
 void FactoryBase::SetCreater(ProcessorCreater factory)
 {
@@ -131,7 +126,8 @@ extern "C"
 
 	APE_Status SCRIPT_API NAME_PROCESS_REPLACE(ScriptInstance * instance, APE_SharedInterface * iface, float ** inputs, float ** outputs, int frames)
 	{
-		Tracing::GlobalTracer.reset();
+		Tracing::ResetTracers();
+
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
 		if (!p)
@@ -139,13 +135,7 @@ extern "C"
 
 		p->process(inputs, outputs, frames);
 
-		const auto& traces = Tracing::GlobalTracer.getTraces();
-
-		for (const auto& trace : traces)
-		{
-			const char* traceNames[2] = { trace.first.first, trace.first.second };
-			iface->presentTrace(iface, traceNames, 2, trace.second.data.data(), trace.second.index);
-		}
+		Tracing::PresentTracers();
 
 		return Status(Status::Ok);
 	}

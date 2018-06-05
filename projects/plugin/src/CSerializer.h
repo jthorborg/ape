@@ -136,6 +136,7 @@
 				archive << isActivated;
 				archive << engine->getController().externEditor->isOpen();
 
+				archive["scope-data"]["state"].setMasterVersion({ SIGNALIZER_MAJOR, SIGNALIZER_MINOR, SIGNALIZER_BUILD });
 				archive["scope-data"]["state"] << engine->getOscilloscopeData().getContent();
 
 				if (isActivated)

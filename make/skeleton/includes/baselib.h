@@ -4,31 +4,13 @@
 #ifndef __cplusplus
 #error baselib.h can only be used with a C++ compiler
 #endif
-/*
-#define __inline__ inline
-#define __inline inline
-#define __cdecl
-#define _cdecl
-#define RC_INVOKED
-#define _countof(_Array) (sizeof(_Array) / sizeof(_Array[0]))
-#define __attribute__(x)
-#define _CRT_ERRNO_DEFINED
-#include "tcc/_mingw.h"
-#undef __CRT_INLINE
-#define __CRT_INLINE inline
-#include "tcc/stddef.h" */
 
 
 #include <cstddef>
 #include "shared-src/ape/SharedInterface.h"
-
-//#undef __inline__
-
 #undef NULL
 #define NULL 0
 
-
-//void *operator new(unsigned am, void * loc);
 
 inline size_t nextpow2(size_t current)
 {
