@@ -47,7 +47,7 @@
 		class SourceProjectManager 
 			: public CCodeEditor
 			, public juce::ApplicationCommandTarget
-			, private BreakpointComponent::BreakpointListener
+			, private CodeEditorWindow::BreakpointListener
 		{
 
 		public:

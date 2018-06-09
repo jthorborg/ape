@@ -76,7 +76,7 @@ namespace ape
 			editorWindow = std::make_unique<CodeEditorWindow>(doc);
 			if (editorWindow)
 			{
-				editorWindow->getLineTracer().addTraceListener(this);
+				editorWindow->addBreakpointListener(this);
 				editorWindow->setSize(800, 900);
 				loadHotkeys();
 				editorWindow->setAppCM(&appCM);
@@ -358,7 +358,7 @@ namespace ape
 
 				if (editorWindow)
 				{
-					const auto& tracedLines = editorWindow->getLineTracer().getTracedLines();
+					const auto& tracedLines = editorWindow->getBreakpoints();
 					auto copiedLines = new int[tracedLines.size()];
 					std::size_t counter = 0;
 					for (auto line : tracedLines)
