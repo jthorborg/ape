@@ -600,7 +600,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\CodeEditor\CodeTokeniser.cpp" />
-    <ClCompile Include="..\..\src\CodeEditor\JuceEditorWindow.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />
@@ -1717,7 +1717,7 @@
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
     <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeTokeniser.h" />
-    <ClInclude Include="..\..\src\CodeEditor\JuceEditorWindow.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
     <ClInclude Include="..\..\src\EngineStructures.h" />
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h" />

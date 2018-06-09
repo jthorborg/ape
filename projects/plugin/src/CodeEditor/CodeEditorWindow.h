@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:JuceEditorWindow.h
+	file:CodeEditorWindow.h
 		
 		The JUCE code editor editorWindow
 
@@ -98,7 +98,15 @@
 		{
 		public:
 
-			using juce::CodeEditorComponent::CodeEditorComponent;
+			CodeEditorComponent(juce::CodeDocument& document, juce::CodeTokeniser* tokenizer)
+				: juce::CodeEditorComponent(document, tokenizer)
+			{
+				setColour(backgroundColourId, { 0x1E, 0x1E, 0x1E });
+				setColour(highlightColourId, { 0x26, 0x4f, 0x78 });
+				setColour(lineNumberBackgroundId, { 0x1E, 0x1E, 0x1E });
+				setColour(lineNumberTextId, { 0x7E, 0x7E, 0xAE });
+				setColour(juce::CaretComponent::caretColourId, juce::Colours::white);
+			}
 
 			class Listener
 			{
@@ -122,6 +130,14 @@
 				juce::CodeEditorComponent::paint(g);
 			}
 
+			void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& d) override
+			{
+				if (e.mods.isCtrlDown())
+					return;
+
+				juce::CodeEditorComponent::mouseWheelMove(e, d);
+			}
+
 			void addCompositionListener(Listener* l) { compositionListeners.emplace(l); }
 			void removeCompositionListener(Listener* l) { compositionListeners.erase(l); }
 
@@ -132,18 +148,22 @@
 		};
 
 
-		class LineTraceComponent : public juce::Component, private juce::CodeDocument::Listener, private CodeEditorComponent::Listener, private juce::AsyncUpdater
+		class BreakpointComponent 
+			: public juce::Component
+			, private juce::CodeDocument::Listener
+			, private CodeEditorComponent::Listener
+			, private juce::AsyncUpdater
 		{
 		public:
 
-			class TraceListener
+			class BreakpointListener
 			{
 			public:
-				virtual void onTracesChanged(const std::set<int>& traces) = 0;
-				virtual ~TraceListener() {}
+				virtual void onBreakpointsChanged(const std::set<int>& breakpoints) = 0;
+				virtual ~BreakpointListener() {}
 			};
 
-			LineTraceComponent(CodeEditorComponent& codeEditorView)
+			BreakpointComponent(CodeEditorComponent& codeEditorView)
 				: document(codeEditorView.getDocument())
 				, codeEditor(codeEditorView)
 			{
@@ -154,15 +174,16 @@
 
 			void paint(juce::Graphics& g) override
 			{
+				auto const offset = 0;
 				auto const radius = getBounds().getWidth() * 0.5f;
 				auto numLines = codeEditor.getNumLinesOnScreen();
 				auto scale = codeEditor.getLineHeight();
 				auto start = codeEditor.getFirstLineOnScreen();
 
-				g.fillAll(juce::Colours::grey);
+				g.fillAll({ 0x3E, 0x3E, 0x3E });
 				g.setColour(juce::Colours::red);
 
-				for (auto line : traces)
+				for (auto line : breakpoints)
 				{
 					auto position = line - start;
 					juce::Rectangle<float> space{ 0, position * scale + 0.0f, radius * 2, radius * 2 };
@@ -176,15 +197,15 @@
 				auto scale = codeEditor.getNumLinesOnScreen() + 1;
 
 				int sourceLine = static_cast<int>(e.position.y / codeEditor.getLineHeight() + codeEditor.getFirstLineOnScreen());
-				auto it = traces.find(sourceLine);
+				auto it = breakpoints.find(sourceLine);
 
-				if (it != traces.end())
+				if (it != breakpoints.end())
 				{
-					traces.erase(it);
+					breakpoints.erase(it);
 				}
 				else
 				{
-					traces.emplace(sourceLine);
+					breakpoints.emplace(sourceLine);
 				}
 
 				repaint();
@@ -202,19 +223,19 @@
 				repaint();
 			}
 
-			const std::set<int> getTracedLines() const noexcept { return traces; }
+			const std::set<int> getTracedLines() const noexcept { return breakpoints; }
 			
-			void addTraceListener(TraceListener* l)
+			void addTraceListener(BreakpointListener* l)
 			{
 				listeners.emplace(l);
 			}
 
-			void removeTraceListener(TraceListener* l)
+			void removeTraceListener(BreakpointListener* l)
 			{
 				listeners.erase(l);
 			}
 
-			~LineTraceComponent()
+			~BreakpointComponent()
 			{
 				codeEditor.getDocument().removeListener(this);
 				codeEditor.removeCompositionListener(this);
@@ -224,9 +245,9 @@
 
 			void codeDocumentTextInserted(const juce::String& newText, int insertIndex) override
 			{
-				if (!traces.empty() && newText.containsAnyOf("\r\n"))
+				if (!breakpoints.empty() && newText.containsAnyOf("\r\n"))
 				{
-					traces.clear();
+					breakpoints.clear();
 					repaint();
 					notifyListeners();
 				}
@@ -236,9 +257,9 @@
 			{
 				auto const text = codeEditor.getTextInRange({ startIndex, endIndex });
 
-				if (!traces.empty() && text.containsAnyOf("\r\n"))
+				if (!breakpoints.empty() && text.containsAnyOf("\r\n"))
 				{
-					traces.clear();
+					breakpoints.clear();
 					repaint();
 					notifyListeners();
 				}
@@ -247,13 +268,13 @@
 			void notifyListeners()
 			{
 				for (auto list : listeners)
-					list->onTracesChanged(traces);
+					list->onBreakpointsChanged(breakpoints);
 			}
 
 			juce::CodeDocument& document;
 			CodeEditorComponent& codeEditor;
-			std::set<int> traces;
-			std::set<TraceListener*> listeners;
+			std::set<int> breakpoints;
+			std::set<BreakpointListener*> listeners;
 		};
 
 		class InternalCodeEditorComponent : public juce::Component
@@ -263,44 +284,59 @@
 			InternalCodeEditorComponent(juce::CodeDocument& doc)
 				: cec(doc, &tokeniser)
 				, tracer(cec)
+				, scale(1.0f)
 			{
-				addChildComponent(cec);
-				addChildComponent(tracer);
+				wrapper.setVisible(true);
+				addChildComponent(wrapper);
+				wrapper.addChildComponent(cec);
+				wrapper.addChildComponent(tracer);
 				cec.setLineNumbersShown(true);
 
 				cec.setVisible(true);
 				tracer.setVisible(true);
+				cec.addMouseListener(this, true);
+			}
+
+			void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override
+			{
+				if (e.mods.isCtrlDown())
+				{
+					scale *= 1.0f + details.deltaY / 16.0f;
+					wrapper.setTransform(juce::AffineTransform::identity.scaled(scale));
+					resized();
+				}
 			}
 
 			void resized() override
 			{
-				auto bounds = getBounds().withPosition({ 0, 5 });
-
-				tracer.setBounds(bounds.withRight(10));
-				cec.setBounds(bounds.withLeft(10));
+				auto bounds = juce::Rectangle<float>(0, 0, getWidth() / scale, getHeight() / scale);
+				wrapper.setBounds(bounds.toType<int>());
+				tracer.setBounds(bounds.withRight(10).toType<int>());
+				cec.setBounds(bounds.withLeft(10).toType<int>());
 			}
 
-			LineTraceComponent& getLineTracer() noexcept { return tracer; }
+			BreakpointComponent& getLineTracer() noexcept { return tracer; }
 
 		private:
+			float scale;
+			juce::Component wrapper;
 			CodeTokeniser tokeniser;
 			CodeEditorComponent cec;
-			LineTraceComponent tracer;
+			BreakpointComponent tracer;
 
 		};
 
-
-
-		class JuceEditorWindow : public juce::DocumentWindow, public juce::MenuBarModel
+		class CodeEditorWindow : public juce::DocumentWindow, public juce::MenuBarModel
 		{
 		public:
 
-			JuceEditorWindow(juce::CodeDocument& cd);
-			virtual ~JuceEditorWindow();
+			CodeEditorWindow(juce::CodeDocument& cd);
+			void paint(juce::Graphics& g) override;
+			virtual ~CodeEditorWindow();
 			void closeButtonPressed() override;
 			void setAppCM(juce::ApplicationCommandManager* acm);
 
-			LineTraceComponent& getLineTracer() { return codeEditor.getLineTracer(); }
+			BreakpointComponent& getLineTracer() { return codeEditor.getLineTracer(); }
 
 		private:
 

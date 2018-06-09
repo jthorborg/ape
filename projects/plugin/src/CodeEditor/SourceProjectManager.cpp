@@ -73,7 +73,7 @@ namespace ape
 	{
 		if (!isInitialized)
 		{
-			editorWindow = std::make_unique<JuceEditorWindow>(doc);
+			editorWindow = std::make_unique<CodeEditorWindow>(doc);
 			if (editorWindow)
 			{
 				editorWindow->getLineTracer().addTraceListener(this);
@@ -227,9 +227,9 @@ namespace ape
 		return true;
 	}
 
-	void SourceProjectManager::onTracesChanged(const std::set<int>& traces)
+	void SourceProjectManager::onBreakpointsChanged(const std::set<int>& breakpoints)
 	{
-		controller.onTracesChanged(traces);
+		controller.onBreakpointsChanged(breakpoints);
 	}
 
 

@@ -1521,14 +1521,14 @@
     <ClCompile Include="..\..\src\CodeEditor\CodeTokeniser.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CodeEditor\JuceEditorWindow.cpp">
-      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp">
       <Filter>Audio Programming Environment\Source\MainEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2960,9 +2960,6 @@
     <ClInclude Include="..\..\src\CodeEditor\CodeTokeniser.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CodeEditor\JuceEditorWindow.h">
-      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
@@ -2971,6 +2968,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h">
       <Filter>Audio Programming Environment\Headers\MainEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

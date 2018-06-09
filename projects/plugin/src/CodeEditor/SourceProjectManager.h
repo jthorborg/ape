@@ -37,7 +37,7 @@
 	#include "../ProjectEx.h"
 	#include <string>
 	#include <map>
-	#include "JuceEditorWindow.h"
+	#include "CodeEditorWindow.h"
 
 	namespace ape
 	{
@@ -47,7 +47,7 @@
 		class SourceProjectManager 
 			: public CCodeEditor
 			, public juce::ApplicationCommandTarget
-			, private LineTraceComponent::TraceListener
+			, private BreakpointComponent::BreakpointListener
 		{
 
 		public:
@@ -69,7 +69,7 @@
 
 		protected:
 
-			void onTracesChanged(const std::set<int>& traces) override;
+			void onBreakpointsChanged(const std::set<int>& breakpoints) override;
 
 		private:
 
@@ -98,7 +98,7 @@
 
 			// instance stuff
 			juce::ApplicationCommandManager appCM;
-			std::unique_ptr<JuceEditorWindow> editorWindow;
+			std::unique_ptr<CodeEditorWindow> editorWindow;
 			std::string fullPath, appName;
 			juce::CodeDocument doc;
 			cpl::CExclusiveFile autoSaveFile;

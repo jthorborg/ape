@@ -95,7 +95,7 @@
 			void setEditorError(int nLine);
 			void updateInfoLabel();
 			void * getSystemWindow();
-			void onTracesChanged(const std::set<int>& newTraces);
+			void onBreakpointsChanged(const std::set<int>& newTraces);
 			void recompile();
 			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
 

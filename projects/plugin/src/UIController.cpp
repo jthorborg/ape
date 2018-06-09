@@ -103,7 +103,7 @@ namespace ape
 		controller->onErrorMessage(text);
 	}
 
-	void UIController::onTracesChanged(const std::set<int>& newTraces)
+	void UIController::onBreakpointsChanged(const std::set<int>& newTraces)
 	{
 		recompile();
 	}

@@ -28,7 +28,7 @@
  *************************************************************************************/
 
 
-#include "JuceEditorWindow.h"
+#include "CodeEditorWindow.h"
 
 namespace ape
 {
@@ -55,7 +55,7 @@ namespace ape
 
 	};
 
-	JuceEditorWindow::JuceEditorWindow(juce::CodeDocument& cd)
+	CodeEditorWindow::CodeEditorWindow(juce::CodeDocument& cd)
 		: DocumentWindow(cpl::programInfo.name + " editor", juce::Colours::grey, DocumentWindow::TitleBarButtons::allButtons)
 		, codeEditor(cd)
 		, appCM(nullptr)
@@ -69,12 +69,18 @@ namespace ape
 		setBounds(getBounds().withPosition(100, 100));
 	}
 
-	JuceEditorWindow::~JuceEditorWindow()
+	void CodeEditorWindow::paint(juce::Graphics& g)
+	{
+		g.fillAll({ 0x1E, 0x1E, 0x1E });
+	}
+
+
+	CodeEditorWindow::~CodeEditorWindow()
 	{
 		setMenuBar(nullptr);
 	}
 
-	juce::PopupMenu JuceEditorWindow::getMenuForIndex(int topLevelMenuIndex, const juce::String & menuName)
+	juce::PopupMenu CodeEditorWindow::getMenuForIndex(int topLevelMenuIndex, const juce::String & menuName)
 	{
 		juce::PopupMenu ret;
 
@@ -95,10 +101,10 @@ namespace ape
 		return ret;
 	}
 
-	void JuceEditorWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex) { }
+	void CodeEditorWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex) { }
 
 
-	juce::StringArray JuceEditorWindow::getMenuBarNames()
+	juce::StringArray CodeEditorWindow::getMenuBarNames()
 	{
 		juce::StringArray ret;
 		ret.add("File");
@@ -106,12 +112,12 @@ namespace ape
 		return ret;
 	}
 
-	void JuceEditorWindow::closeButtonPressed()
+	void CodeEditorWindow::closeButtonPressed()
 	{
 		setVisible(false);
 	}
 
-	void JuceEditorWindow::setAppCM(juce::ApplicationCommandManager* acm)
+	void CodeEditorWindow::setAppCM(juce::ApplicationCommandManager* acm)
 	{
 		// set the application command manager that is associated with this editorWindow
 		appCM = acm;

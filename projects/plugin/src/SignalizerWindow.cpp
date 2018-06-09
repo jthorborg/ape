@@ -51,6 +51,13 @@ namespace ape
 		scope.setSize(800, 600);
 
 		setContentComponent(&scope, true, true);
+		context.setMultisamplingEnabled(true);
+
+		juce::OpenGLPixelFormat format;
+
+		format.multisamplingLevel = 16;
+
+		context.setPixelFormat(format);
 
 		scope.attachToOpenGL(context);
 	}

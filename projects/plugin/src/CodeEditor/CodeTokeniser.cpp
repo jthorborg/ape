@@ -45,19 +45,20 @@ namespace ape
 			const char* name;
 			juce::Colour colour;
 		};
-
+		0.0f;
 		static const Type types[] =
 		{
 			{ "Error", juce::Colours::darkred },
 			{ "Comment", juce::Colours::green },
-			{ "Keyword", juce::Colours::blue },
-			{ "Operator", juce::Colours::darkred },
-			{ "Identifier", juce::Colours::black },
-			{ "Integer", juce::Colours::black },
-			{ "Float", juce::Colours::black },
-			{ "String", juce::Colours::grey },
-			{ "Bracket", juce::Colours::darkred },
-			{ "Punctuation", juce::Colours::darkred },
+			{ "Keyword", juce::Colour(105, 173, 238) },
+			{ "Operator", { 166, 206, 46 }},
+			{ "Identifier", {0xC8, 0xC8, 0xC8}},
+			{ "Integer",{ 0x8E, 0x9E, 0xB3 } },
+			//{ "Float", { 220, 128, 128 } },
+			{ "Float", { 0x9E, 0x8E, 0xB3 } },
+			{ "String", { 0xD6, 0x9D, 0x85 } },
+			{ "Bracket", { 0xcc, 0xb7, 0xc0 } },
+			{ "Punctuation", { 0xc9, 0xe6, 0xbd} },
 			{ "Preprocessor Text", juce::Colours::darkolivegreen }
 		};
 
