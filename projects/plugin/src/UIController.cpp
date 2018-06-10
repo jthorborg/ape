@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include "CQueueLabel.h"
 #include <chrono>
-#include "CodeEditor/CCodeEditor.h"
+#include "CodeEditor/SourceManager.h"
 #include <typeinfo>
 #include "MainEditor/MainEditor.h"
 
@@ -76,7 +76,7 @@ namespace ape
 		autoSaveInterval = app["autosave_interval"];
 		uiRefreshInterval = app["ui_refresh_interval"];
 		// create the editor
-		externEditor = MakeCodeEditor(*this, effect.getSettings(), effect.uniqueInstanceID());
+		sourceManager = MakeSourceManager(*this, effect.getSettings(), effect.uniqueInstanceID());
 		
 		// 0.025 is pretty smooth
 		clockData.pole = 0.025f;
@@ -133,11 +133,6 @@ namespace ape
 		setEditorError(nLinePos);
 	}
 
-	/*********************************************************************************************
-	 
-		Updates the info label with new data.
-	 
-	 *********************************************************************************************/
 	void UIController::updateInfoLabel()
 	{
 		if (!editor)
@@ -170,7 +165,7 @@ namespace ape
 			autoSaveCounter++;
 			if ((autoSaveCounter * uiRefreshInterval / 1000.f) > autoSaveInterval)
 			{
-				externEditor->autoSave();
+				sourceManager->autoSave();
 				autoSaveCounter = 0;
 			}
 		}
@@ -200,11 +195,8 @@ namespace ape
 	{
 		notifyDestruction();
 	}
-	/*********************************************************************************************
-	 
-		Called whenever the editor is opened and ready for action.
-	 
-	 *********************************************************************************************/
+
+
 	void UIController::editorOpened(Editor * newEditor)
 	{
 		setStatusText();
@@ -216,22 +208,16 @@ namespace ape
 		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
 		bFirstDraw = true;
 	}
-	/*********************************************************************************************
-	 
-		Called when the editor closes
-	 
-	 *********************************************************************************************/
+
+
 	void UIController::editorClosed()
 	{
 		editor = nullptr;
 		if(engine.getCurrentPluginState())
 			engine.getCurrentPluginState()->getCtrlManager().setParent(editor);
 	}
-	/*********************************************************************************************
-	 
-		Creates an instance of the graphical editor
-	 
-	 *********************************************************************************************/
+
+
 	Editor * UIController::create()
 	{
 		if (editor)
@@ -248,21 +234,14 @@ namespace ape
 		setStatusText();
 		return editor;
 	}
-	/*********************************************************************************************
 
-		Requests the editor to show the error line
 
-	 *********************************************************************************************/
 	void UIController::setEditorError(int nLine) 
 	{
-		externEditor->setErrorLine(nLine);
+		sourceManager->setErrorLine(nLine);
 	}
 
-	/*********************************************************************************************
 
-		Set the status text label.
-
-	 *********************************************************************************************/
 	void UIController::setStatusText(const std::string & text, CColour colour)
 	{
 
@@ -274,11 +253,8 @@ namespace ape
 			editor->statusLabel->setDefaultMessage(statusLabel, colour);
 		}
 	}
-	/*********************************************************************************************
 
-		Push a message for display for x milliseconds
 
-	 *********************************************************************************************/
 	void UIController::setStatusText(const std::string & text, CColour colour, int ms)
 	{
 		if (editor)
@@ -286,25 +262,18 @@ namespace ape
 			editor->statusLabel->pushMessage(text, colour, ms);
 		}
 	}
-	/*********************************************************************************************
 
-		Set the status text label to what it previously was.
 
-	 *********************************************************************************************/
 	void UIController::setStatusText()
 	{
-
 		cpl::CMutex lockGuard(this);
 		if (editor)
 		{
 			editor->statusLabel->setDefaultMessage(statusLabel, statusColour);
 		}
 	}
-	/*********************************************************************************************
 
-		Get the status text. Not to be modified!
 
-	 *********************************************************************************************/
 	std::string UIController::getStatusText()
 	{
 		cpl::CMutex lockGuard(this);
@@ -396,18 +365,18 @@ namespace ape
 
 		case Commands::OpenSourceEditor:
 		{
-			if (!externEditor->exists())
+			if (!sourceManager->exists())
 			{
 				cpl::Misc::MsgBox("No code editor available!", cpl::programInfo.programAbbr + " error!");
 				return false;
 			}
-			externEditor->openEditor();
+			sourceManager->setEditorVisibility(true);
 			break;
 		}
 
 		case Commands::CloseSourceEditor:
 		{
-			externEditor->closeEditor();
+			sourceManager->setEditorVisibility(false);
 			break;
 		}
 
@@ -416,6 +385,16 @@ namespace ape
 		}
 
 		return true;
+	}
+
+	void UIController::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
+	{
+		ar["source-manager"] << *sourceManager.get();
+	}
+
+	void UIController::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
+	{
+		builder["source-manager"] >> *sourceManager.get();
 	}
 
 
@@ -439,7 +418,7 @@ namespace ape
 	{
 		if (!compilerState.valid())
 		{
-			compilerState = createPlugin(externEditor->getProject());
+			compilerState = createPlugin(sourceManager->getProject());
 			//engine.disablePlugin(false);
 		}
 		else
@@ -447,7 +426,7 @@ namespace ape
 			switch (compilerState.wait_for(std::chrono::seconds(0)))
 			{
 			case std::future_status::ready:
-				compilerState = createPlugin(externEditor->getProject());
+				compilerState = createPlugin(sourceManager->getProject());
 				//engine.disablePlugin(false);
 				break;
 			case std::future_status::deferred:
@@ -462,7 +441,7 @@ namespace ape
 
 	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(bool enableHotReload)
 	{
-		return createPlugin(externEditor->getProject(), enableHotReload);
+		return createPlugin(sourceManager->getProject(), enableHotReload);
 	}
 
 

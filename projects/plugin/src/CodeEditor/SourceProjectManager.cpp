@@ -44,15 +44,14 @@ namespace ape
 {
 	namespace fs = std::experimental::filesystem;
 
-	std::unique_ptr<CCodeEditor> MakeCodeEditor(UIController& ui, const Settings& s, int instanceID)
+	std::unique_ptr<SourceManager> MakeSourceManager(UIController& ui, const Settings& s, int instanceID)
 	{
 		return std::make_unique<SourceProjectManager>(ui, s, instanceID);
 	}
 
 	SourceProjectManager::SourceProjectManager(UIController& ui, const Settings& s, int instanceID)
-		: CCodeEditor(ui, s, instanceID)
+		: SourceManager(ui, s, instanceID)
 		, editorWindow(nullptr)
-		, isInitialized(false)
 		, isSingleFile(true)
 		, fullPath("Untitled")
 		, appName(cpl::programInfo.programAbbr + " Editor")
@@ -61,7 +60,23 @@ namespace ape
 		, autoSaveChecked(false)
 		, editorWindowState([this] { return createWindow(); })
 	{
-		doc.setSavePoint();
+
+		try
+		{
+			std::string file;
+
+			settings.root()["languages"].lookupValue("default_file", file);
+			if (file.length())
+				openFile((cpl::Misc::DirectoryPath() + file).c_str());
+
+			setTitle();
+
+		}
+		catch (const std::exception & e)
+		{
+			controller.console().printLine(CColours::red, "Error reading default file from config... %s", e.what());
+		}
+
 	}
 
 	SourceProjectManager::~SourceProjectManager()
@@ -71,55 +86,72 @@ namespace ape
 		autoSaveFile.remove();
 	}
 
-	bool SourceProjectManager::serializeObject(cpl::CSerializer::Archiver & ar, cpl::Version version)
+	void SourceProjectManager::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
 	{
-		ar["code-editor"] = editorWindowState.getState();
-		return true;
+		ar["code-editor"]["state"] = editorWindowState.getState();
+		ar["code-editor"] << (editorWindowState.hasCached() && editorWindowState.getCached()->isVisible()); // is editor open?
+
+		ar["source-path"] << fullPath;
+
+		std::string contents;
+		getDocumentText(contents);
+		ar["source"] << contents;
+
+		ar["traces"]["size"] << breakpoints.size();
+
+		for (auto trace : breakpoints)
+			ar["traces"]["content"] << trace;
 	}
 
-	bool SourceProjectManager::deserializeObject(cpl::CSerializer::Builder & builder, cpl::Version version)
+	void SourceProjectManager::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
 	{
-		//editorWindowState.setState(builder["code-editor"], builder["code-editor"].getLocalVersion());
-		return true;
+		editorWindowState.setState(builder["code-editor"]["state"], builder["code-editor"]["state"].getLocalVersion());
+		bool editorOpen = false;
+		builder["code-editor"] >> editorOpen;
+
+		builder["source-path"] >> fullPath;
+		std::string contents;
+		builder["source"] >> contents;
+		doc.replaceAllContent(contents);
+
+		std::size_t numTraces;
+		builder["traces"]["size"] >> numTraces;
+
+		for (std::size_t i = 0; i < numTraces; ++i)
+		{
+			int trace;
+			builder["traces"]["content"] >> trace;
+			breakpoints.emplace(trace);
+		}
+
+		if (editorOpen)
+			setEditorVisibility(true);
 	}
 
 	std::unique_ptr<CodeEditorWindow> SourceProjectManager::createWindow()
 	{
 		auto window = std::make_unique<CodeEditorWindow>(settings, doc);
+		window->setBreakpoints(breakpoints);
 		window->addBreakpointListener(this);
 		loadHotkeys();
 		window->setAppCM(&appCM);
-
-		/*
-		open a default file from settings
-		*/
-		std::string file;
-		try
-		{
-			settings.root()["languages"].lookupValue("default_file", file);
-		}
-		catch (const std::exception & e)
-		{
-			controller.console().printLine(CColours::red, "Error reading default file from config... %s", e.what());
-		}
-
-		if (file.length())
-			openFile((cpl::Misc::DirectoryPath() + file).c_str());
-
-		setTitle();
 		return window;
 	}
 
-	bool SourceProjectManager::initEditor()
+	bool SourceProjectManager::setEditorVisibility(bool visible)
 	{
-		if (!isInitialized)
+		if (!editorWindow)
 		{
-			isInitialized = true;
 			editorWindow = editorWindowState.getCached();
+			checkAutoSave();
+			setTitle();
 		}
-		else
-			return true;
-		return false;
+		editorWindow->setVisible(visible);
+
+		if (visible)
+			editorWindow->setMinimised(false);
+
+		return true;
 	}
 
 	void SourceProjectManager::openAFile()
@@ -225,26 +257,10 @@ namespace ape
 			editorWindow->setName(title);
 	}
 
-	bool SourceProjectManager::openEditor(bool initialVisibility)
-	{
-		if (!isInitialized) 
-		{
-			if (!initEditor())
-				return false;
-			isInitialized = true;
-			// on first open, we check autosave
-			checkAutoSave();
-		}
 
-		editorWindow->setVisible(initialVisibility);
-		editorWindow->setMinimised(false);
-		// extremely buggy:
-		//editorWindow->toFront(true);
-		return true;
-	}
-
-	void SourceProjectManager::onBreakpointsChanged(const std::set<int>& breakpoints)
+	void SourceProjectManager::onBreakpointsChanged(const std::set<int>& newBreakpoints)
 	{
+		breakpoints = newBreakpoints;
 		controller.onBreakpointsChanged(breakpoints);
 	}
 
@@ -252,17 +268,6 @@ namespace ape
 	std::string SourceProjectManager::getDocumentPath()
 	{
 		return fullPath;
-	}
-
-	bool SourceProjectManager::closeEditor()
-	{
-		if (isInitialized)
-		{
-			editorWindow->setVisible(false);
-			return true;
-		}
-		else
-			return false;
 	}
 
 	void SourceProjectManager::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result)
@@ -321,7 +326,7 @@ namespace ape
 			saveAs();
 			break;
 		case Command::FileExit:
-			closeEditor();
+			setEditorVisibility(false);
 			break;
 		}
 		return true;
@@ -362,6 +367,7 @@ namespace ape
 				return true;
 			};
 			auto fileLocations = new char *[1];
+			fileLocations[0] = nullptr;
 			project->files = fileLocations;
 			if (getDocumentText(text) && text.length() != 0 && 
 				assignCStr(text, project->sourceString) &&
@@ -370,19 +376,13 @@ namespace ape
 				assignCStr(getExtension(), project->languageID) &&
 				assignCStr(fullPath, fileLocations[0]))
 			{
-				project->nFiles = 1;
+				auto copiedLines = new int[breakpoints.size()];
+				std::size_t counter = 0;
+				for (auto line : breakpoints)
+					copiedLines[counter++] = line;
 
-				if (editorWindow)
-				{
-					const auto& tracedLines = editorWindow->getBreakpoints();
-					auto copiedLines = new int[tracedLines.size()];
-					std::size_t counter = 0;
-					for (auto line : tracedLines)
-						copiedLines[counter++] = line;
-
-					project->traceLines = copiedLines;
-					project->numTraceLines = counter;
-				}
+				project->traceLines = copiedLines;
+				project->numTraceLines = counter;
 
 				project->state = CodeState::None;
 				return project;
@@ -458,21 +458,8 @@ namespace ape
 
 	std::string SourceProjectManager::getProjectName()
 	{
-		if (isInitialized) {
-			if (isSingleFile) {
-				// fix this obviously when we start using project files.
-				std::string ret = getDocumentName();
-				signed int end = static_cast<signed int>(ret.size());
-				// scan backwards till we get the filename without extension
-				while (end > 0 && ret[--end] != '.');
-				if (end)
-					return std::string(ret.begin(), ret.begin() + end);
-				else
-					return ret;
-			}
-			// ...
-		}
-		return "";
+		const auto& name = getDocumentName();
+		return name.substr(0, name.find_last_of('.'));
 	}
 
 	bool SourceProjectManager::isDirty()
@@ -483,7 +470,8 @@ namespace ape
 	int SourceProjectManager::saveIfUnsure()
 	{
 		using namespace cpl::Misc;
-		if (isDirty()) {
+		if (isDirty()) 
+		{
 			std::string msg("Save changes to \"");
 			msg += fullPath;
 			msg += "\"?";
@@ -508,25 +496,28 @@ namespace ape
 
 	bool SourceProjectManager::openFile(const std::string & fileName)
 	{
-
 		fullPath = fileName;
 		juce::File f(fullPath);
 		juce::FileInputStream s(f);
-		if (s.openedOk()) {
-			setTitle();
+
+		if (s.openedOk()) 
+		{
 			doc.replaceAllContent("");
 			doc.loadFromStream(s);
 		}
-		else {
+		else 
+		{
 			std::string msg("Could not open file \"");
 			msg += fullPath;
 			msg += "\".";
 			cpl::Misc::MsgBox(msg, appName, cpl::Misc::MsgStyle::sOk, getParentWindow(), true);
 			return false;
 		}
+
 		setTitle();
 		doc.setSavePoint();
 		isActualFile = true;
+
 		return true;
 	}
 
@@ -657,7 +648,7 @@ namespace ape
 
 	void * SourceProjectManager::getParentWindow()
 	{
-		if (isInitialized && editorWindow && editorWindow->isVisible())
+		if (editorWindow && editorWindow->isVisible())
 			return editorWindow->getWindowHandle();
 		return controller.getSystemWindow();
 	}

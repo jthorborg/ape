@@ -37,7 +37,7 @@
 	#include <set>
 	#include <cpl/state/Serialization.h>
 	#include "../Settings.h"
-	#include "CCodeEditor.h"
+	#include "SourceManager.h"
 	#include "cpl/gui/Tools.h"
 
 	namespace ape
@@ -74,10 +74,10 @@
 			const std::set<int>& getBreakpoints();
 			void setBreakpoints(std::set<int> breakpoints);
 
-		private:
-
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
+
+		private:
 
 			juce::StringArray getMenuBarNames() override;
 			juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String& menuName) override;

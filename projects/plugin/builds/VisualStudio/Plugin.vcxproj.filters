@@ -2960,9 +2960,6 @@
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h">
-      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h">
       <Filter>Audio Programming Environment\Headers\MainEditor</Filter>
     </ClInclude>
@@ -2970,6 +2967,9 @@
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\SourceManager.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
   </ItemGroup>

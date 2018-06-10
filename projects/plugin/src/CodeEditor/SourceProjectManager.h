@@ -32,7 +32,7 @@
 
 	#include <cpl/MacroConstants.h>
 	#include "../Common.h"
-	#include "CCodeEditor.h"
+	#include "SourceManager.h"
 	#include <cpl/CExclusiveFile.h>
 	#include "../ProjectEx.h"
 	#include <string>
@@ -47,21 +47,20 @@
 		class CodeEditorWindow;
 
 		class SourceProjectManager 
-			: public CCodeEditor
+			: public SourceManager
 			, public juce::ApplicationCommandTarget
 			, private CodeEditorWindow::BreakpointListener
-			, public cpl::SafeSerializableObject
+			, public cpl::CSerializer::Serializable
 		{
 
 		public:
 			SourceProjectManager(UIController& ui, const Settings& s, int instanceID);
 			virtual ~SourceProjectManager();
 
-			// CCodeEditor overrides
+			// SourceManager overrides
 			void setErrorLine(int) override;
 			bool getDocumentText(std::string &) override;
-			bool openEditor(bool initialVisibilty = true) override;
-			bool closeEditor() override;
+			bool setEditorVisibility(bool visible) override;
 			bool exists() override { return true; }
 			bool openFile(const std::string & fileName) override;
 			std::unique_ptr<ProjectEx> getProject() override;
@@ -70,8 +69,8 @@
 			void autoSave() override;
 			bool checkAutoSave() override;
 
-			bool serializeObject(cpl::CSerializer::Archiver & ar, cpl::Version version);
-			bool deserializeObject(cpl::CSerializer::Builder & builder, cpl::Version version);
+			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
+			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
 
 		protected:
 
@@ -110,9 +109,9 @@
 			std::string fullPath, appName;
 			juce::CodeDocument doc;
 			cpl::CExclusiveFile autoSaveFile;
-			bool isInitialized, isSingleFile, isActualFile, autoSaveChecked, wasRestored;
+			bool isSingleFile, isActualFile, autoSaveChecked, wasRestored;
 			std::map<int, std::string> userHotKeys;
-
+			std::set<int> breakpoints;
 		};
 	}; // class ape
 #endif

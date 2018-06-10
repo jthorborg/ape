@@ -48,7 +48,7 @@
 		class Engine;
 		class CConsole;
 		struct CCompiler;
-		class CCodeEditor;
+		class SourceManager;
 		class CSerializer;
 		class CQueueLabel;
 		class PluginState;

@@ -1715,7 +1715,7 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
-    <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h" />
+    <ClInclude Include="..\..\src\CodeEditor\SourceManager.h" />
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />

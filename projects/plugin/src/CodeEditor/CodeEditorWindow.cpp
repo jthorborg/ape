@@ -335,7 +335,10 @@ namespace ape
 
 		void deserialize(cpl::CSerializer::Builder& builder, cpl::Version version) override
 		{
-			builder >> scale;
+			float newScale;
+			builder >> newScale;
+			if (newScale != scale)
+				rescale(newScale);
 		}
 
 	private:

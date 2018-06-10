@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:CCodeEditor.h
+	file:SourceManager.h
 	
 		Interface for the Code Editor, any code editor should inherit from this
 		and at least provide the methods that are purely virtual (obviously).
@@ -34,12 +34,13 @@
 
 *************************************************************************************/
 
-#ifndef APE_CCODEEDITOR_H
-	#define APE_CCODEEDITOR_H
+#ifndef APE_SOURCEMANAGER_H
+	#define APE_SOURCEMANAGER_H
 
 	#include <string>
 	#include <memory>
 	#include <cpl/Common.h>
+	#include <cpl/state/Serialization.h>
 
 	namespace ape
 	{
@@ -101,18 +102,23 @@
 		class UIController;
 		class Settings;
 
-		class CCodeEditor
+		class SourceManager : public cpl::CSerializer::Serializable
 		{
 		public:
-			CCodeEditor(UIController& c, const Settings& s, int instanceID) : controller(c), settings(s), instanceID(instanceID) {};
-			virtual ~CCodeEditor() {};
+
+			SourceManager(UIController& c, const Settings& s, int instanceID) 
+				: controller(c)
+				, settings(s)
+				, instanceID(instanceID) 
+			{
+
+			}
+
+			virtual ~SourceManager() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
 			virtual std::unique_ptr<ProjectEx> getProject() = 0;
-			virtual bool initEditor() { return false; }
-			virtual bool openEditor(bool initialVisibility = true) { return false; }
-			virtual bool closeEditor() { return false; }
-			virtual bool isOpen() { return false; }
+			virtual bool setEditorVisibility(bool visible) = 0;
 			virtual std::string getDocumentName() { return ""; }
 			virtual std::string getDocumentPath() { return ""; }
 			virtual bool openFile(const std::string & fileName) { return false; }
@@ -128,7 +134,7 @@
 
 		};
 
-		std::unique_ptr<CCodeEditor> MakeCodeEditor(UIController& c, const Settings& s, int instanceID);
+		std::unique_ptr<SourceManager> MakeSourceManager(UIController& c, const Settings& s, int instanceID);
 
 
 	};

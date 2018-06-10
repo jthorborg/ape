@@ -37,12 +37,12 @@
 	#include "Common.h"
 	#include "CConsole.h"
 	#include <cpl/CThread.h>
-	#include "CodeEditor/CCodeEditor.h"
+	#include "CodeEditor/SourceManager.h"
 	#include <cpl/state/Serialization.h>
 
 	namespace ape
 	{
-		static const cpl::Version CurrentVersion(0, 1, 0);
+		static const cpl::Version CurrentVersion(0, 1, 1);
 
 		/*
 			It is of pretty high importance to standardize the layout of this 
@@ -107,8 +107,6 @@
 				auto& archive = serializer.getArchiver();
 				archive.setMasterVersion(CurrentVersion);
 
-				std::string fileName = engine->getController().externEditor->getDocumentPath();
-				bool hasAProject = fileName.size() > 2 ? true : false;
 				Status state = engine->getCurrentPluginState() ? engine->getCurrentPluginState()->getState() : STATUS_DISABLED;
 
 				// we basically quantize all engine states to running or not running
@@ -117,27 +115,18 @@
 
 				switch (state)
 				{
-				case Status::STATUS_ERROR:
-				case Status::STATUS_DISABLED:
-					isActivated = false;
-					break;
 				case Status::STATUS_OK:
 				case Status::STATUS_READY:
 					isActivated = true;
 					break;
-				default:
-					isActivated = false;
 				}
 
-				archive["fileName"] << engine->getController().externEditor->getDocumentPath();
-				//archive["scope"] << engine->getOscilloscopeData().getContent();
-
-				archive << hasAProject;
 				archive << isActivated;
-				archive << engine->getController().externEditor->isOpen();
 
 				archive["scope-data"]["state"].setMasterVersion({ SIGNALIZER_MAJOR, SIGNALIZER_MINOR, SIGNALIZER_BUILD });
 				archive["scope-data"]["state"] << engine->getOscilloscopeData().getContent();
+				archive["controller"] << *engine->controller;
+				archive["session-name"] << engine->controller->getProjectName();
 
 				if (isActivated)
 				{
@@ -167,13 +156,16 @@
 
 				auto builder = serializer.getBuilder();
 
-				std::string filePath;
+				if (serializer.getBuilder().getLocalVersion() < CurrentVersion)
+					return false;
 
-				bool hasProject, isActivated, isOpen;
+				bool isActivated;
+				builder >> isActivated;
 
-				builder["fileName"] >> filePath;
-				builder >> hasProject >> isActivated >> isOpen;
-				//builder["scope"] >> engine->getOscilloscopeData().getContent();
+				std::string sessionName;
+
+				builder["session-name"] >> sessionName;
+				builder["controller"] >> *engine->controller;
 
 				if (builder.findForKey("scope-data"))
 				{
@@ -181,28 +173,6 @@
 					scope["state"] >> engine->getOscilloscopeData().getContent();
 				}
 
-
-				// first we open the editor to ensure it's initialized
-				if (!engine->getController().externEditor->openEditor(isOpen))
-				{
-					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Error opening editor!");
-					return false;
-				}
-				if (engine->getController().externEditor->checkAutoSave())
-				{
-					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
-					return false;
-				}
-				// then, we set it to the file from last session
-				if (!engine->getController().externEditor->openFile(filePath))
-				{
-					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Error opening session file (%s)!", filePath.c_str());
-					return false;
-				}
-				
 				if (!isActivated)
 					return true;
 
@@ -213,7 +183,7 @@
 				if (!plugin)
 				{
 					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Error compiling session file (%s)!", filePath.c_str());
+						"[Serializer] : Error compiling session file (%s)!", sessionName.c_str());
 					return false;
 				}
 
@@ -223,7 +193,7 @@
 				if (!engine->activatePlugin())
 				{
 					engine->getController().console().printLine(CColours::red,
-						"[Serializer] : Error activating project (%s)!", engine->getController().projectName.c_str());
+						"[Serializer] : Error activating project (%s)!", sessionName.c_str());
 					return false;
 
 				}
@@ -287,20 +257,20 @@
 					return restoreNewVersion(engine, block, size);
 				}
 				// first we open the editor to ensure it's initialized
-				if(!engine->getController().externEditor->openEditor(se->editorOpened))
+				if(!engine->getController().getSourceManager().setEditorVisibility(se->editorOpened))
 				{
 					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Error opening editor!");
 					return false;
 				}
-				if (engine->getController().externEditor->checkAutoSave())
+				if (engine->getController().getSourceManager().checkAutoSave())
 				{
 					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
 					return false;
 				}
 				// then, we set it to the file from last session
-				if(!engine->getController().externEditor->openFile(se->getFileNameConst()))
+				if(!engine->getController().getSourceManager().openFile(se->getFileNameConst()))
 				{
 					engine->getController().console().printLine(CColours::red,
 						"[Serializer] : Error opening session file (%s)!", se->getFileNameConst());
@@ -326,7 +296,7 @@
 					if (!engine->activatePlugin())
 					{
 						engine->getController().console().printLine(CColours::red,
-							"[Serializer] : Error activating project (%s)!", engine->getController().projectName.c_str());
+							"[Serializer] : Error activating project (%s)!", engine->getController().getProjectName().c_str());
 						return false;
 
 					}

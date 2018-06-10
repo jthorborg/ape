@@ -48,7 +48,7 @@
 		class Engine;
 		class CConsole;
 		struct CCompiler;
-		class CCodeEditor;
+		class SourceManager;
 		class CSerializer;
 		class CQueueLabel;
 		class PluginState;
@@ -58,6 +58,7 @@
 		class UIController
 			: public cpl::CMutex::Lockable
 			, public cpl::DestructionNotifier
+			, public cpl::CSerializer::Serializable
 		{
 			enum class Commands
 			{
@@ -74,9 +75,7 @@
 
 		  public:
 			
-			friend class ape::Engine;
-			friend class CCodeEditor;
-			friend class CSerializer;
+			friend class SourceManager;
 			friend class Editor;
 
 			UIController(ape::Engine& effect);
@@ -88,6 +87,7 @@
 			void render();
 			Editor * create();
 			ape::CConsole& console() noexcept { return *consolePtr.get();	};
+			SourceManager& getSourceManager() noexcept { return *sourceManager; }
 			void setStatusText(const std::string &, CColour color = juce::Colours::lightgoldenrodyellow);
 			void setStatusText(const std::string &, CColour color, int timeout);
 			void setStatusText();
@@ -98,12 +98,18 @@
 			void onBreakpointsChanged(const std::set<int>& newTraces);
 			void recompile();
 			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
+			const std::string& getProjectName() const noexcept { return projectName; }
 
-			static void errorPrint(void * data, const char * text);
 			bool performCommand(Commands command);
 
+			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
+			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
+
+			static void errorPrint(void * data, const char * text);
+
+
 		private:
-			
+
 			void onErrorMessage(const cpl::string_ref text);
 
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
@@ -111,7 +117,7 @@
 
 
 			std::unique_ptr<CConsole> consolePtr;
-			std::unique_ptr<CCodeEditor> externEditor;
+			std::unique_ptr<SourceManager> sourceManager;
 			ape::Engine& engine;
 			Editor * editor;
 			std::future<std::unique_ptr<PluginState>> compilerState;
