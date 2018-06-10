@@ -55,18 +55,21 @@ namespace ape
 
 	};
 
-	class CodeEditorComponent : public juce::CodeEditorComponent
+	class CodeEditorComponent 
+		: public juce::CodeEditorComponent
 	{
 	public:
 
-		CodeEditorComponent(juce::CodeDocument& document, juce::CodeTokeniser* tokenizer)
+		CodeEditorComponent(const Settings& setting, juce::CodeDocument& document, juce::CodeTokeniser* tokenizer)
 			: juce::CodeEditorComponent(document, tokenizer)
 		{
-			setColour(backgroundColourId, { 0x1E, 0x1E, 0x1E });
-			setColour(highlightColourId, { 0x26, 0x4f, 0x78 });
-			setColour(lineNumberBackgroundId, { 0x1E, 0x1E, 0x1E });
-			setColour(lineNumberTextId, { 0x7E, 0x7E, 0xAE });
-			setColour(juce::CaretComponent::caretColourId, juce::Colours::white);
+			setColour(backgroundColourId, setting.lookUpValue(juce::Colour{ 0x1E, 0x1E, 0x1E  }, "editor", "colours", "background"));
+			setColour(highlightColourId, setting.lookUpValue(juce::Colour{ 0x26, 0x4f, 0x78 }, "editor", "colours", "highlight") );
+			setColour(lineNumberBackgroundId, setting.lookUpValue(juce::Colour{ 0x1E, 0x1E, 0x1E }, "editor", "colours", "line_number", "background"));
+			setColour(lineNumberTextId, setting.lookUpValue(juce::Colour{ 0x7E, 0x7E, 0xAE }, "editor", "colours", "line_number", "text"));
+			setColour(juce::CaretComponent::caretColourId, setting.lookUpValue(juce::Colours::white, "editor", "colours", "caret"));
+
+			autoIndent = setting.lookUpValue(true, "editor", "auto_indent");
 		}
 
 		class Listener
@@ -214,14 +217,20 @@ namespace ape
 			repaint();
 		}
 
-		const std::set<int> getTracedLines() const noexcept { return breakpoints; }
+		const std::set<int>& getBreakpoints() const noexcept { return breakpoints; }
 
-		void addTraceListener(BreakpointListener* l)
+		void setBreakpoints(std::set<int> newBreakpoints)
+		{
+			breakpoints = std::move(newBreakpoints);
+			repaint();
+		}
+
+		void addBreakpointListener(BreakpointListener* l)
 		{
 			listeners.emplace(l);
 		}
 
-		void removeTraceListener(BreakpointListener* l)
+		void removeBreakpointListener(BreakpointListener* l)
 		{
 			listeners.erase(l);
 		}
@@ -268,34 +277,45 @@ namespace ape
 		std::set<BreakpointListener*> listeners;
 	};
 
-	class InternalCodeEditorComponent : public juce::Component
+	class InternalCodeEditorComponent 
+		: public juce::Component
+		, public cpl::CSerializer::Serializable
 	{
 	public:
 
-		InternalCodeEditorComponent(juce::CodeDocument& doc)
-			: cec(doc, &tokeniser)
-			, tracer(cec)
+		InternalCodeEditorComponent(const Settings& settings, juce::CodeDocument& doc)
+			: tokeniser(std::make_unique<CLangCodeTokeniser>(settings))
+			, codeEditorComponent(settings, doc, tokeniser.get())
+			, tracer(codeEditorComponent)
 			, scale(1.0f)
 		{
 			wrapper.setVisible(true);
 			addChildComponent(wrapper);
-			wrapper.addChildComponent(cec);
+			wrapper.addChildComponent(codeEditorComponent);
 			wrapper.addChildComponent(tracer);
-			cec.setLineNumbersShown(true);
+			codeEditorComponent.setLineNumbersShown(true);
 
-			cec.setVisible(true);
+			codeEditorComponent.setVisible(true);
 			tracer.setVisible(true);
-			cec.addMouseListener(this, true);
+			codeEditorComponent.addMouseListener(this, true);
+
+			scale = settings.lookUpValue(1.0f, "editor", "zoom");
+			rescale(scale);
 		}
 
 		void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override
 		{
 			if (e.mods.isCtrlDown())
 			{
-				scale *= 1.0f + details.deltaY / 16.0f;
-				wrapper.setTransform(juce::AffineTransform::identity.scaled(scale));
-				resized();
+				rescale(scale * 1.0f + details.deltaY / 16.0f);
 			}
+		}
+
+		void rescale(float newScale)
+		{
+			scale = newScale;
+			wrapper.setTransform(juce::AffineTransform::identity.scaled(scale));
+			resized();
 		}
 
 		void resized() override
@@ -303,23 +323,33 @@ namespace ape
 			auto bounds = juce::Rectangle<float>(0, 0, getWidth() / scale, getHeight() / scale);
 			wrapper.setBounds(bounds.toType<int>());
 			tracer.setBounds(bounds.withRight(10).toType<int>());
-			cec.setBounds(bounds.withLeft(10).toType<int>());
+			codeEditorComponent.setBounds(bounds.withLeft(10).toType<int>());
 		}
 
 		BreakpointComponent& getLineTracer() noexcept { return tracer; }
 
-	private:
-		float scale;
-		juce::Component wrapper;
-		CodeTokeniser tokeniser;
-		CodeEditorComponent cec;
-		BreakpointComponent tracer;
+		void serialize(cpl::CSerializer::Archiver& ar, cpl::Version version) override
+		{
+			ar << scale;
+		}
 
+		void deserialize(cpl::CSerializer::Builder& builder, cpl::Version version) override
+		{
+			builder >> scale;
+		}
+
+	private:
+
+		std::unique_ptr<juce::CodeTokeniser> tokeniser;
+		juce::Component wrapper;
+		CodeEditorComponent codeEditorComponent;
+		BreakpointComponent tracer;
+		float scale;
 	};
 
-	CodeEditorWindow::CodeEditorWindow(juce::CodeDocument& cd)
+	CodeEditorWindow::CodeEditorWindow(const Settings& setting, juce::CodeDocument& cd)
 		: DocumentWindow(cpl::programInfo.name + " editor", juce::Colours::grey, DocumentWindow::TitleBarButtons::allButtons)
-		, codeEditor(std::make_unique<InternalCodeEditorComponent>(cd))
+		, codeEditor(std::make_unique<InternalCodeEditorComponent>(setting, cd))
 		, appCM(nullptr)
 	{
 		codeEditor->setVisible(true);
@@ -328,18 +358,26 @@ namespace ape
 		setUsingNativeTitleBar(true);
 		setContentNonOwned(codeEditor.get(), false);
 
-		setBounds(getBounds().withPosition(100, 100));
+		auto x = setting.lookUpValue(100, "editor", "x_offset");
+		auto y = setting.lookUpValue(100, "editor", "y_offset");
+		auto width = setting.lookUpValue(800, "editor", "width");
+		auto height = setting.lookUpValue(900, "editor", "height");
+
+		fillColour = setting.lookUpValue(juce::Colour{ 0x1E, 0x1E, 0x1E }, "editor", "colours", "background");
+
+		setBounds(x, y, width, height);
 	}
 
 	void CodeEditorWindow::paint(juce::Graphics& g)
 	{
-		g.fillAll({ 0x1E, 0x1E, 0x1E });
+		g.fillAll(fillColour);
 	}
 
 
 	CodeEditorWindow::~CodeEditorWindow()
 	{
 		setMenuBar(nullptr);
+		notifyDestruction();
 	}
 
 	juce::PopupMenu CodeEditorWindow::getMenuForIndex(int topLevelMenuIndex, const juce::String & menuName)
@@ -363,7 +401,8 @@ namespace ape
 		return ret;
 	}
 
-	void CodeEditorWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex) { }
+	void CodeEditorWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex) 
+	{ }
 
 
 	juce::StringArray CodeEditorWindow::getMenuBarNames()
@@ -389,17 +428,40 @@ namespace ape
 
 	void CodeEditorWindow::addBreakpointListener(BreakpointListener * listener)
 	{
-		codeEditor->getLineTracer().addTraceListener(listener);
+		codeEditor->getLineTracer().addBreakpointListener(listener);
 	}
 
 	void CodeEditorWindow::removeBreakpointListener(BreakpointListener * listener)
 	{
-		codeEditor->getLineTracer().removeTraceListener(listener);
+		codeEditor->getLineTracer().removeBreakpointListener(listener);
 	}
 
 	const std::set<int>& CodeEditorWindow::getBreakpoints()
 	{
-		return codeEditor->getLineTracer().getTracedLines();
+		return codeEditor->getLineTracer().getBreakpoints();
+	}
+
+	void CodeEditorWindow::setBreakpoints(std::set<int> breakpoints)
+	{
+		codeEditor->getLineTracer().setBreakpoints(std::move(breakpoints));
+	}
+
+	void CodeEditorWindow::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
+	{
+		ar << *codeEditor;
+
+		ar << std::int32_t(getX()) << std::int32_t(getY()) << std::int32_t(getWidth()) << std::int32_t(getHeight());
+	}
+
+	void CodeEditorWindow::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
+	{
+		builder >> *codeEditor;
+
+		std::int32_t x, y, width, height;
+
+		builder >> x >> y >> width >> height;
+
+		setBounds(x, y, width, height);
 	}
 
 }

@@ -38,6 +38,7 @@
 #include <sstream>
 #include <experimental/filesystem>
 #include <memory>
+#include "CodeEditorWindow.h"
 
 namespace ape
 {
@@ -58,6 +59,7 @@ namespace ape
 		, isActualFile(false)
 		, wasRestored(false)
 		, autoSaveChecked(false)
+		, editorWindowState([this] { return createWindow(); })
 	{
 		doc.setSavePoint();
 	}
@@ -69,37 +71,51 @@ namespace ape
 		autoSaveFile.remove();
 	}
 
+	bool SourceProjectManager::serializeObject(cpl::CSerializer::Archiver & ar, cpl::Version version)
+	{
+		ar["code-editor"] = editorWindowState.getState();
+		return true;
+	}
+
+	bool SourceProjectManager::deserializeObject(cpl::CSerializer::Builder & builder, cpl::Version version)
+	{
+		//editorWindowState.setState(builder["code-editor"], builder["code-editor"].getLocalVersion());
+		return true;
+	}
+
+	std::unique_ptr<CodeEditorWindow> SourceProjectManager::createWindow()
+	{
+		auto window = std::make_unique<CodeEditorWindow>(settings, doc);
+		window->addBreakpointListener(this);
+		loadHotkeys();
+		window->setAppCM(&appCM);
+
+		/*
+		open a default file from settings
+		*/
+		std::string file;
+		try
+		{
+			settings.root()["languages"].lookupValue("default_file", file);
+		}
+		catch (const std::exception & e)
+		{
+			controller.console().printLine(CColours::red, "Error reading default file from config... %s", e.what());
+		}
+
+		if (file.length())
+			openFile((cpl::Misc::DirectoryPath() + file).c_str());
+
+		setTitle();
+		return window;
+	}
+
 	bool SourceProjectManager::initEditor()
 	{
 		if (!isInitialized)
 		{
-			editorWindow = std::make_unique<CodeEditorWindow>(doc);
-			if (editorWindow)
-			{
-				editorWindow->addBreakpointListener(this);
-				editorWindow->setSize(800, 900);
-				loadHotkeys();
-				editorWindow->setAppCM(&appCM);
-
-				/*
-					open a default file from settings
-				*/
-				std::string file;
-				try
-				{
-					settings.root()["languages"].lookupValue("default_file", file);
-				}
-				catch (const std::exception & e)
-				{
-					controller.console().printLine(CColours::red, "Error reading default file from config... %s", e.what());
-				}
-				
-				if (file.length())
-					openFile((cpl::Misc::DirectoryPath() + file).c_str());
-
-				setTitle();
-				return true;
-			}
+			isInitialized = true;
+			editorWindow = editorWindowState.getCached();
 		}
 		else
 			return true;
@@ -417,8 +433,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			controller.console().printLine(CColours::red,
-													   "[Editor] : Error reading editor hotkeys from config... %s", e.what());
+			controller.console().printLine(CColours::red, "[Editor] : Error reading editor hotkeys from config... %s", e.what());
 			return false;
 		}
 		

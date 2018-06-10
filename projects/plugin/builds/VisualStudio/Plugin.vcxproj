@@ -599,7 +599,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tests|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\CodeEditor\CodeTokeniser.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\CLangCodeTokeniser.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp" />
@@ -1716,7 +1716,7 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
     <ClInclude Include="..\..\src\CodeEditor\CCodeEditor.h" />
-    <ClInclude Include="..\..\src\CodeEditor\CodeTokeniser.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
     <ClInclude Include="..\..\src\EngineStructures.h" />

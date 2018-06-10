@@ -39,9 +39,64 @@
 
 	#include <string>
 	#include <memory>
+	#include <cpl/Common.h>
 
 	namespace ape
 	{
+		enum Command
+		{
+			InvalidCommand = -1,
+			Start = 1,
+			FileNew = Start,
+			FileOpen,
+			FileSave,
+			FileSaveAs,
+			FileExit,
+			/* -- following are natively supported
+			EditCut,
+			EditCopy,
+			EditUndo,
+			EditRedo,
+			EditPaste,
+			EditDelete,
+			EditSelectAll
+			*/
+
+			End
+		};
+
+		/// <summary>
+		/// Enumerator to index arrays after name
+		/// </summary>
+		enum Menus
+		{
+			File,
+			Edit
+		};
+
+		/// <summary>
+		/// Describes an entry in the menu, with optional shortcut
+		/// </summary>
+		struct MenuEntry
+		{
+			MenuEntry(const std::string & name, int key = 0, juce::ModifierKeys modifier = juce::ModifierKeys(), Command c = InvalidCommand)
+				: name(name)
+				, key(key)
+				, modifier(modifier)
+				, command(c)
+			{
+
+			}
+
+			bool hasShortCut() { return key || modifier.testFlags(juce::ModifierKeys::noModifiers); }
+
+			std::string name;
+			int key;
+			juce::ModifierKeys modifier;
+			Command command;
+
+		};
+
 		struct ProjectEx;
 		class UIController;
 		class Settings;
@@ -53,7 +108,7 @@
 			virtual ~CCodeEditor() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual std::unique_ptr<ProjectEx> getProject() { return nullptr; }
+			virtual std::unique_ptr<ProjectEx> getProject() = 0;
 			virtual bool initEditor() { return false; }
 			virtual bool openEditor(bool initialVisibility = true) { return false; }
 			virtual bool closeEditor() { return false; }

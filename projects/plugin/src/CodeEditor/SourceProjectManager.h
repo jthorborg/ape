@@ -38,16 +38,19 @@
 	#include <string>
 	#include <map>
 	#include "CodeEditorWindow.h"
+	#include <cpl/state/DecoupledStateObject.h>
 
 	namespace ape
 	{
 		
 		struct AutoSaveInfo;
+		class CodeEditorWindow;
 
 		class SourceProjectManager 
 			: public CCodeEditor
 			, public juce::ApplicationCommandTarget
 			, private CodeEditorWindow::BreakpointListener
+			, public cpl::SafeSerializableObject
 		{
 
 		public:
@@ -67,12 +70,16 @@
 			void autoSave() override;
 			bool checkAutoSave() override;
 
+			bool serializeObject(cpl::CSerializer::Archiver & ar, cpl::Version version);
+			bool deserializeObject(cpl::CSerializer::Builder & builder, cpl::Version version);
+
 		protected:
 
 			void onBreakpointsChanged(const std::set<int>& breakpoints) override;
 
 		private:
 
+			std::unique_ptr<CodeEditorWindow> createWindow();
 			bool loadHotkeys();
 			bool initEditor();
 			void setTitle();
@@ -98,7 +105,8 @@
 
 			// instance stuff
 			juce::ApplicationCommandManager appCM;
-			std::unique_ptr<CodeEditorWindow> editorWindow;
+			cpl::UniqueHandle<CodeEditorWindow> editorWindow;
+			cpl::SerializableStateObject<CodeEditorWindow> editorWindowState;
 			std::string fullPath, appName;
 			juce::CodeDocument doc;
 			cpl::CExclusiveFile autoSaveFile;

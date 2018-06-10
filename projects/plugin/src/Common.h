@@ -108,8 +108,6 @@
 		};
 		// enum emulation
 
-
-		// TODO: move to common
 		struct IOConfig
 		{
 			std::size_t inputs = 0, outputs = 0, blockSize = 0;

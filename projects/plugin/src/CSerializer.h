@@ -148,7 +148,7 @@
 					archive["parameter-count"] << count;
 					for (auto ctrl : engine->getCurrentPluginState()->getCtrlManager().getControls())
 					{
-						list[i++] << SerializedEngine::ControlValue { ctrl->bGetValue(), (SerializedEngine::SeIntType) ctrl->bGetTag() };
+						list[i++] << SerializedEngine::ControlValue{ ctrl->bGetValue(), (SerializedEngine::SeIntType) ctrl->bGetTag() };
 					}
 				}
 

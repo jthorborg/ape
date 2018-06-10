@@ -113,6 +113,58 @@
 				config.writeFile(path.string().c_str());
 			}
 
+			template<typename T, typename... Paths>
+			T lookUpValue(const T& defaultValue, Paths&&... paths) const
+			{
+				const char* compiledPaths[] = { paths... };
+
+				try
+				{
+					const libconfig::Setting* setting = &config.getRoot();
+					for (const auto& path : compiledPaths)
+					{
+						if (!setting->exists(path))
+							return defaultValue;
+						else
+							setting = &((*setting)[path]);
+					}
+
+					return (T)*setting;
+				}
+				catch (const libconfig::SettingNotFoundException& e)
+				{
+					return defaultValue;
+				}
+			}
+
+			template<typename... Paths>
+			juce::Colour lookUpValue(juce::Colour defaultValue, Paths&&... paths) const
+			{
+				const char* compiledPaths[] = { paths... };
+
+				try
+				{
+					const libconfig::Setting* setting = &config.getRoot();
+					for (const auto& path : compiledPaths)
+					{
+						if (!setting->exists(path))
+							return defaultValue;
+						else
+							setting = &((*setting)[path]);
+					}
+
+					if (setting->getType() != libconfig::Setting::TypeString)
+						return defaultValue;
+
+					return juce::Colour::fromString(setting->c_str());
+
+				}
+				catch (const libconfig::SettingNotFoundException& e)
+				{
+					return defaultValue;
+				}
+			}
+
 			void reloadSettings()
 			{
 				try 

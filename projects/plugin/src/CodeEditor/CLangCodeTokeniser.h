@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:CodeTokeniser.h
+	file:CLangCodeTokeniser.h
 		
 		Tokeniser for different C-style language
 
@@ -31,6 +31,7 @@
 	#define APE_CODETOKENISER_H
 
 	#include <cpl/Common.h>
+	#include "../Settings.h"
 
 	namespace ape
 	{
@@ -38,27 +39,19 @@
 		/// <summary>
 		/// Reimplementation of juce::CPPCodeTokeniser
 		/// </summary>
-		class CodeTokeniser : public juce::CodeTokeniser
+		class CLangCodeTokeniser : public juce::CodeTokeniser
 		{
+		public:
+			CLangCodeTokeniser(const Settings& settings);
+
 			int readNextToken(juce::CodeDocument::Iterator&) override;
 			juce::CodeEditorComponent::ColourScheme getDefaultColourScheme() override;
 
 			static bool isReservedKeyword(const juce::String& token) noexcept;
-			
-			enum TokenType
-			{
-				tokenType_error = 0,
-				tokenType_comment,
-				tokenType_keyword,
-				tokenType_operator,
-				tokenType_identifier,
-				tokenType_integer,
-				tokenType_float,
-				tokenType_string,
-				tokenType_bracket,
-				tokenType_punctuation,
-				tokenType_preprocessor
-			};
+
+		private:
+
+			const Settings& settings;
 		}; 
 
 	}

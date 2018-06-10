@@ -33,70 +33,25 @@
 	#include "../Common.h"
 	#include <cpl/CExclusiveFile.h>
 	#include <string>
-	#include "CodeTokeniser.h"
+	#include "CLangCodeTokeniser.h"
 	#include <set>
+	#include <cpl/state/Serialization.h>
+	#include "../Settings.h"
+	#include "CCodeEditor.h"
+	#include "cpl/gui/Tools.h"
 
 	namespace ape
 	{
-		enum Command
-		{
-			InvalidCommand = -1,
-			Start = 1,
-			FileNew = Start,
-			FileOpen,
-			FileSave,
-			FileSaveAs,
-			FileExit,
-			/* -- following are natively supported
-			EditCut,
-			EditCopy,
-			EditUndo,
-			EditRedo,
-			EditPaste,
-			EditDelete,
-			EditSelectAll
-			*/
-
-			End
-		};
-
-		/// <summary>
-		/// Enumerator to index arrays after name
-		/// </summary>
-		enum Menus
-		{
-			File,
-			Edit
-		};
-
-		/// <summary>
-		/// Describes an entry in the menu, with optional shortcut
-		/// </summary>
-		struct MenuEntry
-		{
-			MenuEntry(const std::string & name, int key = 0, juce::ModifierKeys modifier = juce::ModifierKeys(), Command c = InvalidCommand)
-				: name(name)
-				, key(key)
-				, modifier(modifier)
-				, command(c)
-			{
-
-			}
-
-			bool hasShortCut() { return key || modifier.testFlags(juce::ModifierKeys::noModifiers); }
-
-			std::string name;
-			int key;
-			juce::ModifierKeys modifier;
-			Command command;
-
-		};
 
 		extern const MenuEntry CommandTable[][6];
 
 		class InternalCodeEditorComponent;
 
-		class CodeEditorWindow : public juce::DocumentWindow, public juce::MenuBarModel
+		class CodeEditorWindow 
+			: public juce::DocumentWindow
+			, private juce::MenuBarModel
+			, public cpl::SafeSerializableObject
+			, public cpl::DestructionNotifier
 		{
 		public:
 
@@ -107,7 +62,7 @@
 				virtual ~BreakpointListener() {}
 			};
 
-			CodeEditorWindow(juce::CodeDocument& cd);
+			CodeEditorWindow(const Settings& settings, juce::CodeDocument& cd);
 			void paint(juce::Graphics& g) override;
 			virtual ~CodeEditorWindow();
 			void closeButtonPressed() override;
@@ -117,8 +72,12 @@
 			void removeBreakpointListener(BreakpointListener* listener);
 
 			const std::set<int>& getBreakpoints();
+			void setBreakpoints(std::set<int> breakpoints);
 
 		private:
+
+			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
+			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
 
 			juce::StringArray getMenuBarNames() override;
 			juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String& menuName) override;
@@ -127,6 +86,7 @@
 			// instance data
 			juce::ApplicationCommandManager* appCM;
 			std::unique_ptr<InternalCodeEditorComponent> codeEditor;
+			juce::Colour fillColour;
 		};
 
 	}; // class ape
