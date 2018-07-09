@@ -227,6 +227,14 @@ namespace CppAPE
 			}
 		}
 
+		void prepareGlobals()
+		{
+			if (auto ret = jit_prepare_globals(ctx.get()); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+		}
+
 		void setCallback(ErrorCallback cb)
 		{
 			callback = std::move(cb);

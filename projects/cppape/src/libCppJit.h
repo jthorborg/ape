@@ -64,14 +64,15 @@ LIBCPPJIT_EXPORT jit_error_t trs_unit_delete(translation_unit * unit);
 
 LIBCPPJIT_EXPORT const char * jit_format_error(jit_error_t error);
 LIBCPPJIT_EXPORT jit_error_t jit_create_context(jit_context** result, jit_shared_mcontext* mcontext);
-LIBCPPJIT_EXPORT jit_error_t jit_add_translation_unit(jit_context * c, const translation_unit* unit);
-LIBCPPJIT_EXPORT jit_error_t jit_set_callback(jit_context * c, void * callback_context, jit_error_callback cb);
-LIBCPPJIT_EXPORT jit_error_t jit_link_other_context(jit_context * c, jit_context* other);
-LIBCPPJIT_EXPORT jit_error_t jit_delete_context(jit_context * c);
-LIBCPPJIT_EXPORT jit_error_t jit_get_symbol(jit_context * c, const char * name, void ** ret);
-LIBCPPJIT_EXPORT jit_error_t jit_inject_symbol(jit_context * c, const char * name, void * location);
-LIBCPPJIT_EXPORT jit_error_t jit_finalize(jit_context * c);
-LIBCPPJIT_EXPORT jit_error_t jit_open(jit_context * c);
-LIBCPPJIT_EXPORT jit_error_t jit_close(jit_context * c);
+LIBCPPJIT_EXPORT jit_error_t jit_prepare_globals(jit_context* c);
+LIBCPPJIT_EXPORT jit_error_t jit_add_translation_unit(jit_context* c, const translation_unit* unit);
+LIBCPPJIT_EXPORT jit_error_t jit_set_callback(jit_context* c, void* callback_context, jit_error_callback cb);
+LIBCPPJIT_EXPORT jit_error_t jit_link_other_context(jit_context* c, jit_context* other);
+LIBCPPJIT_EXPORT jit_error_t jit_delete_context(jit_context* c);
+LIBCPPJIT_EXPORT jit_error_t jit_get_symbol(jit_context* c, const char* name, void** ret);
+LIBCPPJIT_EXPORT jit_error_t jit_inject_symbol(jit_context* c, const char* name, void* location);
+LIBCPPJIT_EXPORT jit_error_t jit_finalize(jit_context* c);
+LIBCPPJIT_EXPORT jit_error_t jit_open(jit_context* c);
+LIBCPPJIT_EXPORT jit_error_t jit_close(jit_context* c);
 
 #endif
