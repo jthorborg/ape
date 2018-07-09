@@ -56,8 +56,6 @@ namespace ape
 		, fullPath("Untitled")
 		, appName(cpl::programInfo.programAbbr + " Editor")
 		, isActualFile(false)
-		, wasRestored(false)
-		, autoSaveChecked(false)
 		, editorWindowState([this] { return createWindow(); })
 	{
 
@@ -82,8 +80,6 @@ namespace ape
 	SourceProjectManager::~SourceProjectManager()
 	{
 		saveIfUnsure();
-		// if we successfully close (like now), we delete autosave state
-		autoSaveFile.remove();
 	}
 
 	void SourceProjectManager::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
@@ -143,9 +139,9 @@ namespace ape
 		if (!editorWindow)
 		{
 			editorWindow = editorWindowState.getCached();
-			checkAutoSave();
 			setTitle();
 		}
+
 		editorWindow->setVisible(visible);
 
 		if (visible)
@@ -263,7 +259,6 @@ namespace ape
 		breakpoints = newBreakpoints;
 		controller.onBreakpointsChanged(breakpoints);
 	}
-
 
 	std::string SourceProjectManager::getDocumentPath()
 	{
@@ -579,73 +574,6 @@ namespace ape
 		}
 	}
 
-	struct AutoSaveInfo
-	{
-		int wasDirty;
-		time_t timeStamp;
-		std::size_t fileNameOffset;
-		std::size_t textDataOffset;
-
-		char * getFileName()
-		{
-			return reinterpret_cast<char*>(this) + fileNameOffset;
-		}
-		char * getTextData()
-		{
-			return reinterpret_cast<char*>(this) + textDataOffset;
-		}
-	};
-
-	void SourceProjectManager::autoSave()
-	{
-		// only create an autosave file if current contents are unsaved
-		if (isDirty())
-		{
-			// close the currently open file
-			if(!autoSaveFile.isOpened())
-			{
-				std::string path = cpl::Misc::DirectoryPath() + "/logs/autosave"
-				+ std::to_string(instanceID) + ".ape";
-				autoSaveFile.open(path);
-			}
-			else
-			{
-				autoSaveFile.reset();
-			}
-			
-			auto fileName = fullPath;
-			time_t timestamp;
-			std::time(&timestamp);
-			std::string buf;
-			getDocumentText(buf);
-
-			auto size_needed = sizeof (AutoSaveInfo) + fileName.size() + 1 + buf.size() + 1;
-
-			AutoSaveInfo * info = static_cast<AutoSaveInfo*>(std::malloc(size_needed));
-			info->wasDirty = isDirty();
-			info->timeStamp = timestamp;
-			info->fileNameOffset = sizeof (AutoSaveInfo);
-			std::memcpy(info->getFileName(), fileName.c_str(), fileName.size() + 1);
-			info->textDataOffset = info->fileNameOffset + fileName.size() + 1;
-			std::memcpy(info->getTextData(), buf.c_str(), buf.size() + 1);
-
-			if (autoSaveFile.isOpened())
-			{
-				autoSaveFile.write(info, size_needed);
-				autoSaveFile.flush();
-				// we flush the file and keep it open in memory, so other instances
-				// of this plugin dont try to open our autosave.
-			}
-			else
-			{
-				controller.console().printLine(CColours::red,
-													"[Editor] : error opening file %s for autosave.", autoSaveFile.getName().c_str());
-			}
-			std::free(info);
-			controller.setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
-		}
-	}
-
 	void * SourceProjectManager::getParentWindow()
 	{
 		if (editorWindow && editorWindow->isVisible())
@@ -653,160 +581,8 @@ namespace ape
 		return controller.getSystemWindow();
 	}
 
-	bool SourceProjectManager::restoreAutoSave(AutoSaveInfo * info, juce::File & parentFile)
-	{
-		using namespace cpl::Misc;
-		bool ret = false; // whether we actually restored a state
-		if (!info->wasDirty)
-			return false;
-		std::stringstream fmt;
-
-		time_t timeObj = info->timeStamp;
-		tm * ctime;
-		#ifdef CPL_MSVC
-			tm pTime;
-			gmtime_s(&pTime, &timeObj);
-			ctime = &pTime;
-		#else
-			// consider using a safer alternative here.
-			ctime = gmtime(&timeObj);			
-		#endif
-
-		std::string fullFileName = info->getFileName();
-
-		fmt << "Recoverable file found: " << fullFileName << std::endl;
-		fmt << "File was last autosaved at " << ctime->tm_hour << ":" << ctime->tm_min << ":"
-			<< ctime->tm_sec << ", " << ctime->tm_mday << "/" << ctime->tm_mon + 1 << "." << std::endl;
-		fmt << "Do you want to open this file (yes), delete it (no) or move it to /junk/ folder (cancel)?";
-
-		std::string fileName = fs::path(fullFileName).filename().string();
-
-
-		auto answer = MsgBox(fmt.str(), "ape - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
-
-		switch (answer)
-		{
-		case MsgButton::bCancel:
-			parentFile.moveFileTo(juce::File(DirectoryPath() + "/junk/" + std::to_string(info->timeStamp) + fileName));
-			// move file to a junk folder
-			break;
-		case MsgButton::bYes:
-			{
-				std::string newName = "(Recovered) " + fileName;
-
-				setContents(info->getTextData());
-				fullPath = newName;
-				setTitle();
-				isActualFile = false;
-				ret = true;
-			}
-			// fall through is intentional here
-		case MsgButton::bNo:
-			parentFile.deleteFile();
-			break;
-		}
-		return ret;
-	}
-
 	void SourceProjectManager::setContents(const juce::String & newContent)
 	{
 		doc.replaceAllContent(newContent);
-	}
-
-	bool SourceProjectManager::checkAutoSave()
-	{
-		// prevent multiple instances of this plugin to access the same files at once
-		static cpl::CMutex::Lockable autoSaveMutex;
-		cpl::CMutex lock(autoSaveMutex);
-
-		if (autoSaveChecked)
-			return wasRestored;
-
-
-		juce::DirectoryIterator dir(juce::File(cpl::Misc::DirectoryPath() + "/logs/"), false, "autosave*.ape");
-		
-		bool restored(false);
-		/*
-			Iterate over all autosave files until user chooses to open one, or we deleted/moved all existing ones.
-		*/
-		while (dir.next())
-		{
-			juce::File f(dir.getFile());
-			
-			// check if file is opened in exclusive mode by another instance of this program
-			// ie: whether it's an autosave file currently being used, or if it's an old file
-			// that we can safely mess with / restore / delete
-			if(cpl::CExclusiveFile::isFileExclusive(f.getFullPathName().toRawUTF8()))
-				continue;
-
-			
-			juce::ScopedPointer<juce::FileInputStream> stream = f.createInputStream();
-	
-			// this really should fail if an autosave file in another instance is opened in none-shared mode
-			// ie. this is a feature: we wont offer to open autosaves created by other active instances
-			if (!stream.get())
-				continue;
-
-			auto size = stream->getTotalLength();
-
-			// valid autosave file?
-			if (!size || size < sizeof(AutoSaveInfo) || size == -1)
-			{
-				// nope -- close opened stream
-				stream = nullptr; // alternative: delete stream.release();
-
-				// report anomaly
-				controller.console().printLine(CColours::black,
-					"[Editor] : Invalid autosave file found - deleting... (%s)",
-					f.getFileName().toRawUTF8());
-
-				// delete the file
-				std::remove(f.getFullPathName().toRawUTF8());
-				// NEXT
-				continue;
-			}
-
-			char * src = static_cast<char*>(std::malloc(static_cast<std::size_t>(size) + 1));
-
-			if (src)
-			{
-				auto bytesRead = stream->read(src, static_cast<int>(size));
-				if (bytesRead == size)
-					src[size] = '\0'; // nullterminate the extra byte we allocated
-				else
-				{
-					controller.console().printLine(CColours::red,
-						"[Editor] : Error reading file contents of %s (read %d, expected %d bytes)",
-						f.getFileName().toRawUTF8(), bytesRead, size);
-					std::free(src);
-					src = nullptr;
-					// error reading this file -- continue to next file in directory
-					continue;
-				}
-			}
-
-			// close input stream
-			stream = nullptr;
-
-			/*
-				at this point, we closed any handles associated with the file we read from.
-				if src is not a nullptr, any contents were successfully copied into the buffer.
-			*/
-			if (src)
-			{
-				restored = restoreAutoSave(reinterpret_cast<AutoSaveInfo *> (src), f);
-				std::free(src);
-				src = nullptr;
-			}
-
-
-			if (restored)
-				break;
-		}
-
-
-		wasRestored = restored;
-		autoSaveChecked = true;
-		return restored;
 	}
 }

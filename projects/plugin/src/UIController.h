@@ -54,6 +54,7 @@
 		class PluginState;
 		struct ProjectEx;
 		class Editor;
+		class AutosaveManager;
 
 		class UIController
 			: public cpl::CMutex::Lockable
@@ -115,7 +116,7 @@
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
 			void setProjectName(const std::string & name) { projectName = name; }
 
-
+			std::unique_ptr<AutosaveManager> autosaveManager;
 			std::unique_ptr<CConsole> consolePtr;
 			std::unique_ptr<SourceManager> sourceManager;
 			ape::Engine& engine;
@@ -128,9 +129,7 @@
 			volatile bool & bUseBuffers;
 			volatile bool & bUseFPUE;
 			volatile bool & bIsActive;
-			int autoSaveInterval;
 			int uiRefreshInterval;
-			unsigned int autoSaveCounter;
 			unsigned int incGraphicCounter;
 			
 			struct

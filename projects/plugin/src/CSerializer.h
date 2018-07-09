@@ -36,9 +36,9 @@
 	#include "CApi.h"
 	#include "Common.h"
 	#include "CConsole.h"
-	#include <cpl/CThread.h>
 	#include "CodeEditor/SourceManager.h"
 	#include <cpl/state/Serialization.h>
+	#include "PluginState.h"
 
 	namespace ape
 	{

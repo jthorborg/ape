@@ -1530,6 +1530,9 @@
     <ClCompile Include="..\..\src\CodeEditor\CLangCodeTokeniser.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\AutosaveManager.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -2970,6 +2973,9 @@
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\SourceManager.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\AutosaveManager.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
   </ItemGroup>

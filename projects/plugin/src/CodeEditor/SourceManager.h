@@ -121,11 +121,13 @@
 			virtual bool setEditorVisibility(bool visible) = 0;
 			virtual std::string getDocumentName() { return ""; }
 			virtual std::string getDocumentPath() { return ""; }
+			virtual bool isDirty() = 0;
 			virtual bool openFile(const std::string & fileName) { return false; }
 			virtual void autoSave() {};
 			// true: a project was restored, false: nothing happened
 			virtual bool checkAutoSave() { return false; }
 			virtual bool exists() = 0;
+			virtual void* getParentWindow() = 0;
 
 		protected:
 			UIController& controller;

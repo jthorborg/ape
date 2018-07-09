@@ -40,17 +40,12 @@
 #include "CodeEditor/SourceManager.h"
 #include <typeinfo>
 #include "MainEditor/MainEditor.h"
+#include "CodeEditor/AutosaveManager.h"
 
 namespace ape 
 {
 	using namespace std::string_literals;
 
-	/*********************************************************************************************
-
-	 	Constructor of the class. Initializes nearly everything to a passive state, and links
-		some of the engine's state to itself (button toggles, for instance.)
-
-	 *********************************************************************************************/
 	UIController::UIController(ape::Engine& effect)
 		: projectName(cpl::programInfo.programAbbr)
 		, editor(nullptr)
@@ -58,7 +53,6 @@ namespace ape
 		, bIsActive(effect.status.bActivated)
 		, bUseBuffers(engine.status.bUseBuffers)
 		, bUseFPUE(engine.status.bUseFPUE)
-		, autoSaveCounter(0)
 		, bFirstDraw(true)
 		, incGraphicCounter(0)
 		, consolePtr(std::make_unique<CConsole>())
@@ -73,11 +67,11 @@ namespace ape
 		if (app["console_std_writing"])
 			console().setStdWriting(true);
 
-		autoSaveInterval = app["autosave_interval"];
 		uiRefreshInterval = app["ui_refresh_interval"];
 		// create the editor
 		sourceManager = MakeSourceManager(*this, effect.getSettings(), effect.uniqueInstanceID());
-		
+		autosaveManager = std::make_unique<AutosaveManager>(effect.uniqueInstanceID(), effect.getSettings(), *sourceManager, *this);
+
 		// 0.025 is pretty smooth
 		clockData.pole = 0.025f;
 		clockData.averageClocks = 0;
@@ -160,15 +154,6 @@ namespace ape
 	void UIController::render()
 	{
 		incGraphicCounter++;
-		if (autoSaveInterval > 0)
-		{
-			autoSaveCounter++;
-			if ((autoSaveCounter * uiRefreshInterval / 1000.f) > autoSaveInterval)
-			{
-				sourceManager->autoSave();
-				autoSaveCounter = 0;
-			}
-		}
 
 		// stuff that should run once at least
 		if(bFirstDraw)
@@ -206,6 +191,9 @@ namespace ape
 			engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
 		}
 		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
+
+		autosaveManager->checkAutosave();
+
 		bFirstDraw = true;
 	}
 

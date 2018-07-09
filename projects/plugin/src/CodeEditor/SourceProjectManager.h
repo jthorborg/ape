@@ -50,7 +50,6 @@
 			: public SourceManager
 			, public juce::ApplicationCommandTarget
 			, private CodeEditorWindow::BreakpointListener
-			, public cpl::CSerializer::Serializable
 		{
 
 		public:
@@ -66,8 +65,6 @@
 			std::unique_ptr<ProjectEx> getProject() override;
 			std::string getDocumentName() override;
 			std::string getDocumentPath() override;
-			void autoSave() override;
-			bool checkAutoSave() override;
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
@@ -75,15 +72,15 @@
 		protected:
 
 			void onBreakpointsChanged(const std::set<int>& breakpoints) override;
+			void* getParentWindow() override;
 
 		private:
 
 			std::unique_ptr<CodeEditorWindow> createWindow();
 			bool loadHotkeys();
-			bool initEditor();
 			void setTitle();
 			void newDocument();
-			bool isDirty();
+			bool isDirty() override;
 			std::string getProjectName();
 			std::string getDirectory();
 			std::string getExtension();
@@ -92,9 +89,7 @@
 			void doSaveFile(const std::string &);
 			void saveCurrentFile();
 			void openAFile();
-			bool restoreAutoSave(AutoSaveInfo * info, juce::File &);
 			void setContents(const juce::String &);
-			void * getParentWindow();
 
 			//ApplicationCommandTarget overloads
 			ApplicationCommandTarget * getNextCommandTarget() override { return nullptr; }
@@ -108,8 +103,7 @@
 			cpl::SerializableStateObject<CodeEditorWindow> editorWindowState;
 			std::string fullPath, appName;
 			juce::CodeDocument doc;
-			cpl::CExclusiveFile autoSaveFile;
-			bool isSingleFile, isActualFile, autoSaveChecked, wasRestored;
+			bool isSingleFile, isActualFile;
 			std::map<int, std::string> userHotKeys;
 			std::set<int> breakpoints;
 		};
