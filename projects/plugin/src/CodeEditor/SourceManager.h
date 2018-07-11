@@ -41,9 +41,12 @@
 	#include <memory>
 	#include <cpl/Common.h>
 	#include <cpl/state/Serialization.h>
+	#include <cpl/Core.h>
 
 	namespace ape
 	{
+		namespace fs = cpl::fs;
+
 		enum Command
 		{
 			InvalidCommand = -1,
@@ -120,9 +123,9 @@
 			virtual std::unique_ptr<ProjectEx> getProject() = 0;
 			virtual bool setEditorVisibility(bool visible) = 0;
 			virtual std::string getDocumentName() { return ""; }
-			virtual std::string getDocumentPath() { return ""; }
+			virtual fs::path getDocumentPath() = 0;
 			virtual bool isDirty() = 0;
-			virtual bool openFile(const std::string & fileName) { return false; }
+			virtual bool openFile(const fs::path& fileName) { return false; }
 			virtual void autoSave() {};
 			// true: a project was restored, false: nothing happened
 			virtual bool checkAutoSave() { return false; }

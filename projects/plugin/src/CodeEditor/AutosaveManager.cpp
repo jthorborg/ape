@@ -80,7 +80,7 @@ namespace ape
 
 			ar.setMasterVersion(CurrentVersion);
 			ar["autosave"] << manager;
-			ar["path"] << manager.getDocumentPath();
+			ar["path"] << manager.getDocumentPath().string();
 
 			autosaveState = std::async(
 				[this](auto ptr)
@@ -119,6 +119,8 @@ namespace ape
 			autosaveFile.flush();
 
 		}
+
+		return true;
 	}
 
 	bool AutosaveManager::checkAutosave()
@@ -203,9 +205,19 @@ namespace ape
 
 		juce::Time time(ms);
 
+		fs::path filePath = fullFileName;
+
+
 		fmt << "Recoverable file found: " << fullFileName << std::endl;
 		fmt << "File was last autosaved at " << time.getHours() << ":" << time.getMinutes() << ":"
 			<< time.getSeconds() << ", " << time.getDayOfMonth() << "/" << time.getMonth() + 1 << "." << std::endl;
+
+		if (fs::exists(filePath))
+		{
+			bool newer = juce::File(filePath.string()).getLastModificationTime() > time;
+			fmt << "File saved on disk is " << (newer ? "newer" : "older") << "." << std::endl;
+		}
+
 		fmt << "Do you want to open this file (yes), delete it (no) or move it to /junk/ folder (cancel)?";
 
 		auto answer = MsgBox(fmt.str(), "ape - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, manager.getParentWindow(), true);

@@ -602,6 +602,7 @@
     <ClCompile Include="..\..\src\CodeEditor\AutosaveManager.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\CLangCodeTokeniser.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.CommandTarget.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />

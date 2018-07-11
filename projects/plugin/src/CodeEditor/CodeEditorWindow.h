@@ -42,7 +42,6 @@
 
 	namespace ape
 	{
-
 		extern const MenuEntry CommandTable[][6];
 
 		class InternalCodeEditorComponent;
@@ -89,5 +88,5 @@
 			juce::Colour fillColour;
 		};
 
-	}; // class ape
+	}
 #endif

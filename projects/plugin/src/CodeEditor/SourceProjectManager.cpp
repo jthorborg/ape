@@ -34,11 +34,11 @@
 #include "../UIController.h"
 #include "../CConsole.h"
 #include <ctime>
-#include <cstdio>
 #include <sstream>
 #include <experimental/filesystem>
 #include <memory>
 #include "CodeEditorWindow.h"
+#include <fstream>
 
 namespace ape
 {
@@ -54,7 +54,6 @@ namespace ape
 		, editorWindow(nullptr)
 		, isSingleFile(true)
 		, fullPath("Untitled")
-		, appName(cpl::programInfo.programAbbr + " Editor")
 		, isActualFile(false)
 		, editorWindowState([this] { return createWindow(); })
 	{
@@ -87,7 +86,7 @@ namespace ape
 		ar["code-editor"]["state"] = editorWindowState.getState();
 		ar["code-editor"] << (editorWindowState.hasCached() && editorWindowState.getCached()->isVisible()); // is editor open?
 
-		ar["source-path"] << fullPath;
+		ar["source-path"] << fullPath.string();
 
 		std::string contents;
 		getDocumentText(contents);
@@ -105,7 +104,12 @@ namespace ape
 		bool editorOpen = false;
 		builder["code-editor"] >> editorOpen;
 
-		builder["source-path"] >> fullPath;
+		std::string path;
+
+		builder["source-path"] >> path;
+		fullPath = path;
+		// TODO: Check contents vs. fullPath
+
 		std::string contents;
 		builder["source"] >> contents;
 		doc.replaceAllContent(contents);
@@ -122,6 +126,27 @@ namespace ape
 
 		if (editorOpen)
 			setEditorVisibility(true);
+
+		validateInvariants();
+	}
+
+	void SourceProjectManager::validateInvariants()
+	{
+		using namespace cpl::Misc;
+
+		bool currentlyExists = fs::exists(fullPath);
+
+		if (currentlyExists && isActualFile)
+		{
+			juce::File f(fullPath.string());
+			juce::FileInputStream s(f);
+			auto contents = s.readEntireStreamAsString();
+
+			if (doc.getAllContent() == contents)
+			{
+				doc.setSavePoint();
+			}
+		}
 	}
 
 	std::unique_ptr<CodeEditorWindow> SourceProjectManager::createWindow()
@@ -131,6 +156,30 @@ namespace ape
 		window->addBreakpointListener(this);
 		loadHotkeys();
 		window->setAppCM(&appCM);
+
+		bool currentlyExists = fs::exists(fullPath);
+
+		if (currentlyExists && isActualFile)
+		{
+			juce::File f(fullPath.string());
+			juce::FileInputStream s(f);
+			auto contents = s.readEntireStreamAsString();
+
+			if (doc.getAllContent() != contents)
+			{
+				using namespace cpl::Misc;
+
+				std::string message = "File on disk: \"" + fullPath.string() + "\"\nis different from loaded document, do you want to reload the disk version?";
+
+				int choice = MsgBox(message, cpl::programInfo.name, MsgStyle::sYesNo | MsgIcon::iQuestion, getParentWindow(), true);
+
+				if (choice == MsgButton::bYes)
+				{
+					openFile(fullPath);
+				}
+			}
+		}
+
 		return window;
 	}
 
@@ -230,25 +279,17 @@ namespace ape
 		{
 			openFile(fileSelector.getResult().getFullPathName().toStdString());
 		}
-		else
-		{
-			std::stringstream fmt;
-			fmt << "Error opening file dialog (" << 0 << ")!";
-			cpl::Misc::MsgBox(fmt.str(), cpl::programInfo.programAbbr + " Error!",
-				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iWarning, getParentWindow());
-		}
-
 	}
 
 	void SourceProjectManager::setTitle()
 	{
 		std::string title;
-		title += appName + " (" + std::to_string(instanceID & 0xFF) + ")";
+		title += cpl::programInfo.programAbbr + " Editor" + " (" + std::to_string(instanceID & 0xFF) + ")";
 		if (isDirty())
 			title += " * ";
 		else
 			title += " - ";
-		title += fullPath;
+		title += fullPath.string();
 		if (editorWindow)
 			editorWindow->setName(title);
 	}
@@ -260,33 +301,9 @@ namespace ape
 		controller.onBreakpointsChanged(breakpoints);
 	}
 
-	std::string SourceProjectManager::getDocumentPath()
+	fs::path SourceProjectManager::getDocumentPath()
 	{
 		return fullPath;
-	}
-
-	void SourceProjectManager::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result)
-	{
-		auto & cDesc = CommandTable[Menus::File][commandID];
-		juce::ApplicationCommandInfo aci(cDesc.command);
-		if(userHotKeys[commandID].size())
-		{
-			aci.defaultKeypresses.add(juce::KeyPress::createFromDescription(userHotKeys[commandID]));
-		}
-		else
-			aci.addDefaultKeypress(cDesc.key, cDesc.modifier);
-		aci.shortName = cDesc.name;
-		aci.flags = 0;
-		aci.setActive(true);
-		result = aci;
-	}
-
-	void SourceProjectManager::getAllCommands(juce::Array<juce::CommandID> & commands)
-	{
-		for (int c = Command::FileNew; c < Command::End; ++c)
-		{
-			commands.add(c);
-		}
 	}
 
 	void SourceProjectManager::newDocument()
@@ -299,33 +316,6 @@ namespace ape
 		isActualFile = false;
 	}
 
-	bool SourceProjectManager::perform(const InvocationInfo & info)
-	{
-		
-		switch (info.commandID)
-		{
-		case Command::FileNew:
-			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) {
-				newDocument();
-			}
-			break;
-		case Command::FileOpen:
-			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) {
-				openAFile();
-			}
-			break;
-		case Command::FileSave:
-			saveCurrentFile();
-			break;
-		case Command::FileSaveAs:
-			saveAs();
-			break;
-		case Command::FileExit:
-			setEditorVisibility(false);
-			break;
-		}
-		return true;
-	}
 
 	std::unique_ptr<ProjectEx> SourceProjectManager::getProject()
 	{
@@ -369,7 +359,7 @@ namespace ape
 				assignCStr(getProjectName(), project->projectName) &&
 				assignCStr(cpl::Misc::DirectoryPath(), project->rootPath) &&
 				assignCStr(getExtension(), project->languageID) &&
-				assignCStr(fullPath, fileLocations[0]))
+				assignCStr(fullPath.string(), fileLocations[0]))
 			{
 				auto copiedLines = new int[breakpoints.size()];
 				std::size_t counter = 0;
@@ -390,7 +380,6 @@ namespace ape
 	void SourceProjectManager::setErrorLine(int line)
 	{
 
-
 	}
 
 	bool SourceProjectManager::getDocumentText(std::string & buffer)
@@ -401,60 +390,26 @@ namespace ape
 
 	std::string SourceProjectManager::getDocumentName() 
 	{
-		return fs::path(fullPath).filename().string();
+		return fullPath.filename().string();
 	}
 
 	std::string SourceProjectManager::getDirectory() 
 	{
 		// TODO: fullpath -> std::path
-		return fs::path(fullPath).parent_path().string();
-	}
-
-	bool SourceProjectManager::loadHotkeys()
-	{
-		/*
-		 try to read the hotkeys from editor {}
-		 */
-		try
-		{
-			std::string temp;
-			const auto& root = settings.root();
-			if(root["editor"].lookupValue("hkey_save", temp))
-				userHotKeys[Command::FileSave] = temp;
-			if(root["editor"].lookupValue("hkey_new", temp))
-				userHotKeys[Command::FileNew] = temp;
-			if(root["editor"].lookupValue("hkey_open", temp))
-				userHotKeys[Command::FileOpen] = temp;
-		}
-		catch (const std::exception & e)
-		{
-			controller.console().printLine(CColours::red, "[Editor] : Error reading editor hotkeys from config... %s", e.what());
-			return false;
-		}
-		
-		appCM.registerAllCommandsForTarget(this);
-		appCM.setFirstCommandTarget(this);
-		
-		return true;
+		return fullPath.parent_path().string();
 	}
 
 	std::string SourceProjectManager::getExtension()
 	{
-		for (signed int i = static_cast<signed int>(fullPath.length());
-			i >= 0;
-			--i)
-		{
-			if (fullPath[i] == '.') // if fullPath is a path and not an unsaved file, shave the path off
-				// by looping backwards and finding the first dot.
-				return fullPath.substr(i + 1);
-		}
+		if(fullPath.has_extension())
+			return fullPath.extension().string().substr(1);
+
 		return "";
 	}
 
 	std::string SourceProjectManager::getProjectName()
 	{
-		const auto& name = getDocumentName();
-		return name.substr(0, name.find_last_of('.'));
+		return fullPath.stem().string();
 	}
 
 	bool SourceProjectManager::isDirty()
@@ -468,10 +423,11 @@ namespace ape
 		if (isDirty()) 
 		{
 			std::string msg("Save changes to \"");
-			msg += fullPath;
+			msg += fullPath.string();
 			msg += "\"?";
-			int decision = MsgBox(msg, cpl::programInfo.programAbbr, MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
-			if (decision == MsgButton::bYes) {
+			int decision = MsgBox(msg, cpl::programInfo.name, MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
+			if (decision == MsgButton::bYes) 
+			{
 				if (isActualFile)
 					saveCurrentFile();
 				else
@@ -482,43 +438,43 @@ namespace ape
 		return MsgButton::bYes;
 	}
 
-	void SourceProjectManager::saveCurrentFile() {
+	void SourceProjectManager::saveCurrentFile() 
+	{
 		if (isActualFile)
 			doSaveFile(fullPath);
 		else
 			saveAs();
 	}
 
-	bool SourceProjectManager::openFile(const std::string & fileName)
+	bool SourceProjectManager::openFile(const fs::path& fileName)
 	{
-		fullPath = fileName;
-		juce::File f(fullPath);
+		juce::File f(fileName.string());
 		juce::FileInputStream s(f);
 
-		if (s.openedOk()) 
-		{
-			doc.replaceAllContent("");
-			doc.loadFromStream(s);
-		}
-		else 
+		if (!s.openedOk()) 
 		{
 			std::string msg("Could not open file \"");
-			msg += fullPath;
+			msg += fileName.string();
 			msg += "\".";
-			cpl::Misc::MsgBox(msg, appName, cpl::Misc::MsgStyle::sOk, getParentWindow(), true);
+			cpl::Misc::MsgBox(msg, cpl::programInfo.name, cpl::Misc::MsgStyle::sOk, getParentWindow(), true);
 			return false;
 		}
 
-		setTitle();
+		doc.replaceAllContent("");
+		doc.loadFromStream(s);
 		doc.setSavePoint();
+
 		isActualFile = true;
+		fullPath = fileName;
+
+		setTitle();
 
 		return true;
 	}
 
-	void SourceProjectManager::saveAs() {
-		 
-		juce::File suggestedPath(isActualFile ? fullPath : cpl::Misc::DirectoryPath());
+	void SourceProjectManager::saveAs() 
+	{
+		juce::File suggestedPath(isActualFile ? fullPath.string() : cpl::Misc::DirectoryPath());
 
 		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " :: Select where to save your file...", suggestedPath);
 		if (fileSelector.browseForFileToSave(true))
@@ -528,49 +484,37 @@ namespace ape
 			setTitle();
 			doSaveFile(fullPath);
 		}
-		else
-		{
-			std::stringstream fmt;
-			fmt << "Error opening save file dialog (" << false << ")!";
-			cpl::Misc::MsgBox(fmt.str(), cpl::programInfo.programAbbr + " Error!",
-				cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iWarning, getParentWindow());
-		}
 	}
 
-	void SourceProjectManager::doSaveFile(const std::string & fileName)
+	void SourceProjectManager::doSaveFile(const fs::path& fileName)
 	{
+		using namespace cpl::Misc;
+
 		fullPath = fileName;
-		FILE *fp = nullptr;
-		#ifdef CPL_MSVC
-			fopen_s(&fp, fullPath.c_str(), "wb");
-		#else
-			fp = fopen(fullPath.c_str(), "wb");
-		#endif
-		if (fp)
+
+		std::ofstream file(fileName.string().c_str());
+
+		if (file)
 		{
 			std::string data;
 			getDocumentText(data);
-			auto ret = fwrite(data.data(), data.size(), 1, fp);
-			if (ret != 1)
+
+			if (!file.write(data.data(), data.size()))
 			{
-				using namespace cpl::Misc;
 				std::stringstream fmt;
-				fmt << "Error saving to file \"" << fullPath << "\"." 
-					<< std::endl << "Wrote " << ret * data.size() << " bytes, expected " << data.size() << " bytes.";
-				MsgBox(fmt.str(), cpl::programInfo.programAbbr + " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
+				fmt << "Error saving to file \"" << fullPath << "\".";
+				MsgBox(fmt.str(), cpl::programInfo.name, MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 			}
 			else
 			{
 				doc.setSavePoint();
 			}
-			fclose(fp);
 		}
 		else 
 		{
-			using namespace cpl::Misc;
 			std::stringstream fmt;
-			fmt << "Could not save file \"" << fullPath << "\".";
-			MsgBox(fmt.str(), cpl::programInfo.programAbbr + " error!", MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
+			fmt << "Could not open file \"" << fullPath << "\" for saving.";
+			MsgBox(fmt.str(), cpl::programInfo.name, MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 		}
 	}
 
@@ -581,7 +525,7 @@ namespace ape
 		return controller.getSystemWindow();
 	}
 
-	void SourceProjectManager::setContents(const juce::String & newContent)
+	void SourceProjectManager::setContents(const juce::String& newContent)
 	{
 		doc.replaceAllContent(newContent);
 	}

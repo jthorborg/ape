@@ -42,7 +42,8 @@
 
 	namespace ape
 	{
-		
+		namespace fs = cpl::fs;
+
 		struct AutoSaveInfo;
 		class CodeEditorWindow;
 
@@ -61,10 +62,10 @@
 			bool getDocumentText(std::string &) override;
 			bool setEditorVisibility(bool visible) override;
 			bool exists() override { return true; }
-			bool openFile(const std::string & fileName) override;
+			bool openFile(const fs::path& fileName) override;
 			std::unique_ptr<ProjectEx> getProject() override;
 			std::string getDocumentName() override;
-			std::string getDocumentPath() override;
+			fs::path getDocumentPath() override;
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
@@ -76,6 +77,8 @@
 
 		private:
 
+			void validateInvariants();
+
 			std::unique_ptr<CodeEditorWindow> createWindow();
 			bool loadHotkeys();
 			void setTitle();
@@ -86,7 +89,7 @@
 			std::string getExtension();
 			int saveIfUnsure();
 			void saveAs();
-			void doSaveFile(const std::string &);
+			void doSaveFile(const fs::path&);
 			void saveCurrentFile();
 			void openAFile();
 			void setContents(const juce::String &);
@@ -101,7 +104,7 @@
 			juce::ApplicationCommandManager appCM;
 			cpl::UniqueHandle<CodeEditorWindow> editorWindow;
 			cpl::SerializableStateObject<CodeEditorWindow> editorWindowState;
-			std::string fullPath, appName;
+			fs::path fullPath;
 			juce::CodeDocument doc;
 			bool isSingleFile, isActualFile;
 			std::map<int, std::string> userHotKeys;
