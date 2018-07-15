@@ -2,9 +2,7 @@
 
 	Audio Programming Environment VST. 
 		
-		VST is a trademark of Steinberg Media Technologies GmbH.
-
-    Copyright (C) 2013 Janus Lynggaard Thorborg [LightBridge Studios]
+    Copyright (C) 2018 Janus Lynggaard Thorborg [LightBridge Studios]
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,10 +33,11 @@
 	#include <vector>
 	#include <string>
 	#include <algorithm>
-	
+	#include <cpl/infrastructure/parameters/ParameterSystem.h>
+	#include <cpl/infrastructure/values/Values.h>
+
 	namespace ape 
 	{
-
 		class AuxMatrix
 		{
 		public:

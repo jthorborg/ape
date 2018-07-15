@@ -37,6 +37,7 @@
 #include <ape/Project.h>
 #include <cpl/Misc.h>
 #include "CSerializer.h"
+#include "Engine/ParameterManager.h"
 
 namespace cpl
 {
@@ -81,6 +82,7 @@ namespace ape
 		// rest of program
 		controller = std::make_unique<UIController>(*this);
 		codeGenerator.setErrorFunc(&UIController::errorPrint, controller.get());
+		params = std::make_unique<ParameterManager>(*this, 50);
 
 		// settings
 		loadSettings();
@@ -117,17 +119,6 @@ namespace ape
 		
 	}
 
-	void Engine::onSettingsChanged(const Settings& s, const libconfig::Setting& changed)
-	{
-
-	}
-
-
-	/*********************************************************************************************
-
-		Applies common settings found in confing.application to engine.
-
-	 *********************************************************************************************/
 	void Engine::loadSettings()
 	{
 		try 
@@ -343,28 +334,34 @@ namespace ape
 		#endif
 	}
 
+	void Engine::onSettingsChanged(const Settings& s, const libconfig::Setting& changed)
+	{
+
+	}
+
 	int Engine::getNumParameters()
 	{
-		return 0;
+		return static_cast<int>(params->numParams());
 	}
 
 	float Engine::getParameter(int index)
 	{
-		return 0.0f;
+		return params->getParameter(index);
 	}
 
 	void Engine::setParameter(int index, float newValue)
 	{
+		params->setParameter(index, newValue);
 	}
 
 	const juce::String Engine::getParameterName(int index)
 	{
-		return juce::String::empty;
+		return params->getParameterName(index);
 	}
 
 	const juce::String Engine::getParameterText(int index)
 	{
-		return juce::String::empty;
+		return params->getParameterText(index);
 	}
 
 	const juce::String Engine::getInputChannelName(int channelIndex) const

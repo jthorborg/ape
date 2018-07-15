@@ -343,6 +343,12 @@
     <Filter Include="Audio Programming Environment\Headers\MainEditor">
       <UniqueIdentifier>{21853edb-42e6-4601-b28f-785475583046}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio Programming Environment\Headers\Engine">
+      <UniqueIdentifier>{182f9445-c31c-4e8b-bd0e-cb1c1902fc91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio Programming Environment\Source\Engine">
+      <UniqueIdentifier>{9abaeb6d-0132-4daa-a098-f38d03171522}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1497,9 +1503,6 @@
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp">
       <Filter>Audio Programming Environment\Juce Wrappers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Engine.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\shared-src\ape\CppCompilerInterface.cpp">
       <Filter>Audio Programming Environment\Shared</Filter>
     </ClCompile>
@@ -1535,6 +1538,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.CommandTarget.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Engine.cpp">
+      <Filter>Audio Programming Environment\Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Engine\ParameterManager.cpp">
+      <Filter>Audio Programming Environment\Source\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2960,9 +2969,6 @@
     <ClInclude Include="..\..\src\SignalizerWindow.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\EngineStructures.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
@@ -2980,6 +2986,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\AutosaveManager.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Engine\ParameterManager.h">
+      <Filter>Audio Programming Environment\Headers\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\EngineStructures.h">
+      <Filter>Audio Programming Environment\Headers\Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

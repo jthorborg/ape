@@ -42,27 +42,28 @@
 	#include <cpl/ConcurrentServices.h>
 	#include <shared_mutex>
 	#include "CCodeGenerator.h"
+	#include "Engine/EngineStructures.h"
 	// TODO: remove
 	#include "SignalizerWindow.h"
-	#include "EngineStructures.h"
-	
-	namespace ape {
 
-		// forward declaration of the GUI class.
+	namespace ape 
+	{
+
 		class UIController;
 		class PluginState;
 		class CBaseControl;
 		class CSerializer;
+		class ParameterManager;
 
-		/*
-			Main engine class
-		*/
-		class Engine : public juce::AudioProcessor, private Settings::Listener
+		class Engine 
+			: public juce::AudioProcessor
+			, private Settings::Listener
 		{
 
 			friend class PluginState;
 			friend class UIController;
 			friend class CSerializer;
+			friend class ParameterManager;
 
 		public:
 
@@ -75,6 +76,8 @@
 			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
 			Settings& getSettings() noexcept { return settings; }
 			const Settings& getSettings() const noexcept { return settings; }
+
+
 			void exchangePlugin(std::unique_ptr<PluginState> plugin);
 			void disablePlugin(bool fromEditor = true);
 			bool activatePlugin();
@@ -146,6 +149,8 @@
 			cpl::ConcurrentObjectSwapper<PluginState> rtPlugin;
 			std::unique_ptr<UIController> controller;
 			std::unique_ptr<PluginState> pluginState;
+			std::unique_ptr<ParameterManager> params;
+
 			TracerState tracerState;
 			std::string programName;
 			Settings settings;
@@ -155,7 +160,6 @@
 			std::shared_mutex pluginMutex;
 			OscilloscopeData scopeData;
 			AuxMatrix auxMatrix;
-
-		}; 
+		};
 	}
 #endif
