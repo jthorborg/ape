@@ -12,24 +12,46 @@ class Param;
 
 namespace
 {
-	static float scaleLin(float v, float mi, float ma)
+	static PFloat scaleLin(PFloat x, PFloat mi, PFloat ma)
 	{
-		return mi + v * (ma - mi);
+		return mi + x * (ma - mi);
 	}
 
-	static float scaleExp(float v, float mi, float ma)
+	static PFloat scaleExp(PFloat x, PFloat mi, PFloat ma)
 	{
-		return mi * pow(ma / mi, v);
+		return mi * std::pow(ma / mi, x);
 	}
 
-	static float scaleLinQ(float v, float mi, float ma)
+	static PFloat scaleLinQ(PFloat x, PFloat mi, PFloat ma)
 	{
-		return floor(0.5f + mi + v * (ma - mi));
+		return std::floor(static_cast<PFloat>(0.5) + mi + x * (ma - mi));
 	}
 
-	static float scaleExpQ(float v, float mi, float ma)
+	static PFloat scaleExpQ(PFloat x, PFloat mi, PFloat ma)
 	{
-		return floor(0.5f + mi * pow(ma / mi, v));
+		return std::floor(static_cast<PFloat>(0.5) + mi * std::pow(ma / mi, x));
+	}
+
+	// inverted
+
+	static PFloat invScaleLin(PFloat y, PFloat mi, PFloat ma)
+	{
+		return (y - mi) / (ma - mi);
+	}
+
+	static PFloat invScaleExp(PFloat y, PFloat mi, PFloat ma)
+	{
+		return std::log(y / mi) / std::log(ma / mi);
+	}
+
+	static PFloat invScaleLinQ(PFloat y, PFloat mi, PFloat ma)
+	{
+		return (std::floor(static_cast<PFloat>(0.5) + y) - mi) / (ma - mi);
+	}
+
+	static PFloat invScaleExpQ(PFloat y, PFloat mi, PFloat ma)
+	{
+		return std::log(std::floor(static_cast<PFloat>(0.5) + y) / mi) / std::log(ma / mi);
 	}
 }
 
@@ -54,13 +76,13 @@ public:
 
 	}
 
-	Range(float minValue, float maxValue, Mapping parameterMapping = Lin)
+	Range(PFloat minValue, PFloat maxValue, Mapping parameterMapping = Lin)
 		: min(minValue), max(maxValue), mapping(parameterMapping)
 	{
 
 	}
 
-	float operator()(float value) const
+	PFloat operator()(PFloat value) const noexcept
 	{
 		if (mapping == Lin)
 			return min + value * (max - min);
@@ -69,14 +91,19 @@ public:
 
 	}
 
-	APE_ScaleFunc getScaler(bool quantized) const
+	APE_Transformer getTransformer(bool quantized) const noexcept
 	{
 		return !quantized ? (mapping == Lin ? scaleLin : scaleExp)  : (mapping == Lin ? scaleLinQ : scaleExpQ);
 	}
 
+	APE_Normalizer getNormalizer(bool quantized) const noexcept
+	{
+		return !quantized ? (mapping == Lin ? invScaleLin : invScaleExp) : (mapping == Lin ? invScaleLinQ : invScaleExpQ);
+	}
+
 private:
 
-	float min, max;
+	PFloat min, max;
 	Mapping mapping;
 };
 
@@ -92,7 +119,7 @@ public:
 	{
 	}
 
-	static Type convert(float normalized) noexcept
+	static Type convert(PFloat normalized) noexcept
 	{
 		return Derived::convert(normalized);
 	}
@@ -105,7 +132,7 @@ public:
 	operator Type() const noexcept
 	{
 		// TODO: Atomic read
-		const volatile float& read = storage;
+		const volatile PFloat& read = storage;
 		return convert(range(read));
 	}
 
@@ -114,23 +141,23 @@ protected:
 	int internalID;
 	std::string name;
 	Range range;
-	float storage;
+	PFloat storage;
 };
 
 template<class Type>
 class Param;
 
 
-template<>
+/*template<>
 class Param<bool> : public ParameterBase<bool, Param<bool>>
 {
 public:
 	typedef ParameterBase<bool, Param<bool>> Base;
 	typedef bool ParameterType;
 
-	static bool convert(float value) noexcept
+	static ParameterType convert(float value) noexcept
 	{
-		return static_cast<int>(std::floor((value + 0.5f))) ? true : false;
+		return static_cast<int>(std::floor((value + static_cast<PFloat>(0.5f)))) ? true : false;
 	}
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
@@ -145,7 +172,7 @@ public:
 		this->internalID = getInterface().createToggle(&getInterface(), this->name.c_str(), &this->storage);
 	}
 
-};
+}; */
 
 template<>
 class Param<float> : public ParameterBase<float, Param<float>>
@@ -154,9 +181,9 @@ public:
 	typedef ParameterBase<float, Param<float>> Base;
 	typedef float ParameterType;
 
-	static constexpr float convert(float value) noexcept
+	static constexpr ParameterType convert(PFloat value) noexcept
 	{
-		return value;
+		return static_cast<ParameterType>(value);
 	}
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
@@ -168,7 +195,15 @@ public:
 	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 		: Base(paramName, parameterRange)
 	{
-		this->internalID = getInterface().createRangeKnob(&getInterface(), this->name.c_str(), unit.c_str(), &this->storage, this->range.getScaler(false), this->range.min, this->range.max);
+		this->internalID = getInterface().createNormalParameter(
+			&getInterface(),
+			this->name.c_str(),
+			&this->storage,
+			this->range.getTransformer(false),
+			this->range.getNormalizer(false),
+			this->range.min,
+			this->range.max
+		);
 	}
 
 };
@@ -180,9 +215,9 @@ public:
 	typedef ParameterBase<double, Param<double>> Base;
 	typedef double ParameterType;
 
-	static constexpr double convert(float value) noexcept
+	static constexpr ParameterType convert(PFloat value) noexcept
 	{
-		return value;
+		return static_cast<ParameterType>(value);
 	}
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
@@ -194,7 +229,15 @@ public:
 	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 		: Base(paramName, parameterRange)
 	{
-		this->internalID = getInterface().createRangeKnob(&getInterface(), this->name.c_str(), unit.c_str(), &storage, this->range.getScaler(false), this->range.min, this->range.max);
+		this->internalID = getInterface().createNormalParameter(
+			&getInterface(),
+			this->name.c_str(),
+			&this->storage,
+			this->range.getTransformer(false),
+			this->range.getNormalizer(false),
+			this->range.min,
+			this->range.max
+		);
 	}
 
 };
@@ -206,9 +249,9 @@ public:
 	typedef ParameterBase<int, Param<int>> Base;
 	typedef int ParameterType;
 
-	static int convert(float value) noexcept
+	static ParameterType convert(PFloat value) noexcept
 	{
-		return static_cast<int>(std::round(value));
+		return static_cast<ParameterType>(std::round(value));
 	}
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
@@ -220,7 +263,15 @@ public:
 	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 		: Base(paramName, parameterRange)
 	{
-		this->internalID = getInterface().createRangeKnob(&getInterface(), this->name.c_str(), unit.c_str(), &this->storage, this->range.getScaler(true), this->range.min, this->range.max);
+		this->internalID = getInterface().createNormalParameter(
+			&getInterface(),
+			this->name.c_str(),
+			&this->storage,
+			this->range.getTransformer(true),
+			this->range.getNormalizer(true),
+			this->range.min,
+			this->range.max
+		);
 	}
 
 }; 

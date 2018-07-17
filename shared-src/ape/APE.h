@@ -49,8 +49,20 @@
 		#endif
 	#endif
 
+	/// <summary>
+	/// Floating-precision point type used for parameter processing
+	/// </summary>
+	typedef double PFloat;
+
 	typedef void (APE_API * APE_ErrorFunc)(void*, const char *);
-	typedef float(APE_API * APE_ScaleFunc)(float value, float _min, float _max);
+	/// <summary>
+	/// Deprecated
+	/// </summary>
+	[[deprecated]] typedef float(APE_API * APE_ScaleFunc)(float value, float _min, float _max);
+
+	typedef PFloat (APE_API * APE_Transformer)(PFloat x, PFloat _min, PFloat _max);
+	typedef PFloat (APE_API * APE_Normalizer)(PFloat y, PFloat _min, PFloat _max);
+
 
 	// Status definitions for operation and states.
 	typedef enum 
@@ -71,6 +83,8 @@
 			using Status = APE_Status;
 			using ScaleFunc = APE_ScaleFunc;
 			using ErrorFunc = APE_ErrorFunc;
+			using Transformer = APE_Transformer;
+			using Normalizer = APE_Normalizer;
 		};
 	#endif
 #endif

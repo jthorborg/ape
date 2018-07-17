@@ -62,7 +62,7 @@
 		public:
 			using CommandBase::CommandBase;
 
-			static ParameterRecord BoolFlag(const char* name, float* val)
+			/* static ParameterRecord BoolFlag(const char* name, float* val)
 			{
 				ParameterRecord ret(CommandType::Parameter);
 				ret.name = name;
@@ -89,7 +89,7 @@
 				ret.type = ParameterType::ScaledFloat;
 				ret.min = min;
 				ret.max = max;
-				ret.scaleFunc = func;
+				ret.scaler = func;
 				ret.unit = unit;
 				return ret;
 			}
@@ -103,8 +103,21 @@
 				ret.unit = unit;
 				ret.values = values;
 				return ret;
-			}
+			} */
 
+			static ParameterRecord NormalParameter(const char* name, const char* unit, PFloat* val, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
+			{
+				ParameterRecord ret(CommandType::Parameter);
+				ret.name = name;
+				ret.value = val;
+				ret.type = ParameterType::ScaledFloat;
+				ret.min = min;
+				ret.max = max;
+				ret.transformer = transformer;
+				ret.normalizer = normalizer;
+				ret.unit = unit;
+				return ret;
+			}
 
 			enum ParameterType
 			{
@@ -131,13 +144,13 @@
 			std::string name;
 			std::string unit;
 			std::string values;
-			float* value = nullptr;
-			float min = 0;
-			float max = 1;
+			PFloat* value = nullptr;
+			PFloat min = 0;
+			PFloat max = 1;
 
 			int knobType = 0;
-			ScaleFunc scaleFunc = nullptr;
-
+			Transformer transformer = nullptr;
+			Normalizer normalizer = nullptr;
 		};
 
 		class PluginCommandQueue
