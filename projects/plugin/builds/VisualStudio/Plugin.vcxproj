@@ -1723,8 +1723,9 @@
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
-    <ClInclude Include="..\..\src\EngineStructures.h" />
+    <ClInclude Include="..\..\src\Engine\EngineStructures.h" />
     <ClInclude Include="..\..\src\Engine\ParameterManager.h" />
+    <ClInclude Include="..\..\src\Engine\PluginCommandQueue.h" />
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />

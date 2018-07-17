@@ -33,8 +33,6 @@
 	#include <vector>
 	#include <string>
 	#include <algorithm>
-	#include <cpl/infrastructure/parameters/ParameterSystem.h>
-	#include <cpl/infrastructure/values/Values.h>
 
 	namespace ape 
 	{

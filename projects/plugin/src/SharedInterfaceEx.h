@@ -90,8 +90,8 @@
 			}
 
 		private:
-			Engine & engine;
-			PluginState & cstate;
+			Engine& engine;
+			PluginState& cstate;
 		};
 	
 	};

@@ -39,6 +39,7 @@
 #include <sstream>
 #include <cpl/Protected.h>
 #include <cpl/gui/Tools.h>
+#include "Engine/PluginCommandQueue.h"
 
 namespace ape
 {
@@ -65,6 +66,7 @@ namespace ape
 		, abnormalBehaviour(false)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
+		commandQueue = std::make_unique<PluginCommandQueue>();
 		project->iface = sharedObject.get();
 
 		if (!generator.createProject(*project))

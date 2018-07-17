@@ -38,6 +38,7 @@
 #include <cpl/Misc.h>
 #include "Engine.h"
 #include <cpl/Protected.h>
+#include "Engine/PluginCommandQueue.h"
 
 namespace ape 
 {
@@ -130,7 +131,11 @@ namespace ape
 		REQUIRES_NOTNULL(extVal);
 
 		auto& engine = IEx::downcast(*iface).getEngine();
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, extVal, static_cast<CKnobEx::type>(type));
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+
+		pstate.getCommandQueue().enqueueCommand(ParameterRecord::LegacyKnob(name, extVal, type));
+
+		int tag = pstate.getCtrlManager().addKnob(name, extVal, static_cast<CKnobEx::type>(type));
 		if(tag == -1)
 			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
@@ -146,6 +151,9 @@ namespace ape
 		REQUIRES_NOTNULL(unit);
 
 		auto& engine = IEx::downcast(*iface).getEngine();
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+
+		pstate.getCommandQueue().enqueueCommand(ParameterRecord::ValueList(name, unit, extVal, values));
 
 		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, extVal, values, unit);
 		if(tag == -1)
@@ -176,6 +184,9 @@ namespace ape
 		REQUIRES_NOTNULL(extVal);
 
 		auto& engine = IEx::downcast(*iface).getEngine();
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+
+		pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal));
 
 		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addToggle(name, extVal);
 		if(tag == -1)
@@ -355,6 +366,9 @@ namespace ape
 		REQUIRES_NOTNULL(scaleCB);
 
 		auto& engine = IEx::downcast(*iface).getEngine();
+
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		pstate.getCommandQueue().enqueueCommand(ParameterRecord::ScaledParameter(name, unit, extVal, scaleCB, min, max));
 
 		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
 		if (tag == -1)

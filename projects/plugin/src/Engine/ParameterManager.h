@@ -121,7 +121,18 @@
 		{
 		public:
 
+
 			typedef cpl::Parameters::Handle IndexHandle;
+
+			class Listener
+			{
+			public:
+
+
+
+				virtual ~Listener() {}
+			};
+
 
 			ParameterManager(Engine& engine, std::size_t numParameters);
 

@@ -59,6 +59,7 @@
 		class CCodeGenerator;
 		struct SharedInterfaceEx;
 		struct ProjectEx;
+		class PluginCommandQueue;
 
 		class PluginState : private CBaseControl::CListener, private cpl::DestructionNotifier
 		{
@@ -94,6 +95,7 @@
 
 			Status getState() const noexcept { return state; }
 			CPluginCtrlManager& getCtrlManager() noexcept { return ctrlManager; }
+			PluginCommandQueue& getCommandQueue() noexcept { return *commandQueue; }
 
 		private:
 
@@ -148,6 +150,7 @@
 			Status dispatchEvent(const char * reason, APE_Event& event);
 
 			std::unique_ptr<SharedInterfaceEx> sharedObject;
+			std::unique_ptr<PluginCommandQueue> commandQueue;
 			CCodeGenerator& generator;
 			Engine& engine;
 			CAllocator pluginAllocator;

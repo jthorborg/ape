@@ -71,12 +71,12 @@
 			virtual ~Engine();
 
 			OscilloscopeData& getOscilloscopeData() { return scopeData; }
-			UIController& getController() { return *controller.get(); }
+			UIController& getController() { return *controller; }
 			PluginState * getCurrentPluginState() { return pluginState.get(); }
 			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
 			Settings& getSettings() noexcept { return settings; }
 			const Settings& getSettings() const noexcept { return settings; }
-
+			ParameterManager& getParameterManager() noexcept { return *params; }
 
 			void exchangePlugin(std::unique_ptr<PluginState> plugin);
 			void disablePlugin(bool fromEditor = true);

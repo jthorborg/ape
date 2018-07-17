@@ -2990,7 +2990,10 @@
     <ClInclude Include="..\..\src\Engine\ParameterManager.h">
       <Filter>Audio Programming Environment\Headers\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\EngineStructures.h">
+    <ClInclude Include="..\..\src\Engine\EngineStructures.h">
+      <Filter>Audio Programming Environment\Headers\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Engine\PluginCommandQueue.h">
       <Filter>Audio Programming Environment\Headers\Engine</Filter>
     </ClInclude>
   </ItemGroup>
