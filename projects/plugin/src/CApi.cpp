@@ -133,7 +133,8 @@ namespace ape
 		auto& engine = IEx::downcast(*iface).getEngine();
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 
-		pstate.getCommandQueue().enqueueCommand(ParameterRecord::LegacyKnob(name, extVal, type));
+		// TODO:
+		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::LegacyKnob(name, extVal, type));
 
 		int tag = pstate.getCtrlManager().addKnob(name, extVal, static_cast<CKnobEx::type>(type));
 		if(tag == -1)
@@ -153,7 +154,8 @@ namespace ape
 		auto& engine = IEx::downcast(*iface).getEngine();
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 
-		pstate.getCommandQueue().enqueueCommand(ParameterRecord::ValueList(name, unit, extVal, values));
+		// TODO:
+		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::ValueList(name, unit, extVal, values));
 
 		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, extVal, values, unit);
 		if(tag == -1)
@@ -186,7 +188,8 @@ namespace ape
 		auto& engine = IEx::downcast(*iface).getEngine();
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 
-		pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal));
+		// TODO:
+		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal));
 
 		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addToggle(name, extVal);
 		if(tag == -1)
@@ -368,7 +371,9 @@ namespace ape
 		auto& engine = IEx::downcast(*iface).getEngine();
 
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-		pstate.getCommandQueue().enqueueCommand(ParameterRecord::ScaledParameter(name, unit, extVal, scaleCB, min, max));
+		
+		// TODO:
+		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::ScaledParameter(name, unit, extVal, scaleCB, min, max));
 
 		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
 		if (tag == -1)
@@ -394,6 +399,26 @@ namespace ape
 		engine.handleTraceCallback(nameTuple, numNames, values, numValues);
 
 		return 1;
+	}
+
+	int	APE_API	createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(unit);
+		REQUIRES_NOTNULL(extVal);
+
+		auto& engine = IEx::downcast(*iface).getEngine();
+
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		pstate.getCommandQueue().enqueueCommand(ParameterRecord::NormalParameter(name, unit, extVal, transformer, normalizer, min, max));
+		/*
+		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
+		if (tag == -1)
+			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
+		*/
+		return 0;
+
 	}
 
 }

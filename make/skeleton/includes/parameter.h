@@ -198,6 +198,7 @@ public:
 		this->internalID = getInterface().createNormalParameter(
 			&getInterface(),
 			this->name.c_str(),
+			unit.c_str(),
 			&this->storage,
 			this->range.getTransformer(false),
 			this->range.getNormalizer(false),
@@ -232,6 +233,7 @@ public:
 		this->internalID = getInterface().createNormalParameter(
 			&getInterface(),
 			this->name.c_str(),
+			unit.c_str(),
 			&this->storage,
 			this->range.getTransformer(false),
 			this->range.getNormalizer(false),
@@ -266,6 +268,7 @@ public:
 		this->internalID = getInterface().createNormalParameter(
 			&getInterface(),
 			this->name.c_str(),
+			unit.c_str(),
 			&this->storage,
 			this->range.getTransformer(true),
 			this->range.getNormalizer(true),

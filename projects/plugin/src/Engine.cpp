@@ -230,6 +230,10 @@ namespace ape
 				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", result);
 			status.bActivated = true;
 		}
+
+		if (status.bActivated)
+			updateHostDisplay();
+
 		return status.bActivated;
 	}
 

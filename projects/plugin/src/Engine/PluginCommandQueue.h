@@ -113,8 +113,8 @@
 				ret.type = ParameterType::ScaledFloat;
 				ret.min = min;
 				ret.max = max;
-				ret.transformer = transformer;
-				ret.normalizer = normalizer;
+				ret.transformer = transformer ? transformer : cpl::Math::UnityScale::linear<PFloat>;
+				ret.normalizer = normalizer ? normalizer : cpl::Math::UnityScale::Inv::linear<PFloat>;
 				ret.unit = unit;
 				return ret;
 			}

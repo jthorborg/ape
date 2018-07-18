@@ -32,17 +32,44 @@
 
 	#include <cpl/infrastructure/parameters/ParameterSystem.h>
 	#include <cpl/infrastructure/values/Values.h>
+	#include <ape/APE.h>
 
 	namespace ape 
 	{
+		/*
+			Quick write-up of what's going on here, because there are several closely related concepts, with the excuse being that 
+			dynamic parameters is not something that's easy to implement.
+
+			The LowLevelParameter always exists and is the ground truth value of the parameter. The host updates this one through 
+			automation. For UI-related tasks (like parameter printing, scaling) it defers this back to the main parameter manager
+			that relies on hot-swappable parameter traits, so we can change formatting and scaling of parameters on the fly,
+			as we swap and recompile plugins.
+
+			The GUI library used relies on ValueEntities, abstractions of value (parameter) sources. We use ParameterValueWrappers to provide
+			the ValueEntity interfaces so that knobs can automate parameters, but they really just go through the LowLevelParameter (wrap)
+			and back into the traits through the ParameterManager.
+
+			Any deferring through parameters into the ParameterManager happens through a zero-based index, a "parameter handle". This 
+			is because we need a general way of referring uniquely to a parameter through different APIs and languages.
+
+			The traits exists as another layer of indirection for implementing normal transformers/formatters based on the low-level
+			C API.
+
+			The concurrency issues are as follows:
+			set/get parameter can and will be called on any thread. This means the set/get parameter path must be threadsafe, and 
+			always just go through "static" codepaths. The ParameterGroup structure from cpl provides means for pushing these changes
+			back to the UI thread safely, and to listen to these changes in realtime through RTListeners. We use the RTListener for
+			writing fresh parameter values into the plugin local memory. 
+			
+			*anything* else is done on the main thread, and thus is safe to change on the main thread. Any API exposed by the parameter manager
+			should only be interacted with on the main thread.
+		*/
+
 		class Engine;
+		class PluginState;
 
 		static const constexpr std::size_t NumParameters = 50;
 
-		/// <summary>
-		/// Floating-point type used for parameters etc.
-		/// </summary>
-		typedef double SFloat;
 		/// <summary>
 		/// Floating point type used for audio
 		/// </summary>
@@ -50,19 +77,24 @@
 		/// <summary>
 		/// Floating point type used for parameters of the host system
 		/// </summary>
-		typedef float PFloat;
+		typedef float HostFloat;
 
+		/// <summary>
+		/// Floating point type used in the UI system
+		/// </summary>
+		typedef cpl::ValueT UIFloat;
 
-		class Parameter 
+		class LowLevelParameter 
 			: private cpl::Utility::COnlyPubliclyMovable
-			, private cpl::VirtualFormatter<SFloat>
-			, private cpl::VirtualTransformer<SFloat>
+			, private cpl::VirtualFormatter<UIFloat>
+			, private cpl::VirtualTransformer<UIFloat>
 		{
 		public:
 
-			typedef cpl::VirtualTransformer<SFloat> Transformer;
-			typedef cpl::VirtualFormatter<SFloat> Formatter;
-			typedef SFloat ValueType;
+			typedef UIFloat ValueType;
+
+			typedef cpl::VirtualTransformer<ValueType> Transformer;
+			typedef cpl::VirtualFormatter<ValueType> Formatter;
 
 			class Callbacks
 			{
@@ -76,20 +108,20 @@
 				virtual ~Callbacks() {}
 			};
 
-			Parameter(int identifier, Callbacks& callbacks)
+			LowLevelParameter(int identifier, Callbacks& callbacks)
 				: identifier(identifier), callbacks(callbacks), value(0)
 			{
 				
 			}
 
-			Parameter(Parameter&& other)
+			LowLevelParameter(LowLevelParameter&& other)
 				: identifier(other.identifier), callbacks(other.callbacks), value(other.value.load(std::memory_order_acquire))
 			{
 
 			}
 
-			ValueType getValue() const { return value.load(std::memory_order_acquire); }
-			void setValue(ValueType newValue) { value.store(newValue, std::memory_order_release); }
+			PFloat getValue() const { return value.load(std::memory_order_acquire); }
+			void setValue(PFloat newValue) { value.store(newValue, std::memory_order_release); }
 
 			const std::string& getName() { return callbacks.getName(identifier); }
 			Transformer& getTransformer() { return *this; }
@@ -108,41 +140,45 @@
 
 			int identifier;
 			Callbacks& callbacks;
-			std::atomic<ValueType> value;
+			std::atomic<PFloat> value;
 
 		};
 
-		typedef cpl::ParameterGroup<SFloat, PFloat, Parameter> ParameterSet;
-		typedef cpl::ParameterValue<ParameterSet::ParameterView> ParameterValue;
+		typedef cpl::ParameterGroup<PFloat, HostFloat, LowLevelParameter> ParameterSet;
 
 		class ParameterManager
 			: private ParameterSet::AutomatedProcessor
-			, private Parameter::Callbacks
+			, private LowLevelParameter::Callbacks
 		{
 		public:
 
+			friend class PluginState;
 
 			typedef cpl::Parameters::Handle IndexHandle;
 
-			class Listener
+			class ExternalParameterTraits
+				: public cpl::VirtualFormatter<UIFloat>
+				, public cpl::VirtualTransformer<UIFloat>
 			{
 			public:
-
-
-
-				virtual ~Listener() {}
+				virtual const std::string& getName() = 0;
 			};
 
 
 			ParameterManager(Engine& engine, std::size_t numParameters);
 
 			std::size_t numParams() const noexcept;
-			void setParameter(IndexHandle index, SFloat normalizedValue);
-			SFloat getParameter(IndexHandle index);
+			void setParameter(IndexHandle index, HostFloat normalizedValue);
+			HostFloat getParameter(IndexHandle index);
 			std::string getParameterName(IndexHandle index);
 			std::string getParameterText(IndexHandle index);
+			cpl::ValueEntityBase& getValueFor(IndexHandle index);
+			void emplaceTrait(IndexHandle index, ExternalParameterTraits& trait);
+			void clearTrait(IndexHandle index);
 
 		protected:
+
+			typedef cpl::ParameterValueWrapper<ParameterSet::ParameterView> ParameterValueWrapper;
 
 			// Inherited via AutomatedProcessor
 			void automatedTransmitChangeMessage(int parameter, ParameterSet::FrameworkType value) override;
@@ -150,21 +186,27 @@
 			void automatedEndChangeGesture(int parameter) override;
 
 			// Inherited via Parameter::Callbacks
-			bool format(int ID, const Parameter::ValueType & val, std::string & buf) override;
-			bool interpret(int ID, const cpl::string_ref buf, Parameter::ValueType & val) override;
-			Parameter::ValueType transform(int ID, Parameter::ValueType val) const noexcept override;
-			Parameter::ValueType normalize(int ID, Parameter::ValueType val) const noexcept override;
+			bool format(int ID, const LowLevelParameter::ValueType & val, std::string & buf) override;
+			bool interpret(int ID, const cpl::string_ref buf, LowLevelParameter::ValueType & val) override;
+			LowLevelParameter::ValueType transform(int ID, LowLevelParameter::ValueType val) const noexcept override;
+			LowLevelParameter::ValueType normalize(int ID, LowLevelParameter::ValueType val) const noexcept override;
 			const std::string& getName(int ID) const noexcept override;
+
+			ParameterSet& getParameterSet() noexcept { return parameterSet; }
 
 		private:
 
 			Engine& engine;
 			const std::size_t numParameters;
-			std::vector<Parameter> parameters;
+			std::vector<LowLevelParameter> parameters;
+			std::vector<ExternalParameterTraits*> traits;
+			std::vector<ParameterValueWrapper> valueWrappers;
+
 			ParameterSet parameterSet;
-			cpl::LinearRange<Parameter::ValueType> defaultRange;
-			cpl::BasicFormatter<Parameter::ValueType> defaultFormatter;
-			std::string blah = "blah";
+
+			cpl::LinearRange<LowLevelParameter::ValueType> defaultRange;
+			cpl::BasicFormatter<LowLevelParameter::ValueType> defaultFormatter;
+			std::string unnamed;
 		};
 	}
 #endif

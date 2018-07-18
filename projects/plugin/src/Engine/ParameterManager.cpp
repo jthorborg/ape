@@ -36,16 +36,26 @@ namespace ape
 		: engine(engine)
 		, numParameters(numParameters)
 		, parameterSet("", "", *this)
+		, unnamed("unnamed")
 	{
+		traits.resize(numParameters);
 		parameters.reserve(numParameters);
-
+		
 		for (std::size_t i = 0; i < numParameters; ++i)
 		{
-			auto& param = parameters.emplace_back(static_cast<int>(i), static_cast<Parameter::Callbacks&>(*this));
+			auto& param = parameters.emplace_back(static_cast<int>(i), static_cast<LowLevelParameter::Callbacks&>(*this));
 			parameterSet.registerParameter(&param);
 		}
 
 		parameterSet.seal();
+
+		// (now parameter views are available)
+		valueWrappers.reserve(numParameters);
+
+		for (std::size_t i = 0; i < numParameters; ++i)
+		{
+			valueWrappers.emplace_back(parameterSet.findParameter(static_cast<IndexHandle>(i)));
+		}
 	}
 
 	std::size_t ParameterManager::numParams() const noexcept
@@ -53,14 +63,14 @@ namespace ape
 		return parameters.size();
 	}
 
-	void ParameterManager::setParameter(IndexHandle index, SFloat normalizedValue)
+	void ParameterManager::setParameter(IndexHandle index, HostFloat normalizedValue)
 	{
 		parameterSet.findParameter(index)->updateFromHostNormalized(normalizedValue);
 	}
 
-	SFloat ParameterManager::getParameter(IndexHandle index)
+	HostFloat ParameterManager::getParameter(IndexHandle index)
 	{
-		return parameterSet.findParameter(index)->getValueNormalized<SFloat>();
+		return parameterSet.findParameter(index)->getValueNormalized<HostFloat>();
 	}
 
 	std::string ParameterManager::getParameterName(IndexHandle index)
@@ -71,6 +81,21 @@ namespace ape
 	std::string ParameterManager::getParameterText(IndexHandle index)
 	{
 		return parameterSet.findParameter(index)->getDisplayText();
+	}
+
+	cpl::ValueEntityBase& ParameterManager::getValueFor(IndexHandle index)
+	{
+		return valueWrappers[index];
+	}
+
+	void ParameterManager::emplaceTrait(IndexHandle index, ExternalParameterTraits& trait)
+	{
+		traits.at(index) = &trait;
+	}
+
+	void ParameterManager::clearTrait(IndexHandle index)
+	{
+		traits.at(index) = nullptr;
 	}
 
 	void ParameterManager::automatedTransmitChangeMessage(int parameter, ParameterSet::FrameworkType value)
@@ -88,28 +113,53 @@ namespace ape
 		engine.endParameterChangeGesture(parameter);
 	}
 
-	bool ParameterManager::format(int ID, const Parameter::ValueType & val, std::string & buf)
+	bool ParameterManager::format(int ID, const LowLevelParameter::ValueType & val, std::string & buf)
 	{
+		if (ID < traits.size() && traits[ID])
+		{
+			return traits[ID]->format(val, buf);
+		}
+
 		return defaultFormatter.format(val, buf);
 	}
 
-	bool ParameterManager::interpret(int ID, const cpl::string_ref buf, Parameter::ValueType & val)
+	bool ParameterManager::interpret(int ID, const cpl::string_ref buf, LowLevelParameter::ValueType & val)
 	{
+		if (ID < traits.size() && traits[ID])
+		{
+			return traits[ID]->interpret(buf, val);
+		}
+
 		return defaultFormatter.interpret(buf, val);
 	}
 
-	Parameter::ValueType ParameterManager::transform(int ID, Parameter::ValueType val) const noexcept
+	LowLevelParameter::ValueType ParameterManager::transform(int ID, LowLevelParameter::ValueType val) const noexcept
 	{
+		if (ID < traits.size() && traits[ID])
+		{
+			return traits[ID]->transform(val);
+		}
+
 		return defaultRange.transform(val);
 	}
 
-	Parameter::ValueType ParameterManager::normalize(int ID, Parameter::ValueType val) const noexcept
+	LowLevelParameter::ValueType ParameterManager::normalize(int ID, LowLevelParameter::ValueType val) const noexcept
 	{
+		if (ID < traits.size() && traits[ID])
+		{
+			return traits[ID]->normalize(val);
+		}
+
 		return defaultRange.normalize(val);
 	}
 
 	const std::string& ParameterManager::getName(int ID) const noexcept
 	{
-		return blah;
+		if (ID < traits.size() && traits[ID])
+		{
+			return traits[ID]->getName();
+		}
+
+		return unnamed;
 	}
 }
