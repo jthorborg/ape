@@ -43,12 +43,12 @@
 	#include <ape/Project.h>
 	#include <ape/Events.h>
 	#include <thread>
-	#include <cpl/CMutex.h>
 	#include "CControlManager.h"
 	#include <cpl/Protected.h>
 	#include <atomic>
 	#include <cpl/gui/Tools.h>
 	#include "Settings.h"
+	#include "Engine/ParameterManager.h"
 
 	namespace ape
 	{
@@ -60,8 +60,12 @@
 		struct SharedInterfaceEx;
 		struct ProjectEx;
 		class PluginCommandQueue;
+		class PluginParameter;
 
-		class PluginState : private CBaseControl::CListener, private cpl::DestructionNotifier
+		class PluginState final
+			: private CBaseControl::CListener
+			, private cpl::DestructionNotifier
+			, private ParameterSet::RTListener
 		{
 		public:
 
@@ -145,12 +149,16 @@
 
 			void internalDisable(ScopedRefCount::ScopedDisable disable, Status errorCode);
 			bool valueChanged(CBaseControl *) override;
+			void parameterChangedRT(cpl::Parameters::Handle localHandle, cpl::Parameters::Handle globalHandle, ParameterSet::BaseParameter * param) override;
 
 			void dispatchPlayEvent();
 			Status dispatchEvent(const char * reason, APE_Event& event);
+			void setupParameters();
+			void cleanupParameters();
 
 			std::unique_ptr<SharedInterfaceEx> sharedObject;
 			std::unique_ptr<PluginCommandQueue> commandQueue;
+			std::vector<std::unique_ptr<PluginParameter>> parameters;
 			CCodeGenerator& generator;
 			Engine& engine;
 			CAllocator pluginAllocator;
@@ -171,6 +179,6 @@
 				processing;
 			
 
-		};
+};
 	};
 #endif

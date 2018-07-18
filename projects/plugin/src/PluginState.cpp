@@ -40,6 +40,7 @@
 #include <cpl/Protected.h>
 #include <cpl/gui/Tools.h>
 #include "Engine/PluginCommandQueue.h"
+#include "Engine/PluginParameter.h"
 
 namespace ape
 {
@@ -222,6 +223,8 @@ namespace ape
 		if (ret.second || ret.first != Status::STATUS_READY)
 			return Status::STATUS_ERROR;
 
+		setupParameters();
+
 		cpl::CMutex lock(expiredMutex);
 		expired = false;
 		useCount = 1;
@@ -298,7 +301,7 @@ namespace ape
 		// TODO: check RET code.
 
 		pluginAllocator.clear();
-		ctrlManager.reset();
+		cleanupParameters();
 		abnormalBehaviour = false;
 		pendingDisable = false;
 	}
@@ -351,6 +354,52 @@ namespace ape
 		}
 
 		return ret.first;
+	}
+
+	void PluginState::setupParameters()
+	{
+		auto& queue = *commandQueue;
+		for (std::size_t i = 0; i < queue.size(); ++i)
+		{
+			if (queue[i].getCommandType() == CommandType::Parameter)
+			{
+				const auto& parameterRecord = static_cast<const ParameterRecord&>(queue[i]);
+				parameters.emplace_back(PluginParameter::FromRecord(parameterRecord));
+			}
+		}
+
+		for (std::size_t i = 0; i < parameters.size(); ++i)
+		{
+			engine.getParameterManager().emplaceTrait(
+				static_cast<ParameterManager::IndexHandle>(i), 
+				*parameters[i]
+			);
+		}
+
+		engine.getParameterManager().getParameterSet().addRTListener(this, true);
+	}
+
+	void PluginState::cleanupParameters()
+	{
+		engine.getParameterManager().getParameterSet().removeRTListener(this, true);
+
+		// kill UIs first
+		ctrlManager.reset();
+		// cleanup parameter manager
+
+		for (std::size_t i = 0; i < parameters.size(); ++i)
+		{
+			engine.getParameterManager().clearTrait(static_cast<ParameterManager::IndexHandle>(i));
+		}
+
+		// kill parameters
+		parameters.clear();
+	}
+
+	void PluginState::parameterChangedRT(cpl::Parameters::Handle localHandle, cpl::Parameters::Handle globalHandle, ParameterSet::BaseParameter * param) 
+	{
+		if (localHandle < parameters.size())
+			parameters[localHandle]->setParameterRealtime(param->getValue());
 	}
 
 	template<typename Function>

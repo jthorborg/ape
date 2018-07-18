@@ -605,6 +605,7 @@
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.CommandTarget.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
     <ClCompile Include="..\..\src\Engine\ParameterManager.cpp" />
+    <ClCompile Include="..\..\src\Engine\PluginParameter.cpp" />
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />
     <ClCompile Include="..\..\src\Engine.cpp" />
@@ -1726,6 +1727,7 @@
     <ClInclude Include="..\..\src\Engine\EngineStructures.h" />
     <ClInclude Include="..\..\src\Engine\ParameterManager.h" />
     <ClInclude Include="..\..\src\Engine\PluginCommandQueue.h" />
+    <ClInclude Include="..\..\src\Engine\PluginParameter.h" />
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />

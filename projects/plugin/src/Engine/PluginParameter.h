@@ -37,7 +37,7 @@
 	{
 		class ParameterRecord;
 
-		class PluginParameter : ParameterManager::ExternalParameterTraits
+		class PluginParameter : public ParameterManager::ExternalParameterTraits
 		{
 		public:
 
