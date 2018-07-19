@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:GUI.h
+	file:UIController.h
 	
 		Implements the graphic user interface, and all logic associated with the program
 		flow and interaction.
@@ -119,6 +119,7 @@
 			std::unique_ptr<AutosaveManager> autosaveManager;
 			std::unique_ptr<CConsole> consolePtr;
 			std::unique_ptr<SourceManager> sourceManager;
+
 			ape::Engine& engine;
 			Editor * editor;
 			std::future<std::unique_ptr<PluginState>> compilerState;

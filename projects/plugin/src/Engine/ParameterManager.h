@@ -175,6 +175,7 @@
 			cpl::ValueEntityBase& getValueFor(IndexHandle index);
 			void emplaceTrait(IndexHandle index, ExternalParameterTraits& trait);
 			void clearTrait(IndexHandle index);
+			void pulse();
 
 		protected:
 

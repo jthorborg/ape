@@ -37,11 +37,11 @@
 
 *************************************************************************************/
 
-#ifndef _CMEMORYGUARD_H
-	#define _CMEMORYGUARD_H
+#ifndef APE_CMEMORYGUARD_H
+	#define APE_CMEMORYGUARD_H
 
 	#include <cpl/MacroConstants.h>
-	#ifdef __WINDOWS__
+	#ifdef CPL_WINDOWS
 		#include <Windows.h>
 		typedef DWORD prot_t;
 	#elif defined(__MAC__)
@@ -66,7 +66,7 @@
 			prot_t dwProtection; // protection of regions[1]
 			int lastErr; // potention last error of operation, not used yet
 			void setPageSize() {
-				#ifdef __WINDOWS__
+				#ifdef CPL_WINDOWS
 					SYSTEM_INFO info;
 					GetSystemInfo(&info);
 					pageSize = info.dwPageSize;
@@ -77,7 +77,7 @@
 		public:
 
 			enum protection : prot_t {
-				#ifdef __WINDOWS__
+				#ifdef CPL_WINDOWS
 					readonly = PAGE_READONLY,
 					readwrite = PAGE_READWRITE,
 					execute = PAGE_EXECUTE,
@@ -111,7 +111,7 @@
 				if(regions[0])
 					#if defined(__CMEMORYGUARD_USE_CSTDLIB)
 						std::free(regions[0]);
-					#elif defined(__WINDOWS__)
+					#elif defined(CPL_WINDOWS)
 						if(!VirtualFree(regions[0], 0, MEM_RELEASE))
 							return false;
 					#elif defined(__MAC__)
@@ -129,7 +129,7 @@
 				#ifndef __CMEMORYGUARD_USE_CSTDLIB
 					dwProtection = _dwProtection;
 					if(regions[0]) {
-						#ifdef __WINDOWS__
+						#ifdef CPL_WINDOWS
 							prot_t dwOldProtect;
 							if(!VirtualProtect(regions[1], bankSize, dwProtection, &dwOldProtect)) {
 						#elif defined(__MAC__)
@@ -168,7 +168,7 @@
 				(
 					#if defined(__CMEMORYGUARD_USE_CSTDLIB)
 						std::malloc(needed_memory)
-					#elif defined(__WINDOWS__)
+					#elif defined(CPL_WINDOWS)
 						VirtualAlloc(nullptr,
 						needed_memory, 
 						MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)
@@ -183,7 +183,7 @@
 				regions[1] = regions[0] + pageSize;
 				regions[2] = regions[1] + bankSize;
 				totalAllocation = needed_memory;
-				#ifdef __WINDOWS__
+				#ifdef CPL_WINDOWS
 					prot_t dwOldProtect;
 					if(!VirtualProtect(regions[0], pageSize, none, &dwOldProtect)) {
 						reset();

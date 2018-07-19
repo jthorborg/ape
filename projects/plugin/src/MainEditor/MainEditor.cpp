@@ -34,6 +34,7 @@
 #include "../Engine.h"
 #include "../CConsole.h"
 #include "../PluginState.h"
+#include "../Plugin/PluginSurface.h"
 
 namespace ape 
 {
@@ -220,9 +221,16 @@ namespace ape
 			plugin.getCtrlManager().createPendingControls();
 			plugin.getCtrlManager().callListeners();
 			controls[tagActiveState]->bSetInternal(1.0f);
+
+			pluginSurface = plugin.getOrCreateSurface();
+			pluginSurface->setBounds(background.getBounds().withX(controls[tagActiveState]->bGetSize().getRight()));
+			addAndMakeVisible(*pluginSurface);
 		}
 		else
 		{
+			if(pluginSurface)
+				removeChildComponent(pluginSurface.get());
+
 			plugin.getCtrlManager().detach();
 			controls[tagActiveState]->bSetInternal(0.0f);
 

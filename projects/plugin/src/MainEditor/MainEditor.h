@@ -53,7 +53,7 @@
 		class CQueueLabel;
 		class PluginState;
 		struct ProjectEx;
-
+		class PluginSurface;
 
 		class Editor final
 			: public juce::AudioProcessorEditor
@@ -78,6 +78,8 @@
 			UIController& parent;
 			std::vector<juce::Component *> garbageCollection;
 			std::map<int, CBaseControl *> controls;
+			std::shared_ptr<PluginSurface> pluginSurface;
+
 			CTextControl * infoLabel;
 			CQueueLabel * statusLabel;
 			juce::DrawableImage background;

@@ -41,6 +41,7 @@
 #include <cpl/gui/Tools.h>
 #include "Engine/PluginCommandQueue.h"
 #include "Engine/PluginParameter.h"
+#include "Plugin/PluginSurface.h"
 
 namespace ape
 {
@@ -139,6 +140,19 @@ namespace ape
 		e.event.ePlayStateChanged = &aevent;
 
 		dispatchEvent("playStateChanged()", e);
+	}
+
+	std::shared_ptr<PluginSurface> PluginState::getOrCreateSurface()
+	{
+		if (auto ptr = surface.lock())
+		{
+			return ptr;
+		}
+
+		auto instance = std::make_shared<PluginSurface>(engine, *this);
+		surface = instance;
+
+		return instance;
 	}
 
 
@@ -382,6 +396,13 @@ namespace ape
 	void PluginState::cleanupParameters()
 	{
 		engine.getParameterManager().getParameterSet().removeRTListener(this, true);
+
+		if (auto ptr = surface.lock())
+		{
+			ptr->clearComponents();
+		}
+
+		surface.reset();
 
 		// kill UIs first
 		ctrlManager.reset();

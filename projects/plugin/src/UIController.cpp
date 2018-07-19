@@ -146,13 +146,10 @@ namespace ape
 		editor->infoLabel->setText(buf);
 	}
 	
-	/*********************************************************************************************
-	 
-		Renders any objects marked as dirty. Calls autosave regularly
-	 
-	 *********************************************************************************************/
 	void UIController::render()
 	{
+		engine.getParameterManager().pulse();
+
 		incGraphicCounter++;
 
 		// stuff that should run once at least

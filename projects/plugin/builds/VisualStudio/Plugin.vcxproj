@@ -616,6 +616,7 @@
     <ClCompile Include="..\..\src\CControlManager.cpp" />
     <ClCompile Include="..\..\src\CValueLabel.cpp" />
     <ClCompile Include="..\..\src\GraphicComponents.cpp" />
+    <ClCompile Include="..\..\src\Plugin\PluginSurface.cpp" />
     <ClCompile Include="..\..\src\SignalizerWindow.cpp" />
     <ClCompile Include="..\..\src\UIController.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1743,6 +1744,7 @@
     <ClInclude Include="..\..\src\CSerializer.h" />
     <ClInclude Include="..\..\src\CValueLabel.h" />
     <ClInclude Include="..\..\src\GraphicComponents.h" />
+    <ClInclude Include="..\..\src\Plugin\PluginSurface.h" />
     <ClInclude Include="..\..\src\SignalizerWindow.h" />
     <ClInclude Include="..\..\src\UIController.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h" />

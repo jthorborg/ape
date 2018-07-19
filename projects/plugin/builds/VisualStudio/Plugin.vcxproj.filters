@@ -349,6 +349,12 @@
     <Filter Include="Audio Programming Environment\Source\Engine">
       <UniqueIdentifier>{9abaeb6d-0132-4daa-a098-f38d03171522}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio Programming Environment\Headers\Plugin">
+      <UniqueIdentifier>{f124c354-6dcc-406e-b406-fcf023e16cb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio Programming Environment\Source\Plugin">
+      <UniqueIdentifier>{d732adfa-3850-4eed-8b9d-d1c7eff8cbf1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1547,6 +1553,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Engine\PluginParameter.cpp">
       <Filter>Audio Programming Environment\Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Plugin\PluginSurface.cpp">
+      <Filter>Audio Programming Environment\Source\Plugin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3001,6 +3010,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\Engine\PluginParameter.h">
       <Filter>Audio Programming Environment\Headers\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Plugin\PluginSurface.h">
+      <Filter>Audio Programming Environment\Headers\Plugin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

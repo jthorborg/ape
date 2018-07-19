@@ -38,7 +38,6 @@
 	#include "CMemoryGuard.h"
 	#include <vector>
 	#include <exception>
-	#include <signal.h>
 	#include "CAllocator.h"
 	#include <ape/Project.h>
 	#include <ape/Events.h>
@@ -49,6 +48,7 @@
 	#include <cpl/gui/Tools.h>
 	#include "Settings.h"
 	#include "Engine/ParameterManager.h"
+	#include <memory>
 
 	namespace ape
 	{
@@ -61,6 +61,7 @@
 		struct ProjectEx;
 		class PluginCommandQueue;
 		class PluginParameter;
+		class PluginSurface;
 
 		class PluginState final
 			: private CBaseControl::CListener
@@ -68,6 +69,8 @@
 			, private ParameterSet::RTListener
 		{
 		public:
+
+			friend class PluginSurface;
 
 #define DEFINE_EXCEPTION(X) class X : public std::runtime_error { using std::runtime_error::runtime_error; }
 
@@ -100,6 +103,7 @@
 			Status getState() const noexcept { return state; }
 			CPluginCtrlManager& getCtrlManager() noexcept { return ctrlManager; }
 			PluginCommandQueue& getCommandQueue() noexcept { return *commandQueue; }
+			std::shared_ptr<PluginSurface> getOrCreateSurface();
 
 		private:
 
@@ -165,6 +169,8 @@
 			std::vector<CMemoryGuard> protectedMemory;
 			std::vector<float*> pluginInputs, pluginOutputs;
 			std::unique_ptr<ProjectEx> project;
+			std::weak_ptr<PluginSurface> surface;
+
 			CPluginCtrlManager ctrlManager;
 
 			bool playing;

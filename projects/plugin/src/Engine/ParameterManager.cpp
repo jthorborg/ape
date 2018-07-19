@@ -98,6 +98,11 @@ namespace ape
 		traits.at(index) = nullptr;
 	}
 
+	void ParameterManager::pulse()
+	{
+		parameterSet.pulseUI();
+	}
+
 	void ParameterManager::automatedTransmitChangeMessage(int parameter, ParameterSet::FrameworkType value)
 	{
 		engine.sendParamChangeMessageToListeners(parameter, value);
