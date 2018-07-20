@@ -31,6 +31,7 @@
 #include "../PluginState.h"
 #include <cpl/gui/GUI.h>
 #include "../Engine.h"
+#include "../Engine/PluginParameter.h"
 
 namespace ape
 {
@@ -42,8 +43,8 @@ namespace ape
 
 		for (std::size_t i = 0; i < paramDefs.size(); ++i)
 		{
-			auto control = std::make_unique<cpl::CValueKnobSlider>(
-				&paramManager.getValueFor(
+			auto control = paramDefs[i]->createController(
+				paramManager.getValueFor(
 					static_cast<cpl::Parameters::Handle>(i)
 				)
 			);

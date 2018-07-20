@@ -408,17 +408,21 @@ namespace ape
 		REQUIRES_NOTNULL(unit);
 		REQUIRES_NOTNULL(extVal);
 
-		auto& engine = IEx::downcast(*iface).getEngine();
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+
+		return pstate.getCommandQueue().enqueueCommand(
+			ParameterRecord::NormalParameter(name, unit, extVal, transformer, normalizer, min, max)
+		).getClassCounter();
+	}
+
+	int APE_API createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat * extVal)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(extVal);
 
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-		pstate.getCommandQueue().enqueueCommand(ParameterRecord::NormalParameter(name, unit, extVal, transformer, normalizer, min, max));
-		/*
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
-		if (tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
-		*/
-		return 0;
-
+		return pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal)).getClassCounter();
 	}
 
 }

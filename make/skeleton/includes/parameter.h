@@ -148,7 +148,7 @@ template<class Type>
 class Param;
 
 
-/*template<>
+template<>
 class Param<bool> : public ParameterBase<bool, Param<bool>>
 {
 public:
@@ -169,10 +169,10 @@ public:
 	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 		: Base(paramName, parameterRange)
 	{
-		this->internalID = getInterface().createToggle(&getInterface(), this->name.c_str(), &this->storage);
+		this->internalID = getInterface().createBooleanParameter(&getInterface(), this->name.c_str(), &this->storage);
 	}
 
-}; */
+}; 
 
 template<>
 class Param<float> : public ParameterBase<float, Param<float>>

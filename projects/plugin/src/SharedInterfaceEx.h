@@ -69,6 +69,7 @@
 				APE_GTOL(createRangeKnob);
 				APE_GTOL(presentTrace);
 				APE_GTOL(createNormalParameter);
+				APE_GTOL(createBooleanParameter);
 
 				std::memset(&extra, 0, sizeof(extra));
 #undef APE_GTOL

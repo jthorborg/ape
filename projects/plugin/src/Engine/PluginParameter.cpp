@@ -29,6 +29,7 @@
 
 #include "PluginParameter.h"
 #include "PluginCommandQueue.h"
+#include <cpl/gui/controls/Controls.h>
 
 namespace ape
 {
@@ -51,6 +52,11 @@ namespace ape
 
 
 	private:
+
+		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
+		{
+			return std::make_unique<cpl::CValueKnobSlider>(&value);
+		}
 
 		bool format(const UIFloat& val, std::string & buf) override
 		{
@@ -92,6 +98,67 @@ namespace ape
 		Normalizer normalizer;
 	};
 
+	class BooleanParameter final : public PluginParameter
+	{
+	public:
+
+		BooleanParameter(std::string name, PFloat* value)
+			: name(std::move(name))
+			, param(value)
+		{
+
+		}
+
+
+	private:
+
+		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
+		{
+			auto button = std::make_unique<cpl::CButton>(&value);
+
+			button->setToggleable(true);
+			button->setSingleText(name);
+
+			return std::move(button);
+		}
+
+		bool format(const UIFloat& val, std::string & buf) override
+		{
+			return formatter.format(val, buf);
+		}
+
+		bool interpret(const cpl::string_ref buf, UIFloat & val) override
+		{
+			return formatter.interpret(buf, val);
+		}
+
+		UIFloat transform(UIFloat val) const noexcept override
+		{
+			return range.transform(val);
+		}
+
+		UIFloat normalize(UIFloat val) const noexcept override
+		{
+			return range.normalize(val);
+		}
+
+		void setParameterRealtime(PFloat value) noexcept override
+		{
+			*param = value;
+		}
+
+		const std::string& getName() noexcept override
+		{
+			return name;
+		}
+
+		std::string name;
+		cpl::BooleanFormatter<PFloat> formatter;
+		cpl::BooleanRange<PFloat> range;
+
+		PFloat* param = nullptr;
+	};
+
 
 	std::unique_ptr<PluginParameter> PluginParameter::FromRecord(const ParameterRecord & record)
 	{
@@ -99,6 +166,8 @@ namespace ape
 		{
 		case ParameterRecord::ParameterType::ScaledFloat:
 			return std::unique_ptr<PluginParameter>{ new NormalParameter(record.name, record.unit, record.value, record.transformer, record.normalizer, record.min, record.max) };
+		case ParameterRecord::ParameterType::Boolean:
+			return std::unique_ptr<PluginParameter>{ new BooleanParameter(record.name, record.value) };
 		}
 
 		CPL_RUNTIME_EXCEPTION("Unknown mapping from parameter record to plugin parameter");

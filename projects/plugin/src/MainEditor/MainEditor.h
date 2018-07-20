@@ -59,19 +59,24 @@
 			: public juce::AudioProcessorEditor
 			, private juce::Timer
 			, private CCtrlListener
+			, public cpl::CTopView
 		{
 			friend class UIController;
 		public:
 
+			Editor(UIController & parent);
+
 			void initialize(bool useOpenGL = false);
 			void paint(juce::Graphics & g);
 			void timerCallback();
-			Editor(UIController & parent);
 			virtual ~Editor();
 			void about();
 			void onPluginStateChanged(PluginState& state, bool activated);
 
 		private:
+
+			// Inherited via CTopView
+			virtual juce::Component * getWindow() override;
 
 			bool valueChanged(CBaseControl *) override;
 
@@ -89,6 +94,8 @@
 
 			juce::OpenGLContext oglc;
 			SignalizerWindow scope;
+
+
 		};
 
 	};

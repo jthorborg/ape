@@ -34,10 +34,11 @@
 	#include <string>
 	#include <memory>
 	#include <ape/APE.h>
+	#include <typeindex>
 
 	namespace ape 
 	{
-
+		class PluginCommandQueue;
 
 		enum class CommandType
 		{
@@ -48,12 +49,16 @@
 		{
 		public:
 
+			friend class PluginCommandQueue;
+
 			CommandBase(CommandType type) : command(type) {}
 			virtual ~CommandBase() {}
 
 			CommandType getCommandType() const noexcept { return command; }
-			
+			int getClassCounter() const noexcept { return classCounter; }
 		private:
+
+			int classCounter = 0;
 			CommandType command;
 		};
 
@@ -62,7 +67,7 @@
 		public:
 			using CommandBase::CommandBase;
 
-			/* static ParameterRecord BoolFlag(const char* name, float* val)
+			static ParameterRecord BoolFlag(const char* name, double* val)
 			{
 				ParameterRecord ret(CommandType::Parameter);
 				ret.name = name;
@@ -71,6 +76,7 @@
 				return ret;
 			}
 
+			/*
 			static ParameterRecord LegacyKnob(const char* name, float* val, int type)
 			{
 				ParameterRecord ret(CommandType::Parameter);
@@ -160,14 +166,18 @@
 			typedef std::vector<std::unique_ptr<CommandBase>> CommandQueue;
 
 			template<class Command>
-			typename std::enable_if<std::is_base_of<CommandBase, Command>::value>::type enqueueCommand(Command&& command)
+			typename std::enable_if<std::is_base_of<CommandBase, Command>::value, CommandBase&>::type enqueueCommand(Command&& command)
 			{
-				commands.emplace_back(std::make_unique<Command>(std::move(command)));
+				auto& inplace = *commands.emplace_back(std::make_unique<Command>(std::move(command)));
+				inplace.classCounter = classCounters[typeid(inplace)]++;
+				return inplace;
 			}
 
-			void enqueueCommand(std::unique_ptr<CommandBase> command)
+			CommandBase& enqueueCommand(std::unique_ptr<CommandBase> command)
 			{
-				commands.emplace_back(std::move(command));
+				auto& inplace = *commands.emplace_back(std::move(command));
+				inplace.classCounter = classCounters[typeid(inplace)]++;
+				return inplace;
 			}
 
 			const CommandQueue& getCommands() const noexcept { return commands; }
@@ -177,6 +187,7 @@
 
 		private:
 			CommandQueue commands;
+			std::map<std::type_index, int> classCounters;
 		};
 
 	}

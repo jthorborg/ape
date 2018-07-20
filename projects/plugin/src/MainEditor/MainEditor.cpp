@@ -57,7 +57,8 @@ namespace ape
 
 
 	Editor::Editor(UIController& p)
-		: parent(p)
+		: CTopView(this, "APE editor")
+		, parent(p)
 		, AudioProcessorEditor(p.engine)
 		, repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
 		, scope(p.engine.getOscilloscopeData())
@@ -211,6 +212,11 @@ namespace ape
 		// TODO: Remove
 		repaint();
 		return false;
+	}
+
+	juce::Component * Editor::getWindow()
+	{
+		return this;
 	}
 
 	void Editor::onPluginStateChanged(PluginState& plugin, bool activated)

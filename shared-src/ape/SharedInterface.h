@@ -75,6 +75,7 @@
 		int			(APE_API * createRangeKnob)			(struct APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, APE_ScaleFunc scaleCB, float min, float max);
 		int			(APE_API * presentTrace)			(struct APE_SharedInterface * iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
 		int			(APE_API * createNormalParameter)	(struct APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, APE_Transformer transformer, APE_Normalizer normalizer, PFloat min, PFloat max);
+		int			(APE_API * createBooleanParameter)	(struct APE_SharedInterface * iface, const char * name, PFloat* extVal);
 
 		struct APE_SIExtra extra;
 	};

@@ -121,7 +121,7 @@
 			}
 
 			PFloat getValue() const { return value.load(std::memory_order_acquire); }
-			void setValue(PFloat newValue) { value.store(newValue, std::memory_order_release); }
+			void setValue(PFloat newValue) { value.store(std::clamp<PFloat>(newValue, 0, 1), std::memory_order_release); }
 
 			const std::string& getName() { return callbacks.getName(identifier); }
 			Transformer& getTransformer() { return *this; }
