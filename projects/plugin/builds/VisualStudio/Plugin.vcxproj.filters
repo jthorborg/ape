@@ -3067,9 +3067,4 @@
       <Filter>Juce Library Code</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="Todo.txt">
-      <Filter>Audio Programming Environment</Filter>
-    </Text>
-  </ItemGroup>
 </Project>

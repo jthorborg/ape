@@ -98,18 +98,22 @@
 				ret.scaler = func;
 				ret.unit = unit;
 				return ret;
-			}
+			}*/
 
-			static ParameterRecord ValueList(const char* name, const char* unit, float* val, const char * values)
+			static ParameterRecord ValueList(const char* name, PFloat* val, std::size_t numValues, const char* const* values)
 			{
 				ParameterRecord ret(CommandType::Parameter);
 				ret.name = name;
 				ret.value = val;
 				ret.type = ParameterType::List;
-				ret.unit = unit;
-				ret.values = values;
+
+				ret.values.reserve(numValues);
+
+				for (std::size_t i = 0; i < numValues; ++i)
+					ret.values.push_back(values[i]);
+
 				return ret;
-			} */
+			} 
 
 			static ParameterRecord NormalParameter(const char* name, const char* unit, PFloat* val, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
 			{
@@ -149,7 +153,7 @@
 			ParameterType type;
 			std::string name;
 			std::string unit;
-			std::string values;
+			std::vector<std::string> values;
 			PFloat* value = nullptr;
 			PFloat min = 0;
 			PFloat max = 1;

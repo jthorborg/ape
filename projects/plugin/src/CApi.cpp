@@ -425,4 +425,19 @@ namespace ape
 		return pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal)).getClassCounter();
 	}
 
+	int APE_API createListParameter(APE_SharedInterface * iface, const char * name, PFloat * extVal, int numNames, const char* const* names)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(extVal);
+		REQUIRES_NOTZERO(numNames);
+		REQUIRES_NOTNULL(names);
+
+		for (int i = 0; i < numNames; ++i)
+			REQUIRES_NOTNULL(names[i]);
+
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		return pstate.getCommandQueue().enqueueCommand(ParameterRecord::ValueList(name, extVal, numNames, names)).getClassCounter();
+	}
+
 }

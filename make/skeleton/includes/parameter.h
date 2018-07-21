@@ -6,8 +6,9 @@
 #include <string>
 #include <string_view>
 #include <atomic>
+#include <initializer_list>
 
-template<class Type>
+template<class Type, typename Select = std::true_type>
 class Param;
 
 namespace
@@ -59,7 +60,7 @@ namespace
 
 class Range
 {
-	template<typename T>
+	template<class Type, typename Select>
 	friend class Param;
 
 public:
@@ -144,9 +145,6 @@ protected:
 	PFloat storage;
 };
 
-template<class Type>
-class Param;
-
 
 template<>
 class Param<bool> : public ParameterBase<bool, Param<bool>>
@@ -173,6 +171,33 @@ public:
 	}
 
 }; 
+
+template<typename T>
+class Param<T, typename std::is_enum<T>::type> : public ParameterBase<T, Param<T>>
+{
+public:
+	typedef ParameterBase<T, Param<T>> Base;
+	typedef T ParameterType;
+
+	static ParameterType convert(float value) noexcept
+	{
+		return static_cast<ParameterType>(std::round(value));
+	}
+
+	Param(const std::string_view paramName, const std::initializer_list<const char*> values)
+		: Base(paramName, Range(0, values.size() - 1))
+	{
+		this->internalID = getInterface().createListParameter(
+			&getInterface(),
+			this->name.c_str(),
+			&this->storage,
+			values.size(),
+			values.begin()
+		);
+	}
+
+
+};
 
 template<>
 class Param<float> : public ParameterBase<float, Param<float>>

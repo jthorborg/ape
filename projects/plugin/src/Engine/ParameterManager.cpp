@@ -167,4 +167,14 @@ namespace ape
 
 		return unnamed;
 	}
+
+	int ParameterManager::getQuantization(int ID) const noexcept
+	{
+		if (ID < traits.size() && traits[ID])
+		{
+			return traits[ID]->getQuantization();
+		}
+
+		return 0;
+	}
 }

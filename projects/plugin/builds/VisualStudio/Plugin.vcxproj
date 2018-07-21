@@ -2220,9 +2220,6 @@
     <ResourceCompile Include=".\resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Todo.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\external\libconfig\lib\libconfig++.vcxproj">
       <Project>{a0c36ce7-d908-4573-8b69-249eeeb7d2be}</Project>
     </ProjectReference>

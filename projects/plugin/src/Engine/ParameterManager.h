@@ -104,7 +104,7 @@
 				virtual ValueType transform(int ID, ValueType val) const noexcept = 0;
 				virtual ValueType normalize(int ID, ValueType val) const noexcept = 0;
 				virtual const std::string& getName(int ID) const noexcept = 0;
-
+				virtual int getQuantization(int ID) const noexcept = 0;
 				virtual ~Callbacks() {}
 			};
 
@@ -135,6 +135,7 @@
 			virtual bool interpret(const cpl::string_ref buf, ValueType& val) override { return callbacks.interpret(identifier, buf, val); }
 			virtual ValueType transform(ValueType val) const noexcept override { return callbacks.transform(identifier, val); }
 			virtual ValueType normalize(ValueType val) const noexcept override { return callbacks.normalize(identifier, val); }
+			virtual int getQuantization() noexcept override { return callbacks.getQuantization(identifier); }
 
 		private:
 
@@ -191,6 +192,7 @@
 			bool interpret(int ID, const cpl::string_ref buf, LowLevelParameter::ValueType & val) override;
 			LowLevelParameter::ValueType transform(int ID, LowLevelParameter::ValueType val) const noexcept override;
 			LowLevelParameter::ValueType normalize(int ID, LowLevelParameter::ValueType val) const noexcept override;
+			int getQuantization(int ID) const noexcept override;
 			const std::string& getName(int ID) const noexcept override;
 
 			ParameterSet& getParameterSet() noexcept { return parameterSet; }

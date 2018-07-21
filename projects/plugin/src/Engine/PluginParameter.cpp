@@ -109,7 +109,6 @@ namespace ape
 
 		}
 
-
 	private:
 
 		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
@@ -159,6 +158,67 @@ namespace ape
 		PFloat* param = nullptr;
 	};
 
+	class ListParameter final : public PluginParameter
+	{
+	public:
+
+		ListParameter(std::string name, PFloat* value, std::vector<std::string> values)
+			: name(std::move(name))
+			, param(value)
+			, formatter(range)
+		{
+			formatter.setValues(std::move(values));
+		}
+
+	private:
+
+		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
+		{
+			return std::make_unique<cpl::CValueComboBox>(&value);
+		}
+
+		bool format(const UIFloat& val, std::string & buf) override
+		{
+			return formatter.format(val, buf);
+		}
+
+		bool interpret(const cpl::string_ref buf, UIFloat & val) override
+		{
+			return formatter.interpret(buf, val);
+		}
+
+		UIFloat transform(UIFloat val) const noexcept override
+		{
+			return range.transform(val);
+		}
+
+		UIFloat normalize(UIFloat val) const noexcept override
+		{
+			return range.normalize(val);
+		}
+
+		void setParameterRealtime(PFloat value) noexcept override
+		{
+			*param = value;
+		}
+
+		const std::string& getName() noexcept override
+		{
+			return name;
+		}
+
+		int getQuantization() noexcept override
+		{
+			return range.getQuantization();
+		}
+
+		std::string name;
+		cpl::ChoiceTransformer<PFloat> range;
+		cpl::ChoiceFormatter<PFloat> formatter;
+
+		PFloat* param = nullptr;
+	};
+
 
 	std::unique_ptr<PluginParameter> PluginParameter::FromRecord(const ParameterRecord & record)
 	{
@@ -168,6 +228,8 @@ namespace ape
 			return std::unique_ptr<PluginParameter>{ new NormalParameter(record.name, record.unit, record.value, record.transformer, record.normalizer, record.min, record.max) };
 		case ParameterRecord::ParameterType::Boolean:
 			return std::unique_ptr<PluginParameter>{ new BooleanParameter(record.name, record.value) };
+		case ParameterRecord::ParameterType::List:
+			return std::unique_ptr<PluginParameter>{ new ListParameter(record.name, record.value, record.values) };
 		}
 
 		CPL_RUNTIME_EXCEPTION("Unknown mapping from parameter record to plugin parameter");

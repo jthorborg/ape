@@ -70,6 +70,7 @@
 				APE_GTOL(presentTrace);
 				APE_GTOL(createNormalParameter);
 				APE_GTOL(createBooleanParameter);
+				APE_GTOL(createListParameter);
 
 				std::memset(&extra, 0, sizeof(extra));
 #undef APE_GTOL
