@@ -31,7 +31,7 @@
 	#define APE_PLUGINPARAMETER_H
 
 	#include <ape/APE.h>
-	#include "ParameterManager.h"
+	#include "../Engine/ParameterManager.h"
 
 	namespace juce
 	{
@@ -46,7 +46,7 @@
 		{
 		public:
 
-			static std::unique_ptr<PluginParameter> FromRecord(const ParameterRecord& record);
+			static std::unique_ptr<PluginParameter> FromRecord(ParameterRecord&& record);
 
 			virtual void setParameterRealtime(PFloat value) noexcept = 0;
 			virtual std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const = 0;

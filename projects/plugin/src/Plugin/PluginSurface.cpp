@@ -31,7 +31,7 @@
 #include "../PluginState.h"
 #include <cpl/gui/GUI.h>
 #include "../Engine.h"
-#include "../Engine/PluginParameter.h"
+#include "PluginParameter.h"
 
 namespace ape
 {

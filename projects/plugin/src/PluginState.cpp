@@ -39,9 +39,10 @@
 #include <sstream>
 #include <cpl/Protected.h>
 #include <cpl/gui/Tools.h>
-#include "Engine/PluginCommandQueue.h"
-#include "Engine/PluginParameter.h"
+#include "Plugin/PluginCommandQueue.h"
+#include "Plugin/PluginParameter.h"
 #include "Plugin/PluginSurface.h"
+#include "Plugin/PluginWidget.h"
 
 namespace ape
 {
@@ -51,6 +52,7 @@ namespace ape
 	{
 		ProjectEx* project = nullptr;
 		CCodeGenerator* gen = nullptr;
+		void reset() { project = nullptr; gen = nullptr; }
 		~ProjectReleaser() { if (project && gen) gen->releaseProject(*project);	}
 	};
 
@@ -81,7 +83,7 @@ namespace ape
 		if (!generator.initProject(*project))
 			throw InitException("Error initializing project...");
 
-		scopedRelease = ProjectReleaser{};
+		scopedRelease.reset();
 	}
 
 	PluginState::~PluginState() 
@@ -376,10 +378,24 @@ namespace ape
 		auto& queue = *commandQueue;
 		for (std::size_t i = 0; i < queue.size(); ++i)
 		{
+			switch (queue[i].getCommandType())
+			{
+				case CommandType::Parameter:
+				{
+					auto& parameterRecord = static_cast<ParameterRecord&>(queue[i]);
+					parameters.emplace_back(PluginParameter::FromRecord(std::move(parameterRecord)));
+					break;
+				}
+
+				case CommandType::Widget:
+				{
+					auto& widgetRecord = static_cast<WidgetRecord&>(queue[i]);
+					widgets.emplace_back(PluginWidget::FromRecord(std::move(widgetRecord)));
+				}
+			}
 			if (queue[i].getCommandType() == CommandType::Parameter)
 			{
-				const auto& parameterRecord = static_cast<const ParameterRecord&>(queue[i]);
-				parameters.emplace_back(PluginParameter::FromRecord(parameterRecord));
+
 			}
 		}
 

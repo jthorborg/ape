@@ -30,6 +30,7 @@
 #include "PluginParameter.h"
 #include "PluginCommandQueue.h"
 #include <cpl/gui/controls/Controls.h>
+#include <cpl/Exceptions.h>
 
 namespace ape
 {
@@ -220,7 +221,7 @@ namespace ape
 	};
 
 
-	std::unique_ptr<PluginParameter> PluginParameter::FromRecord(const ParameterRecord & record)
+	std::unique_ptr<PluginParameter> PluginParameter::FromRecord(ParameterRecord&& record)
 	{
 		switch (record.type)
 		{

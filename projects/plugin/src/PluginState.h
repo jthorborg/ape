@@ -62,6 +62,7 @@
 		class PluginCommandQueue;
 		class PluginParameter;
 		class PluginSurface;
+		class PluginWidget;
 
 		class PluginState final
 			: private CBaseControl::CListener
@@ -163,6 +164,7 @@
 			std::unique_ptr<SharedInterfaceEx> sharedObject;
 			std::unique_ptr<PluginCommandQueue> commandQueue;
 			std::vector<std::unique_ptr<PluginParameter>> parameters;
+			std::vector<std::unique_ptr<PluginWidget>> widgets;
 			CCodeGenerator& generator;
 			Engine& engine;
 			CAllocator pluginAllocator;

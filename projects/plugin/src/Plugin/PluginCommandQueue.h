@@ -36,6 +36,8 @@
 	#include <ape/APE.h>
 	#include <typeindex>
 	#include "../ReferenceFormattedString.h"
+	#include <cpl/Mathext.h>
+	#include <map>
 
 	namespace ape 
 	{
@@ -76,6 +78,7 @@
 			};
 
 			WidgetRecord(WidgetType type) : CommandBase(CommandType::Widget), type(type) {}
+			WidgetType getWidgetType() const noexcept { return type; }
 
 		private:
 			const WidgetType type;
@@ -252,7 +255,7 @@
 
 			const CommandQueue& getCommands() const noexcept { return commands; }
 
-			const CommandBase& operator[] (std::size_t index) const noexcept { return *commands[index]; }
+			CommandBase& operator[] (std::size_t index) noexcept { return *commands[index]; }
 			std::size_t size() const noexcept { return commands.size(); }
 
 		private:

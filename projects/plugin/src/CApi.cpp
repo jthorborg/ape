@@ -38,7 +38,7 @@
 #include <cpl/Misc.h>
 #include "Engine.h"
 #include <cpl/Protected.h>
-#include "Engine/PluginCommandQueue.h"
+#include "Plugin/PluginCommandQueue.h"
 
 namespace ape 
 {
