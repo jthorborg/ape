@@ -96,23 +96,6 @@ namespace ape
 		return nRet;
 	}
 
-	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...) 
-	{
-		REQUIRES_NOTNULL(iface);
-		REQUIRES_NOTNULL(name);
-		REQUIRES_NOTNULL(fmt);
-
-		va_list args;
-		va_start(args, fmt);
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addLabel(name, fmt, args);
-
-		va_end(args);
-		if(tag == -1)
-			IEx::downcast(*iface).getEngine().getController().console().printLine(juce::Colours::red, "No more space for controls!");
-
-		return tag;
-	}
-
 	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking) 
 	{
 		REQUIRES_NOTNULL(iface);
@@ -164,21 +147,43 @@ namespace ape
 		return tag;
 	}
 
-	int APE_API createMeter(APE_SharedInterface * iface, const char * name, float * extVal)
+	int APE_API createMeter(APE_SharedInterface * iface, const char * name, const float * extVal)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
-		auto& engine = IEx::downcast(*iface).getEngine();
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		auto queue = pstate.getCommandQueue();
 
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addMeter(name, extVal);
-		if(tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
+		if (!queue)
+			THROW("Cannot perform command at this point in time");
+
+		return queue->enqueueCommand(MeterRecord(name, extVal)).getClassCounter();
+	}
+	
+	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(name);
+		REQUIRES_NOTNULL(fmt);
+
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		auto queue = pstate.getCommandQueue();
+
+		if (!queue)
+			THROW("Cannot perform command at this point in time");
+
+		va_list args;
+		va_start(args, fmt);
+
+		auto tag = queue->enqueueCommand(FormatLabelRecord(name, fmt, args)).getClassCounter();
+
+		va_end(args);
 
 		return tag;
 	}
-	
+
 	int APE_API createToggle(APE_SharedInterface * iface, const char * name, float * extVal)
 	{
 		REQUIRES_NOTNULL(iface);
@@ -351,13 +356,13 @@ namespace ape
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(vals);
 
-		auto& engine = IEx::downcast(*iface).getEngine();
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		auto queue = pstate.getCommandQueue();
 
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addPlot(name, vals, numVals);
-		if (tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
+		if (!queue)
+			THROW("Cannot perform command at this point in time");
 
-		return tag;
+		return queue->enqueueCommand(PlotRecord(name, numVals, vals)).getClassCounter();
 	}
 	
 	int	APE_API	createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
@@ -409,10 +414,12 @@ namespace ape
 		REQUIRES_NOTNULL(extVal);
 
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		auto queue = pstate.getCommandQueue();
 
-		return pstate.getCommandQueue().enqueueCommand(
-			ParameterRecord::NormalParameter(name, unit, extVal, transformer, normalizer, min, max)
-		).getClassCounter();
+		if (!queue)
+			THROW("Cannot perform command at this point in time");
+
+		return queue->enqueueCommand(ParameterRecord::NormalParameter(name, unit, extVal, transformer, normalizer, min, max)).getClassCounter();
 	}
 
 	int APE_API createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat * extVal)
@@ -422,7 +429,12 @@ namespace ape
 		REQUIRES_NOTNULL(extVal);
 
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-		return pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal)).getClassCounter();
+		auto queue = pstate.getCommandQueue();
+
+		if(!queue)
+			THROW("Cannot perform command at this point in time");
+
+		return queue->enqueueCommand(ParameterRecord::BoolFlag(name, extVal)).getClassCounter();
 	}
 
 	int APE_API createListParameter(APE_SharedInterface * iface, const char * name, PFloat * extVal, int numNames, const char* const* names)
@@ -437,7 +449,13 @@ namespace ape
 			REQUIRES_NOTNULL(names[i]);
 
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-		return pstate.getCommandQueue().enqueueCommand(ParameterRecord::ValueList(name, extVal, numNames, names)).getClassCounter();
+		auto queue = pstate.getCommandQueue();
+
+		if (!queue)
+			THROW("Cannot perform command at this point in time");
+
+		return queue->enqueueCommand(ParameterRecord::ValueList(name, extVal, numNames, names)).getClassCounter();
 	}
+
 
 }

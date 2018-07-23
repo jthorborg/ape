@@ -36,7 +36,6 @@
 	#include <string>
 	#include <cpl/Misc.h>
 	#include "CApi.h"
-	#include "CValueLabel.h"
 	#include "GraphicComponents.h"
 
 	namespace ape {
@@ -52,7 +51,6 @@
 		 *********************************************************************************************/
 		class CLabelDisplay : public GraphicComponent, public CBaseControl
 		{
-			ape::CValueLabel text;
 			std::string title;
 			CTextLabel * labels[2];
 		public:

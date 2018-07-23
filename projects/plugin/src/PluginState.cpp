@@ -68,7 +68,6 @@ namespace ape
 		, abnormalBehaviour(false)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
-		commandQueue = std::make_unique<PluginCommandQueue>();
 		project->iface = sharedObject.get();
 
 		if (!generator.createProject(*project))
@@ -226,6 +225,7 @@ namespace ape
 				throw InvalidStateException("Corrupt reference count");
 		}
 
+		commandQueue = std::make_unique<PluginCommandQueue>();
 
 		auto ret = WrapPluginCall("activating project",
 			[&]
@@ -237,7 +237,9 @@ namespace ape
 		if (ret.second || ret.first != Status::STATUS_READY)
 			return Status::STATUS_ERROR;
 
-		setupParameters();
+		consumeCommands();
+
+		commandQueue.reset();
 
 		cpl::CMutex lock(expiredMutex);
 		expired = false;
@@ -314,8 +316,7 @@ namespace ape
 
 		// TODO: check RET code.
 
-		pluginAllocator.clear();
-		cleanupParameters();
+		cleanupResources();
 		abnormalBehaviour = false;
 		pendingDisable = false;
 	}
@@ -370,7 +371,7 @@ namespace ape
 		return ret.first;
 	}
 
-	void PluginState::setupParameters()
+	void PluginState::consumeCommands()
 	{
 		auto& queue = *commandQueue;
 		for (std::size_t i = 0; i < queue.size(); ++i)
@@ -393,7 +394,7 @@ namespace ape
 		engine.getParameterManager().getParameterSet().addRTListener(this, true);
 	}
 
-	void PluginState::cleanupParameters()
+	void PluginState::cleanupResources()
 	{
 		engine.getParameterManager().getParameterSet().removeRTListener(this, true);
 
@@ -415,6 +416,8 @@ namespace ape
 
 		// kill parameters
 		parameters.clear();
+
+		pluginAllocator.clear();
 	}
 
 	void PluginState::parameterChangedRT(cpl::Parameters::Handle localHandle, cpl::Parameters::Handle globalHandle, ParameterSet::BaseParameter * param) 

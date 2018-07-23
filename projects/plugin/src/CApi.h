@@ -103,7 +103,7 @@
 		/// <summary>
 		/// Adds an automatable parameter to the GUI, using a list of values.
 		/// </summary>
-		int			APE_API			createMeter(APE_SharedInterface * iface, const char * name, float * extVal);
+		int			APE_API			createMeter(APE_SharedInterface * iface, const char * name, const float * extVal);
 		/// <summary>
 		/// Adds a button to the GUI.
 		/// </summary>

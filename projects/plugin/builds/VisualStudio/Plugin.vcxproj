@@ -614,7 +614,7 @@
     <ClCompile Include="..\..\src\CCodeGenerator.cpp" />
     <ClCompile Include="..\..\src\CConsole.cpp" />
     <ClCompile Include="..\..\src\CControlManager.cpp" />
-    <ClCompile Include="..\..\src\CValueLabel.cpp" />
+    <ClCompile Include="..\..\src\ReferenceFormattedString.cpp" />
     <ClCompile Include="..\..\src\GraphicComponents.cpp" />
     <ClCompile Include="..\..\src\Plugin\PluginSurface.cpp" />
     <ClCompile Include="..\..\src\SignalizerWindow.cpp" />
@@ -1742,7 +1742,7 @@
     <ClInclude Include="..\..\src\Common.h" />
     <ClInclude Include="..\..\src\CQueueLabel.h" />
     <ClInclude Include="..\..\src\CSerializer.h" />
-    <ClInclude Include="..\..\src\CValueLabel.h" />
+    <ClInclude Include="..\..\src\ReferenceFormattedString.h" />
     <ClInclude Include="..\..\src\GraphicComponents.h" />
     <ClInclude Include="..\..\src\Plugin\PluginSurface.h" />
     <ClInclude Include="..\..\src\SignalizerWindow.h" />

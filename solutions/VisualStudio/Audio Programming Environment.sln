@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin", "..\..\projects\plugin\builds\VisualStudio\Plugin.vcxproj", "{4EF9CB9D-0725-4644-5087-E4881FC85FEB}"
 EndProject
@@ -64,8 +64,8 @@ Global
 		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.DebugStatic|x64.Build.0 = DebugStatic|x64
 		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.DebugStatic|x86.ActiveCfg = DebugStatic|x64
 		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.DebugStatic|x86.Build.0 = DebugStatic|x64
-		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.Release|x64.ActiveCfg = ReleaseStatic|x64
-		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.Release|x64.Build.0 = ReleaseStatic|x64
+		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.Release|x64.ActiveCfg = Release|x64
+		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.Release|x64.Build.0 = Release|x64
 		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.Release|x86.ActiveCfg = ReleaseStatic|Win32
 		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.Release|x86.Build.0 = ReleaseStatic|Win32
 		{A0C36CE7-D908-4573-8B69-249EEEB7D2BE}.ReleaseStatic|x64.ActiveCfg = DebugStatic|x64

@@ -76,19 +76,16 @@ namespace ape {
 	{
 		cpl::CMutex lockGuard(this);
 		title = in;
-		labels[0]->setText(title);
 	}
 	/*********************************************************************************************/
 	void CLabelDisplay::setFormat(const char * fmt, va_list args)
 	{
 		cpl::CMutex lockGuard(this);
-		text.setFormat(fmt, args);
 	}
 	/*********************************************************************************************/
 	void CLabelDisplay::bRedraw()
 	{
 		cpl::CMutex lockGuard(this);
-		labels[1]->setText(text.get().c_str());
 
 	}
 	CLabelDisplay::~CLabelDisplay()

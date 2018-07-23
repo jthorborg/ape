@@ -35,6 +35,7 @@
 	#include <memory>
 	#include <ape/APE.h>
 	#include <typeindex>
+	#include "../ReferenceFormattedString.h"
 
 	namespace ape 
 	{
@@ -42,7 +43,8 @@
 
 		enum class CommandType
 		{
-			Parameter
+			Parameter,
+			Widget
 		};
 
 		class CommandBase
@@ -59,7 +61,71 @@
 		private:
 
 			int classCounter = 0;
-			CommandType command;
+			const CommandType command;
+		};
+
+		class WidgetRecord : public CommandBase
+		{
+		public:
+
+			enum WidgetType
+			{
+				Meter,
+				Plot,
+				Label
+			};
+
+			WidgetRecord(WidgetType type) : CommandBase(CommandType::Widget), type(type) {}
+
+		private:
+			const WidgetType type;
+		};
+
+		class MeterRecord : public WidgetRecord
+		{
+		public:
+			MeterRecord(const char* name, const float* value)
+				: WidgetRecord(Meter), name(name), value(value)
+			{
+
+			}
+
+			std::string name;
+			const float* value;
+		};
+
+		class PlotRecord : public WidgetRecord
+		{
+		public:
+			PlotRecord(const char* name, std::size_t numValues, const float* values)
+				: WidgetRecord(Plot), name(name), numValues(numValues), values(values)
+			{
+
+			}
+
+			std::string name;
+			std::size_t numValues;
+			const float* values;
+		};
+
+		class FormatLabelRecord : public WidgetRecord
+		{
+		public:
+			FormatLabelRecord(const char* name, const char* fmt, va_list& args)
+				: WidgetRecord(Label), name(name), stringValue(fmt, args)
+			{
+			}
+
+			FormatLabelRecord(FormatLabelRecord&& other) 
+				: WidgetRecord(Label)
+				, name(std::move(other.name))
+				, stringValue(std::move(other.stringValue)) 
+			{
+
+			}
+
+			std::string name;
+			ReferenceFormattedString stringValue;
 		};
 
 		class ParameterRecord : public CommandBase

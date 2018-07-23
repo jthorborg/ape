@@ -1476,9 +1476,6 @@
     <ClCompile Include="..\..\src\CAllocator.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CValueLabel.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CApi.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1556,6 +1553,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Plugin\PluginSurface.cpp">
       <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ReferenceFormattedString.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2903,9 +2903,6 @@
     <ClInclude Include="..\..\src\CAllocator.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CValueLabel.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CMemoryGuard.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -3013,6 +3010,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\Plugin\PluginSurface.h">
       <Filter>Audio Programming Environment\Headers\Plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ReferenceFormattedString.h">
+      <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

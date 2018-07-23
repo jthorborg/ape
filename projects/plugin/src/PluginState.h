@@ -102,7 +102,7 @@
 
 			Status getState() const noexcept { return state; }
 			CPluginCtrlManager& getCtrlManager() noexcept { return ctrlManager; }
-			PluginCommandQueue& getCommandQueue() noexcept { return *commandQueue; }
+			PluginCommandQueue* getCommandQueue() noexcept { return commandQueue.get(); }
 			std::shared_ptr<PluginSurface> getOrCreateSurface();
 
 		private:
@@ -157,8 +157,8 @@
 
 			void dispatchPlayEvent();
 			Status dispatchEvent(const char * reason, APE_Event& event);
-			void setupParameters();
-			void cleanupParameters();
+			void consumeCommands();
+			void cleanupResources();
 
 			std::unique_ptr<SharedInterfaceEx> sharedObject;
 			std::unique_ptr<PluginCommandQueue> commandQueue;
