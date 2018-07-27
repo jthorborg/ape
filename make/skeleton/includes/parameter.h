@@ -137,6 +137,11 @@ public:
 		return convert(range(read));
 	}
 
+	~ParameterBase()
+	{
+		getInterface().destroyResource(&getInterface(), internalID, -1);
+	}
+
 protected:
 
 	int internalID;

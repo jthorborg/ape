@@ -67,6 +67,7 @@ namespace ape
 		, config{}
 		, playing(false)
 		, pendingDisable(false)
+		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
@@ -309,12 +310,16 @@ namespace ape
 		while (useCount.load(std::memory_order_relaxed) > 0)
 			std::this_thread::yield();
 
+		currentlyDisabling.store(true, std::memory_order_release);
+
 		auto ret = WrapPluginCall("Disabling plugin",
 			[&]
 			{
 				return generator.disableProject(*project, abnormalBehaviour);
 			}
 		);
+
+		currentlyDisabling.store(false, std::memory_order_release);
 
 		// TODO: check RET code.
 
@@ -510,6 +515,24 @@ namespace ape
 				"[PluginState] : Plugin aborted at operation: %s: \"%s\". Plugin disabled.",
 				reason,
 				exp.what()
+			);
+		}
+		catch (const std::runtime_error& err)
+		{
+			engine.getController().console().printLine(
+				CColours::orange,
+				"[PluginState] : Runtime error at operation: %s: \"%s\". Plugin disabled.",
+				reason,
+				err.what()
+			);
+		}
+		catch (const std::exception& err)
+		{
+			engine.getController().console().printLine(
+				CColours::orange,
+				"[PluginState] : Unknown exception at operation: %s: \"%s\". Plugin disabled.",
+				reason,
+				err.what()
 			);
 		}
 

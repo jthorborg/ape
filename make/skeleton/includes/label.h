@@ -258,6 +258,11 @@ public:
 		id = getInterface().createLabel(&getInterface(), name.c_str(), temp.c_str(), args.getPtr()...);
 	}
 
+	~Label()
+	{
+		getInterface().destroyResource(&getInterface(), id, 0);
+	}
+
 private:
 
 	int id;

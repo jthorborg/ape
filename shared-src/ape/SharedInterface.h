@@ -77,6 +77,7 @@
 		int			(APE_API * createNormalParameter)	(struct APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, APE_Transformer transformer, APE_Normalizer normalizer, PFloat min, PFloat max);
 		int			(APE_API * createBooleanParameter)	(struct APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
+		int			(APE_API * destroyResource)			(struct APE_SharedInterface * iface, int resourceID, int reserved);
 
 		struct APE_SIExtra extra;
 	};

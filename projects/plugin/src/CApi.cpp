@@ -457,5 +457,14 @@ namespace ape
 		return queue->enqueueCommand(ParameterRecord::ValueList(name, extVal, numNames, names)).getClassCounter();
 	}
 
+	int	APE_API	destroyResource(APE_SharedInterface * iface, int resource, int reserved)
+	{
+		REQUIRES_NOTNULL(iface);
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+		if (!pstate.isDisabling())
+			THROW("Cannot release resources at this point in time!");
+
+		return 0;
+	}
 
 }

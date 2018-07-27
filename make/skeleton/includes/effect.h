@@ -22,7 +22,7 @@ protected:
 
 	virtual ~Effect()
 	{
-	
+		getInterface().destroyResource(&getInterface(), 0, 0);
 	}
 
 };

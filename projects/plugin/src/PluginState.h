@@ -84,14 +84,14 @@
 
 #undef DEFINE_EXCEPTION
 
+			PluginState(Engine& effect, CCodeGenerator& codeGenerator, std::unique_ptr<ProjectEx> project);
+			~PluginState();
+
 			SharedInterfaceEx& getSharedInterface();
 			CAllocator& getPluginAllocator() noexcept { return pluginAllocator; }
 			std::vector<CMemoryGuard> & getPMemory() noexcept { return protectedMemory; }
 
 			void setBounds(const IOConfig& o);
-
-			PluginState(Engine& effect, CCodeGenerator& codeGenerator, std::unique_ptr<ProjectEx> project);
-			~PluginState();
 
 			static void useFPUExceptions(bool b);
 
@@ -99,6 +99,7 @@
 			Status disableProject();
 			Status processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
 			bool isProcessing() const noexcept { return processing.load(std::memory_order_acquire); }
+			bool isDisabling() const noexcept { return currentlyDisabling.load(std::memory_order_acquire); }
 			void setPlayState(bool isPlaying);
 
 			Status getState() const noexcept { return state; }
@@ -184,6 +185,7 @@
 			std::atomic<bool>
 				abnormalBehaviour,
 				pendingDisable,
+				currentlyDisabling,
 				processing;
 			
 
