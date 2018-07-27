@@ -182,10 +182,9 @@ namespace ape
 	void UIController::editorOpened(Editor * newEditor)
 	{
 		setStatusText();
-		if (engine.getCurrentPluginState())
+		if (auto state = engine.getCurrentPluginState(); state && state->isEnabled())
 		{
-			engine.getCurrentPluginState()->getCtrlManager().attach(newEditor);
-			engine.getCurrentPluginState()->getCtrlManager().createPendingControls();
+			newEditor->onPluginStateChanged(*state, true);
 		}
 		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
 

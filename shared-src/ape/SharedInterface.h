@@ -66,7 +66,7 @@
 		int			(APE_API_VARI * createLabel)		(struct APE_SharedInterface * iface, const char * name, const char * fmt, ...);
 		int			(APE_API * getNumInputs)			(struct APE_SharedInterface * iface);
 		int			(APE_API * getNumOutputs)			(struct APE_SharedInterface * iface);
-		int			(APE_API * createMeter)				(struct APE_SharedInterface * iface, const char * name, const float * extVal);
+		int			(APE_API * createMeter)				(struct APE_SharedInterface * iface, const char * name, const double* extVal, const double* peakVal);
 		int			(APE_API * createToggle)			(struct APE_SharedInterface * iface, const char * name, float * extVal);
 		double		(APE_API * getBPM)					(struct APE_SharedInterface * iface);
 		float		(APE_API * getCtrlValue)			(struct APE_SharedInterface * iface, int iD);

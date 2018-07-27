@@ -66,6 +66,7 @@ namespace ape
 		, state(STATUS_DISABLED)
 		, config{}
 		, playing(false)
+		, enabled(false)
 		, pendingDisable(false)
 		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
@@ -264,6 +265,8 @@ namespace ape
 			dispatchEvent("initial playStateChanged() event", e);
 		}
 
+		enabled = true;
+
 		return Status::STATUS_READY;
 	}
 
@@ -326,6 +329,7 @@ namespace ape
 		cleanupResources();
 		abnormalBehaviour = false;
 		pendingDisable = false;
+		enabled = false;
 	}
 
 	SharedInterfaceEx & PluginState::getSharedInterface()

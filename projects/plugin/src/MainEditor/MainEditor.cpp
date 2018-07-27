@@ -229,7 +229,7 @@ namespace ape
 			controls[tagActiveState]->bSetInternal(1.0f);
 
 			pluginSurface = plugin.getOrCreateSurface();
-			pluginSurface->setBounds(background.getBounds().withX(controls[tagActiveState]->bGetSize().getRight()));
+			pluginSurface->setBounds(background.getBounds().withLeft(controls[tagActiveState]->bGetSize().getRight()));
 			addAndMakeVisible(*pluginSurface);
 		}
 		else
@@ -268,7 +268,10 @@ namespace ape
 			//repaint();
 			repaintCallBackCounter = 0;
 		}
-		
+	
+		if (pluginSurface)
+			pluginSurface->repaintActiveAreas();
+
 		parent.render();
 	}
 

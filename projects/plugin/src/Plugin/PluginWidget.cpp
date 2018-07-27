@@ -37,13 +37,62 @@
 
 namespace ape
 {
-	class MeterWidget : public juce::Component
+
+	class MeterWidget : public PluginWidget
 	{
 	public:
 
+		class MeterWidgetUI : public juce::Component
+		{
+		public:
+
+			MeterWidgetUI(MeterWidget& parent)
+				: parent(parent)
+			{
+				setSize(cpl::ControlSize::Rectangle.height, cpl::ControlSize::Rectangle.width);
+			}
+
+			void paint(juce::Graphics& g) override
+			{
+				g.setColour(cpl::GetColour(cpl::ColourEntry::ControlText));
+
+				const auto textRect = getLocalBounds().withHeight(20);
+
+				g.drawText(parent.name, textRect.reduced(5), juce::Justification::centredLeft, false);
+
+				auto meterRect = getLocalBounds().withTop(textRect.getBottom()).toFloat();
+				auto meterValue = *parent.normalValue;
+				meterValue = std::min(1.0, meterValue);
+				auto height = static_cast<float>(meterRect.getHeight() * meterValue);
+
+				g.setColour(juce::Colours::green);
+				g.fillRect(meterRect.withTop(meterRect.getBottom() + height));
+			}
+
+		private:
+			MeterWidget& parent;
+		};
+
+		MeterWidget(MeterRecord&& record)
+			: PluginWidget(Meter)
+			, name(std::move(record.name))
+			, normalValue(record.value)
+			, peakValue(record.peak)
+		{
+
+		}
+
+		std::unique_ptr<juce::Component> createController() override
+		{
+			return std::unique_ptr<juce::Component>(new MeterWidgetUI(*this));
+		}
+
 
 	private:
-		const float* extVal;
+		std::string name;
+		const volatile double
+			* normalValue,
+			* peakValue;
 	};
 
 	class LabelWidget : public PluginWidget
@@ -100,6 +149,8 @@ namespace ape
 		{
 		case WidgetRecord::Label:
 			return std::unique_ptr<PluginWidget>(new LabelWidget(std::move(static_cast<FormatLabelRecord&>(record))));
+		case WidgetRecord::Meter:
+			return std::unique_ptr<PluginWidget>(new MeterWidget(std::move(static_cast<MeterRecord&>(record))));
 		}
 
 		CPL_RUNTIME_EXCEPTION("Unknown mapping from parameter record to plugin parameter");

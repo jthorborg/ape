@@ -147,7 +147,7 @@ namespace ape
 		return tag;
 	}
 
-	int APE_API createMeter(APE_SharedInterface * iface, const char * name, const float * extVal)
+	int APE_API createMeter(APE_SharedInterface * iface, const char * name, const double* extVal, const double* peakVal)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
@@ -159,7 +159,7 @@ namespace ape
 		if (!queue)
 			THROW("Cannot perform command at this point in time");
 
-		return queue->enqueueCommand(MeterRecord(name, extVal)).getClassCounter();
+		return queue->enqueueCommand(MeterRecord(name, extVal, peakVal)).getClassCounter();
 	}
 	
 	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...)

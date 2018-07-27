@@ -100,6 +100,7 @@
 			Status processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
 			bool isProcessing() const noexcept { return processing.load(std::memory_order_acquire); }
 			bool isDisabling() const noexcept { return currentlyDisabling.load(std::memory_order_acquire); }
+			bool isEnabled() const noexcept { return enabled; }
 			void setPlayState(bool isPlaying);
 
 			Status getState() const noexcept { return state; }
@@ -176,10 +177,12 @@
 
 			CPluginCtrlManager ctrlManager;
 
-			bool playing;
+			bool
+				playing,
+				expired,
+				enabled;
 			IOConfig config;
 			cpl::CMutex::Lockable expiredMutex;
-			bool expired;
 			std::atomic<int> useCount;
 			std::atomic<Status> state;
 			std::atomic<bool>

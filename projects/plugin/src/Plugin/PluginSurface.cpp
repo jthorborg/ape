@@ -83,6 +83,15 @@ namespace ape
 
 	}
 
+	void PluginSurface::repaintActiveAreas()
+	{
+		for(auto& w : widgets)
+			w->repaint();
+
+		for (auto& m : meters)
+			m->repaint();
+	}
+
 	void PluginSurface::clearComponents()
 	{
 		controls.clear();

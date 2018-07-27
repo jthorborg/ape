@@ -87,14 +87,15 @@
 		class MeterRecord : public WidgetRecord
 		{
 		public:
-			MeterRecord(const char* name, const float* value)
-				: WidgetRecord(Meter), name(name), value(value)
+			MeterRecord(const char* name, const double* value, const double* peak)
+				: WidgetRecord(Meter), name(name), value(value), peak(peak)
 			{
 
 			}
 
 			std::string name;
-			const float* value;
+			const double* value;
+			const double* peak;
 		};
 
 		class PlotRecord : public WidgetRecord
@@ -144,30 +145,6 @@
 				ret.type = ParameterType::Boolean;
 				return ret;
 			}
-
-			/*
-			static ParameterRecord LegacyKnob(const char* name, float* val, int type)
-			{
-				ParameterRecord ret(CommandType::Parameter);
-				ret.name = name;
-				ret.value = val;
-				ret.type = ParameterType::TypedKnob;
-				ret.knobType = type;
-				return ret;
-			}
-
-			static ParameterRecord ScaledParameter(const char* name, const char* unit, float* val, ScaleFunc func, float min, float max)
-			{
-				ParameterRecord ret(CommandType::Parameter);
-				ret.name = name;
-				ret.value = val;
-				ret.type = ParameterType::ScaledFloat;
-				ret.min = min;
-				ret.max = max;
-				ret.scaler = func;
-				ret.unit = unit;
-				return ret;
-			}*/
 
 			static ParameterRecord ValueList(const char* name, PFloat* val, std::size_t numValues, const char* const* values)
 			{

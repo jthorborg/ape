@@ -103,7 +103,7 @@
 		/// <summary>
 		/// Adds an automatable parameter to the GUI, using a list of values.
 		/// </summary>
-		int			APE_API			createMeter(APE_SharedInterface * iface, const char * name, const float * extVal);
+		int			APE_API			createMeter(APE_SharedInterface * iface, const char * name, const double* extVal, const double* peakVal);
 		/// <summary>
 		/// Adds a button to the GUI.
 		/// </summary>
@@ -133,6 +133,7 @@
 		int			APE_API			createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max);
 		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
+
 		int			APE_API			destroyResource(APE_SharedInterface * iface, int resource, int reserved);
 
 

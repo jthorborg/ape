@@ -44,6 +44,8 @@
 			friend class PluginState;
 			PluginSurface(Engine& engine, PluginState& state);
 
+			void repaintActiveAreas();
+
 		protected:
 
 			void resized() override;
