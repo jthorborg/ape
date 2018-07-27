@@ -393,10 +393,6 @@ namespace ape
 					widgets.emplace_back(PluginWidget::FromRecord(std::move(widgetRecord)));
 				}
 			}
-			if (queue[i].getCommandType() == CommandType::Parameter)
-			{
-
-			}
 		}
 
 		for (std::size_t i = 0; i < parameters.size(); ++i)
@@ -432,6 +428,7 @@ namespace ape
 
 		// kill parameters
 		parameters.clear();
+		widgets.clear();
 
 		pluginAllocator.clear();
 	}

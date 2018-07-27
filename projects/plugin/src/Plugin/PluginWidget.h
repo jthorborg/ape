@@ -40,9 +40,22 @@
 		{
 		public:
 			
+			enum Type
+			{
+				Meter, Label, Plot
+			};
+
 			static std::unique_ptr<PluginWidget> FromRecord(WidgetRecord&& record);
-			virtual std::unique_ptr<juce::Component> createController();
+
+			Type getType() const noexcept { return type; }
+			virtual std::unique_ptr<juce::Component> createController() = 0;
 			virtual ~PluginWidget() {}
+
+		protected:
+
+			PluginWidget(Type type) : type(type) {}
+
+			Type type;
 		};
 
 	};

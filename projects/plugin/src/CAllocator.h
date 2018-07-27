@@ -32,26 +32,42 @@
 #ifndef _CALLOCATOR_H
 
 	#define _CALLOCATOR_H
+	#define CALLOCATOR_CATCH_DOUBLEFREE
 
 	#include <list>
 	#include <cstdlib>
- #include <cpl/MacroConstants.h>
+	#include <cpl/MacroConstants.h>
 	#include <ape/SharedInterface.h>
 	#include <cpl/CMutex.h>
-
+	#include <set>
+	
 	namespace ape 
 	{
 
-		class CAllocator : private cpl::CMutex::Lockable
+		class CAllocator
 		{
 		public:
 			using Label = APE_AllocationLabel;
 
-		private: 
+		public:
+			CAllocator(unsigned align = 8);
+			void * alloc(Label l, size_t memsize);
+			
+			template <typename T> 
+				T * alloc(Label l)
+				{
+					return reinterpret_cast<T*> (this->alloc(l, sizeof (T)));
+				}
 
-			static const unsigned int end_marker = 0xBADC0DE; // lulz
 
-		protected:
+			void free(void * block);
+			void clear();
+
+			~CAllocator();
+
+		private:
+
+			static const unsigned int end_marker = 0xBADC0DE; 
 
 			unsigned alignment;
 			struct mem_block;
@@ -70,28 +86,13 @@
 				Label memLabel;
 				mem_end * end;
 
-				// holded memory is after this block, so we add the size of this block to it's pointer.
+				// held memory is after this block, so we add the size of this block to it's pointer.
 				void * getMemory() { return reinterpret_cast<char*>(this) + sizeof(*this); }
 			};
 
 			mem_block * headerFromBlock(void * block);
 			bool removeBlock(mem_block * header);
-
-		public:
-			CAllocator(unsigned align = 8);
-			void * alloc(Label l, size_t memsize);
-			
-			template <typename T> 
-				T * alloc(Label l)
-				{
-					return reinterpret_cast<T*> (this->alloc(l, sizeof (T)));
-				}
-
-
-			void free(void * block);
-			void clear();
-
-			~CAllocator();
+			cpl::CMutex::Lockable mutex;
 		};
 
 	};

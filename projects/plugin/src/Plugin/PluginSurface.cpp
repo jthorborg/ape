@@ -32,6 +32,7 @@
 #include <cpl/gui/GUI.h>
 #include "../Engine.h"
 #include "PluginParameter.h"
+#include "PluginWidget.h"
 
 namespace ape
 {
@@ -50,16 +51,47 @@ namespace ape
 			);
 
 			addAndMakeVisible(*control);
-			components.emplace_back(std::move(control));
+			controls.emplace_back(std::move(control));
 		}
+
+		auto& pluginWidgets = state.widgets;
+
+		for (std::size_t i = 0; i < pluginWidgets.size(); ++i)
+		{
+			switch (pluginWidgets[i]->getType())
+			{
+				case PluginWidget::Label:
+				case PluginWidget::Plot:
+				{
+					auto widget = pluginWidgets[i]->createController();
+					addAndMakeVisible(*widget);
+					widgets.emplace_back(std::move(widget));
+					break;
+				}
+				case PluginWidget::Meter:
+				{
+					auto meter = pluginWidgets[i]->createController();
+					addAndMakeVisible(*meter);
+					meters.emplace_back(std::move(meter));
+					break;
+				}
+
+			}
+				
+		}
+
+
 	}
 
 	void PluginSurface::clearComponents()
 	{
-		components.clear();
+		controls.clear();
+		widgets.clear();
+		meters.clear();
 	}
 
-	void PluginSurface::resized()
+	template<typename ComponentPointerList>
+	static void LayoutComponents(const ComponentPointerList& components, const juce::Rectangle<int>& bounds)
 	{
 		if (components.empty())
 			return;
@@ -76,13 +108,49 @@ namespace ape
 		if (maxWidth == 0 || maxHeight == 0)
 			return;
 
-		int columns = std::max(1, getWidth() / maxWidth);
+		int columns = std::max(1, bounds.getWidth() / maxWidth);
 
 		for (std::size_t i = 0; i < components.size(); ++i)
 		{
-			auto bounds = components[i]->getBounds();
-			bounds.setPosition(maxWidth * (i % columns), maxHeight * (i / columns));
-			components[i]->setBounds(bounds);
+			auto localBounds = components[i]->getBounds();
+
+			localBounds.setPosition(
+				bounds.getX() + maxWidth * (i % columns), 
+				bounds.getY() + maxHeight * (i / columns)
+			);
+
+			components[i]->setBounds(localBounds);
 		}
+	}
+
+	void PluginSurface::resized()
+	{
+		LayoutComponents(controls, getControlSpace());
+		LayoutComponents(meters, getMeteringSpace());
+		LayoutComponents(widgets, getWidgetSpace());
+	}
+
+	void PluginSurface::paint(juce::Graphics & g)
+	{
+	}
+
+	constexpr int space = 90;
+
+	juce::Rectangle<int> PluginSurface::getControlSpace()
+	{
+		auto current = getLocalBounds();
+		current.removeFromRight(space);
+		current.removeFromBottom(space);
+		return current.reduced(5);
+	}
+
+	juce::Rectangle<int> PluginSurface::getMeteringSpace()
+	{
+		return getLocalBounds().withLeft(getWidth() - space).reduced(5);
+	}
+
+	juce::Rectangle<int> PluginSurface::getWidgetSpace()
+	{
+		return getLocalBounds().withTop(getHeight() - space).reduced(5);
 	}
 }

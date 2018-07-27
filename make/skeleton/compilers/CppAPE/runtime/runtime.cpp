@@ -44,6 +44,7 @@ int printf(const char * fmt, ...)
 	return ret;
 }
 
+[[noreturn]]
 void abort(const char * reason)
 {
 	if (lastIFace == NULL)

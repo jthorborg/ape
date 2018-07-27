@@ -159,14 +159,14 @@ namespace ape
 
 				// %lf is used for doubles, since float * isn't promoted to double, 
 				// unlike float -> double when passing by value
-				if (format[i + 1] == 'f')
+				if (format[i] == 'f')
 					valueList.emplace_back(ValueFrom<double>(args));
-				else if (format[i + 1] == 'd')
+				else if (format[i] == 'd')
 					valueList.emplace_back(ValueFrom<long double>(args));
-				else if (format[i + 1] == 'u')
-					valueList.emplace_back(ValueFrom<signed long long>(args));
-				else if (format[i + 1] == 'i')
+				else if (format[i] == 'u')
 					valueList.emplace_back(ValueFrom<unsigned long long>(args));
+				else if (format[i] == 'i')
+					valueList.emplace_back(ValueFrom<signed long long>(args));
 				else
 					--i;
                 break;
@@ -207,7 +207,7 @@ namespace ape
 					break;
 
 				// special case: %% is interpreted as a single %
-				if(format[i] != '%') 
+				if(format[i] != '%' && count < valueList.size()) 
 				{ 
 					valueList[count++]->toString(ss); // magic
 					continue;

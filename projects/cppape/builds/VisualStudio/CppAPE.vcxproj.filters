@@ -363,6 +363,9 @@
     <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\misc_tasks.h">
       <Filter>Plugin\Runtime</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\label.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

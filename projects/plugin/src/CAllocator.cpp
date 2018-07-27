@@ -28,21 +28,13 @@
 *************************************************************************************/
 
 #include "CAllocator.h"
+#include <cpl/Protected.h>
 
 namespace ape 
 {
-	/*********************************************************************************************
 
-		Constructor: Initializes alignment of allocations.
-
-	 *********************************************************************************************/
 	CAllocator::CAllocator(unsigned align) : alignment(align) {};
 
-	/*********************************************************************************************
-
-		Allocates memsize bytes and returns them. Returns nullptr on failure.
-
-	 *********************************************************************************************/
 	void * CAllocator::alloc(CAllocator::Label l, std::size_t memsize)
 	{
 		// calculate needed size.
@@ -70,88 +62,78 @@ namespace ape
 			);
 		// set a unique value in the end to so we can check if memory has been overwritten.
 		header->end->ncheck = end_marker;
-		cpl::CMutex lock(this);
+
+
+		cpl::CMutex lock(mutex);
 		allocations.push_back(header);
 		return header->getMemory();
 	}
-	/*********************************************************************************************
 
-		Returns a pointer to a memory header from an unknown block of memory.
-		Returns nullptr if it isn't found, or it fails the memory check.
-
-	 *********************************************************************************************/
 	CAllocator::mem_block * CAllocator::headerFromBlock(void * block)
 	{
 		if (!block)
 			return nullptr;
-
-		cpl::CMutex lock(this);
 		
 		mem_block * header = reinterpret_cast<mem_block *> 
 			(	// the header is located before the actual block of memory, so subtract that value.
 				reinterpret_cast<char*>(block) - sizeof(mem_block)
 			);
+
 		if(header->end && header->end->ncheck != end_marker)
 			// either we didnt allocate this or the block is corrupted: return null
 			return nullptr;
+
 		return header;
 	}
-	/*********************************************************************************************
 
-		Removes a block from the list.
-
-	 *********************************************************************************************/
 	bool CAllocator::removeBlock(mem_block * header)
 	{
 		mem_it ret_it;
 		bool found(false);
-		cpl::CMutex lock(this);
 
-		for(ret_it = allocations.begin(); ret_it != allocations.end(); ret_it++) {
+		for(ret_it = allocations.begin(); ret_it != allocations.end(); ret_it++) 
+		{
 
-			if((*ret_it) == header) {
+			if((*ret_it) == header) 
+			{
 				found = true;
 				break;
 			}
 		}
+
 		if(found)
 			allocations.erase(ret_it);
+
 		return found;
 	}
-	/*********************************************************************************************
 
-		Free a block of memory
-
-	 *********************************************************************************************/
-	void CAllocator::free(void * block) {
+	void CAllocator::free(void * block) 
+	{
 		if(!block)
 			return;
 
-		cpl::CMutex lock(this);
+		cpl::CMutex lock (mutex);
+
 		mem_block * header = headerFromBlock(block);
-		if(!header)
-			return;
+
+		if (!header)
+			cpl::CProtected::instance().throwException<std::runtime_error>("double free of pointer: " + std::to_string((std::uintptr_t)block));
+
 		removeBlock(header);
 		std::free(reinterpret_cast<void*>(header));
 	}
-	/*********************************************************************************************
 
-		Clear the container.
 
-	 *********************************************************************************************/
 	void CAllocator::clear()
 	{
-		cpl::CMutex lock(this);
-		for(auto it = allocations.begin(); it != allocations.end(); it++) {
+		cpl::CMutex lock (mutex);
+		for(auto it = allocations.begin(); it != allocations.end(); it++)
+		{
 			std::free(*it);
 		}
 		allocations.clear();
 	}
-	/*********************************************************************************************
 
-		Deconstrutor
-
-	 *********************************************************************************************/
 	CAllocator::~CAllocator()
 	{
 		clear();

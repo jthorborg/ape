@@ -47,11 +47,19 @@
 		protected:
 
 			void resized() override;
+			void paint(juce::Graphics& g) override;
 
 		private:
 
+			juce::Rectangle<int> getControlSpace();
+			juce::Rectangle<int> getMeteringSpace();
+			juce::Rectangle<int> getWidgetSpace();
+
 			void clearComponents();
-			std::vector<std::unique_ptr<juce::Component>> components;
+			std::vector<std::unique_ptr<juce::Component>>
+				controls,
+				widgets,
+				meters;
 		};
 
 	};

@@ -22,7 +22,7 @@ inline size_t nextpow2(size_t current)
 
 int printf(const char * fmt, ...);
 APE_SharedInterface& getInterface();
-
+[[noreturn]] void abort(const char* reason);
 
 struct Status
 {

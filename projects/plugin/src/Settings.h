@@ -131,7 +131,7 @@
 
 					return (T)*setting;
 				}
-				catch (const libconfig::SettingNotFoundException& e)
+				catch (const libconfig::SettingNotFoundException&)
 				{
 					return defaultValue;
 				}
@@ -159,7 +159,7 @@
 					return juce::Colour::fromString(setting->c_str());
 
 				}
-				catch (const libconfig::SettingNotFoundException& e)
+				catch (const libconfig::SettingNotFoundException&)
 				{
 					return defaultValue;
 				}

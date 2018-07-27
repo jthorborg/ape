@@ -9,6 +9,7 @@
 #include <functional>
 #include <algorithm>
 #include <typeinfo>
+#include "label.h"
 
 class Effect : public Processor
 {
