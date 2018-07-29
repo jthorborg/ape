@@ -61,12 +61,23 @@ namespace ape
 				g.drawText(parent.name, textRect.reduced(5), juce::Justification::centredLeft, false);
 
 				auto meterRect = getLocalBounds().withTop(textRect.getBottom()).toFloat();
+				auto totalHeight = meterRect.getHeight();
+
 				auto meterValue = *parent.normalValue;
-				meterValue = std::min(1.0, meterValue);
-				auto height = static_cast<float>(meterRect.getHeight() * meterValue);
+				meterValue = std::clamp(meterValue, 0.0, 1.0);
+				auto top = static_cast<float>(meterRect.getBottom() - totalHeight * meterValue);
 
 				g.setColour(juce::Colours::green);
-				g.fillRect(meterRect.withTop(meterRect.getBottom() + height));
+				g.fillRect(meterRect.withTop(top));
+
+				if (parent.peakValue)
+				{
+					auto peakValue = *parent.peakValue;
+					g.setColour(juce::Colours::lightyellow);
+					top = static_cast<float>(meterRect.getBottom() - totalHeight * std::clamp(peakValue, 0.0, 1.0));
+					g.drawLine(0, top, getWidth(), top, 2);
+				}
+
 			}
 
 		private:
