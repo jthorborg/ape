@@ -101,7 +101,7 @@
 		class PlotRecord : public WidgetRecord
 		{
 		public:
-			PlotRecord(const char* name, std::size_t numValues, const float* values)
+			PlotRecord(const char* name, std::size_t numValues, const double* values)
 				: WidgetRecord(Plot), name(name), numValues(numValues), values(values)
 			{
 
@@ -109,7 +109,7 @@
 
 			std::string name;
 			std::size_t numValues;
-			const float* values;
+			const double* values;
 		};
 
 		class FormatLabelRecord : public WidgetRecord

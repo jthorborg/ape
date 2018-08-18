@@ -71,7 +71,7 @@
 		double		(APE_API * getBPM)					(struct APE_SharedInterface * iface);
 		float		(APE_API * getCtrlValue)			(struct APE_SharedInterface * iface, int iD);
 		void		(APE_API * setCtrlValue)			(struct APE_SharedInterface * iface, int iD, float value);
-		int			(APE_API * createPlot)				(struct APE_SharedInterface * iface, const char * name, const float * const values, const unsigned int numVals);
+		int			(APE_API * createPlot)				(struct APE_SharedInterface * iface, const char * name, const double * const values, const unsigned int numVals);
 		int			(APE_API * createRangeKnob)			(struct APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, APE_ScaleFunc scaleCB, float min, float max);
 		int			(APE_API * presentTrace)			(struct APE_SharedInterface * iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
 		int			(APE_API * createNormalParameter)	(struct APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, APE_Transformer transformer, APE_Normalizer normalizer, PFloat min, PFloat max);

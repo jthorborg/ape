@@ -4,12 +4,15 @@
 #include "baselib.h"
 #include "processor.h"
 #include "parameter.h"
+#include "label.h"
+#include "meter.h"
+#include "plot.h"
+
 #include <complex>
 #include <map>
 #include <functional>
 #include <algorithm>
 #include <typeinfo>
-#include "label.h"
 
 class Effect : public Processor
 {

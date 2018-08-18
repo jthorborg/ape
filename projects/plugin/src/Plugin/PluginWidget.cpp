@@ -153,15 +153,111 @@ namespace ape
 		ReferenceFormattedString formatString;
 	};
 
+	class PlotWidget : public PluginWidget
+	{
+	public:
+
+		class PlotRecordUI : public juce::Component
+		{
+		public:
+
+			PlotRecordUI(PlotWidget& parent)
+				: parent(parent)
+			{
+				setSize(cpl::ControlSize::Rectangle.width, cpl::ControlSize::Rectangle.height);
+			}
+
+			void paint(juce::Graphics& g) override
+			{
+				const auto textRect = getLocalBounds().withHeight(20);
+				g.setColour(cpl::GetColour(cpl::ColourEntry::ControlText));
+
+				g.drawText(parent.name, textRect.reduced(5), juce::Justification::centredLeft, false);
+
+				g.setColour(juce::Colours::green);
+				auto plotSize = getLocalBounds().withTop(textRect.getBottom()).toFloat();
+
+				float halfHeight = plotSize.getHeight() / 2.f, offset = static_cast<float>(plotSize.getY());
+
+				juce::Path p;
+				p.startNewSubPath(0, -parent.values[0] * halfHeight + offset + halfHeight);
+				bool shouldScale(false); // we scale any values over [-1, 1] to fit, otherwise we wont.
+				double tempVal;
+
+				for (std::size_t i = 1; i < parent.numValues; i++)
+				{
+					tempVal = -parent.values[i] * halfHeight + offset + halfHeight;
+
+					if (!std::isnormal(tempVal))
+					{
+						// 'error' on NaN values
+						g.setColour(juce::Colours::red);
+						g.setFont(cpl::TextSize::normalText);
+						g.drawText("NaN values", juce::Rectangle<int>(0, 0, getWidth(), getHeight()), juce::Justification::centred, false);
+						return;
+					}
+
+					p.lineTo(static_cast<float>(i), static_cast<float>(tempVal));
+
+					if (!shouldScale && (std::fabs(parent.values[i]) > 1))
+						shouldScale = true;
+				}
+
+				juce::PathStrokeType pst(2);
+
+				//p.closeSubPath();
+				if (shouldScale)
+				{
+					p.scaleToFit(plotSize.getX(), plotSize.getY(), plotSize.getWidth(), plotSize.getHeight(), false);
+					g.strokePath(p, pst);
+					g.setColour(juce::Colours::red);
+					g.drawText("+1", juce::Rectangle<int>(5, plotSize.getY(), 20, 20), juce::Justification::centred, false);
+				}
+				else
+				{
+					g.strokePath(p, pst);
+				}
+
+
+			}
+
+		private:
+			PlotWidget& parent;
+		};
+
+		PlotWidget(PlotRecord&& record)
+			: PluginWidget(Label)
+			, name(std::move(record.name))
+			, values(record.values)
+			, numValues(record.numValues)
+		{
+
+		}
+
+		std::unique_ptr<juce::Component> createController() override
+		{
+			return std::unique_ptr<juce::Component>(new PlotRecordUI(*this));
+		}
+
+
+	private:
+		std::string name;
+		const double* const values;
+		const std::size_t numValues;
+	};
+
 
 	std::unique_ptr<PluginWidget> PluginWidget::FromRecord(WidgetRecord&& record)
 	{
 		switch (record.getWidgetType())
 		{
-		case WidgetRecord::Label:
-			return std::unique_ptr<PluginWidget>(new LabelWidget(std::move(static_cast<FormatLabelRecord&>(record))));
 		case WidgetRecord::Meter:
 			return std::unique_ptr<PluginWidget>(new MeterWidget(std::move(static_cast<MeterRecord&>(record))));
+		case WidgetRecord::Plot:
+			return std::unique_ptr<PluginWidget>(new PlotWidget(std::move(static_cast<PlotRecord&>(record))));
+		case WidgetRecord::Label:
+			return std::unique_ptr<PluginWidget>(new LabelWidget(std::move(static_cast<FormatLabelRecord&>(record))));
+
 		}
 
 		CPL_RUNTIME_EXCEPTION("Unknown mapping from parameter record to plugin parameter");

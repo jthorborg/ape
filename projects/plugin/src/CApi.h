@@ -123,7 +123,7 @@
 		/// <summary>
 		/// /Adds a plot to the GUI.
 		/// </summary>
-		int			APE_API			createPlot(APE_SharedInterface * iface, const char * name, const float * const vals, const unsigned int numVals);
+		int			APE_API			createPlot(APE_SharedInterface * iface, const char * name, const double * const vals, const unsigned int numVals);
 		/// <summary>
 		/// Adds a ranged knob
 		/// </summary>

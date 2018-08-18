@@ -350,7 +350,7 @@ namespace ape
 	}
 
 	int	APE_API	createPlot(APE_SharedInterface * iface, const char * name, 
-		const float * const vals, const unsigned int numVals)
+		const double * const vals, const unsigned int numVals)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);

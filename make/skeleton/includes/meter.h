@@ -15,12 +15,13 @@ public:
 	};
 
 	MeteredValue(std::string name)
-		: peak(), value(), name(std::move(name))
+		: peak(), value(), peakTimer() /* , name(std::move(name)) */
 	{
 		id = getInterface().createMeter(&getInterface(), name.c_str(), &value, &peak);
 
 		auto sampleRate = getInterface().getSampleRate(&getInterface());
-		pole = std::exp(-1.0 / sampleRate);
+		pole = std::exp(-1.0 / (0.25 * sampleRate));
+		peakStop = static_cast<std::size_t>(sampleRate);
 	}
 
 	~MeteredValue()
@@ -37,6 +38,7 @@ public:
 
 	void pushValue(double input) noexcept
 	{
+		input = std::abs(input);
 		if (input <= value)
 		{
 			value *= pole;
@@ -44,7 +46,23 @@ public:
 		else
 		{
 			value = input;
-			if(input <= )
+		}
+
+		if (input <= peak)
+		{
+			if (peakTimer > peakStop)
+			{
+				peak *= pole;
+			}
+			else
+			{
+				peakTimer++;
+			}
+		}
+		else
+		{
+			peak = input;
+			peakTimer = 0;
 		}
 	}
 
@@ -52,9 +70,9 @@ private:
 
 	double peak, value, pole;
 	int id;
-	std::size_t peakTimer;
+	std::size_t peakTimer, peakStop;
 
-	std::string name;
+	//std::string name;
 };
 
 #endif
