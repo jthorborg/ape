@@ -355,6 +355,12 @@
     <Filter Include="Audio Programming Environment\Source\Plugin">
       <UniqueIdentifier>{d732adfa-3850-4eed-8b9d-d1c7eff8cbf1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio Programming Environment\Headers\UI">
+      <UniqueIdentifier>{279697b9-8429-4184-a0ae-d74093b34304}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio Programming Environment\Source\UI">
+      <UniqueIdentifier>{d8b1dac5-02e2-4ed0-a826-c4d75dfea7f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1512,9 +1518,6 @@
     <ClCompile Include="..\..\src\PluginState.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\UIController.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\ProjectEx.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
@@ -1559,6 +1562,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Plugin\PluginWidget.cpp">
       <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\UI\UICommands.cpp">
+      <Filter>Audio Programming Environment\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\UIController.cpp">
+      <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2915,9 +2924,6 @@
     <ClInclude Include="..\..\src\Common.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ButtonDefinitions.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\GraphicComponents.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
@@ -3019,6 +3025,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\Plugin\PluginParameter.h">
       <Filter>Audio Programming Environment\Headers\Plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UI\UICommands.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

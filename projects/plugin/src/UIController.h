@@ -35,12 +35,12 @@
 	#include "GraphicComponents.h"
 	#include <vector>
 	#include "CControlManager.h"
-	#include "ButtonDefinitions.h"
 	#include "SignalizerWindow.h"
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 	#include <future>
 	#include <memory>
+	#include "UI/UICommands.h"
 
 	namespace ape 
 	{
@@ -55,21 +55,13 @@
 		struct ProjectEx;
 		class Editor;
 		class AutosaveManager;
+		class UICommandState;
 
 		class UIController
 			: public cpl::CMutex::Lockable
 			, public cpl::DestructionNotifier
 			, public cpl::CSerializer::Serializable
 		{
-			enum class Commands
-			{
-				Invalid,
-				Recompile,
-				Activate,
-				Deactivate,
-				OpenSourceEditor,
-				CloseSourceEditor
-			};
 
 			static constexpr std::size_t magic_value = 0xDEADBEEF;
 			const std::size_t magic = magic_value;
@@ -82,13 +74,14 @@
 			UIController(ape::Engine& effect);
 			virtual ~UIController();
 
-			void setParameter(int index, float value);
 			void editorOpened(Editor * newEditor);
 			void editorClosed();
 			void render();
 			Editor * create();
 			ape::CConsole& console() noexcept { return *consolePtr.get();	};
 			SourceManager& getSourceManager() noexcept { return *sourceManager; }
+			UICommandState& getUICommandState() noexcept { return *commandStates; }
+
 			void setStatusText(const std::string &, CColour color = juce::Colours::lightgoldenrodyellow);
 			void setStatusText(const std::string &, CColour color, int timeout);
 			void setStatusText();
@@ -101,7 +94,7 @@
 			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
 			const std::string& getProjectName() const noexcept { return projectName; }
 
-			bool performCommand(Commands command);
+			bool performCommand(UICommand command);
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
@@ -119,6 +112,7 @@
 			std::unique_ptr<AutosaveManager> autosaveManager;
 			std::unique_ptr<CConsole> consolePtr;
 			std::unique_ptr<SourceManager> sourceManager;
+			std::unique_ptr<UICommandState> commandStates;
 
 			ape::Engine& engine;
 			Editor * editor;

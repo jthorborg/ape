@@ -28,7 +28,6 @@
 *************************************************************************************/
 
 #include "UIController.h"
-#include "ButtonDefinitions.h"
 #include <cpl/Misc.h>
 #include "Engine.h"
 #include "PluginState.h"
@@ -41,6 +40,7 @@
 #include <typeinfo>
 #include "MainEditor/MainEditor.h"
 #include "CodeEditor/AutosaveManager.h"
+#include "UI/UICommands.h"
 
 namespace ape 
 {
@@ -57,6 +57,7 @@ namespace ape
 		, incGraphicCounter(0)
 		, consolePtr(std::make_unique<CConsole>())
 	{
+		commandStates = std::make_unique<UICommandState>(*this);
 		
 		auto& app = effect.getSettings().root()["application"];
 
@@ -68,7 +69,7 @@ namespace ape
 			console().setStdWriting(true);
 
 		uiRefreshInterval = app["ui_refresh_interval"];
-		// create the editor
+
 		sourceManager = MakeSourceManager(*this, effect.getSettings(), effect.uniqueInstanceID());
 		autosaveManager = std::make_unique<AutosaveManager>(effect.uniqueInstanceID(), effect.getSettings(), *sourceManager, *this);
 
@@ -264,18 +265,18 @@ namespace ape
 		return statusLabel;
 	}
 
-	bool UIController::performCommand(Commands command)
+	bool UIController::performCommand(UICommand command)
 	{
 		switch (command)
 		{
 
-		case Commands::Recompile:
+		case UICommand::Recompile:
 		{
 			recompile();
 			break;
 		}
 
-		case Commands::Activate:
+		case UICommand::Activate:
 		{
 			if (compilerState.valid())
 			{
@@ -332,7 +333,7 @@ namespace ape
 			break;
 		}
 
-		case Commands::Deactivate:
+		case UICommand::Deactivate:
 		{
 			if (auto plugin = engine.getCurrentPluginState())
 			{
@@ -347,7 +348,7 @@ namespace ape
 			break;
 		}
 
-		case Commands::OpenSourceEditor:
+		case UICommand::OpenSourceEditor:
 		{
 			if (!sourceManager->exists())
 			{
@@ -358,7 +359,7 @@ namespace ape
 			break;
 		}
 
-		case Commands::CloseSourceEditor:
+		case UICommand::CloseSourceEditor:
 		{
 			sourceManager->setEditorVisibility(false);
 			break;
@@ -373,29 +374,14 @@ namespace ape
 
 	void UIController::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
 	{
-		ar["source-manager"] << *sourceManager.get();
+		ar["source-manager"] << *sourceManager;
+		ar["command-state"] << *commandStates;
 	}
 
 	void UIController::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
 	{
-		builder["source-manager"] >> *sourceManager.get();
-	}
-
-
-	void UIController::setParameter(int index, float value)
-	{
-		if (!editor)
-		{
-			console().printLine(CColours::red, "[GUI] : Request to alter parameter denied; no editor exists.");
-			return;
-		}
-		auto ctrl = editor->controls[index];
-		if (!ctrl)
-		{
-			console().printLine(CColours::red, "[GUI] : Request to alter parameter denied; index out of bounds.");
-			return;
-		}
-		ctrl->bSetValue(value);
+		builder["source-manager"] >> *sourceManager;
+		builder["command-state"] >> *commandStates;
 	}
 
 	void UIController::recompile()
@@ -464,7 +450,7 @@ namespace ape
 				}
 				
 				if(enableHotReload)
-					cpl::GUIUtils::MainEvent(*this, [&] { performCommand(Commands::Activate); });
+					cpl::GUIUtils::MainEvent(*this, [&] { performCommand(UICommand::Activate); });
 
 				return ret;
 			},

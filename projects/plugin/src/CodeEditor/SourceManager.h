@@ -47,7 +47,7 @@
 	{
 		namespace fs = cpl::fs;
 
-		enum Command
+		enum SourceManagerCommand
 		{
 			InvalidCommand = -1,
 			Start = 1,
@@ -83,7 +83,7 @@
 		/// </summary>
 		struct MenuEntry
 		{
-			MenuEntry(const std::string & name, int key = 0, juce::ModifierKeys modifier = juce::ModifierKeys(), Command c = InvalidCommand)
+			MenuEntry(const std::string & name, int key = 0, juce::ModifierKeys modifier = juce::ModifierKeys(), SourceManagerCommand c = InvalidCommand)
 				: name(name)
 				, key(key)
 				, modifier(modifier)
@@ -97,7 +97,7 @@
 			std::string name;
 			int key;
 			juce::ModifierKeys modifier;
-			Command command;
+			SourceManagerCommand command;
 
 		};
 

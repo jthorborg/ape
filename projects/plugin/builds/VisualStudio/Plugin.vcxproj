@@ -619,7 +619,6 @@
     <ClCompile Include="..\..\src\GraphicComponents.cpp" />
     <ClCompile Include="..\..\src\Plugin\PluginSurface.cpp" />
     <ClCompile Include="..\..\src\SignalizerWindow.cpp" />
-    <ClCompile Include="..\..\src\UIController.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1711,6 +1710,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_opengl\juce_opengl.cpp" />
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.cpp" />
     <ClCompile Include="..\..\src\ProjectEx.cpp" />
+    <ClCompile Include="..\..\src\UIController.cpp" />
+    <ClCompile Include="..\..\src\UI\UICommands.cpp" />
     <ClCompile Include="..\..\src\UserControls.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -1731,7 +1732,6 @@
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h" />
     <ClInclude Include="..\..\src\PluginState.h" />
     <ClInclude Include="..\..\src\Engine.h" />
-    <ClInclude Include="..\..\src\ButtonDefinitions.h" />
     <ClInclude Include="..\..\src\CAllocator.h" />
     <ClInclude Include="..\..\src\CApi.h" />
     <ClInclude Include="..\..\src\CBaseControl.h" />
@@ -2197,6 +2197,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h" />
     <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
+    <ClInclude Include="..\..\src\UI\UICommands.h" />
     <ClInclude Include="..\..\src\UserControls.h" />
     <ClInclude Include="..\..\src\Settings.h" />
     <ClInclude Include="resource.h" />

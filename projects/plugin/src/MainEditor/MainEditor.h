@@ -34,11 +34,9 @@
 	#include "../Common.h"
 	#include "../GraphicComponents.h"
 	#include <vector>
-	#include "../CControlManager.h"
-	#include "../ButtonDefinitions.h"
-	#include "../SignalizerWindow.h"
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
+	#include <cpl/gui/CViews.h>
 	#include <future>
 	#include <memory>
 
@@ -54,6 +52,9 @@
 		class PluginState;
 		struct ProjectEx;
 		class PluginSurface;
+		class SignalizerWindow;
+
+
 
 		class Editor final
 			: public juce::AudioProcessorEditor
@@ -64,14 +65,15 @@
 			friend class UIController;
 		public:
 
-			Editor(UIController & parent);
+			Editor(UIController& parent);
 
 			void initialize(bool useOpenGL = false);
-			void paint(juce::Graphics & g);
-			void timerCallback();
+			void paint(juce::Graphics & g) override;
+			void timerCallback() override;
 			virtual ~Editor();
 			void about();
 			void onPluginStateChanged(PluginState& state, bool activated);
+			void resized() override;
 
 		private:
 
@@ -81,6 +83,10 @@
 			bool valueChanged(CBaseControl *) override;
 
 			UIController& parent;
+
+
+
+
 			std::vector<juce::Component *> garbageCollection;
 			std::map<int, CBaseControl *> controls;
 			std::shared_ptr<PluginSurface> pluginSurface;
@@ -93,7 +99,7 @@
 			int repaintCallBackCounter;
 
 			juce::OpenGLContext oglc;
-			SignalizerWindow scope;
+			std::unique_ptr<SignalizerWindow> scope;
 
 
 		};

@@ -53,7 +53,7 @@ namespace ape
 
 	void SourceProjectManager::getAllCommands(juce::Array<juce::CommandID> & commands)
 	{
-		for (int c = Command::FileNew; c < Command::End; ++c)
+		for (int c = SourceManagerCommand::FileNew; c < SourceManagerCommand::End; ++c)
 		{
 			commands.add(c);
 		}
@@ -64,25 +64,25 @@ namespace ape
 		
 		switch (info.commandID)
 		{
-		case Command::FileNew:
+		case SourceManagerCommand::FileNew:
 			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) 
 			{
 				newDocument();
 			}
 			break;
-		case Command::FileOpen:
+		case SourceManagerCommand::FileOpen:
 			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) 
 			{
 				openAFile();
 			}
 			break;
-		case Command::FileSave:
+		case SourceManagerCommand::FileSave:
 			saveCurrentFile();
 			break;
-		case Command::FileSaveAs:
+		case SourceManagerCommand::FileSaveAs:
 			saveAs();
 			break;
-		case Command::FileExit:
+		case SourceManagerCommand::FileExit:
 			setEditorVisibility(false);
 			break;
 		}
@@ -102,11 +102,11 @@ namespace ape
 			std::string temp;
 			const auto& root = settings.root();
 			if(root["editor"].lookupValue("hkey_save", temp))
-				userHotKeys[Command::FileSave] = temp;
+				userHotKeys[SourceManagerCommand::FileSave] = temp;
 			if(root["editor"].lookupValue("hkey_new", temp))
-				userHotKeys[Command::FileNew] = temp;
+				userHotKeys[SourceManagerCommand::FileNew] = temp;
 			if(root["editor"].lookupValue("hkey_open", temp))
-				userHotKeys[Command::FileOpen] = temp;
+				userHotKeys[SourceManagerCommand::FileOpen] = temp;
 		}
 		catch (const std::exception & e)
 		{

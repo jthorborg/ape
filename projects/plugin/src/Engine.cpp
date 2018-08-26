@@ -38,6 +38,7 @@
 #include <cpl/Misc.h>
 #include "CSerializer.h"
 #include "Engine/ParameterManager.h"
+#include "UI/UICommands.h"
 
 namespace cpl
 {
@@ -191,8 +192,13 @@ namespace ape
 			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
 		
 		status.bActivated = false;
-		if(!fromEditor)
-			controller->setParameter(kActiveStateButton, 0.f);
+
+		if (!fromEditor)
+		{
+			// (main thread considerations)
+			jassertfalse;
+			//controller->getUICommandState().activationState.setNormalizedValue(0);
+		}
 
 		if (result == STATUS_OK)
 			controller->setStatusText("Plugin disabled", CColours::lightgoldenrodyellow);

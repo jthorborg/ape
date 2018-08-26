@@ -35,6 +35,7 @@
 #include "../CConsole.h"
 #include "../PluginState.h"
 #include "../Plugin/PluginSurface.h"
+#include "../SignalizerWindow.h"
 
 namespace ape 
 {
@@ -45,9 +46,9 @@ namespace ape
 		Some data about our buttons behaviour
 	 
 	 *********************************************************************************************/
-	struct sButton { int tag;  const char * untoggled, *toggled; bool sticky; };
+	struct ButtonDefinition { int tag;  const char * untoggled, *toggled; bool sticky; };
 
-	sButton ButtonDefs[] = {
+	ButtonDefinition ButtonDefs[] = {
 		{ tagConsole, "Console", "Hide", true},
 		{ tagCompile, "Compile", "Compile", false },
 		{ tagActiveState, "Activate", "Deactivate", true },
@@ -61,7 +62,7 @@ namespace ape
 		, parent(p)
 		, AudioProcessorEditor(p.engine)
 		, repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
-		, scope(p.engine.getOscilloscopeData())
+		, scope(std::make_unique<SignalizerWindow>(p.engine.getOscilloscopeData()))
 	{
 
 		/*
@@ -157,7 +158,6 @@ namespace ape
 
 	bool Editor::valueChanged(CBaseControl* control)
 	{
-		using Cmd = UIController::Commands;
 		bool toggled = control->bGetValue() > 0.5f;
 		bool result = toggled;
 
@@ -172,37 +172,8 @@ namespace ape
 			else
 				removeChildComponent(parent.console().getView());
 			break;
-		case tagCompile: 
-			parent.performCommand(Cmd::Recompile); 
-			break;
-		case tagActiveState: 
-		{
-			if (!toggled)
-			{
-				if (parent.performCommand(Cmd::Deactivate))
-					control->bSetInternal(0.0f);
-			}
-			else
-			{
-				if (parent.performCommand(Cmd::Activate))
-					control->bSetInternal(1.0f);
-			}
-			break;
-		}
-		case tagEditor: 
-		{
-			if (toggled)
-			{
-				if (parent.performCommand(Cmd::OpenSourceEditor))
-					control->bSetInternal(1.0f);
-			}
-			else
-			{
-				if (parent.performCommand(Cmd::CloseSourceEditor))
-					control->bSetInternal(0.0f);
-			}
-			break;
-		}
+
+
 		case tagAbout: 
 			about(); 
 			break;
@@ -241,6 +212,10 @@ namespace ape
 			controls[tagActiveState]->bSetInternal(0.0f);
 
 		}
+	}
+
+	void Editor::resized()
+	{
 	}
 
 

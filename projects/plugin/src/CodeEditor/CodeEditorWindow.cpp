@@ -44,12 +44,12 @@ namespace ape
 	{
 		// File
 		{
-			{"",			0,		0,				Command::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
-			{ "New File",	'n',	CTRLCOMMANDKEY, Command::FileNew },
-			{ "Open...",	'o',	CTRLCOMMANDKEY, Command::FileOpen },
-			{ "Save",		's',	CTRLCOMMANDKEY,	Command::FileSave },
-			{ "Save As...",	0,		0,				Command::FileSaveAs },
-			{ "Exit",		0,		0,				Command::FileExit}
+			{"",			0,		0,				SourceManagerCommand::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
+			{ "New File",	'n',	CTRLCOMMANDKEY, SourceManagerCommand::FileNew },
+			{ "Open...",	'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
+			{ "Save",		's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
+			{ "Save As...",	0,		0,				SourceManagerCommand::FileSaveAs },
+			{ "Exit",		0,		0,				SourceManagerCommand::FileExit}
 		},
 		// Edit
 
@@ -391,7 +391,7 @@ namespace ape
 		{
 			case Menus::File:
 			{
-				for (int i = Command::Start; i < Command::End; ++i)
+				for (int i = SourceManagerCommand::Start; i < SourceManagerCommand::End; ++i)
 					ret.addCommandItem(appCM, i);
 				break;
 			}
