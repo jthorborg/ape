@@ -57,7 +57,7 @@ namespace ape
 		, isActualFile(false)
 		, editorWindowState([this] { return createWindow(); })
 	{
-
+		doc = std::make_shared<juce::CodeDocument>();
 		try
 		{
 			std::string file;
@@ -112,7 +112,7 @@ namespace ape
 
 		std::string contents;
 		builder["source"] >> contents;
-		doc.replaceAllContent(contents);
+		doc->replaceAllContent(contents);
 
 		std::size_t numTraces;
 		builder["traces"]["size"] >> numTraces;
@@ -142,9 +142,9 @@ namespace ape
 			juce::FileInputStream s(f);
 			auto contents = s.readEntireStreamAsString();
 
-			if (doc.getAllContent() == contents)
+			if (doc->getAllContent() == contents)
 			{
-				doc.setSavePoint();
+				doc->setSavePoint();
 			}
 		}
 	}
@@ -165,7 +165,7 @@ namespace ape
 			juce::FileInputStream s(f);
 			auto contents = s.readEntireStreamAsString();
 
-			if (doc.getAllContent() != contents)
+			if (doc->getAllContent() != contents)
 			{
 				using namespace cpl::Misc;
 
@@ -309,9 +309,9 @@ namespace ape
 	void SourceProjectManager::newDocument()
 	{
 		fullPath = "Untitled";
-		doc.clearUndoHistory();
-		doc.replaceAllContent("");
-		doc.setSavePoint();
+		doc->clearUndoHistory();
+		doc->replaceAllContent("");
+		doc->setSavePoint();
 		setTitle();
 		isActualFile = false;
 	}
@@ -384,7 +384,7 @@ namespace ape
 
 	bool SourceProjectManager::getDocumentText(std::string & buffer)
 	{
-		buffer.append( doc.getAllContent().toRawUTF8());
+		buffer.append(doc->getAllContent().toRawUTF8());
 		return true;
 	}
 
@@ -414,7 +414,7 @@ namespace ape
 
 	bool SourceProjectManager::isDirty()
 	{
-		return doc.hasChangedSinceSavePoint();
+		return doc->hasChangedSinceSavePoint();
 	}
 
 	int SourceProjectManager::saveIfUnsure()
@@ -460,9 +460,9 @@ namespace ape
 			return false;
 		}
 
-		doc.replaceAllContent("");
-		doc.loadFromStream(s);
-		doc.setSavePoint();
+		doc->replaceAllContent("");
+		doc->loadFromStream(s);
+		doc->setSavePoint();
 
 		isActualFile = true;
 		fullPath = fileName;
@@ -507,7 +507,7 @@ namespace ape
 			}
 			else
 			{
-				doc.setSavePoint();
+				doc->setSavePoint();
 			}
 		}
 		else 
@@ -527,6 +527,6 @@ namespace ape
 
 	void SourceProjectManager::setContents(const juce::String& newContent)
 	{
-		doc.replaceAllContent(newContent);
+		doc->replaceAllContent(newContent);
 	}
 }

@@ -29,50 +29,61 @@
 
 *************************************************************************************/
 
-#ifndef UICOMMANDS_H
-#define UICOMMANDS_H
+#ifndef UIVALUE_H
+#define UIVALUE_H
 
-#include "UIValue.h"
+#include <set>
+#include <cpl/infrastructure/values/Values.h>
 
 namespace ape
 {
-	enum class UICommand
-	{
-		Invalid,
-		Recompile,
-		Activate,
-		Deactivate,
-		OpenSourceEditor,
-		CloseSourceEditor
-	};
+	using UITransformer = cpl::UnityRange<cpl::ValueT>;
+	using UIFormatter = cpl::BasicFormatter<cpl::ValueT>;
 
-	class UIController;
-
-	class UICommandState 
-		: public cpl::CSerializer::Serializable
-		, private UIValue::Listener
-		, private cpl::BasicFormatter<cpl::ValueT>
-		, private cpl::UnityRange<cpl::ValueT>
+	class UIValue : public cpl::ValueEntityBase
 	{
 	public:
-		using Archiver = cpl::CSerializer::Archiver;
-		using Builder = cpl::CSerializer::Builder;
 
-		UICommandState(UIController& controller);
+		typedef cpl::ValueEntityBase::Listener Listener;
 
-		UIValue console, compile, activationState, editor, scope;
+		UIValue(UITransformer& transformer, UIFormatter& formatter)
+			: internalValue(0)
+			, transformer(transformer)
+			, formatter(formatter)
+		{
 
-		void changeValueExternally(UIValue& value, double newValue);
+		}
 
-	protected:
+		void addListener(Listener* listener) override { listeners.insert(listener); }
+		void removeListener(Listener* listener) override { listeners.erase(listener); }
 
-		void serialize(Archiver & ar, cpl::Version version) override;
-		void deserialize(Builder & builder, cpl::Version version) override;
-		void valueEntityChanged(ValueEntityListener * sender, cpl::ValueEntityBase* value) override;
+		void setValue(cpl::ValueT value, Listener* sender)
+		{
+			internalValue = value;
+			notifyListeners(sender);
+		}
 
 	private:
-		UIController& parent;
+
+		const cpl::VirtualTransformer<cpl::ValueT>& getTransformer() const override { return transformer; }
+		cpl::VirtualFormatter<cpl::ValueT>& getFormatter() override { return formatter; }
+		cpl::ValueT getNormalizedValue() const override { return internalValue; }
+		void setNormalizedValue(cpl::ValueT value) override { setValue(value, nullptr); }
+
+		void notifyListeners(Listener* sender = nullptr)
+		{
+			for (auto l : listeners)
+				l->valueEntityChanged(sender, this);
+		}
+
+		double internalValue;
+		UITransformer& transformer;
+		UIFormatter& formatter;
+		std::set<ValueEntityListener *> listeners;
+
 	};
+
+
 }
 
 #endif

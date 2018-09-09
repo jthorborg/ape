@@ -283,9 +283,10 @@ namespace ape
 	{
 	public:
 
-		InternalCodeEditorComponent(const Settings& settings, juce::CodeDocument& doc)
-			: tokeniser(std::make_unique<CLangCodeTokeniser>(settings))
-			, codeEditorComponent(settings, doc, tokeniser.get())
+		InternalCodeEditorComponent(const Settings& settings, std::shared_ptr<juce::CodeDocument> doc)
+			: document(doc)
+			, tokeniser(settings)
+			, codeEditorComponent(settings, *document, &tokeniser)
 			, tracer(codeEditorComponent)
 			, scale(1.0f)
 		{
@@ -343,14 +344,15 @@ namespace ape
 
 	private:
 
-		std::unique_ptr<juce::CodeTokeniser> tokeniser;
+		std::shared_ptr<juce::CodeDocument> document;
+		CLangCodeTokeniser tokeniser;
 		juce::Component wrapper;
 		CodeEditorComponent codeEditorComponent;
 		BreakpointComponent tracer;
 		float scale;
 	};
 
-	CodeEditorWindow::CodeEditorWindow(const Settings& setting, juce::CodeDocument& cd)
+	CodeEditorWindow::CodeEditorWindow(const Settings& setting, std::shared_ptr<juce::CodeDocument> cd)
 		: DocumentWindow(cpl::programInfo.name + " editor", juce::Colours::grey, DocumentWindow::TitleBarButtons::allButtons)
 		, codeEditor(std::make_unique<InternalCodeEditorComponent>(setting, cd))
 		, appCM(nullptr)

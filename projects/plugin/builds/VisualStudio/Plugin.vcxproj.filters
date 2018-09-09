@@ -3029,6 +3029,9 @@
     <ClInclude Include="..\..\src\UI\UICommands.h">
       <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\UI\UIValue.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">

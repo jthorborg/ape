@@ -2198,6 +2198,7 @@
     <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
     <ClInclude Include="..\..\src\UI\UICommands.h" />
+    <ClInclude Include="..\..\src\UI\UIValue.h" />
     <ClInclude Include="..\..\src\UserControls.h" />
     <ClInclude Include="..\..\src\Settings.h" />
     <ClInclude Include="resource.h" />

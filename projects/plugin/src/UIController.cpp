@@ -164,14 +164,6 @@ namespace ape
 		{
 			updateInfoLabel();
 		}
-		
-		// everything beyond here is drawn each frame
-		
-		/*
-		 Dont render controls when the console is open
-		 */
-		if(this->editor->controls[tagConsole]->bGetValue() < 0.1f && engine.getCurrentPluginState())
-			engine.getCurrentPluginState()->getCtrlManager().updateControls();
 	}
 
 	UIController::~UIController()
@@ -180,9 +172,9 @@ namespace ape
 	}
 
 
-	void UIController::editorOpened(Editor * newEditor)
+	void UIController::editorOpened(MainEditor * newEditor)
 	{
-		setStatusText();
+		//setStatusText();
 		if (auto state = engine.getCurrentPluginState(); state && state->isEnabled())
 		{
 			newEditor->onPluginStateChanged(*state, true);
@@ -203,12 +195,12 @@ namespace ape
 	}
 
 
-	Editor * UIController::create()
+	MainEditor * UIController::create()
 	{
 		if (editor)
 			console().printLine(CColours::red, "[GUI] : error! Request to create new editor while old one still exists. "
 			"Reference to old editor lost!");
-		editor = new Editor(*this);
+		editor = new MainEditor(*this);
 
 		bool bUseOpenGL(false);
 		bUseOpenGL = engine.getSettings().root()["application"]["render_opengl"];
@@ -317,7 +309,6 @@ namespace ape
 				{
 					console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
 					setStatusText("Error activating plugin.", CColours::red);
-					editor->controls[kActiveStateButton]->bSetValue(0);
 				}
 			}
 			else
@@ -356,13 +347,13 @@ namespace ape
 				return false;
 			}
 			sourceManager->setEditorVisibility(true);
-			break;
+			return true;
 		}
 
 		case UICommand::CloseSourceEditor:
 		{
 			sourceManager->setEditorVisibility(false);
-			break;
+			return true;
 		}
 
 		default:
@@ -381,7 +372,8 @@ namespace ape
 	void UIController::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
 	{
 		builder["source-manager"] >> *sourceManager;
-		builder["command-state"] >> *commandStates;
+		if(builder.findForKey("command-state") != nullptr)
+			builder["command-state"] >> *commandStates;
 	}
 
 	void UIController::recompile()
@@ -449,8 +441,15 @@ namespace ape
 					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
 				}
 				
-				if(enableHotReload)
-					cpl::GUIUtils::MainEvent(*this, [&] { performCommand(UICommand::Activate); });
+				cpl::GUIUtils::MainEvent(*this, 
+					[=] 
+					{ 
+						if(enableHotReload)
+							performCommand(UICommand::Activate); 
+
+						getUICommandState().changeValueExternally(getUICommandState().compile, 0);
+					}
+				);
 
 				return ret;
 			},

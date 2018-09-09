@@ -53,7 +53,7 @@
 		class CQueueLabel;
 		class PluginState;
 		struct ProjectEx;
-		class Editor;
+		class MainEditor;
 		class AutosaveManager;
 		class UICommandState;
 
@@ -69,15 +69,15 @@
 		  public:
 			
 			friend class SourceManager;
-			friend class Editor;
+			friend class MainEditor;
 
 			UIController(ape::Engine& effect);
 			virtual ~UIController();
 
-			void editorOpened(Editor * newEditor);
+			void editorOpened(MainEditor * newEditor);
 			void editorClosed();
 			void render();
-			Editor * create();
+			MainEditor * create();
 			ape::CConsole& console() noexcept { return *consolePtr.get();	};
 			SourceManager& getSourceManager() noexcept { return *sourceManager; }
 			UICommandState& getUICommandState() noexcept { return *commandStates; }
@@ -115,7 +115,7 @@
 			std::unique_ptr<UICommandState> commandStates;
 
 			ape::Engine& engine;
-			Editor * editor;
+			MainEditor * editor;
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			std::string projectName, statusLabel;
 			CColour statusColour;

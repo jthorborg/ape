@@ -39,6 +39,7 @@
 	#include <map>
 	#include "CodeEditorWindow.h"
 	#include <cpl/state/DecoupledStateObject.h>
+	#include <memory>
 
 	namespace ape
 	{
@@ -105,7 +106,7 @@
 			cpl::UniqueHandle<CodeEditorWindow> editorWindow;
 			cpl::SerializableStateObject<CodeEditorWindow> editorWindowState;
 			fs::path fullPath;
-			juce::CodeDocument doc;
+			std::shared_ptr<juce::CodeDocument> doc;
 			bool isSingleFile, isActualFile;
 			std::map<int, std::string> userHotKeys;
 			std::set<int> breakpoints;

@@ -165,7 +165,6 @@ namespace CppAPE
 				return Status::STATUS_ERROR;
 
 			builder.args()
-				.arg("-v")
 				//.arg("fno-short-wchar")
 				.arg("-fms-extensions")
 				.arg("-O2")

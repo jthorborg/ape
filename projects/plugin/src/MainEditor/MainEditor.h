@@ -37,6 +37,7 @@
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 	#include <cpl/gui/CViews.h>
+	#include <cpl/gui/controls/Controls.h>
 	#include <future>
 	#include <memory>
 
@@ -53,38 +54,37 @@
 		struct ProjectEx;
 		class PluginSurface;
 		class SignalizerWindow;
+		class UICommandState;
 
-
-
-		class Editor final
+		class MainEditor final
 			: public juce::AudioProcessorEditor
 			, private juce::Timer
-			, private CCtrlListener
 			, public cpl::CTopView
+			, private cpl::ValueEntityBase::Listener
 		{
 			friend class UIController;
 		public:
 
-			Editor(UIController& parent);
+			MainEditor(UIController& parent);
 
 			void initialize(bool useOpenGL = false);
 			void paint(juce::Graphics & g) override;
 			void timerCallback() override;
-			virtual ~Editor();
+			virtual ~MainEditor();
 			void about();
 			void onPluginStateChanged(PluginState& state, bool activated);
 			void resized() override;
 
 		private:
+			void valueEntityChanged(cpl::ValueEntityBase::Listener * sender, cpl::ValueEntityBase * value) override;
 
 			// Inherited via CTopView
 			virtual juce::Component * getWindow() override;
 
-			bool valueChanged(CBaseControl *) override;
-
+			UICommandState& state;
 			UIController& parent;
 
-
+			cpl::CButton console, compilation, activation, editor, scope;
 
 
 			std::vector<juce::Component *> garbageCollection;
@@ -99,7 +99,7 @@
 			int repaintCallBackCounter;
 
 			juce::OpenGLContext oglc;
-			std::unique_ptr<SignalizerWindow> scope;
+			std::unique_ptr<SignalizerWindow> scopeWindow;
 
 
 		};

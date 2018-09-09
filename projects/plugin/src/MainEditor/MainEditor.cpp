@@ -37,33 +37,50 @@
 #include "../Plugin/PluginSurface.h"
 #include "../SignalizerWindow.h"
 
-namespace ape 
+namespace ape
 {
 	using namespace std::string_literals;
 
-	/*********************************************************************************************
-	 
-		Some data about our buttons behaviour
-	 
-	 *********************************************************************************************/
-	struct ButtonDefinition { int tag;  const char * untoggled, *toggled; bool sticky; };
+	struct ButtonDefinition { const char * untoggled, *toggled; bool sticky; };
 
-	ButtonDefinition ButtonDefs[] = {
-		{ tagConsole, "Console", "Hide", true},
-		{ tagCompile, "Compile", "Compile", false },
-		{ tagActiveState, "Activate", "Deactivate", true },
-		{ tagEditor, "Show editor", "Hide editor", true },
-		{ tagAbout, "About", "About", false }
+	constexpr int ButtonsColumnSpace = 100;
+	constexpr int NumButtons = 5;
+
+	std::array<ButtonDefinition, NumButtons> ButtonDefs {
+		{
+			{ "Console", "Hide", true},
+			{ "Compile", "Compiling...", true },
+			{ "Activate", "Deactivate", true },
+			{ "Show editor", "Hide editor", true },
+			{ "Scope", "Scope", true }
+		}
 	};
 
 
-	Editor::Editor(UIController& p)
+	MainEditor::MainEditor(UIController& p)
 		: CTopView(this, "APE editor")
 		, parent(p)
+		, state(p.getUICommandState())
 		, AudioProcessorEditor(p.engine)
 		, repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
-		, scope(std::make_unique<SignalizerWindow>(p.engine.getOscilloscopeData()))
+		, console(&state.console)
+		, compilation(&state.compile)
+		, activation(&state.activationState)
+		, scope(&state.scope)
+		, editor(&state.editor)
 	{
+
+		int i = 0;
+		for (auto button : { &console, &compilation, &activation, &editor, &scope })
+		{
+			button->setTexts(ButtonDefs[i].untoggled, ButtonDefs[i].toggled);
+			button->setToggleable(ButtonDefs[i].sticky);
+			addAndMakeVisible(button);
+			i++;
+		}
+
+		for (auto value : { &state.console, &state.scope })
+			value->addListener(this);
 
 		/*
 		if (!approot["greeting_shown"])
@@ -76,51 +93,16 @@ namespace ape
 
 		// get background
 		background.setImage(bImage);
-		addAndMakeVisible(background);
+		//addAndMakeVisible(background);
 		// background and sizing off gui
 		// everything is sized relative to the background image
 		CPoint size(background.getWidth(), background.getHeight());
 		setSize(size.x, size.y);
 
-		// add buttons
-		CButton * b = nullptr;
-		for (int i = 0; i < std::extent<decltype(ButtonDefs)>::value; i++)
-		{
-			b = new CButton(ButtonDefs[i].toggled, ButtonDefs[i].untoggled, this);
-			b->bSetTag(ButtonDefs[i].tag);
-			controls[ButtonDefs[i].tag] = b;
-			b->bSetPos(0, i * b->getHeight());
-			if (ButtonDefs[i].sticky)
-				b->setMultiToggle(true);
-			this->addChildComponent(b);
-			garbageCollection.push_back(b);
-		}
-
-		// create toggles
-		// this is the protected buffer
-		auto toggle = new CToggle();
-		toggle->bSetSize(CRect(b->getWidth(), getHeight() - 20, 200, 20));
-		if (parent.bUseBuffers)
-			toggle->bSetValue(1);
-		toggle->bSetListener(this);
-		toggle->bSetText("Use protected buffers");
-		toggle->bSetTag(kTags::tagUseBuffer);
-		garbageCollection.push_back(toggle);
-		addAndMakeVisible(toggle);
-		// add exceptions toggle
-		toggle = new CToggle();
-		toggle->bSetSize(CRect(b->getWidth() + 200, getHeight() - 20, 200, 20));
-		if (parent.bUseFPUE)
-			toggle->bSetValue(1);
-		toggle->bSetListener(this);
-		toggle->bSetTag(kTags::tagUseFPU);
-		toggle->bSetText("Use FPU exceptions");
-		garbageCollection.push_back(toggle);
-		addAndMakeVisible(toggle);
 
 		// labels
 		infoLabel = new CTextControl();
-		infoLabel->bSetPos(b->getWidth() + 5, getHeight() - 40);
+		infoLabel->bSetPos(ButtonsColumnSpace + 5, getHeight() - 40);
 		infoLabel->setSize(220, 20);
 		infoLabel->setColour(CColours::lightgoldenrodyellow);
 		infoLabel->setFontSize(TextSize::smallText);
@@ -136,16 +118,11 @@ namespace ape
 		garbageCollection.push_back(statusLabel);
 		// create the editor
 		// spawn console
-		parent.console().create(CRect(b->getWidth(), 0, getWidth() - b->getWidth(), getHeight() - (getHeight() / 6)));
-	
-		/*
-			set buttons according to engine
-		*/
-		
-		controls[kTags::tagActiveState]->bSetInternal(parent.bIsActive ? 1.f : 0.f);
+		parent.console().create(CRect(ButtonsColumnSpace, 0, getWidth() - ButtonsColumnSpace, getHeight() - (getHeight() / 6)));
+
 	}
 
-	Editor::~Editor()
+	MainEditor::~MainEditor()
 	{
 		oglc.detach();
 		for (auto garbage : garbageCollection)
@@ -156,75 +133,68 @@ namespace ape
 		parent.editorClosed();
 	}
 
-	bool Editor::valueChanged(CBaseControl* control)
+	void MainEditor::valueEntityChanged(cpl::ValueEntityBase::Listener * sender, cpl::ValueEntityBase * value)
 	{
-		bool toggled = control->bGetValue() > 0.5f;
-		bool result = toggled;
+		bool toggled = value->getNormalizedValue() > 0.5f;
 
-		switch (control->bGetTag())
+		if (value == &parent.getUICommandState().console)
 		{
-		case tagConsole: 
 			if (toggled)
 			{
 				addAndMakeVisible(parent.console().getView());
 				parent.console().refresh();
 			}
 			else
+			{
 				removeChildComponent(parent.console().getView());
-			break;
-
-
-		case tagAbout: 
-			about(); 
-			break;
-
+			}
 		}
-
-		// TODO: Remove
-		repaint();
-		return false;
+		else if (value == &parent.getUICommandState().scope)
+		{
+			scopeWindow = toggled ? std::make_unique<SignalizerWindow>(parent.engine.getOscilloscopeData()) : nullptr;
+		}
 	}
 
-	juce::Component * Editor::getWindow()
+	juce::Component * MainEditor::getWindow()
 	{
 		return this;
 	}
 
-	void Editor::onPluginStateChanged(PluginState& plugin, bool activated)
+	void MainEditor::onPluginStateChanged(PluginState& plugin, bool activated)
 	{
+		if (pluginSurface)
+			removeChildComponent(pluginSurface.get());
+
 		if (activated)
 		{
-			plugin.getCtrlManager().attach(this);
-			plugin.getCtrlManager().createPendingControls();
-			plugin.getCtrlManager().callListeners();
-			controls[tagActiveState]->bSetInternal(1.0f);
-
 			pluginSurface = plugin.getOrCreateSurface();
-			pluginSurface->setBounds(background.getBounds().withLeft(controls[tagActiveState]->bGetSize().getRight()));
+			pluginSurface->setBounds(background.getBounds().withLeft(ButtonsColumnSpace));
 			addAndMakeVisible(*pluginSurface);
 		}
-		else
+	}
+
+	void MainEditor::resized()
+	{
+		int i = 0;
+		auto heightPerButton = getHeight() / NumButtons;
+		auto y = 0;
+		for (auto button : { &console, &compilation, &activation, &editor, &scope })
 		{
-			if(pluginSurface)
-				removeChildComponent(pluginSurface.get());
-
-			plugin.getCtrlManager().detach();
-			controls[tagActiveState]->bSetInternal(0.0f);
-
+			button->setBounds(0, y, ButtonsColumnSpace, heightPerButton);
+			y += heightPerButton;
 		}
 	}
 
-	void Editor::resized()
+
+	void MainEditor::paint(juce::Graphics & g)
 	{
+		juce::ColourGradient gradient(juce::Colours::black, 0, 0, juce::Colour(37, 3, 55), getWidth() * 0.5f, getHeight() * 2, false);
+		g.setGradientFill(gradient);
+		g.fillAll();
+
 	}
 
-
-	void Editor::paint(juce::Graphics & g)
-	{
-		parent.render();
-	}
-
-	void Editor::initialize(bool useOpenGL)
+	void MainEditor::initialize(bool useOpenGL)
 	{
 		if(useOpenGL)
 			oglc.attachTo(*this);
@@ -233,7 +203,7 @@ namespace ape
 	}
 
 
-	void Editor::timerCallback()
+	void MainEditor::timerCallback()
 	{
 		statusLabel->updateMessage();
 		// force a repaint every second (it wont itself, necessarily, even tho childs are set as dirty!! ugh)
@@ -250,7 +220,7 @@ namespace ape
 		parent.render();
 	}
 
-	void Editor::about()
+	void MainEditor::about()
 	{
 		static std::string sDialogMessage =
 			cpl::programInfo.name + " is written by Janus Lynggard Thorborg"

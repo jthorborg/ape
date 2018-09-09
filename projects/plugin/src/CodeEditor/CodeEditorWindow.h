@@ -61,7 +61,7 @@
 				virtual ~BreakpointListener() {}
 			};
 
-			CodeEditorWindow(const Settings& settings, juce::CodeDocument& cd);
+			CodeEditorWindow(const Settings& settings, std::shared_ptr<juce::CodeDocument> cd);
 			void paint(juce::Graphics& g) override;
 			virtual ~CodeEditorWindow();
 			void closeButtonPressed() override;
