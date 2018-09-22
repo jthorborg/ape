@@ -177,6 +177,7 @@
 			void emplaceTrait(IndexHandle index, ExternalParameterTraits& trait);
 			void clearTrait(IndexHandle index);
 			void pulse();
+			ParameterSet& getParameterSet() noexcept { return parameterSet; }
 
 		protected:
 
@@ -195,7 +196,6 @@
 			int getQuantization(int ID) const noexcept override;
 			const std::string& getName(int ID) const noexcept override;
 
-			ParameterSet& getParameterSet() noexcept { return parameterSet; }
 
 		private:
 

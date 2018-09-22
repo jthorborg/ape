@@ -128,18 +128,7 @@
 				archive["controller"] << *engine->controller;
 				archive["session-name"] << engine->controller->getProjectName();
 
-				if (isActivated)
-				{
-					// TODO: Remove, turn into actual audio parameters
-					auto& list = archive["parameters"];
-					std::size_t count = engine->getCurrentPluginState()->getCtrlManager().getControls().size();
-					std::size_t i = 0;
-					archive["parameter-count"] << count;
-					for (auto ctrl : engine->getCurrentPluginState()->getCtrlManager().getControls())
-					{
-						list[i++] << SerializedEngine::ControlValue{ ctrl->bGetValue(), (SerializedEngine::SeIntType) ctrl->bGetTag() };
-					}
-				}
+				archive["params"] << engine->getParameterManager().getParameterSet();
 
 				auto content = serializer.compile(true);
 
@@ -198,7 +187,13 @@
 
 				}
 
-				if (builder.findForKey("parameters"))
+				if (auto* list = builder.findForKey("params"))
+				{
+					auto& params = builder["params"];
+					params >> engine->getParameterManager().getParameterSet();
+
+				}
+				else if(builder.findForKey("parameters"))
 				{
 					auto& list = builder["parameters"];
 					auto counts = builder.findForKey("parameter-count");
@@ -206,27 +201,19 @@
 					if (builder.findForKey("parameter-count"))
 						builder["parameter-count"] >> parameters;
 
-					CPluginCtrlManager & ctrlManager = engine->getCurrentPluginState()->getCtrlManager();
+					auto& manager = engine->getParameterManager();
 
 					for (std::size_t i = 0; i < parameters; ++i)
 					{
 						SerializedEngine::ControlValue value;
 						list[i] >> value;
 
-						auto control = ctrlManager.getControl(value.tag);
-
-						if (control)
-							control->bSetValue(value.value);
-						else
-						{
-							engine->getController().console().printLine(CColours::red,
-								"[Serializer] : Error restoring values to controls: No control found for tag %d!",
-								value.value);
-							return false;
-
-						}
+						manager.setParameter(i, value.value);
 					}
 				}
+
+				auto& commands = engine->getController().getUICommandState();
+				commands.changeValueExternally(commands.activationState, 1.0);
 
 				return true;
 
@@ -303,28 +290,16 @@
 					// project is up and running! now we just need to reset parameters
 					// get values
 					const SerializedEngine::ControlValue * values = se->getValuesConst();
-					// get control manager
-					CPluginCtrlManager & ctrlManager = engine->getCurrentPluginState()->getCtrlManager();
-				
-					for (unsigned i = 0; i < se->numValues; i++)
-					{
-						// get instance control from tag
-						auto control = ctrlManager.getControl(values[i].tag);
-						// if it exists, set the value of it
-						
-						if (control)
-							control->bSetValue(values[i].value);
-						else
-						{
-							engine->getController().console().printLine(CColours::red,
-								"[Serializer] : Error restoring values to controls: No control found for tag %d!",
-								values[i].tag);
-							return false;
 
-						}
+					auto& manager = engine->getParameterManager();
+
+					for (std::size_t i = 0; i < se->numValues; ++i)
+					{
+						manager.setParameter(i, values[i].value);
 					}
-					// all controls restored - now we update display, and were set!
-					ctrlManager.callListeners();
+
+					auto& commands = engine->getController().getUICommandState();
+					commands.changeValueExternally(commands.activationState, 1.0);
 				}
 
 				return true;
