@@ -59,19 +59,17 @@ namespace ape
 	*********************************************************************************************/
 	CScrollableContainer::CScrollableContainer()
 		: Component("CScrollableLineContainer")
+		, scb(true)
 	{
-		virtualContainer = new Component();
 		addAndMakeVisible(virtualContainer);
-		scb = new juce::ScrollBar(true);
-		scb->addListener(this);
-		scb->setColour(juce::ScrollBar::ColourIds::trackColourId, juce::Colours::lightsteelblue);
+		scb.addListener(this);
+		scb.setColour(juce::ScrollBar::ColourIds::trackColourId, juce::Colours::lightsteelblue);
 		addAndMakeVisible(scb);
 	}
 
-	void CScrollableContainer::bSetSize(const CRect & in)
+	void CScrollableContainer::resized()
 	{
-		setBounds(in);
-		virtualContainer->setBounds(0, 0, in.getWidth() - scb->getWidth(), 1300);
+		virtualContainer.setBounds(0, 0, getWidth() - scb.getWidth(), 1300);
 	}
 
 	void CScrollableContainer::paint(juce::Graphics & g)
@@ -81,42 +79,34 @@ namespace ape
 
 	int CScrollableContainer::getVirtualHeight()
 	{
-		return virtualContainer->getHeight();
+		return virtualContainer.getHeight();
 	}
 
 	void CScrollableContainer::setVirtualHeight(int height)
 	{
-		virtualContainer->setSize(virtualContainer->getWidth(), height);
+		virtualContainer.setSize(virtualContainer.getWidth(), height);
 	}
 
 	float CScrollableContainer::bGetValue()
 	{
-		double start = scb->getCurrentRangeStart();
-		auto delta = 1.0 / (1 - scb->getCurrentRangeSize());
+		double start = scb.getCurrentRangeStart();
+		auto delta = 1.0 / (1 - scb.getCurrentRangeSize());
 		return static_cast<float>(start * delta);
 	}
 
 	void CScrollableContainer::bSetValue(float newVal)
 	{
-		double delta = 1.0 / (1 - scb->getCurrentRangeSize());
-		scb->setCurrentRangeStart(newVal / delta);
+		double delta = 1.0 / (1 - scb.getCurrentRangeSize());
+		scb.setCurrentRangeStart(newVal / delta);
 	}
 
 	void CScrollableContainer::scrollBarMoved(juce::ScrollBar * b, double newRange)
 	{
-		virtualContainer->setBounds(
+		virtualContainer.setBounds(
 			0,
-			static_cast<signed int>(-bGetValue() * (virtualContainer->getHeight() - getHeight())),
-			virtualContainer->getWidth(),
-			virtualContainer->getHeight());
-	}
-
-	CScrollableContainer:: ~CScrollableContainer()
-	{
-		if (virtualContainer)
-			delete virtualContainer;
-		if (scb)
-			delete scb;
+			static_cast<signed int>(-bGetValue() * (virtualContainer.getHeight() - getHeight())),
+			virtualContainer.getWidth(),
+			virtualContainer.getHeight());
 	}
 
 	void CTextControl::bSetText(const std::string & newText)

@@ -97,7 +97,7 @@
 
 			juce::OpenGLContext oglc;
 			std::unique_ptr<SignalizerWindow> scopeWindow;
-
+			std::unique_ptr<juce::Component> consoleWindow;
 
 		};
 

@@ -95,7 +95,7 @@ namespace ape
 		//addAndMakeVisible(background);
 		// background and sizing off gui
 		// everything is sized relative to the background image
-		CPoint size(500, 300);
+		CPoint size(800, 300);
 		setSize(size.x, size.y);
 
 
@@ -114,18 +114,17 @@ namespace ape
 		statusLabel->setColour(CColours::lightgoldenrodyellow);
 		addAndMakeVisible(statusLabel);
 		garbageCollection.push_back(statusLabel);
-		// create the editor
-		// spawn console
-		parent.console().create(CRect(ButtonsColumnSpace, 0, getWidth() - ButtonsColumnSpace, getHeight() - (getHeight() / 6)));
 
 	}
 
 	MainEditor::~MainEditor()
 	{
+		for (auto value : { &state.console, &state.scope })
+			value->removeListener(this);
+
 		oglc.detach();
 		for (auto garbage : garbageCollection)
 			delete garbage;
-		parent.console().close();
 		if (isTimerRunning())
 			stopTimer();
 		parent.editorClosed();
@@ -139,12 +138,14 @@ namespace ape
 		{
 			if (toggled)
 			{
-				addAndMakeVisible(parent.console().getView());
-				parent.console().refresh();
+				consoleWindow = parent.console().create();
+				consoleWindow->setBounds(juce::Rectangle<int>{ ButtonsColumnSpace, 0, getWidth() - ButtonsColumnSpace, getHeight() - (getHeight() / 6) });
+				addAndMakeVisible(*consoleWindow);
 			}
 			else
 			{
-				removeChildComponent(parent.console().getView());
+				removeChildComponent(consoleWindow.get());
+				consoleWindow = nullptr;
 			}
 		}
 		else if (value == &parent.getUICommandState().scope)

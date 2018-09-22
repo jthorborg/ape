@@ -67,8 +67,8 @@
 		class CScrollableContainer : public juce::Component, juce::ScrollBar::Listener
 		{
 		protected:
-			juce::ScrollBar * scb;
-			Component * virtualContainer;
+			juce::ScrollBar scb;
+			Component virtualContainer;
 		public:
 			CScrollableContainer();
 			void bSetSize(const CRect & in);
@@ -76,11 +76,11 @@
 			void setVirtualHeight(int height);
 			void bSetValue(float newVal);
 			float bGetValue();
-			juce::ScrollBar * getSCB() { return scb; }
-			juce::Component * getVContainer() { return virtualContainer; }
+			void resized() override;
+			juce::ScrollBar& getSCB() { return scb; }
+			juce::Component& getVContainer() { return virtualContainer; }
 			void scrollBarMoved(juce::ScrollBar * b, double newRange) override;
 			virtual void paint(juce::Graphics & g) override;
-			virtual ~CScrollableContainer();
 
 		};
 		/*********************************************************************************************

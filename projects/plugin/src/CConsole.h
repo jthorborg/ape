@@ -40,56 +40,31 @@
 	#include <filesystem>
 	#include <mutex>
 	#include "GraphicComponents.h"
+	#include <cpl/Utility.h>
 	
 	namespace ape
 	{
 		class CConsole;
 		class CTextLabel;
-		const int nPixelPerLine = 15; // height of an text-line
-		const float nPixelPerChar = 8.2f; // length of an single character in pixels (average, safe bet)
+		class CConsoleContainer;
 
-		/*
-			struct ConsoleMessage - everything thats printed to the console is stored in a object like this
-			in a linked list so we can keep the original messages and color through open() and close()'s.
-		*/
-		struct ConsoleMessage
+		class CConsole 
+			: private juce::AsyncUpdater
+			, public juce::ChangeBroadcaster
+			, private cpl::Utility::CNoncopyable
 		{
-			std::string msg;
-			juce::Colour color;
-			ConsoleMessage(std::string msg, juce::Colour color) : msg(msg), color(color) {};
-		};
+			friend class CConsoleContainer;
 
-		class CConsoleContainer : public CScrollableContainer
-		{
-		private:
-			bool dirty;
-			CConsole * parent;
 		public:
-			CConsoleContainer(CConsole * parent);
-			void paint(juce::Graphics & g);
-			void setDirty(bool toggle = true) { dirty = toggle; }
-		};
 
-
-		class CConsole : public juce::AsyncUpdater
-		{
-		private:
-			int nLines; // number of lines
-			int nLineSize; // calculated at runtime, length of a line 
-			CConsole(const CConsole &);
-			CConsoleContainer * cont;
-		public:
 			CConsole();
 			~CConsole();
-			void refresh();
-			void create(const CRect & inSize);
-			void close();
+
+			std::unique_ptr<juce::Component> create();
 			int printLine(CColour color, const char * fmt, ... );
 			int printLine(CColour color, const char * fmt, va_list ap);
 			int calculateTextLength(std::string & text);
 			void handleAsyncUpdate() override;
-			void renderConsole();
-			void removeHistory(std::list<ConsoleMessage>::reverse_iterator & it);
 			void setLogging(bool toggle, const cpl::fs::path& file);
 			bool loggingEnabled() { return logging; }
 			void setStdWriting(bool toggle);
@@ -97,14 +72,25 @@
 			{ 
 				visible = toggle; 
 			}
-			CConsoleContainer * getView() { return cont; }
+
 		protected:
+
+			struct ConsoleMessage
+			{
+				std::string msg;
+				juce::Colour color;
+				ConsoleMessage(std::string msg, juce::Colour color) : msg(msg), color(color) {};
+			};
+
 			std::list<ConsoleMessage> msgs;
-			std::vector<CTextLabel*> lines;
 			bool logging, stdWriting, visible, dirty;
 			cpl::CExclusiveFile debugFile;
 			std::mutex mutex;
-		
+
+		private:
+
+			std::mutex& getMutex() { return mutex; }
+
 		}; // class CConsole
 	}; // class ape
 #endif
