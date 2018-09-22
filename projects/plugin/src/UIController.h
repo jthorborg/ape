@@ -34,7 +34,6 @@
 	#include "Common.h"
 	#include "GraphicComponents.h"
 	#include <vector>
-	#include "CControlManager.h"
 	#include "SignalizerWindow.h"
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>

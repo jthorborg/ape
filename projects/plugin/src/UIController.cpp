@@ -190,10 +190,7 @@ namespace ape
 	void UIController::editorClosed()
 	{
 		editor = nullptr;
-		if(engine.getCurrentPluginState())
-			engine.getCurrentPluginState()->getCtrlManager().setParent(editor);
 	}
-
 
 	MainEditor * UIController::create()
 	{

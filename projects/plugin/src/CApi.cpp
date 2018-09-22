@@ -107,46 +107,6 @@ namespace ape
 
 	}
 
-	int APE_API createKnob(APE_SharedInterface * iface, const char * name, float * extVal, int type) 
-	{
-		REQUIRES_NOTNULL(iface);
-		REQUIRES_NOTNULL(name);
-		REQUIRES_NOTNULL(extVal);
-
-		auto& engine = IEx::downcast(*iface).getEngine();
-		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-
-		// TODO:
-		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::LegacyKnob(name, extVal, type));
-
-		int tag = pstate.getCtrlManager().addKnob(name, extVal, static_cast<CKnobEx::type>(type));
-		if(tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
-
-		return tag;
-	}
-
-	int APE_API createKnobEx(APE_SharedInterface * iface, const char * name, float * extVal, char * values, char * unit) 
-	{
-		REQUIRES_NOTNULL(iface);
-		REQUIRES_NOTNULL(name);
-		REQUIRES_NOTNULL(extVal);
-		REQUIRES_NOTNULL(values);
-		REQUIRES_NOTNULL(unit);
-
-		auto& engine = IEx::downcast(*iface).getEngine();
-		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-
-		// TODO:
-		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::ValueList(name, unit, extVal, values));
-
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, extVal, values, unit);
-		if(tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
-
-		return tag;
-	}
-
 	int APE_API createMeter(APE_SharedInterface * iface, const char * name, const double* extVal, const double* peakVal)
 	{
 		REQUIRES_NOTNULL(iface);
@@ -180,25 +140,6 @@ namespace ape
 		auto tag = queue->enqueueCommand(FormatLabelRecord(name, fmt, args)).getClassCounter();
 
 		va_end(args);
-
-		return tag;
-	}
-
-	int APE_API createToggle(APE_SharedInterface * iface, const char * name, float * extVal)
-	{
-		REQUIRES_NOTNULL(iface);
-		REQUIRES_NOTNULL(name);
-		REQUIRES_NOTNULL(extVal);
-
-		auto& engine = IEx::downcast(*iface).getEngine();
-		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-
-		// TODO:
-		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::BoolFlag(name, extVal));
-
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addToggle(name, extVal);
-		if(tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
 
 		return tag;
 	}
@@ -327,28 +268,6 @@ namespace ape
 		return ret;
 	}
 	
-	void APE_API setCtrlValue(APE_SharedInterface * iface, int ID, float value)
-	{
-		REQUIRES_NOTNULL(iface);
-
-		CBaseControl * c = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().getControl(ID);
-		if(c)
-			c->bSetValue(value);
-		else
-			THROW("No such control: " + std::to_string(ID));
-	}
-	
-	float APE_API getCtrlValue(APE_SharedInterface * iface, int ID)
-	{
-		REQUIRES_NOTNULL(iface);
-
-		CBaseControl * c = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().getControl(ID);
-		if(c)
-			return c->bGetValue();
-		else  
-			THROW("No such control: " + std::to_string(ID));
-	}
-
 	int	APE_API	createPlot(APE_SharedInterface * iface, const char * name, 
 		const double * const vals, const unsigned int numVals)
 	{
@@ -363,29 +282,6 @@ namespace ape
 			THROW("Cannot perform command at this point in time");
 
 		return queue->enqueueCommand(PlotRecord(name, numVals, vals)).getClassCounter();
-	}
-	
-	int	APE_API	createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max)
-	{
-		REQUIRES_NOTNULL(iface);
-		REQUIRES_NOTNULL(name);
-		REQUIRES_NOTNULL(unit);
-		REQUIRES_NOTNULL(extVal);
-		REQUIRES_NOTNULL(scaleCB);
-
-		auto& engine = IEx::downcast(*iface).getEngine();
-
-		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-		
-		// TODO:
-		// pstate.getCommandQueue().enqueueCommand(ParameterRecord::ScaledParameter(name, unit, extVal, scaleCB, min, max));
-
-		int tag = IEx::downcast(*iface).getCurrentPluginState().getCtrlManager().addKnob(name, unit, extVal, scaleCB, min, max);
-		if (tag == -1)
-			engine.getController().console().printLine(juce::Colours::red, "No more space for controls!");
-
-		return tag;
-
 	}
 
 	int	APE_API	presentTrace(APE_SharedInterface* iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues)

@@ -81,10 +81,6 @@
 		/// </summary>
 		void		APE_API			free(APE_SharedInterface * iface, void * ptr);
 		/// <summary>
-		/// Adds an automatable parameter to the GUI, using a list of values.
-		/// </summary>
-		int			APE_API			createKnobEx(APE_SharedInterface * iface, const char * name, float * extVal, char * values, char * unit);
-		/// <summary>
 		/// Requests the host to change the initial delay imposed by the module on next resume() call.
 		/// </summary>
 		void		APE_API			setInitialDelay(APE_SharedInterface * iface, int samples);
@@ -105,35 +101,17 @@
 		/// </summary>
 		int			APE_API			createMeter(APE_SharedInterface * iface, const char * name, const double* extVal, const double* peakVal);
 		/// <summary>
-		/// Adds a button to the GUI.
-		/// </summary>
-		int			APE_API			createToggle(APE_SharedInterface * iface, const char * name, float * extVal);
-		/// <summary>
 		/// Returns the host's BPM
 		/// </summary>
 		double		APE_API			getBPM(APE_SharedInterface * iface);
 		/// <summary>
-		/// Gets the value of a control with the given ID
-		/// </summary>
-		float		APE_API			getCtrlValue(APE_SharedInterface * iface, int iD);
-		/// <summary>
-		/// Set the value of a control with the given ID
-		/// </summary>
-		void		APE_API			setCtrlValue(APE_SharedInterface * iface, int iD, float value);
-		/// <summary>
 		/// /Adds a plot to the GUI.
 		/// </summary>
 		int			APE_API			createPlot(APE_SharedInterface * iface, const char * name, const double * const vals, const unsigned int numVals);
-		/// <summary>
-		/// Adds a ranged knob
-		/// </summary>
-		int			APE_API			createRangeKnob(APE_SharedInterface * iface, const char * name, const char * unit, float * extVal, ScaleFunc scaleCB, float min, float max);
-
 		int			APE_API			presentTrace(APE_SharedInterface* iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
 		int			APE_API			createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max);
 		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
-
 		int			APE_API			destroyResource(APE_SharedInterface * iface, int resource, int reserved);
 
 

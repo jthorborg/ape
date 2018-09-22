@@ -42,7 +42,6 @@
 	#include <ape/Project.h>
 	#include <ape/Events.h>
 	#include <thread>
-	#include "CControlManager.h"
 	#include <cpl/Protected.h>
 	#include <atomic>
 	#include <cpl/gui/Tools.h>
@@ -65,8 +64,7 @@
 		class PluginWidget;
 
 		class PluginState final
-			: private CBaseControl::CListener
-			, private cpl::DestructionNotifier
+			: private cpl::DestructionNotifier
 			, private ParameterSet::RTListener
 		{
 		public:
@@ -104,7 +102,6 @@
 			void setPlayState(bool isPlaying);
 
 			Status getState() const noexcept { return state; }
-			CPluginCtrlManager& getCtrlManager() noexcept { return ctrlManager; }
 			PluginCommandQueue* getCommandQueue() noexcept { return commandQueue.get(); }
 			std::shared_ptr<PluginSurface> getOrCreateSurface();
 
@@ -155,7 +152,6 @@
 			void waitDisable();
 
 			void internalDisable(ScopedRefCount::ScopedDisable disable, Status errorCode);
-			bool valueChanged(CBaseControl *) override;
 			void parameterChangedRT(cpl::Parameters::Handle localHandle, cpl::Parameters::Handle globalHandle, ParameterSet::BaseParameter * param) override;
 
 			void dispatchPlayEvent();
@@ -174,8 +170,6 @@
 			std::vector<float*> pluginInputs, pluginOutputs;
 			std::unique_ptr<ProjectEx> project;
 			std::weak_ptr<PluginSurface> surface;
-
-			CPluginCtrlManager ctrlManager;
 
 			bool
 				playing,

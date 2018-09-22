@@ -60,7 +60,6 @@ namespace ape
 		: engine(engine)
 		, generator(codeGenerator)
 		, project(std::move(projectToUse))
-		, ctrlManager(this, CRect(138, 0, 826 - 138, 245), kTagEnd)
 		, expired(true)
 		, useCount(0)
 		, state(STATUS_DISABLED)
@@ -94,7 +93,7 @@ namespace ape
 		disableProject();
 	}
 
-	bool PluginState::valueChanged(CBaseControl * control)
+	/*bool PluginState::valueChanged(CBaseControl * control)
 	{
 		ScopedRefCount ref(*this);
 		if (!ref.valid())
@@ -128,7 +127,7 @@ namespace ape
 		}
 
 		return false;
-	}
+	} */
 
 	void PluginState::setPlayState(bool isPlaying)
 	{
@@ -426,8 +425,6 @@ namespace ape
 
 		surface.reset();
 
-		// kill UIs first
-		ctrlManager.reset();
 		// cleanup parameter manager
 
 		for (std::size_t i = 0; i < parameters.size(); ++i)

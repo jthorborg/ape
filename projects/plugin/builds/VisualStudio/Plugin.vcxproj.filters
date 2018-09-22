@@ -1497,9 +1497,6 @@
     <ClCompile Include="..\..\src\UserControls.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CControlManager.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp">
       <Filter>External</Filter>
     </ClCompile>
@@ -2928,9 +2925,6 @@
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\CConsole.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\CControlManager.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\UserControls.h">
