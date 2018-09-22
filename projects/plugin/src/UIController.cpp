@@ -78,10 +78,6 @@ namespace ape
 		clockData.averageClocks = 0;
 		clockData.lastSample = engine.clocksPerSample;
 		
-		// manually load resources in case a host is frantic and calls
-		// serializing without initiating out editor (hello reaper bridge)
-		CResourceManager::instance().loadResources();
-		
 		setStatusText("Ready");
 	}
 

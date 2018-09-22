@@ -36,49 +36,6 @@
 
 	namespace ape
 	{
-
-		/*********************************************************************************************
-
-			RAII wrapper around images, loaded at runtime
-
-		*********************************************************************************************/
-		class CImage
-		{
-			std::string path;
-			juce::Image internalImage;
-			juce::DrawableImage drawableImage;
-		public:
-			CImage(const std::string & inPath);
-			CImage();
-			void setPath(const std::string & inPath);
-			bool load();
-			juce::Image & getImage();
-			juce::Drawable * getDrawable();
-			virtual ~CImage();
-		};
-		/*********************************************************************************************
-
-			Manages all resources used by this program, statically
-
-		*********************************************************************************************/
-		class CResourceManager
-		{
-		private:
-			std::map<std::string, CImage> resources;
-			bool isResourcesLoaded;
-			CResourceManager();
-
-		public:
-			juce::Drawable * operator [] (const std::string & name);
-			bool loadResources();
-			// singleton instance
-			static juce::Drawable * getResource(const std::string & name);
-			static juce::Drawable * getCopyOfDrawable(const std::string & name);
-			static const juce::Image & getImage(const std::string & name);
-			static CResourceManager & instance();
-
-		};
-
 		/*********************************************************************************************
 
 			Textlabel interface
@@ -104,20 +61,6 @@
 		};
 		/*********************************************************************************************
 
-			Greenlinetester. Derive from this if you are uncertain that you are getting painted -
-			Will draw a green line.
-
-		*********************************************************************************************/
-		class CGreenLineTester : public juce::Component
-		{
-			void paint(juce::Graphics & g)
-			{
-				g.setColour(juce::Colours::green);
-				g.drawLine(juce::Line<float>(0.f, 0.f, static_cast<float>(getWidth()), static_cast<float>(getHeight())),1);
-			}
-		};
-		/*********************************************************************************************
-
 			Name says it all. Holds a virtual container of larger size, that is scrollable.
 
 		*********************************************************************************************/
@@ -126,7 +69,6 @@
 		protected:
 			juce::ScrollBar * scb;
 			Component * virtualContainer;
-			const juce::Image * background;
 		public:
 			CScrollableContainer();
 			void bSetSize(const CRect & in);
@@ -134,8 +76,6 @@
 			void setVirtualHeight(int height);
 			void bSetValue(float newVal);
 			float bGetValue();
-			void setBackground(const juce::Image * b) { background = b;}
-			void setBackground(const juce::Image & b) {	background = &b; }
 			juce::ScrollBar * getSCB() { return scb; }
 			juce::Component * getVContainer() { return virtualContainer; }
 			void scrollBarMoved(juce::ScrollBar * b, double newRange) override;

@@ -93,9 +93,6 @@
 
 			CTextControl * infoLabel;
 			CQueueLabel * statusLabel;
-			juce::DrawableImage background;
-			juce::Image bImage;
-			juce::Image testImage;
 			int repaintCallBackCounter;
 
 			juce::OpenGLContext oglc;

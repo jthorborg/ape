@@ -104,7 +104,6 @@ namespace ape
 			cont->getVContainer()->addAndMakeVisible(lines[i]);
 		}
 
-		cont->setBackground(CResourceManager::getImage("textbox"));
 		cont->bSetValue(1);
 	}
 	/*********************************************************************************************

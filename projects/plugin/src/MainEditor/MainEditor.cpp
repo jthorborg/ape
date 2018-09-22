@@ -62,7 +62,7 @@ namespace ape
 		, parent(p)
 		, state(p.getUICommandState())
 		, AudioProcessorEditor(p.engine)
-		, repaintCallBackCounter(0), bImage(CResourceManager::getImage("background"))
+		, repaintCallBackCounter(0)
 		, console(&state.console)
 		, compilation(&state.compile)
 		, activation(&state.activationState)
@@ -92,11 +92,10 @@ namespace ape
 		} */
 
 		// get background
-		background.setImage(bImage);
 		//addAndMakeVisible(background);
 		// background and sizing off gui
 		// everything is sized relative to the background image
-		CPoint size(background.getWidth(), background.getHeight());
+		CPoint size(500, 300);
 		setSize(size.x, size.y);
 
 
@@ -167,7 +166,7 @@ namespace ape
 		if (activated)
 		{
 			pluginSurface = plugin.getOrCreateSurface();
-			pluginSurface->setBounds(background.getBounds().withLeft(ButtonsColumnSpace));
+			pluginSurface->setBounds(getBounds().withLeft(ButtonsColumnSpace));
 			addAndMakeVisible(*pluginSurface);
 		}
 	}
