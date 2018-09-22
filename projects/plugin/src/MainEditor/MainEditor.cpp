@@ -102,8 +102,7 @@ namespace ape
 
 		// labels
 		infoLabel = new CTextControl();
-		infoLabel->bSetPos(ButtonsColumnSpace + 5, getHeight() - 40);
-		infoLabel->setSize(220, 20);
+		infoLabel->setBounds(ButtonsColumnSpace + 5, getHeight() - 40, 220, 20);
 		infoLabel->setColour(CColours::lightgoldenrodyellow);
 		infoLabel->setFontSize(TextSize::smallText);
 		addAndMakeVisible(infoLabel);

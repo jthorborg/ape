@@ -35,11 +35,12 @@
 	#include <string>
 	#include <list>
 	#include <stdarg.h>
-	#include "GraphicComponents.h"
 	#include <cpl/CExclusiveFile.h>
 	#include <cpl/Core.h>
 	#include <filesystem>
-
+	#include <mutex>
+	#include "GraphicComponents.h"
+	
 	namespace ape
 	{
 		class CConsole;
@@ -70,7 +71,7 @@
 		};
 
 
-		class CConsole : public cpl::CMutex::Lockable, juce::AsyncUpdater
+		class CConsole : public juce::AsyncUpdater
 		{
 		private:
 			int nLines; // number of lines
@@ -102,7 +103,7 @@
 			std::vector<CTextLabel*> lines;
 			bool logging, stdWriting, visible, dirty;
 			cpl::CExclusiveFile debugFile;
-
+			std::mutex mutex;
 		
 		}; // class CConsole
 	}; // class ape

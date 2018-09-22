@@ -1494,9 +1494,6 @@
     <ClCompile Include="..\..\src\CCodeGenerator.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\UserControls.cpp">
-      <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp">
       <Filter>External</Filter>
     </ClCompile>
@@ -2927,16 +2924,10 @@
     <ClInclude Include="..\..\src\CConsole.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\UserControls.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CSerializer.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\CQueueLabel.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\CBaseControl.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh">

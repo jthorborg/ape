@@ -116,168 +116,6 @@ namespace ape
 	}
 	/*********************************************************************************************
 
-		CButton
-
-	*********************************************************************************************/
-	CButton::CButton()
-		: DrawableButton("Button", ButtonStyle::ImageRaw), CBaseControl(this), multiToggle(false)
-	{
-		setSize(CResourceManager::getResource("button_up")->getWidth(),
-			CResourceManager::getResource("button_up")->getHeight());
-		setImages(CResourceManager::getResource("button_up"), nullptr, CResourceManager::getResource("button_down"), nullptr, nullptr, nullptr, CResourceManager::getResource("button_down"));
-		setVisible(true);
-		addListener(this);
-	}
-
-	CButton::CButton(const std::string & text, const std::string & textToggled, CCtrlListener * list)
-		: DrawableButton("Button", ButtonStyle::ImageRaw), CBaseControl(this), multiToggle(false)
-	{
-		setSize(CResourceManager::getResource("button_up")->getWidth(),
-			CResourceManager::getResource("button_up")->getHeight());
-		setImages(CResourceManager::getResource("button_up"), nullptr, CResourceManager::getResource("button_down"), nullptr, nullptr, nullptr, CResourceManager::getResource("button_down"));
-		setVisible(true);
-		texts[0] = text;
-		texts[1] = textToggled;
-		addListener(this);
-		bSetListener(list);
-	}
-
-	void CButton::setMultiToggle(bool toggle)
-	{
-		multiToggle = toggle;
-		if (multiToggle)
-			this->setClickingTogglesState(multiToggle);
-	}
-
-	void CButton::paintOverChildren(juce::Graphics & g)
-	{
-		g.setFont(TextSize::largeText);
-
-		g.setColour(juce::Colours::lightgoldenrodyellow);
-		if (multiToggle && !this->getToggleState())
-			g.drawText(texts[1], CRect(getWidth(), getHeight()), juce::Justification::centred, false);
-		else
-			g.drawText(texts[0], CRect(getWidth(), getHeight()), juce::Justification::centred, false);
-	}
-
-	float CButton::bGetValue()
-	{
-		return getToggleState() ? 1.f : 0.f;
-	}
-	void CButton::bSetValue(float newValue)
-	{
-		getToggleStateValue().setValue(newValue > 0.1f ? true : false);
-	}
-
-	void CButton::bSetInternal(float newValue)
-	{
-		removeListener(this);
-		setToggleState(newValue > 0.1f ? true : false, juce::NotificationType::dontSendNotification);
-		addListener(this);
-	}
-	/*********************************************************************************************
-
-		CKnob
-
-	*********************************************************************************************/
-	CKnob::CKnob()
-		: Slider("Knob"), knobGraphics(CResourceManager::getImage("knob")), CBaseControl(this)
-	{
-		this->addListener(this);
-		numFrames = knobGraphics.getHeight() / knobGraphics.getWidth();
-		sideLength = knobGraphics.getWidth();
-		setTextBoxStyle(NoTextBox, 0, 0, 0);
-		setSize(APE_DEPRECATED_CONTROL_SIZE, APE_DEPRECATED_CONTROL_SIZE);
-		this->setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-
-	}
-
-	void CKnob::paint(juce::Graphics& g)
-	{
-
-		if (knobGraphics.isValid()) {
-			// quantize
-			int value = static_cast<int>((getValue() - getMinimum()) / (getMaximum() - getMinimum()) * (numFrames - 1));
-			// limit and cap
-			//if (value * numFrames * sideLength > getHeight())
-			//	value = getHeight() / ((numFrames - 1) * sideLength);
-			//else if (0 > value )
-			//	value = 0;
-			//g.drawImage(knobGraphics, 0, 0, getWidth(), getHeight(), 0, value * sideLength, sideLength, sideLength);
-			g.drawImage(knobGraphics, APE_DEPRECATED_CONTROL_SIZE / 4, APE_DEPRECATED_CONTROL_SIZE / 4, sideLength, sideLength, 0, value * sideLength, sideLength, sideLength);
-		}
-		g.setFont(TextSize::smallerText);
-		g.setColour(juce::Colours::lightgoldenrodyellow);
-
-		g.drawText(title, CRect(getWidth(), APE_DEPRECATED_CONTROL_SIZE / 4), juce::Justification::horizontallyCentred, false);
-		g.drawText(text, CRect(0, APE_DEPRECATED_CONTROL_SIZE - (APE_DEPRECATED_CONTROL_SIZE / 4), getWidth(), APE_DEPRECATED_CONTROL_SIZE / 4), juce::Justification::centred, false);
-	}
-
-	float CKnob::bGetValue()
-	{
-		return static_cast<float>((getValue() - getMinimum()) / (getMaximum() - getMinimum()));
-	}
-	void CKnob::bSetText(const std::string & in)
-	{
-		text = in;
-	}
-	void CKnob::bSetTitle(const std::string & in)
-	{
-		title = in;
-	}
-	void CKnob::bSetValue(float newValue)
-	{
-		setValue(newValue * (getMaximum() - getMinimum()) + getMinimum());
-	}
-
-	/*********************************************************************************************
-
-		CToggle
-
-	*********************************************************************************************/
-	CToggle::CToggle()
-		: CBaseControl(this), cbox(CResourceManager::getImage("checkbox"))
-	{
-		addListener(this);
-		setSize(APE_DEPRECATED_CONTROL_SIZE, 20);
-	}
-
-	void CToggle::paint(juce::Graphics & g)
-	{
-		cpl::CMutex lockGuard(this);
-		auto width = cbox.getWidth();
-		bool toggled = getToggleState();
-		g.drawImage(cbox, 0, 0, width, width, 0, toggled ? width : 0, width, width);
-		g.setColour(juce::Colours::lightgoldenrodyellow);
-		g.setFont(TextSize::normalText);
-		g.drawText(text, CRect(width + 5, 0, getWidth() - width, width), juce::Justification::verticallyCentred | juce::Justification::left, true);
-	}
-
-	void CToggle::bSetText(const std::string & in)
-	{
-		cpl::CMutex lockGuard(this);
-		text = in;
-	}
-
-	float CToggle::bGetValue()
-	{
-		auto retVal = this->getToggleStateValue().getValue();
-		return retVal ? 1.0f : .0f;
-	}
-
-	void CToggle::bSetInternal(float newValue)
-	{
-		removeListener(this);
-		getToggleStateValue().setValue(newValue > 0.1f ? true : false);
-		addListener(this);
-	}
-
-	void CToggle::bSetValue(float newValue)
-	{
-		getToggleStateValue().setValue(newValue > 0.1f ? true : false);
-	}
-	/*********************************************************************************************
-
 		CTextLabel
 
 	*********************************************************************************************/
@@ -328,7 +166,7 @@ namespace ape
 
 	*********************************************************************************************/
 	CScrollableContainer::CScrollableContainer()
-		: Component("CScrollableLineContainer"), CBaseControl(this)
+		: Component("CScrollableLineContainer")
 	{
 		virtualContainer = new Component();
 		addAndMakeVisible(virtualContainer);
@@ -340,10 +178,9 @@ namespace ape
 
 	void CScrollableContainer::bSetSize(const CRect & in)
 	{
-		setSize(in.getWidth(), in.getHeight());
+		setBounds(in);
 		scb->setBounds(in.getWidth() - 20, 0, 20, in.getHeight());
 		virtualContainer->setBounds(0, 0, in.getWidth() - scb->getWidth(), 1300);
-		CBaseControl::bSetPos(in.getX(), in.getY());
 	}
 
 	void CScrollableContainer::paint(juce::Graphics & g)
@@ -393,29 +230,19 @@ namespace ape
 			delete scb;
 	}
 
-	/*********************************************************************************************
-
-		CTextControl
-
-	*********************************************************************************************/
-	CTextControl::CTextControl()
-		: CBaseControl(this)
-	{
-
-	}
 	void CTextControl::bSetText(const std::string & newText)
 	{
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(*this);
 		CTextLabel::setText(newText);
 	}
 	const std::string CTextControl::bGetText()
 	{
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(*this);
 		return text.toStdString();
 	}
 	void CTextControl::paint(juce::Graphics & g)
 	{
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(*this);
 		CTextLabel::paint(g);
 	}
 };

@@ -1711,7 +1711,6 @@
     <ClCompile Include="..\..\src\ProjectEx.cpp" />
     <ClCompile Include="..\..\src\UIController.cpp" />
     <ClCompile Include="..\..\src\UI\UICommands.cpp" />
-    <ClCompile Include="..\..\src\UserControls.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh" />
@@ -1733,7 +1732,6 @@
     <ClInclude Include="..\..\src\Engine.h" />
     <ClInclude Include="..\..\src\CAllocator.h" />
     <ClInclude Include="..\..\src\CApi.h" />
-    <ClInclude Include="..\..\src\CBaseControl.h" />
     <ClInclude Include="..\..\src\CConsole.h" />
     <ClInclude Include="..\..\src\CMemoryGuard.h" />
     <ClInclude Include="..\..\src\Common.h" />
@@ -2197,7 +2195,6 @@
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
     <ClInclude Include="..\..\src\UI\UICommands.h" />
     <ClInclude Include="..\..\src\UI\UIValue.h" />
-    <ClInclude Include="..\..\src\UserControls.h" />
     <ClInclude Include="..\..\src\Settings.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

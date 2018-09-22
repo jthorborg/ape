@@ -82,7 +82,7 @@ namespace ape
 	 *********************************************************************************************/
 	void CConsole::create(const CRect & inSize)
 	{
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(mutex);
 		cont = new CConsoleContainer(this);
 		cont->bSetSize(inSize);
 		CRect fakeSize(inSize);
@@ -147,7 +147,7 @@ namespace ape
 	 *********************************************************************************************/
 	void CConsole::close() 
 	{
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(mutex);
 		if (cont)
 			delete cont;
 		cont = nullptr;
@@ -199,7 +199,7 @@ namespace ape
 	 *********************************************************************************************/
 	int CConsole::printLine(CColour color, const char * fmt, va_list args) 
 	{
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(mutex);
 		int nBufLen(0);
 		char * fmtd_str;
 		nBufLen = cpl::Misc::GetSizeRequiredFormat(fmt, args);
@@ -300,7 +300,7 @@ namespace ape
 		//nothing to print
 		if(msgs.empty())
 			return;
-		cpl::CMutex lockGuard(this);
+		std::lock_guard<std::mutex> lockGuard(mutex);
 
 		int lines_used = 0;
 		std::size_t msg_len; // total length of the current msg (eqv. to (*current).msg.lenght())

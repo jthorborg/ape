@@ -32,8 +32,7 @@
 
 	#include "Common.h"
 	#include <map>
-	#include <cpl/CMutex.h>
-	#include "CBaseControl.h"
+	#include <mutex>
 
 	namespace ape
 	{
@@ -82,60 +81,6 @@
 
 		/*********************************************************************************************
 
-			Button interface
-
-		*********************************************************************************************/
-		class CButton : public juce::DrawableButton, public CBaseControl
-		{
-			std::string texts[2];
-			bool multiToggle;
-		public:
-			CButton();
-			CButton(const std::string & text, const std::string & textToggled = "", CCtrlListener * list = nullptr);
-			void paintOverChildren(juce::Graphics & g) override;
-			void setMultiToggle(bool toggle);
-			void bSetInternal(float newValue) override;
-			void bSetValue(float newValue) override;
-			float bGetValue() override;
-		};
-		/*********************************************************************************************
-
-			Knob interface
-
-		*********************************************************************************************/
-		class CKnob : public juce::Slider, public CBaseControl
-		{
-			const juce::Image & knobGraphics;
-			int numFrames;
-			int sideLength;
-			std::string title, text;
-		public:
-			CKnob();
-			void paint(juce::Graphics& g);
-			float bGetValue();
-			void bSetText(const std::string & in);
-			void bSetTitle(const std::string & in);
-			void bSetValue(float newValue);
-		};
-		/*********************************************************************************************
-
-			Toggle interface
-
-		*********************************************************************************************/
-		class CToggle : public juce::ToggleButton, public CBaseControl
-		{
-			const juce::Image & cbox;
-			juce::String text;
-		public:
-			CToggle();
-			void paint(juce::Graphics & g) override;
-			float bGetValue() override;
-			void bSetInternal(float newValue) override;
-			void bSetValue(float newValue) override;
-			void bSetText(const std::string & in) override;
-		};
-		/*********************************************************************************************
-
 			Textlabel interface
 
 		*********************************************************************************************/
@@ -176,7 +121,7 @@
 			Name says it all. Holds a virtual container of larger size, that is scrollable.
 
 		*********************************************************************************************/
-		class CScrollableContainer : public juce::Component, public CBaseControl
+		class CScrollableContainer : public juce::Component, juce::ScrollBar::Listener
 		{
 		protected:
 			juce::ScrollBar * scb;
@@ -193,7 +138,7 @@
 			void setBackground(const juce::Image & b) {	background = &b; }
 			juce::ScrollBar * getSCB() { return scb; }
 			juce::Component * getVContainer() { return virtualContainer; }
-			void scrollBarMoved(juce::ScrollBar * b, double newRange);
+			void scrollBarMoved(juce::ScrollBar * b, double newRange) override;
 			virtual void paint(juce::Graphics & g) override;
 			virtual ~CScrollableContainer();
 
@@ -203,12 +148,11 @@
 			Same as CTextLabel, however is protected using a mutex
 
 		*********************************************************************************************/
-		class CTextControl : public CTextLabel, public CBaseControl
+		class CTextControl : public CTextLabel, private std::mutex
 		{
 		public:
-			CTextControl();
-			void bSetText(const std::string & newText) override;
-			const std::string bGetText() override;
+			void bSetText(const std::string & newText);
+			const std::string bGetText();
 			void paint(juce::Graphics & g) override;
 
 		};
