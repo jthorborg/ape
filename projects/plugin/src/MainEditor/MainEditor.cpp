@@ -72,6 +72,12 @@ namespace ape
 
 		consoleWindow = parent.console().create();
 		tabs.addComponentToDock(consoleWindow.get());
+		
+		scopeWindow = p.engine.getOscilloscopeData().createWindow();
+		scopeSettingsWindow = p.engine.getOscilloscopeData().createEditor();
+
+		tabs.addComponentToDock(scopeWindow.get());
+		tabs.addComponentToDock(scopeSettingsWindow.get());
 
 		int i = 0;
 		for (auto button : { &compilation, &activation, &editor, &scope })
@@ -135,6 +141,8 @@ namespace ape
 		if (isTimerRunning())
 			stopTimer();
 		parent.editorClosed();
+
+		scopeWindow = nullptr;
 	}
 
 	juce::Rectangle<int> MainEditor::getContentArea()
@@ -146,12 +154,6 @@ namespace ape
 	{
 		bool toggled = value->getNormalizedValue() > 0.5f;
 
-		if (value == &parent.getUICommandState().scope)
-		{
-			scopeWindow = toggled ? std::make_unique<SignalizerWindow>(parent.engine.getOscilloscopeData()) : nullptr;
-			if (scopeWindow)
-				tabs.addComponentToDock(scopeWindow.get());
-		}
 	}
 
 	juce::Component * MainEditor::getWindow()

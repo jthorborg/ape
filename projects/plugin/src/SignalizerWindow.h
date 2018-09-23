@@ -82,6 +82,9 @@
 			Signalizer::OscilloscopeContent& getContent() noexcept { return content; }
 			const std::string& getName() const noexcept { return name; }
 
+			std::unique_ptr<juce::Component> createEditor();
+			std::unique_ptr<juce::Component> createWindow();
+
 		private:
 
 			virtual void automatedTransmitChangeMessage(int parameter, Signalizer::ParameterSet::FrameworkType value) override {}
@@ -94,22 +97,6 @@
 			Signalizer::SystemView view;
 			Signalizer::OscilloscopeContent content;
 
-		};
-
-		class SignalizerWindow : public juce::Component
-		{
-		public:
-
-			SignalizerWindow(OscilloscopeData& engine);
-			~SignalizerWindow();
-
-			void resized() override;
-
-		private:
-			OscilloscopeData& data;
-			Signalizer::Oscilloscope scope;
-			std::unique_ptr<Signalizer::StateEditor> editor;
-			juce::OpenGLContext context;
 		};
 	};
 

@@ -58,27 +58,38 @@ namespace ape
 		void resized() override
 		{
 			CScrollableContainer::resized();
-			lines.clear();
 			const auto bounds = getBounds();
 
 			CRect fakeSize(bounds);
-			fakeSize.setHeight(bounds.getHeight() * 4);
+			fakeSize.setHeight(bounds.getHeight());
 			setVirtualHeight(fakeSize.getHeight());
 
 			nLines = int(fakeSize.getHeight() / nPixelPerLine);
 			// this is a rough estimate - rather have some api calculate the length of
 			// the line on the fly, but can't find a cross platform alternative.
 			nLineSize = int(fakeSize.getWidth() / nPixelPerChar);
-			lines.reserve(nLines);
+
+			auto before = static_cast<int>(lines.size());
+
+			lines.resize(nLines);
+
+			for (int i = 0; i < std::min(before, nLines); i++)
+			{
+				lines[i]->setText("");
+			}
+
 			for (int i = 0; i < nLines; i++)
 			{
-				lines.emplace_back(std::make_unique<CTextLabel>());
+				if (!lines[i])
+				{
+					lines[i] = std::make_unique<CTextLabel>();
+					lines[i]->setFontSize(13);
+					lines[i]->setColour(juce::Colours::black);
+					lines[i]->setFontName(juce::Font::getDefaultMonospacedFontName());
+					getVContainer().addAndMakeVisible(*lines[i]);
+				}
+
 				lines[i]->setBounds(5, i * nPixelPerLine, fakeSize.getWidth() - getSCB().getWidth(), nPixelPerLine);
-				lines[i]->setFontSize(13);
-				lines[i]->setColour(juce::Colours::black);
-				lines[i]->setFontName(juce::Font::getDefaultMonospacedFontName());
-				//addAndMakeVisible(*lines[i]);
-				getVContainer().addAndMakeVisible(*lines[i]);
 			}
 
 			bSetValue(1); // ?

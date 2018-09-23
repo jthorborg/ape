@@ -92,7 +92,6 @@
 
 
 			std::vector<juce::Component *> garbageCollection;
-			std::map<int, CBaseControl *> controls;
 			std::shared_ptr<PluginSurface> pluginSurface;
 
 			CTextControl * infoLabel;
@@ -100,8 +99,10 @@
 			int repaintCallBackCounter;
 
 			juce::OpenGLContext oglc;
-			std::unique_ptr<SignalizerWindow> scopeWindow;
-			std::unique_ptr<juce::Component> consoleWindow;
+			std::unique_ptr<juce::Component> 
+				consoleWindow,
+				scopeSettingsWindow,
+				scopeWindow;
 
 			jcredland::DockableWindowManager dockManager;
 			jcredland::TabDock tabs;

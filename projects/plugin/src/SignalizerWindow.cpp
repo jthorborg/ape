@@ -35,39 +35,71 @@
 namespace ape 
 {
 
+	class SignalizerWindow : public juce::Component
+	{
+	public:
+
+		SignalizerWindow(OscilloscopeData& engine);
+		~SignalizerWindow();
+
+		void resized() override;
+
+		void visibilityChanged() override
+		{
+			if (!scope)
+			{
+				scope = std::make_unique<Signalizer::Oscilloscope>(data.getBehaviour(), data.getName(), data.getStream(), &data.getContent());
+				addAndMakeVisible(scope.get());
+				scope->attachToOpenGL(context);
+
+			}
+		}
+
+	private:
+		OscilloscopeData& data;
+		std::unique_ptr<Signalizer::Oscilloscope> scope;
+		juce::OpenGLContext context;
+	};
+
 
 	SignalizerWindow::SignalizerWindow(OscilloscopeData& oData)
 		: juce::Component("Oscilloscope")
 		, data(oData)
-		, scope(data.getBehaviour(), data.getName(), data.getStream(), &data.getContent())
 	{
-		setVisible(true);
+		setVisible(false);
 
-		editor = data.getContent().createEditor();
-		editor->setSize(600, 200);
-		editor->setVisible(true);
-		editor->setCentrePosition(1000, 1000);
-		editor->setOpaque(true);
-		editor->addToDesktop(juce::ComponentPeer::StyleFlags::windowIsResizable | juce::ComponentPeer::StyleFlags::windowHasCloseButton | juce::ComponentPeer::StyleFlags::windowHasTitleBar);
-
-		addAndMakeVisible(&scope);
 		context.setMultisamplingEnabled(true);
 
 		juce::OpenGLPixelFormat format;
 		format.multisamplingLevel = 16;
 		context.setPixelFormat(format);
 
-		scope.attachToOpenGL(context);
 	}
 
 	void SignalizerWindow::resized()
 	{
-		scope.setSize(getWidth(), getHeight());
+		if(scope)
+			scope->setSize(getWidth(), getHeight());
 	}
 
 	SignalizerWindow::~SignalizerWindow()
 	{
-		scope.detachFromOpenGL(context);
+		if(scope)
+			scope->detachFromOpenGL(context);
+	}
+
+	std::unique_ptr<juce::Component> OscilloscopeData::createEditor()
+	{
+		auto component = getContent().createEditor();
+		component->setName("Scope settings");
+		return std::unique_ptr<juce::Component>{ component.release() };
+	}
+
+	std::unique_ptr<juce::Component> OscilloscopeData::createWindow()
+	{
+		auto component = std::make_unique<SignalizerWindow>(*this);
+
+		return std::unique_ptr<juce::Component>{ component.release() };
 	}
 
 }
