@@ -36,6 +36,7 @@
 #include "../PluginState.h"
 #include "../Plugin/PluginSurface.h"
 #include "../SignalizerWindow.h"
+#include <dockable-windows\Source\MainComponent.h>
 
 namespace ape
 {
@@ -44,11 +45,10 @@ namespace ape
 	struct ButtonDefinition { const char * untoggled, *toggled; bool sticky; };
 
 	constexpr int ButtonsColumnSpace = 100;
-	constexpr int NumButtons = 5;
+	constexpr int NumButtons = 4;
 
 	std::array<ButtonDefinition, NumButtons> ButtonDefs {
 		{
-			{ "Console", "Hide", true},
 			{ "Compile", "Compiling...", true },
 			{ "Activate", "Deactivate", true },
 			{ "Show editor", "Hide editor", true },
@@ -63,15 +63,18 @@ namespace ape
 		, state(p.getUICommandState())
 		, AudioProcessorEditor(p.engine)
 		, repaintCallBackCounter(0)
-		, console(&state.console)
 		, compilation(&state.compile)
 		, activation(&state.activationState)
 		, scope(&state.scope)
 		, editor(&state.editor)
+		, tabs(dockManager)
 	{
 
+		consoleWindow = parent.console().create();
+		tabs.addComponentToDock(consoleWindow.get());
+
 		int i = 0;
-		for (auto button : { &console, &compilation, &activation, &editor, &scope })
+		for (auto button : { &compilation, &activation, &editor, &scope })
 		{
 			button->setTexts(ButtonDefs[i].untoggled, ButtonDefs[i].toggled);
 			button->setToggleable(ButtonDefs[i].sticky);
@@ -115,7 +118,11 @@ namespace ape
 		addAndMakeVisible(statusLabel);
 		garbageCollection.push_back(statusLabel);
 
+		tabs.setBounds(getContentArea());
+		addAndMakeVisible(tabs);
+
 	}
+
 
 	MainEditor::~MainEditor()
 	{
@@ -130,27 +137,20 @@ namespace ape
 		parent.editorClosed();
 	}
 
+	juce::Rectangle<int> MainEditor::getContentArea()
+	{
+		return getLocalBounds().withLeft(ButtonsColumnSpace).withBottom(getHeight() - 40);
+	}
+
 	void MainEditor::valueEntityChanged(cpl::ValueEntityBase::Listener * sender, cpl::ValueEntityBase * value)
 	{
 		bool toggled = value->getNormalizedValue() > 0.5f;
 
-		if (value == &parent.getUICommandState().console)
-		{
-			if (toggled)
-			{
-				consoleWindow = parent.console().create();
-				consoleWindow->setBounds(juce::Rectangle<int>{ ButtonsColumnSpace, 0, getWidth() - ButtonsColumnSpace, getHeight() - (getHeight() / 6) });
-				addAndMakeVisible(*consoleWindow);
-			}
-			else
-			{
-				removeChildComponent(consoleWindow.get());
-				consoleWindow = nullptr;
-			}
-		}
-		else if (value == &parent.getUICommandState().scope)
+		if (value == &parent.getUICommandState().scope)
 		{
 			scopeWindow = toggled ? std::make_unique<SignalizerWindow>(parent.engine.getOscilloscopeData()) : nullptr;
+			if (scopeWindow)
+				tabs.addComponentToDock(scopeWindow.get());
 		}
 	}
 
@@ -162,13 +162,17 @@ namespace ape
 	void MainEditor::onPluginStateChanged(PluginState& plugin, bool activated)
 	{
 		if (pluginSurface)
-			removeChildComponent(pluginSurface.get());
+			tabs.removeChildComponent(pluginSurface.get());
 
 		if (activated)
 		{
 			pluginSurface = plugin.getOrCreateSurface();
-			pluginSurface->setBounds(getBounds().withLeft(ButtonsColumnSpace));
-			addAndMakeVisible(*pluginSurface);
+			pluginSurface->setBounds(getBounds());
+			tabs.addComponentToDock(pluginSurface.get());
+		}
+		else
+		{
+			pluginSurface = nullptr;
 		}
 	}
 
@@ -177,7 +181,7 @@ namespace ape
 		int i = 0;
 		auto heightPerButton = getHeight() / NumButtons;
 		auto y = 0;
-		for (auto button : { &console, &compilation, &activation, &editor, &scope })
+		for (auto button : { &compilation, &activation, &editor, &scope })
 		{
 			button->setBounds(0, y, ButtonsColumnSpace, heightPerButton);
 			y += heightPerButton;

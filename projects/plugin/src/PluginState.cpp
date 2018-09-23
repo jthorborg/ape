@@ -152,6 +152,7 @@ namespace ape
 		}
 
 		auto instance = std::make_shared<PluginSurface>(engine, *this);
+		instance->setName(project->projectName);
 		surface = instance;
 
 		return instance;

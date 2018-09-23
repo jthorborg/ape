@@ -51,6 +51,7 @@ namespace ape
 		CConsoleContainer(CConsole& p) 
 			: parent(p) 
 		{ 
+			setName("Console");
 			parent.addChangeListener(this);
 		}	
 
@@ -91,8 +92,16 @@ namespace ape
 
 	protected:
 
+		void visibilityChanged() override
+		{
+			renderConsole();
+		}
+
 		virtual void changeListenerCallback(juce::ChangeBroadcaster * source) override
 		{
+			if (!isVisible())
+				return;
+
 			renderConsole();
 			repaint();
 		}

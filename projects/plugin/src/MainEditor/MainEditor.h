@@ -40,6 +40,7 @@
 	#include <cpl/gui/controls/Controls.h>
 	#include <future>
 	#include <memory>
+	#include <dockable-windows\Source\JDockableWindows.h>
 
 	namespace ape 
 	{
@@ -76,6 +77,9 @@
 			void resized() override;
 
 		private:
+
+			juce::Rectangle<int> getContentArea();
+
 			void valueEntityChanged(cpl::ValueEntityBase::Listener * sender, cpl::ValueEntityBase * value) override;
 
 			// Inherited via CTopView
@@ -84,7 +88,7 @@
 			UICommandState& state;
 			UIController& parent;
 
-			cpl::CButton console, compilation, activation, editor, scope;
+			cpl::CButton compilation, activation, editor, scope;
 
 
 			std::vector<juce::Component *> garbageCollection;
@@ -99,6 +103,8 @@
 			std::unique_ptr<SignalizerWindow> scopeWindow;
 			std::unique_ptr<juce::Component> consoleWindow;
 
+			jcredland::DockableWindowManager dockManager;
+			jcredland::TabDock tabs;
 		};
 
 	};

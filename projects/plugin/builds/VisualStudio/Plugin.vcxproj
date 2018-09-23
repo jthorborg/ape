@@ -576,6 +576,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp" />
+    <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JAdvancedDock.cpp" />
+    <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.cpp" />
+    <ClCompile Include="..\..\..\..\external\dockable-windows\Source\MainComponent.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp" />
@@ -1713,6 +1716,9 @@
     <ClCompile Include="..\..\src\UI\UICommands.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\external\dockable-windows\Source\JAdvancedDock.h" />
+    <ClInclude Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.h" />
+    <ClInclude Include="..\..\..\..\external\dockable-windows\Source\MainComponent.h" />
     <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh" />
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\Events.h" />

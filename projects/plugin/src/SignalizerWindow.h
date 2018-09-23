@@ -96,12 +96,14 @@
 
 		};
 
-		class SignalizerWindow : public juce::DocumentWindow
+		class SignalizerWindow : public juce::Component
 		{
 		public:
 
 			SignalizerWindow(OscilloscopeData& engine);
 			~SignalizerWindow();
+
+			void resized() override;
 
 		private:
 			OscilloscopeData& data;

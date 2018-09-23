@@ -22,3 +22,6 @@
 [submodule "external/ccore"]
 	path = external/ccore
 	url = https://bitbucket.org/Mayae/ccore.git
+[submodule "external/dockable-windows"]
+	path = external/dockable-windows
+	url = https://github.com/jthorborg/dockable-windows.git

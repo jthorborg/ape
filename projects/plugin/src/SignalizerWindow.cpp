@@ -37,29 +37,32 @@ namespace ape
 
 
 	SignalizerWindow::SignalizerWindow(OscilloscopeData& oData)
-		: juce::DocumentWindow("Scope", juce::Colours::black, juce::DocumentWindow::allButtons)
+		: juce::Component("Oscilloscope")
 		, data(oData)
 		, scope(data.getBehaviour(), data.getName(), data.getStream(), &data.getContent())
 	{
 		setVisible(true);
+
 		editor = data.getContent().createEditor();
 		editor->setSize(600, 200);
 		editor->setVisible(true);
 		editor->setCentrePosition(1000, 1000);
 		editor->setOpaque(true);
 		editor->addToDesktop(juce::ComponentPeer::StyleFlags::windowIsResizable | juce::ComponentPeer::StyleFlags::windowHasCloseButton | juce::ComponentPeer::StyleFlags::windowHasTitleBar);
-		scope.setSize(800, 600);
 
-		setContentComponent(&scope, true, true);
+		addAndMakeVisible(&scope);
 		context.setMultisamplingEnabled(true);
 
 		juce::OpenGLPixelFormat format;
-
 		format.multisamplingLevel = 16;
-
 		context.setPixelFormat(format);
 
 		scope.attachToOpenGL(context);
+	}
+
+	void SignalizerWindow::resized()
+	{
+		scope.setSize(getWidth(), getHeight());
 	}
 
 	SignalizerWindow::~SignalizerWindow()

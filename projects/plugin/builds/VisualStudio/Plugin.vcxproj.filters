@@ -361,6 +361,24 @@
     <Filter Include="Audio Programming Environment\Source\UI">
       <UniqueIdentifier>{d8b1dac5-02e2-4ed0-a826-c4d75dfea7f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External\cpl">
+      <UniqueIdentifier>{716165d2-d925-4736-b5ea-5b9ba635d6d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\libconfig">
+      <UniqueIdentifier>{306ff21a-26f3-42b7-9c6e-708b818cbfe9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\Signalizer">
+      <UniqueIdentifier>{995571d4-3692-4aa5-8e3c-25d69873aaad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\DockableWindows">
+      <UniqueIdentifier>{5dd21847-f6a3-4899-b12c-d5dc80ee3c0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\DockableWindows\Headers">
+      <UniqueIdentifier>{2b34f8e2-6ec6-4a8d-b5f7-8da1abe79541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\DockableWindows\Source">
+      <UniqueIdentifier>{005564e5-bfab-4df0-b729-40a3b3a86a8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1494,9 +1512,6 @@
     <ClCompile Include="..\..\src\CCodeGenerator.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp">
-      <Filter>External</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp">
       <Filter>Audio Programming Environment\Juce Wrappers</Filter>
     </ClCompile>
@@ -1514,9 +1529,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ProjectEx.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\external\signalizer\Source\Unity\SignalizerSource.cpp">
-      <Filter>External</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SignalizerWindow.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
@@ -1562,6 +1574,21 @@
     </ClCompile>
     <ClCompile Include="..\..\src\UIController.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\cpl\CPLSource.cpp">
+      <Filter>External\cpl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\signalizer\Source\Unity\SignalizerSource.cpp">
+      <Filter>External\Signalizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\dockable-windows\Source\MainComponent.cpp">
+      <Filter>External\DockableWindows\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JAdvancedDock.cpp">
+      <Filter>External\DockableWindows\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.cpp">
+      <Filter>External\DockableWindows\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2930,9 +2957,6 @@
     <ClInclude Include="..\..\src\CQueueLabel.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh">
-      <Filter>External</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -3016,6 +3040,18 @@
     </ClInclude>
     <ClInclude Include="..\..\src\UI\UIValue.h">
       <Filter>Audio Programming Environment\Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh">
+      <Filter>External\libconfig</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\dockable-windows\Source\JAdvancedDock.h">
+      <Filter>External\DockableWindows\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.h">
+      <Filter>External\DockableWindows\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\dockable-windows\Source\MainComponent.h">
+      <Filter>External\DockableWindows\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
