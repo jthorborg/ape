@@ -45,14 +45,13 @@ namespace ape
 	struct ButtonDefinition { const char * untoggled, *toggled; bool sticky; };
 
 	constexpr int ButtonsColumnSpace = 100;
-	constexpr int NumButtons = 4;
+	constexpr int NumButtons = 3;
 
 	std::array<ButtonDefinition, NumButtons> ButtonDefs {
 		{
 			{ "Compile", "Compiling...", true },
 			{ "Activate", "Deactivate", true },
 			{ "Show editor", "Hide editor", true },
-			{ "Scope", "Scope", true }
 		}
 	};
 
@@ -65,7 +64,6 @@ namespace ape
 		, repaintCallBackCounter(0)
 		, compilation(&state.compile)
 		, activation(&state.activationState)
-		, scope(&state.scope)
 		, editor(&state.editor)
 		, tabs(dockManager)
 	{
@@ -80,7 +78,7 @@ namespace ape
 		tabs.addComponentToDock(scopeSettingsWindow.get());
 
 		int i = 0;
-		for (auto button : { &compilation, &activation, &editor, &scope })
+		for (auto button : { &compilation, &activation, &editor })
 		{
 			button->setTexts(ButtonDefs[i].untoggled, ButtonDefs[i].toggled);
 			button->setToggleable(ButtonDefs[i].sticky);
@@ -183,7 +181,7 @@ namespace ape
 		int i = 0;
 		auto heightPerButton = getHeight() / NumButtons;
 		auto y = 0;
-		for (auto button : { &compilation, &activation, &editor, &scope })
+		for (auto button : { &compilation, &activation, &editor })
 		{
 			button->setBounds(0, y, ButtonsColumnSpace, heightPerButton);
 			y += heightPerButton;

@@ -88,7 +88,7 @@
 			UICommandState& state;
 			UIController& parent;
 
-			cpl::CButton compilation, activation, editor, scope;
+			cpl::CButton compilation, activation, editor;
 
 
 			std::vector<juce::Component *> garbageCollection;
