@@ -64,6 +64,8 @@
 			, private cpl::ValueEntityBase::Listener
 		{
 			friend class UIController;
+			friend class DockWindow;
+
 		public:
 
 			MainEditor(UIController& parent);

@@ -55,6 +55,28 @@ namespace ape
 		}
 	};
 
+	class DockWindow : public juce::DocumentWindow
+	{
+	public:
+
+		DockWindow(MainEditor& parent, juce::Component& child)
+			: juce::DocumentWindow(child.getName(), juce::Colours::red, juce::DocumentWindow::allButtons)
+			, editor(parent)
+			, child(child)
+		{
+
+		}
+
+		void closeButtonPressed() override
+		{
+			editor.dockManager.attachComponentToDock(child, editor.tabs);
+		}
+
+	private:
+
+		MainEditor& editor;
+		juce::Component& child;
+	};
 
 	MainEditor::MainEditor(UIController& p)
 		: CTopView(this, "APE editor")
@@ -67,7 +89,7 @@ namespace ape
 		, editor(&state.editor)
 		, tabs(dockManager)
 	{
-
+		dockManager.setHeavyWeightGenerator([this](auto& c) { return std::make_unique<DockWindow>(*this, c); });
 		consoleWindow = parent.console().create();
 		tabs.addComponentToDock(consoleWindow.get());
 		
