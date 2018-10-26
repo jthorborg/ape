@@ -368,14 +368,9 @@ namespace ape
 		auto width = setting.lookUpValue(800, "editor", "width");
 		auto height = setting.lookUpValue(900, "editor", "height");
 
-		fillColour = setting.lookUpValue(juce::Colour{ 0x1E, 0x1E, 0x1E }, "editor", "colours", "background");
+		setBackgroundColour(setting.lookUpValue(juce::Colour{ 0x1E, 0x1E, 0x1E }, "editor", "colours", "background"));
 
 		setBounds(x, y, width, height);
-	}
-
-	void CodeEditorWindow::paint(juce::Graphics& g)
-	{
-		g.fillAll(fillColour);
 	}
 
 

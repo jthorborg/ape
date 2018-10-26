@@ -62,7 +62,6 @@
 			};
 
 			CodeEditorWindow(const Settings& settings, std::shared_ptr<juce::CodeDocument> cd);
-			void paint(juce::Graphics& g) override;
 			virtual ~CodeEditorWindow();
 			void closeButtonPressed() override;
 			void setAppCM(juce::ApplicationCommandManager* acm);
@@ -85,7 +84,6 @@
 			// instance data
 			juce::ApplicationCommandManager* appCM;
 			std::unique_ptr<InternalCodeEditorComponent> codeEditor;
-			juce::Colour fillColour;
 		};
 
 	}

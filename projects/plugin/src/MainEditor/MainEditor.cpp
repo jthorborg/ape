@@ -64,9 +64,9 @@ namespace ape
 			, editor(parent)
 			, child(child)
 		{
-
+			setUsingNativeTitleBar(true);
 		}
-
+	
 		void closeButtonPressed() override
 		{
 			editor.dockManager.attachComponentToDock(child, editor.tabs);
@@ -87,6 +87,7 @@ namespace ape
 		, compilation(&state.compile)
 		, activation(&state.activationState)
 		, editor(&state.editor)
+		, dockManager(true, false)
 		, tabs(dockManager)
 	{
 		dockManager.setHeavyWeightGenerator([this](auto& c) { return std::make_unique<DockWindow>(*this, c); });
