@@ -47,13 +47,12 @@ namespace ape
 	struct ButtonDefinition { const char * untoggled, *toggled; bool sticky; };
 
 	constexpr int ButtonsColumnSpace = 100;
-	constexpr int NumButtons = 3;
+	constexpr int NumButtons = 2;
 
 	std::array<ButtonDefinition, NumButtons> ButtonDefs {
 		{
 			{ "Compile", "Compiling...", true },
-			{ "Activate", "Deactivate", true },
-			{ "Show editor", "Hide editor", true },
+			{ "Activate", "Deactivate", true }
 		}
 	};
 
@@ -65,7 +64,6 @@ namespace ape
 		, repaintCallBackCounter(0)
 		, compilation(&state.compile)
 		, activation(&state.activationState)
-		, editor(&state.editor)
 		, dockManager(true, false)
 		, tabs(dockManager)
 	{
@@ -73,11 +71,13 @@ namespace ape
 		dockManager.setHeavyWeightGenerator(
 			[this](auto& c) 
 			{
-				auto window = c == codeWindow ? parent.getSourceManager().createSuitableCodeEditorWindow() : std::make_unique<DockWindow>();
+				auto window = &c == codeWindow.get() ? parent.getSourceManager().createSuitableCodeEditorWindow() : std::make_unique<DockWindow>();
 				window->injectDependencies(*this, c);
 				return std::unique_ptr<juce::ResizableWindow>(window.release());
 			}
 		);
+
+		codeWindow = parent.getSourceManager().createCodeEditorComponent();
 
 		consoleWindow = parent.console().create();
 		tabs.addComponentToDock(consoleWindow.get());
@@ -87,18 +87,16 @@ namespace ape
 
 		tabs.addComponentToDock(scopeWindow.get());
 		tabs.addComponentToDock(scopeSettingsWindow.get());
+		tabs.addComponentToDock(codeWindow.get());
 
 		int i = 0;
-		for (auto button : { &compilation, &activation, &editor })
+		for (auto button : { &compilation, &activation })
 		{
 			button->setTexts(ButtonDefs[i].untoggled, ButtonDefs[i].toggled);
 			button->setToggleable(ButtonDefs[i].sticky);
 			addAndMakeVisible(button);
 			i++;
 		}
-
-		for (auto value : { &state.console, &state.scope })
-			value->addListener(this);
 
 		/*
 		if (!approot["greeting_shown"])
@@ -138,17 +136,16 @@ namespace ape
 
 	}
 
-
 	MainEditor::~MainEditor()
 	{
-		for (auto value : { &state.console, &state.scope })
-			value->removeListener(this);
-
 		oglc.detach();
+
 		for (auto garbage : garbageCollection)
 			delete garbage;
+
 		if (isTimerRunning())
 			stopTimer();
+
 		parent.editorClosed();
 
 		scopeWindow = nullptr;
@@ -192,7 +189,7 @@ namespace ape
 		int i = 0;
 		auto heightPerButton = getHeight() / NumButtons;
 		auto y = 0;
-		for (auto button : { &compilation, &activation, &editor })
+		for (auto button : { &compilation, &activation })
 		{
 			button->setBounds(0, y, ButtonsColumnSpace, heightPerButton);
 			y += heightPerButton;

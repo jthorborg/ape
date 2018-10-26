@@ -3059,6 +3059,15 @@
     <ClInclude Include="..\..\src\UI\DockWindow.h">
       <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\CodeEditorComponent.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\CodeTextEditor.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\BreakpointComponent.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">

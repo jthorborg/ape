@@ -27,53 +27,28 @@
 
 *************************************************************************************/
 
-#ifndef APE_JUCEEDITORWINDOW_H
-	#define APE_JUCEEDITORWINDOW_H
+#ifndef APE_CODEEDITORWINDOW_H
+	#define APE_CODEEDITORWINDOW_H
 
 	#include "../Common.h"
-	#include <cpl/CExclusiveFile.h>
 	#include <string>
-	#include "CLangCodeTokeniser.h"
-	#include <set>
-	#include <cpl/state/Serialization.h>
 	#include "../Settings.h"
 	#include "SourceManager.h"
-	#include "cpl/gui/Tools.h"
-
+	#include "../UI/DockWindow.h"
+	
 	namespace ape
 	{
 		extern const MenuEntry CommandTable[][5];
 
-		class InternalCodeEditorComponent;
-
 		class CodeEditorWindow 
-			: public juce::DocumentWindow
+			: public DockWindow
 			, private juce::MenuBarModel
-			, public cpl::SafeSerializableObject
-			, public cpl::DestructionNotifier
 		{
 		public:
 
-			class BreakpointListener
-			{
-			public:
-				virtual void onBreakpointsChanged(const std::set<int>& breakpoints) = 0;
-				virtual ~BreakpointListener() {}
-			};
-
-			CodeEditorWindow(const Settings& settings, std::shared_ptr<juce::CodeDocument> cd);
+			CodeEditorWindow(const Settings& settings);
 			virtual ~CodeEditorWindow();
-			void closeButtonPressed() override;
 			void setAppCM(juce::ApplicationCommandManager* acm);
-
-			void addBreakpointListener(BreakpointListener* listener);
-			void removeBreakpointListener(BreakpointListener* listener);
-
-			const std::set<int>& getBreakpoints();
-			void setBreakpoints(std::set<int> breakpoints);
-
-			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
-			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
 
 		private:
 
@@ -83,7 +58,6 @@
 
 			// instance data
 			juce::ApplicationCommandManager* appCM;
-			std::unique_ptr<InternalCodeEditorComponent> codeEditor;
 		};
 
 	}

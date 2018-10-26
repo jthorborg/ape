@@ -51,11 +51,10 @@ namespace ape
 
 	SourceProjectManager::SourceProjectManager(UIController& ui, const Settings& s, int instanceID)
 		: SourceManager(ui, s, instanceID)
-		, editorWindow(nullptr)
 		, isSingleFile(true)
 		, fullPath("Untitled")
 		, isActualFile(false)
-		, editorWindowState([this] { return createWindow(); })
+		, textEditorDSO([this] { return createWindow(); })
 	{
 		doc = std::make_shared<juce::CodeDocument>();
 		try
@@ -83,7 +82,7 @@ namespace ape
 
 	void SourceProjectManager::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
 	{
-		ar["code-editor"]["state"] = editorWindowState.getState();
+		ar["code-editor"]["state"] = textEditorDSO.getState();
 		ar["source-path"] << fullPath.string();
 
 		std::string contents;
@@ -98,9 +97,7 @@ namespace ape
 
 	void SourceProjectManager::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
 	{
-		editorWindowState.setState(builder["code-editor"]["state"], builder["code-editor"]["state"].getLocalVersion());
-		bool editorOpen = false;
-		builder["code-editor"] >> editorOpen;
+		textEditorDSO.setState(builder["code-editor"]["state"], builder["code-editor"]["state"].getLocalVersion());
 
 		std::string path;
 
@@ -144,14 +141,18 @@ namespace ape
 		}
 	}
 
-	std::unique_ptr<CodeEditorWindow> SourceProjectManager::createWindow()
+	std::unique_ptr<juce::Component> SourceProjectManager::createCodeEditorComponent()
 	{
-		auto window = std::make_unique<CodeEditorWindow>(settings, doc);
-		window->setBreakpoints(breakpoints);
-		window->addBreakpointListener(this);
-		loadHotkeys();
-		window->setAppCM(&appCM);
+		return std::unique_ptr<juce::Component> { textEditorDSO.getUnique().acquire() };
+	}
 
+	std::unique_ptr<CodeEditorComponent> SourceProjectManager::createWindow()
+	{
+		auto textEditor = std::make_unique<CodeEditorComponent>(settings, doc);
+		textEditor->getLineTracer().setBreakpoints(breakpoints);
+		textEditor->getLineTracer().addBreakpointListener(this);
+
+		// TODO: Should this be here?
 		bool currentlyExists = fs::exists(fullPath);
 
 		if (currentlyExists && isActualFile)
@@ -175,24 +176,19 @@ namespace ape
 			}
 		}
 
-		return window;
+		return std::move(textEditor);
 	}
 
-	bool SourceProjectManager::setEditorVisibility(bool visible)
+	std::unique_ptr<DockWindow> SourceProjectManager::createSuitableCodeEditorWindow()
 	{
-		if (!editorWindow)
-		{
-			editorWindow = editorWindowState.getCached();
-			setTitle();
-		}
+		auto window = std::make_unique<CodeEditorWindow>(settings);
 
-		editorWindow->setVisible(visible);
+		loadHotkeys();
+		window->setAppCM(&appCM);
 
-		if (visible)
-			editorWindow->setMinimised(false);
-
-		return true;
+		return std::move(window);
 	}
+
 
 	void SourceProjectManager::openAFile()
 	{
@@ -278,6 +274,8 @@ namespace ape
 
 	void SourceProjectManager::setTitle()
 	{
+		return;/*
+		// TODO:
 		std::string title;
 		title += cpl::programInfo.programAbbr + " Editor" + " (" + std::to_string(instanceID & 0xFF) + ")";
 		if (isDirty())
@@ -286,7 +284,7 @@ namespace ape
 			title += " - ";
 		title += fullPath.string();
 		if (editorWindow)
-			editorWindow->setName(title);
+			editorWindow->setName(title); */
 	}
 
 
@@ -515,8 +513,9 @@ namespace ape
 
 	void * SourceProjectManager::getParentWindow()
 	{
-		if (editorWindow && editorWindow->isVisible())
-			return editorWindow->getWindowHandle();
+		if (textEditorDSO.hasCached())
+			return textEditorDSO.getCached()->getWindowHandle();
+
 		return controller.getSystemWindow();
 	}
 

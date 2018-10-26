@@ -124,7 +124,6 @@
 			virtual ~SourceManager() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual bool setEditorVisibility(bool visible) = 0;
 			virtual std::string getDocumentName() { return ""; }
 			virtual fs::path getDocumentPath() = 0;
 			virtual bool isDirty() = 0;

@@ -41,9 +41,7 @@ namespace ape
 		Invalid,
 		Recompile,
 		Activate,
-		Deactivate,
-		OpenSourceEditor,
-		CloseSourceEditor
+		Deactivate
 	};
 
 	class UIController;
@@ -55,12 +53,13 @@ namespace ape
 		, private cpl::UnityRange<cpl::ValueT>
 	{
 	public:
+
 		using Archiver = cpl::CSerializer::Archiver;
 		using Builder = cpl::CSerializer::Builder;
 
 		UICommandState(UIController& controller);
 
-		UIValue console, compile, activationState, editor, scope;
+		UIValue compile, activationState;
 
 		void changeValueExternally(UIValue& value, double newValue);
 

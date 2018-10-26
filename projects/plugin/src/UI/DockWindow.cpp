@@ -49,12 +49,9 @@ namespace ape
 		
 	void DockWindow::injectDependencies(MainEditor& mainEditor, juce::Component& childComponent)
 	{
-		if (mainEditor && childComponent)
-		{
-			setName(childComponent->getName());
-			editor = mainEditor;
-			child = childComponent;
-		}
+		setName(childComponent.getName());
+		editor = &mainEditor;
+		child = &childComponent;
 	}
 
 }

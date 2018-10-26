@@ -21,7 +21,7 @@
  
  **************************************************************************************
 
-	file:GUI.h
+	file:MainEditor.h
 	
 		Implements the graphic user interface, and all logic associated with the program
 		flow and interaction.
@@ -90,7 +90,7 @@
 			UICommandState& state;
 			UIController& parent;
 
-			cpl::CButton compilation, activation, editor;
+			cpl::CButton compilation, activation;
 
 
 			std::vector<juce::Component *> garbageCollection;

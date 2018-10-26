@@ -34,15 +34,11 @@ namespace ape
 {
 	UICommandState::UICommandState(UIController& controller)
 		: parent(controller)
-		, console(*this, *this)
 		, compile(*this, *this)
 		, activationState(*this, *this)
-		, editor(*this, *this)
-		, scope(*this, *this)
 	{
 		compile.addListener(this);
 		activationState.addListener(this);
-		editor.addListener(this);
 	}
 
 	void UICommandState::changeValueExternally(UIValue& value, double newValue)
@@ -52,12 +48,12 @@ namespace ape
 
 	void UICommandState::serialize(Archiver & ar, cpl::Version version)
 	{
-		ar << console << compile << activationState << editor << scope;
+		ar << compile << activationState;
 	}
 
 	void UICommandState::deserialize(Builder & builder, cpl::Version version)
 	{
-		builder >> console >> compile >> activationState >> editor >> scope;
+		builder >> compile >> activationState;
 	}
 
 	void UICommandState::valueEntityChanged(ValueEntityListener * sender, cpl::ValueEntityBase * value)
@@ -71,10 +67,6 @@ namespace ape
 		if(value == &compile && toggled)
 		{
 			command = UICommand::Recompile;
-		}
-		else if (value == &editor)
-		{
-			command = toggled ? UICommand::OpenSourceEditor : UICommand::CloseSourceEditor;
 		}
 		else if (value == &activationState)
 		{

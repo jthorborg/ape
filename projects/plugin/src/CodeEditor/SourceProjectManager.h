@@ -40,7 +40,9 @@
 	#include "CodeEditorWindow.h"
 	#include <cpl/state/DecoupledStateObject.h>
 	#include <memory>
-
+	#include "CodeEditorComponent.h"
+	#include "BreakpointComponent.h"
+	
 	namespace ape
 	{
 		namespace fs = cpl::fs;
@@ -51,10 +53,11 @@
 		class SourceProjectManager 
 			: public SourceManager
 			, public juce::ApplicationCommandTarget
-			, private CodeEditorWindow::BreakpointListener
+			, private BreakpointComponent::Listener
 		{
 
 		public:
+
 			SourceProjectManager(UIController& ui, const Settings& s, int instanceID);
 			virtual ~SourceProjectManager();
 
@@ -65,7 +68,6 @@
 			// SourceManager overrides
 			void setErrorLine(int) override;
 			bool getDocumentText(std::string &) override;
-			bool setEditorVisibility(bool visible) override;
 			bool openFile(const fs::path& fileName) override;
 			std::string getDocumentName() override;
 			fs::path getDocumentPath() override;
@@ -82,7 +84,7 @@
 
 			void validateInvariants();
 
-			std::unique_ptr<CodeEditorWindow> createWindow();
+			std::unique_ptr<CodeEditorComponent> createWindow();
 			bool loadHotkeys();
 			void setTitle();
 			void newDocument();
@@ -105,8 +107,8 @@
 
 			// instance stuff
 			juce::ApplicationCommandManager appCM;
-			cpl::UniqueHandle<CodeEditorWindow> editorWindow;
-			cpl::SerializableStateObject<CodeEditorWindow> editorWindowState;
+			cpl::SerializableStateObject<CodeEditorComponent> textEditorDSO;
+
 			fs::path fullPath;
 			std::shared_ptr<juce::CodeDocument> doc;
 			bool isSingleFile, isActualFile;

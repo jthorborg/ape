@@ -31,12 +31,13 @@
 #define DOCKWINDOW_H
 
 #include <cpl/Common.h>
+#include <cpl/gui/Tools.h>
 
 namespace ape
 {
 	class MainEditor;
 
-	class DockWindow : public juce::DocumentWindow
+	class DockWindow : public juce::DocumentWindow, public cpl::DestructionNotifier
 	{
 	public:
 

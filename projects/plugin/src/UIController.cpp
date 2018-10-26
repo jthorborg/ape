@@ -332,23 +332,6 @@ namespace ape
 			break;
 		}
 
-		case UICommand::OpenSourceEditor:
-		{
-			if (!sourceManager->exists())
-			{
-				cpl::Misc::MsgBox("No code editor available!", cpl::programInfo.programAbbr + " error!");
-				return false;
-			}
-			sourceManager->setEditorVisibility(true);
-			return true;
-		}
-
-		case UICommand::CloseSourceEditor:
-		{
-			sourceManager->setEditorVisibility(false);
-			return true;
-		}
-
 		default:
 			break;
 		}

@@ -1728,6 +1728,9 @@
     <ClInclude Include="..\..\..\..\shared-src\ape\SharedInterface.h" />
     <ClInclude Include="..\..\src\CCodeGenerator.h" />
     <ClInclude Include="..\..\src\CodeEditor\AutosaveManager.h" />
+    <ClInclude Include="..\..\src\CodeEditor\BreakpointComponent.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CodeEditorComponent.h" />
+    <ClInclude Include="..\..\src\CodeEditor\CodeTextEditor.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceManager.h" />
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
