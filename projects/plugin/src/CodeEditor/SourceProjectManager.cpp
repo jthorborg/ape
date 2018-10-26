@@ -84,8 +84,6 @@ namespace ape
 	void SourceProjectManager::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
 	{
 		ar["code-editor"]["state"] = editorWindowState.getState();
-		ar["code-editor"] << (editorWindowState.hasCached() && editorWindowState.getCached()->isVisible()); // is editor open?
-
 		ar["source-path"] << fullPath.string();
 
 		std::string contents;
@@ -123,9 +121,6 @@ namespace ape
 			builder["traces"]["content"] >> trace;
 			breakpoints.emplace(trace);
 		}
-
-		if (editorOpen)
-			setEditorVisibility(true);
 
 		validateInvariants();
 	}
@@ -317,7 +312,7 @@ namespace ape
 	}
 
 
-	std::unique_ptr<ProjectEx> SourceProjectManager::getProject()
+	std::unique_ptr<ProjectEx> SourceProjectManager::createProject()
 	{
 		/*
 		Implement a proper interface instead of passing shitty c strings around.

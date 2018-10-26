@@ -58,13 +58,15 @@
 			SourceProjectManager(UIController& ui, const Settings& s, int instanceID);
 			virtual ~SourceProjectManager();
 
+			std::unique_ptr<juce::Component> createCodeEditorComponent() override;
+			std::unique_ptr<DockWindow> createSuitableCodeEditorWindow() override;
+			std::unique_ptr<ProjectEx> createProject() override;
+
 			// SourceManager overrides
 			void setErrorLine(int) override;
 			bool getDocumentText(std::string &) override;
 			bool setEditorVisibility(bool visible) override;
-			bool exists() override { return true; }
 			bool openFile(const fs::path& fileName) override;
-			std::unique_ptr<ProjectEx> getProject() override;
 			std::string getDocumentName() override;
 			fs::path getDocumentPath() override;
 
@@ -74,7 +76,7 @@
 		protected:
 
 			void onBreakpointsChanged(const std::set<int>& breakpoints) override;
-			void* getParentWindow() override;
+			void* getParentWindow();
 
 		private:
 

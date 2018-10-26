@@ -40,7 +40,7 @@ namespace ape
 		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::ctrlModifier
 	#endif
 
-	const MenuEntry CommandTable[][6] =
+	const MenuEntry CommandTable[][5] =
 	{
 		// File
 		{
@@ -49,7 +49,6 @@ namespace ape
 			{ "Open...",	'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
 			{ "Save",		's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
 			{ "Save As...",	0,		0,				SourceManagerCommand::FileSaveAs },
-			{ "Exit",		0,		0,				SourceManagerCommand::FileExit}
 		},
 		// Edit
 

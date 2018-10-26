@@ -1590,6 +1590,9 @@
     <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.cpp">
       <Filter>External\DockableWindows\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\UI\DockWindow.cpp">
+      <Filter>Audio Programming Environment\Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -3052,6 +3055,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\external\dockable-windows\Source\MainComponent.h">
       <Filter>External\DockableWindows\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UI\DockWindow.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

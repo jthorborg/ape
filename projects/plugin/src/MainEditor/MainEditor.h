@@ -104,7 +104,8 @@
 			std::unique_ptr<juce::Component> 
 				consoleWindow,
 				scopeSettingsWindow,
-				scopeWindow;
+				scopeWindow,
+				codeWindow;
 
 			jcredland::DockableWindowManager dockManager;
 			jcredland::TabDock tabs;

@@ -1713,6 +1713,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.cpp" />
     <ClCompile Include="..\..\src\ProjectEx.cpp" />
     <ClCompile Include="..\..\src\UIController.cpp" />
+    <ClCompile Include="..\..\src\UI\DockWindow.cpp" />
     <ClCompile Include="..\..\src\UI\UICommands.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -2199,6 +2200,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h" />
     <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
+    <ClInclude Include="..\..\src\UI\DockWindow.h" />
     <ClInclude Include="..\..\src\UI\UICommands.h" />
     <ClInclude Include="..\..\src\UI\UIValue.h" />
     <ClInclude Include="..\..\src\Settings.h" />

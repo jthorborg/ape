@@ -42,6 +42,7 @@
 	#include <cpl/Common.h>
 	#include <cpl/state/Serialization.h>
 	#include <cpl/Core.h>
+	#include "../UI/DockWindow.h"
 
 	namespace ape
 	{
@@ -55,7 +56,6 @@
 			FileOpen,
 			FileSave,
 			FileSaveAs,
-			FileExit,
 			/* -- following are natively supported
 			EditCut,
 			EditCopy,
@@ -117,10 +117,13 @@
 
 			}
 
+			virtual std::unique_ptr<ProjectEx> createProject() = 0;
+			virtual std::unique_ptr<juce::Component> createCodeEditorComponent() = 0;
+			virtual std::unique_ptr<DockWindow> createSuitableCodeEditorWindow() = 0;
+
 			virtual ~SourceManager() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual std::unique_ptr<ProjectEx> getProject() = 0;
 			virtual bool setEditorVisibility(bool visible) = 0;
 			virtual std::string getDocumentName() { return ""; }
 			virtual fs::path getDocumentPath() = 0;
@@ -129,8 +132,6 @@
 			virtual void autoSave() {};
 			// true: a project was restored, false: nothing happened
 			virtual bool checkAutoSave() { return false; }
-			virtual bool exists() = 0;
-			virtual void* getParentWindow() = 0;
 
 		protected:
 			UIController& controller;

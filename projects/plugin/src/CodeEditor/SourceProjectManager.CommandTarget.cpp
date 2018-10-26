@@ -82,9 +82,6 @@ namespace ape
 		case SourceManagerCommand::FileSaveAs:
 			saveAs();
 			break;
-		case SourceManagerCommand::FileExit:
-			setEditorVisibility(false);
-			break;
 		}
 		return true;
 	}

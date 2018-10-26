@@ -37,6 +37,8 @@
 #include "../Plugin/PluginSurface.h"
 #include "../SignalizerWindow.h"
 #include <dockable-windows\Source\MainComponent.h>
+#include "../UI/DockWindow.h"
+#include "../CodeEditor/SourceManager.h"
 
 namespace ape
 {
@@ -55,29 +57,6 @@ namespace ape
 		}
 	};
 
-	class DockWindow : public juce::DocumentWindow
-	{
-	public:
-
-		DockWindow(MainEditor& parent, juce::Component& child)
-			: juce::DocumentWindow(child.getName(), juce::Colours::red, juce::DocumentWindow::allButtons)
-			, editor(parent)
-			, child(child)
-		{
-			setUsingNativeTitleBar(true);
-		}
-	
-		void closeButtonPressed() override
-		{
-			editor.dockManager.attachComponentToDock(child, editor.tabs);
-		}
-
-	private:
-
-		MainEditor& editor;
-		juce::Component& child;
-	};
-
 	MainEditor::MainEditor(UIController& p)
 		: CTopView(this, "APE editor")
 		, parent(p)
@@ -90,7 +69,16 @@ namespace ape
 		, dockManager(true, false)
 		, tabs(dockManager)
 	{
-		dockManager.setHeavyWeightGenerator([this](auto& c) { return std::make_unique<DockWindow>(*this, c); });
+
+		dockManager.setHeavyWeightGenerator(
+			[this](auto& c) 
+			{
+				auto window = c == codeWindow ? parent.getSourceManager().createSuitableCodeEditorWindow() : std::make_unique<DockWindow>();
+				window->injectDependencies(*this, c);
+				return std::unique_ptr<juce::ResizableWindow>(window.release());
+			}
+		);
+
 		consoleWindow = parent.console().create();
 		tabs.addComponentToDock(consoleWindow.get());
 		

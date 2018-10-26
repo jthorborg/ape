@@ -373,7 +373,7 @@ namespace ape
 	{
 		if (!compilerState.valid())
 		{
-			compilerState = createPlugin(sourceManager->getProject());
+			compilerState = createPlugin(sourceManager->createProject());
 			//engine.disablePlugin(false);
 		}
 		else
@@ -381,7 +381,7 @@ namespace ape
 			switch (compilerState.wait_for(std::chrono::seconds(0)))
 			{
 			case std::future_status::ready:
-				compilerState = createPlugin(sourceManager->getProject());
+				compilerState = createPlugin(sourceManager->createProject());
 				//engine.disablePlugin(false);
 				break;
 			case std::future_status::deferred:
@@ -396,7 +396,7 @@ namespace ape
 
 	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(bool enableHotReload)
 	{
-		return createPlugin(sourceManager->getProject(), enableHotReload);
+		return createPlugin(sourceManager->createProject(), enableHotReload);
 	}
 
 

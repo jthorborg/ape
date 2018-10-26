@@ -42,7 +42,7 @@
 
 	namespace ape
 	{
-		extern const MenuEntry CommandTable[][6];
+		extern const MenuEntry CommandTable[][5];
 
 		class InternalCodeEditorComponent;
 
