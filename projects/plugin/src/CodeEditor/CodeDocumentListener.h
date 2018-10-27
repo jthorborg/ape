@@ -21,45 +21,38 @@
  
  **************************************************************************************
 
-	file:DockWindow.h
-	
-		Document window super class for docks in ape
+	file:CodeDocumentListener.h
+		
+		A listener for the currently edited document
 
 *************************************************************************************/
 
-#ifndef DOCKWINDOW_H
-#define DOCKWINDOW_H
+#ifndef APE_CODEDOCUMENTLISTENER_H
+	#define APE_CODEDOCUMENTLISTENER_H
 
-#include <cpl/Common.h>
-#include <cpl/gui/Tools.h>
-#include <string>
+	#include <cpl/Core.h>
 
-namespace ape
-{
-	class MainEditor;
-
-	class DockWindow : public juce::DocumentWindow, public cpl::DestructionNotifier
+	namespace ape
 	{
-	public:
+		class CodeDocumentListener
+		{
+		public:
 
-		friend class MainEditor;
+			virtual void documentDirtynessChanged(bool dirty) { }
+			virtual void documentChangedName(const cpl::string_ref newName) {}
 
-		DockWindow();
+			virtual ~CodeDocumentListener() {}
+		};
 
-	protected:
+		class CodeDocumentSource
+		{
+		public:
 
-		const std::string& getNamePrefix();
+			virtual void addListener(CodeDocumentListener& listener) = 0;
+			virtual void removeListener(CodeDocumentListener& listener) = 0;
 
-	private:
+			virtual ~CodeDocumentSource() {}
+		};
 
-		void closeButtonPressed() override final;
-		void injectDependencies(MainEditor& editor, juce::Component& child);
-		void setPrefix(std::string prefix);
-
-		std::string prefix;
-		MainEditor* editor;
-		juce::Component* child;
-	};
-}
-
+	}
 #endif

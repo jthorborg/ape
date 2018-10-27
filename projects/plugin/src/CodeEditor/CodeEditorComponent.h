@@ -30,14 +30,17 @@
 #ifndef CODEEDITORCOMPONENT_H
 #define CODEEDITORCOMPONENT_H
 
-#include <cpl/Common.h>
 #include <memory>
+#include <set>
+#include <cpl/Common.h>
 #include <cpl/state/Serialization.h>
+#include "cpl/gui/Tools.h"
+
 #include "../Settings.h"
 #include "CLangCodeTokeniser.h"
 #include "CodeTextEditor.h"
 #include "BreakpointComponent.h"
-#include "cpl/gui/Tools.h"
+#include "CodeDocumentListener.h"
 
 namespace ape
 {
@@ -45,16 +48,18 @@ namespace ape
 		: public juce::Component
 		, public cpl::SafeSerializableObject
 		, public cpl::DestructionNotifier
-
+		, private CodeDocumentListener
 	{
 	public:
 
-		CodeEditorComponent(const Settings& settings, std::shared_ptr<juce::CodeDocument> doc)
+		CodeEditorComponent(const Settings& settings, std::shared_ptr<juce::CodeDocument> doc, CodeDocumentSource& documentSource)
 			: document(doc)
 			, tokeniser(settings)
 			, textEditor(settings, *document, &tokeniser)
 			, tracer(textEditor)
 			, scale(1.0f)
+			, dirty(false)
+			, source(documentSource)
 		{
 			wrapper.setVisible(true);
 			addChildComponent(wrapper);
@@ -68,6 +73,14 @@ namespace ape
 
 			scale = settings.lookUpValue(1.0f, "editor", "zoom");
 			rescale(scale);
+
+			source.addListener(*this);
+		}
+
+		~CodeEditorComponent()
+		{
+			source.removeListener(*this);
+			notifyDestruction();
 		}
 
 		void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override
@@ -108,19 +121,29 @@ namespace ape
 				rescale(newScale);
 		}
 
-		~CodeEditorComponent()
+		void documentChangedName(const cpl::string_ref newName) override
 		{
-			notifyDestruction();
+			currentName = newName;
+			setName(dirty ? "* " : "" + currentName);
+		}
+
+		void documentDirtynessChanged(bool isDirty) override
+		{
+			dirty = isDirty;
+			setName(isDirty ? "* " : "" + currentName);
 		}
 
 	private:
 
+		CodeDocumentSource& source;
+		std::string currentName;
 		std::shared_ptr<juce::CodeDocument> document;
 		CLangCodeTokeniser tokeniser;
 		juce::Component wrapper;
 		CodeTextEditor textEditor;
 		BreakpointComponent tracer;
 		float scale;
+		bool dirty;
 	};
 }
 

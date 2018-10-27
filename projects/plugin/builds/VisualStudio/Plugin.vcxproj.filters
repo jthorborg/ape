@@ -3068,6 +3068,9 @@
     <ClInclude Include="..\..\src\CodeEditor\BreakpointComponent.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\CodeDocumentListener.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">

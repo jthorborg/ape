@@ -54,9 +54,12 @@ namespace ape
 		, isSingleFile(true)
 		, fullPath("Untitled")
 		, isActualFile(false)
+		, lastDirtyState(false)
 		, textEditorDSO([this] { return createWindow(); })
 	{
 		doc = std::make_shared<juce::CodeDocument>();
+		doc->addListener(this);
+
 		try
 		{
 			std::string file;
@@ -122,6 +125,16 @@ namespace ape
 		validateInvariants();
 	}
 
+	void SourceProjectManager::addListener(CodeDocumentListener & listener)
+	{
+		listeners.insert(&listener);
+	}
+
+	void SourceProjectManager::removeListener(CodeDocumentListener & listener)
+	{
+		listeners.erase(&listener);
+	}
+
 	void SourceProjectManager::validateInvariants()
 	{
 		using namespace cpl::Misc;
@@ -137,7 +150,22 @@ namespace ape
 			if (doc->getAllContent() == contents)
 			{
 				doc->setSavePoint();
+				checkDirtynessState();
 			}
+		}
+	}
+
+	void SourceProjectManager::checkDirtynessState()
+	{
+		bool status = doc->hasChangedSinceSavePoint();
+		bool trigger = !lastDirtyState || lastDirtyState.value() != status;
+		
+		lastDirtyState = status;
+
+		if (trigger)
+		{
+			for (auto listener : listeners)
+				listener->documentDirtynessChanged(status);
 		}
 	}
 
@@ -148,7 +176,7 @@ namespace ape
 
 	std::unique_ptr<CodeEditorComponent> SourceProjectManager::createWindow()
 	{
-		auto textEditor = std::make_unique<CodeEditorComponent>(settings, doc);
+		auto textEditor = std::make_unique<CodeEditorComponent>(settings, doc, static_cast<CodeDocumentSource&>(*this));
 		textEditor->getLineTracer().setBreakpoints(breakpoints);
 		textEditor->getLineTracer().addBreakpointListener(this);
 
@@ -175,6 +203,9 @@ namespace ape
 				}
 			}
 		}
+
+		textEditor->documentDirtynessChanged(doc->hasChangedSinceSavePoint());
+		textEditor->documentChangedName(getDocumentName());
 
 		return std::move(textEditor);
 	}
@@ -274,17 +305,10 @@ namespace ape
 
 	void SourceProjectManager::setTitle()
 	{
-		return;/*
-		// TODO:
-		std::string title;
-		title += cpl::programInfo.programAbbr + " Editor" + " (" + std::to_string(instanceID & 0xFF) + ")";
-		if (isDirty())
-			title += " * ";
-		else
-			title += " - ";
-		title += fullPath.string();
-		if (editorWindow)
-			editorWindow->setName(title); */
+		for (auto listener : listeners)
+			listener->documentChangedName(getDocumentName());
+
+		return;
 	}
 
 
@@ -305,6 +329,7 @@ namespace ape
 		doc->clearUndoHistory();
 		doc->replaceAllContent("");
 		doc->setSavePoint();
+		checkDirtynessState();
 		setTitle();
 		isActualFile = false;
 	}
@@ -344,9 +369,11 @@ namespace ape
 				location = pointer;
 				return true;
 			};
+
 			auto fileLocations = new char *[1];
 			fileLocations[0] = nullptr;
 			project->files = fileLocations;
+
 			if (getDocumentText(text) && text.length() != 0 && 
 				assignCStr(text, project->sourceString) &&
 				assignCStr(getProjectName(), project->projectName) &&
@@ -456,6 +483,7 @@ namespace ape
 		doc->replaceAllContent("");
 		doc->loadFromStream(s);
 		doc->setSavePoint();
+		checkDirtynessState();
 
 		isActualFile = true;
 		fullPath = fileName;
@@ -501,6 +529,8 @@ namespace ape
 			else
 			{
 				doc->setSavePoint();
+				checkDirtynessState();
+				setTitle();
 			}
 		}
 		else 
@@ -517,6 +547,16 @@ namespace ape
 			return textEditorDSO.getCached()->getWindowHandle();
 
 		return controller.getSystemWindow();
+	}
+
+	void SourceProjectManager::codeDocumentTextInserted(const juce::String & newText, int insertIndex)
+	{
+		checkDirtynessState();
+	}
+
+	void SourceProjectManager::codeDocumentTextDeleted(int startIndex, int endIndex)
+	{
+		checkDirtynessState();
 	}
 
 	void SourceProjectManager::setContents(const juce::String& newContent)

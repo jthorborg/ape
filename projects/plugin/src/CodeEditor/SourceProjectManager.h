@@ -30,19 +30,22 @@
 #ifndef APE_SOURCEPROJECTMANAGER_H
 	#define APE_SOURCEPROJECTMANAGER_H
 
-	#include <cpl/MacroConstants.h>
-	#include "../Common.h"
-	#include "SourceManager.h"
-	#include <cpl/CExclusiveFile.h>
-	#include "../ProjectEx.h"
+	#include <optional>
 	#include <string>
 	#include <map>
-	#include "CodeEditorWindow.h"
-	#include <cpl/state/DecoupledStateObject.h>
 	#include <memory>
+
+	#include <cpl/state/DecoupledStateObject.h>
+	#include <cpl/MacroConstants.h>
+	#include <cpl/CExclusiveFile.h>
+
+	#include "SourceManager.h"
+	#include "../ProjectEx.h"
+	#include "CodeEditorWindow.h"
 	#include "CodeEditorComponent.h"
 	#include "BreakpointComponent.h"
-	
+	#include "CodeDocumentListener.h"
+
 	namespace ape
 	{
 		namespace fs = cpl::fs;
@@ -50,10 +53,12 @@
 		struct AutoSaveInfo;
 		class CodeEditorWindow;
 
-		class SourceProjectManager 
+		class SourceProjectManager final
 			: public SourceManager
 			, public juce::ApplicationCommandTarget
 			, private BreakpointComponent::Listener
+			, private juce::CodeDocument::Listener
+			, private CodeDocumentSource
 		{
 
 		public:
@@ -71,24 +76,31 @@
 			bool openFile(const fs::path& fileName) override;
 			std::string getDocumentName() override;
 			fs::path getDocumentPath() override;
+			bool isDirty() override;
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
+
+			void addListener(CodeDocumentListener& listener) override;
+			void removeListener(CodeDocumentListener& listener) override;
 
 		protected:
 
 			void onBreakpointsChanged(const std::set<int>& breakpoints) override;
 			void* getParentWindow();
 
+			virtual void codeDocumentTextInserted(const juce::String& newText, int insertIndex) override;
+			virtual void codeDocumentTextDeleted(int startIndex, int endIndex) override;
+
 		private:
 
 			void validateInvariants();
+			void checkDirtynessState();
 
 			std::unique_ptr<CodeEditorComponent> createWindow();
 			bool loadHotkeys();
 			void setTitle();
 			void newDocument();
-			bool isDirty() override;
 			std::string getProjectName();
 			std::string getDirectory();
 			std::string getExtension();
@@ -112,8 +124,11 @@
 			fs::path fullPath;
 			std::shared_ptr<juce::CodeDocument> doc;
 			bool isSingleFile, isActualFile;
+			std::optional<bool> lastDirtyState;
+
 			std::map<int, std::string> userHotKeys;
 			std::set<int> breakpoints;
+			std::set<CodeDocumentListener*> listeners;
 		};
-	}; // class ape
+	}
 #endif

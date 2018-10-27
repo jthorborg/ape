@@ -41,6 +41,11 @@ namespace ape
 		setUsingNativeTitleBar(true);
 	}
 
+	const std::string & DockWindow::getNamePrefix()
+	{
+		return prefix;
+	}
+
 	void DockWindow::closeButtonPressed()
 	{
 		if(editor && child)
@@ -52,6 +57,11 @@ namespace ape
 		setName(childComponent.getName());
 		editor = &mainEditor;
 		child = &childComponent;
+	}
+
+	void DockWindow::setPrefix(std::string newPrefix)
+	{
+		prefix = newPrefix;
 	}
 
 }

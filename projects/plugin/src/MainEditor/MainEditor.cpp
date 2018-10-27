@@ -73,6 +73,7 @@ namespace ape
 			{
 				auto window = &c == codeWindow.get() ? parent.getSourceManager().createSuitableCodeEditorWindow() : std::make_unique<DockWindow>();
 				window->injectDependencies(*this, c);
+				window->setPrefix("AN EASY STRING TO FIND");
 				return std::unique_ptr<juce::ResizableWindow>(window.release());
 			}
 		);
