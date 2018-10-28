@@ -38,7 +38,10 @@ namespace ape
 {
 	class MainEditor;
 
-	class DockWindow : public juce::DocumentWindow, public cpl::DestructionNotifier
+	class DockWindow 
+		: public juce::DocumentWindow
+		, public cpl::DestructionNotifier
+		, private juce::ComponentListener
 	{
 	public:
 
@@ -46,11 +49,15 @@ namespace ape
 
 		DockWindow();
 
+		~DockWindow();
+
 	protected:
 
 		const std::string& getNamePrefix();
 
 	private:
+
+		void componentNameChanged(juce::Component& child) override;
 
 		void closeButtonPressed() override final;
 		void injectDependencies(MainEditor& editor, juce::Component& child);

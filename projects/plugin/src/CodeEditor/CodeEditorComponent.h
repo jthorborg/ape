@@ -124,13 +124,13 @@ namespace ape
 		void documentChangedName(const cpl::string_ref newName) override
 		{
 			currentName = newName;
-			setName(dirty ? "* " : "" + currentName);
+			setName("edit " + ((dirty ? " * " : " - ") + currentName));
 		}
 
 		void documentDirtynessChanged(bool isDirty) override
 		{
 			dirty = isDirty;
-			setName(isDirty ? "* " : "" + currentName);
+			setName("edit" + ((isDirty ? " * " : " - ") + currentName));
 		}
 
 	private:

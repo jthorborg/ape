@@ -41,9 +41,20 @@ namespace ape
 		setUsingNativeTitleBar(true);
 	}
 
+	DockWindow::~DockWindow()
+	{
+		if (child)
+			child->removeComponentListener(this);
+	}
+
 	const std::string & DockWindow::getNamePrefix()
 	{
 		return prefix;
+	}
+
+	void DockWindow::componentNameChanged(juce::Component & child)
+	{
+		setName(getNamePrefix() + " - " + child.getName());
 	}
 
 	void DockWindow::closeButtonPressed()
@@ -54,9 +65,10 @@ namespace ape
 		
 	void DockWindow::injectDependencies(MainEditor& mainEditor, juce::Component& childComponent)
 	{
-		setName(childComponent.getName());
+		setName(getNamePrefix() + " - " + childComponent.getName());
 		editor = &mainEditor;
 		child = &childComponent;
+		child->addComponentListener(this);
 	}
 
 	void DockWindow::setPrefix(std::string newPrefix)
