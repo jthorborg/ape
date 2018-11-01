@@ -41,7 +41,9 @@
 	#include <future>
 	#include <memory>
 	#include <dockable-windows\Source\JDockableWindows.h>
-
+	#include "../UI/PlayStateButton.h"
+	#include "../UI/StopButton.h"
+	
 	namespace ape 
 	{
 
@@ -89,9 +91,8 @@
 
 			UICommandState& state;
 			UIController& parent;
-
-			cpl::CButton compilation, activation;
-
+			PlayStateButton compilation;
+			StopButton activation;
 
 			std::vector<juce::Component *> garbageCollection;
 			std::shared_ptr<PluginSurface> pluginSurface;

@@ -62,8 +62,8 @@ namespace ape
 		, state(p.getUICommandState())
 		, AudioProcessorEditor(p.engine)
 		, repaintCallBackCounter(0)
-		, compilation(&state.compile)
-		, activation(&state.activationState)
+		, compilation(state.compile, state.activationState)
+		, activation(state.activationState)
 		, dockManager(true, false)
 		, tabs(dockManager)
 	{
@@ -89,14 +89,9 @@ namespace ape
 		tabs.addComponentToDock(scopeSettingsWindow.get());
 		tabs.addComponentToDock(codeWindow.get());
 
-		int i = 0;
-		for (auto button : { &compilation, &activation })
-		{
-			button->setTexts(ButtonDefs[i].untoggled, ButtonDefs[i].toggled);
-			button->setToggleable(ButtonDefs[i].sticky);
-			addAndMakeVisible(button);
-			i++;
-		}
+		addAndMakeVisible(activation);
+
+		addAndMakeVisible(compilation);
 
 		/*
 		if (!approot["greeting_shown"])
@@ -189,7 +184,7 @@ namespace ape
 		int i = 0;
 		auto heightPerButton = getHeight() / NumButtons;
 		auto y = 0;
-		for (auto button : { &compilation, &activation })
+		for (auto button : { static_cast<juce::Component*>(&compilation), static_cast<juce::Component*>(&activation) })
 		{
 			button->setBounds(0, y, ButtonsColumnSpace, heightPerButton);
 			y += heightPerButton;

@@ -292,6 +292,7 @@ namespace ape
 				{
 					// success
 					setStatusText("Plugin activated", CColours::green);
+					getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
 					if (editor)
 					{
 						editor->onPluginStateChanged(*currentState, true);
@@ -327,6 +328,8 @@ namespace ape
 					if (editor)
 						editor->onPluginStateChanged(*plugin, false);
 					engine.disablePlugin(true);
+
+					getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
 				}
 			}
 			break;
@@ -395,11 +398,13 @@ namespace ape
 
 		setProjectName(project->projectName);
 		setStatusText("Compiling...", CColours::red, 500);
+
+		getUICommandState().changeValueExternally(getUICommandState().compile, 1);
+
 		return std::async(
 			[=] (auto projectToCompile)
 			{
 				std::unique_ptr<PluginState> ret;
-
 				try
 				{
 					auto start = std::chrono::high_resolution_clock::now();

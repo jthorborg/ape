@@ -1714,6 +1714,8 @@
     <ClCompile Include="..\..\src\ProjectEx.cpp" />
     <ClCompile Include="..\..\src\UIController.cpp" />
     <ClCompile Include="..\..\src\UI\DockWindow.cpp" />
+    <ClCompile Include="..\..\src\UI\PlayStateButton.cpp" />
+    <ClCompile Include="..\..\src\UI\StopButton.cpp" />
     <ClCompile Include="..\..\src\UI\UICommands.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -2205,6 +2207,8 @@
     <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
     <ClInclude Include="..\..\src\UI\DockWindow.h" />
+    <ClInclude Include="..\..\src\UI\PlayStateButton.h" />
+    <ClInclude Include="..\..\src\UI\StopButton.h" />
     <ClInclude Include="..\..\src\UI\UICommands.h" />
     <ClInclude Include="..\..\src\UI\UIValue.h" />
     <ClInclude Include="..\..\src\Settings.h" />

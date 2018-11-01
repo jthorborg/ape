@@ -1593,6 +1593,12 @@
     <ClCompile Include="..\..\src\UI\DockWindow.cpp">
       <Filter>Audio Programming Environment\Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\UI\PlayStateButton.cpp">
+      <Filter>Audio Programming Environment\Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\UI\StopButton.cpp">
+      <Filter>Audio Programming Environment\Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -3070,6 +3076,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\CodeDocumentListener.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UI\PlayStateButton.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UI\StopButton.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
