@@ -80,7 +80,7 @@
 			juce::ScrollBar& getSCB() { return scb; }
 			juce::Component& getVContainer() { return virtualContainer; }
 			void scrollBarMoved(juce::ScrollBar * b, double newRange) override;
-			virtual void paint(juce::Graphics & g) override;
+			void paint(juce::Graphics & g) override;
 
 		};
 		/*********************************************************************************************

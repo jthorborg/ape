@@ -48,6 +48,7 @@
 				APE_GTOL(abortPlugin);
 				APE_GTOL(getSampleRate);
 				APE_GTOL(printLine);
+				APE_GTOL(printThemedLine);
 				APE_GTOL(msgBox);
 				APE_GTOL(setStatus);
 				APE_GTOL(timerGet);

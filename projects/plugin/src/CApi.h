@@ -50,6 +50,11 @@
 		/// </summary>
 		int			APE_API_VARI	printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... );
 		/// <summary>
+		/// Prints a line with the color nColor in the console in the ape window associated with 
+		/// the C script.
+		/// </summary>
+		int			APE_API_VARI	printThemedLine(APE_SharedInterface * iface, APE_TextColour color, const char * fmt, ...);
+		/// <summary>
 		/// presents a messagebox for the user, that may or may not be blocking
 		/// </summary>
 		int			APE_API			msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);

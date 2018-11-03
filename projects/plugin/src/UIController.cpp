@@ -102,7 +102,7 @@ namespace ape
 
 	void UIController::onErrorMessage(const cpl::string_ref text)
 	{
-		console().printLine(CColours::red, "[Compiler] : %s", text.c_str());
+		console().printLine(CConsole::Warning, "[Compiler] : %s", text.c_str());
 
 		int nLinePos(-1), i(0);
 
@@ -128,7 +128,7 @@ namespace ape
 	{
 		if (!editor)
 		{
-			console().printLine(CColours::red, "[GUI] : error! Request to update clock counter from invalid editor!");
+			console().printLine(CConsole::Error, "[GUI] : error! Request to update clock counter from invalid editor!");
 		}
 		
 		clockData.lastSample = engine.clocksPerSample;
@@ -191,7 +191,7 @@ namespace ape
 	MainEditor * UIController::create()
 	{
 		if (editor)
-			console().printLine(CColours::red, "[GUI] : error! Request to create new editor while old one still exists. "
+			console().printLine(CConsole::Error, "[GUI] : error! Request to create new editor while old one still exists. "
 			"Reference to old editor lost!");
 		editor = new MainEditor(*this);
 
@@ -274,7 +274,7 @@ namespace ape
 				case std::future_status::deferred:
 				case std::future_status::timeout:
 					setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
-					console().printLine(CColours::red, "[GUI] : cannot activate while compiling.");
+					console().printLine(CConsole::Error, "[GUI] : cannot activate while compiling.");
 					return false;
 				}
 			}
@@ -283,7 +283,7 @@ namespace ape
 			{
 				if (currentState->getState() != STATUS_DISABLED)
 				{
-					console().printLine(CColours::red, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
+					console().printLine(CConsole::Error, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
 					setStatusText("Error activating plugin.", CColours::red);
 					return false;
 				}
@@ -301,14 +301,14 @@ namespace ape
 				}
 				else
 				{
-					console().printLine(CColours::red, "[GUI] : Error activating plugin.", 2000);
+					console().printLine(CConsole::Error, "[GUI] : Error activating plugin.", 2000);
 					setStatusText("Error activating plugin.", CColours::red);
 				}
 			}
 			else
 			{
 				setStatusText("No compiled symbols found", CColours::red, 2000);
-				console().printLine(CColours::red, "[GUI] : Failure to activate plugin, no compiled code available.");
+				console().printLine(CConsole::Error, "[GUI] : Failure to activate plugin, no compiled code available.");
 				return false;
 			}
 			
@@ -390,7 +390,7 @@ namespace ape
 	{
 		if (!project)
 		{
-			console().printLine(CColours::red, "[GUI] : Compilation error - "
+			console().printLine(CConsole::Error, "[GUI] : Compilation error - "
 				"invalid project or no text recieved from editor.");
 			setStatusText("No code to compile", CColours::red, 3000);
 			return {};
@@ -412,13 +412,13 @@ namespace ape
 					auto delta = std::chrono::high_resolution_clock::now() - start;
 					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
 
-					console().printLine(CColours::black, "[GUI] : Compiled successfully (%f ms).", time);
+					console().printLine("[GUI] : Compiled successfully (%f ms).", time);
 					setStatusText("Compiled OK!", CColours::green, 2000);
 
 				}
 				catch (const std::exception& e)
 				{
-					console().printLine(CColours::red, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
+					console().printLine(CConsole::Error, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
 					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
 				}
 				

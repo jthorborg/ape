@@ -74,7 +74,6 @@ namespace ape
 
 	void CScrollableContainer::paint(juce::Graphics & g)
 	{
-		g.fillAll(juce::Colours::white);
 	}
 
 	int CScrollableContainer::getVirtualHeight()

@@ -96,7 +96,25 @@ namespace ape
 		return nRet;
 	}
 
-	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking) 
+	int APE_API_VARI printThemedLine(APE_SharedInterface * iface, APE_TextColour color, const char * fmt, ...)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(fmt);
+
+		auto& engine = IEx::downcast(*iface).getEngine();
+
+		std::va_list args;
+		va_start(args, fmt);
+		std::string msg("[Plugin] : ");
+		msg += fmt;
+		int nRet = engine.getController().console().printLine((APE_TextColour)color, msg.c_str(), args);
+
+		va_end(args);
+
+		return nRet;
+	}
+
+	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(text);

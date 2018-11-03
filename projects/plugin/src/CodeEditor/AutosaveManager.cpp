@@ -92,7 +92,7 @@ namespace ape
 		}
 		catch (const std::exception& e)
 		{
-			controller.console().printLine(juce::Colours::red, "[Autosave] : Error: %s", e.what());
+			controller.console().printLine(CConsole::Error, "[Autosave] : Error: %s", e.what());
 			return false;
 		}
 
@@ -156,7 +156,7 @@ namespace ape
 
 				if (auto bytesRead = stream->read(bytes.data(), static_cast<int>(bytes.size())); bytesRead != bytes.size())
 				{
-					controller.console().printLine(CColours::red,
+					controller.console().printLine(CConsole::Error,
 						"[Autosave] : Error reading file contents of %s (read %d, expected %d bytes)",
 						f.getFileName().toRawUTF8(),
 						static_cast<int>(bytesRead),
@@ -178,7 +178,7 @@ namespace ape
 		}
 		catch (const std::exception& e)
 		{
-			controller.console().printLine(CColours::red, "[Autosave] : Exception while checking autosaves: %s", e.what());
+			controller.console().printLine(CConsole::Error, "[Autosave] : Exception while checking autosaves: %s", e.what());
 
 			return false;
 		}
@@ -220,7 +220,7 @@ namespace ape
 
 		fmt << "Do you want to open this file (yes), delete it (no) or move it to /junk/ folder (cancel)?";
 
-		auto answer = MsgBox(fmt.str(), "ape - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, manager.getParentWindow(), true);
+		auto answer = MsgBox(fmt.str(), "ape - Autorecover", MsgStyle::sYesNoCancel | MsgIcon::iQuestion, controller.getSystemWindow(), true);
 
 		std::string fileName = cpl::fs::path(fullFileName).filename().string();
 

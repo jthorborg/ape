@@ -41,7 +41,8 @@
 	#include <mutex>
 	#include "GraphicComponents.h"
 	#include <cpl/Utility.h>
-	
+	#include <ape/SharedInterface.h>
+
 	namespace ape
 	{
 		class CConsole;
@@ -57,13 +58,21 @@
 
 		public:
 
+			static constexpr APE_TextColour Default = APE_TextColour_Default;
+			static constexpr APE_TextColour Error = APE_TextColour_Error;
+			static constexpr APE_TextColour Warning = APE_TextColour_Warning;
+
 			CConsole();
 			~CConsole();
 
 			std::unique_ptr<juce::Component> create();
-			int printLine(CColour color, const char * fmt, ... );
+			int printLine(const char * fmt, ...);
+			int printLine(APE_TextColour color, const char * fmt, ...);
+			int printLine(juce::Colour color, const char * fmt, ...);
+
+			int printLine(APE_TextColour color, const char * fmt, va_list args);
 			int printLine(CColour color, const char * fmt, va_list ap);
-			int calculateTextLength(std::string & text);
+
 			void handleAsyncUpdate() override;
 			void setLogging(bool toggle, const cpl::fs::path& file);
 			bool loggingEnabled() { return logging; }
@@ -73,7 +82,11 @@
 				visible = toggle; 
 			}
 
+			juce::Colour colourFromStandard(APE_TextColour colour) const;
+
 		protected:
+
+			int calculateTextLength(std::string & text);
 
 			struct ConsoleMessage
 			{

@@ -52,6 +52,13 @@ namespace ape
 		return prefix;
 	}
 
+	void DockWindow::paint(juce::Graphics & g)
+	{
+		juce::ColourGradient backgroundGradient(juce::Colours::black, 0, 0, juce::Colour(37, 3, 55), getWidth() * 0.5f, getHeight() * 2, false);
+		g.setGradientFill(backgroundGradient);
+		g.fillAll();
+	}
+
 	void DockWindow::componentNameChanged(juce::Component & child)
 	{
 		setName(getNamePrefix() + " - " + child.getName());

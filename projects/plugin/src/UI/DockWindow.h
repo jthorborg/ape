@@ -54,6 +54,7 @@ namespace ape
 	protected:
 
 		const std::string& getNamePrefix();
+		void paint(juce::Graphics& g) override final;
 
 	private:
 

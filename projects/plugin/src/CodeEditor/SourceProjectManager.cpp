@@ -73,7 +73,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			controller.console().printLine(CColours::red, "Error reading default file from config... %s", e.what());
+			controller.console().printLine(CConsole::Error, "Error reading default file from config... %s", e.what());
 		}
 
 	}
@@ -234,7 +234,7 @@ namespace ape
 			// check if theres anything there (and if its a group)
 			if (!langs.isGroup())
 			{
-				controller.console().printLine(CColours::red,
+				controller.console().printLine(CConsole::Warning,
 					"[Editor] Warning: No languages specified in config. Can't open files. ");
 				return;
 			}
@@ -272,7 +272,7 @@ namespace ape
 						}
 						catch (const std::exception & e)
 						{
-							controller.console().printLine(CColours::red,
+							controller.console().printLine(CConsole::Warning,
 								"[Editor] Warning: language %s has no defined extensions in config. "
 								"Program will not be able to open any files for that language. (%s)",
 								langs[x].getName(), e.what());
@@ -285,7 +285,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			controller.console().printLine(CColours::red,
+			controller.console().printLine(CConsole::Error,
 				"[Editor] Error parsing file type extensions in config (%s).", e.what());
 			return;
 		}

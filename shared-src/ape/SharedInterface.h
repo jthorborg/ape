@@ -40,6 +40,12 @@
 		APE_Alloc_Temp
 	};
 
+	enum APE_TextColour
+	{
+		APE_TextColour_Default,
+		APE_TextColour_Warning,
+		APE_TextColour_Error
+	};
 
 	struct APE_SIExtra
 	{
@@ -54,6 +60,7 @@
 		void		(APE_API * abortPlugin)				(struct APE_SharedInterface * iface, const char * reason);
 		float		(APE_API * getSampleRate)			(struct APE_SharedInterface * iface);
 		int			(APE_API_VARI * printLine)			(struct APE_SharedInterface * iface, unsigned nColor, const char * fmt, ...);
+		int			(APE_API_VARI * printThemedLine)	(struct APE_SharedInterface * iface, APE_TextColour color, const char * fmt, ...);
 		int			(APE_API * msgBox)					(struct APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);
 		APE_Status	(APE_API * setStatus)				(struct APE_SharedInterface * iface, APE_Status status);
 		long long	(APE_API * timerGet)				(struct APE_SharedInterface * iface);

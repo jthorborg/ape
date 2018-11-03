@@ -40,7 +40,7 @@ int printf(const char * fmt, ...)
 	int ret = vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 
-	lastIFace->printLine(lastIFace, 0, "%s", buf);
+	lastIFace->printThemedLine(lastIFace, APE_TextColour_Default, "%s", buf);
 	return ret;
 }
 
@@ -81,7 +81,7 @@ extern "C"
 		lastIFace = iface;
 		if (!pluginCreater)
 		{
-			iface->printLine(iface, 0xFF0000FF, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
+			iface->printThemedLine(iface, APE_TextColour_Default, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
 			return NULL;
 		}
 		Processor * p = pluginCreater();

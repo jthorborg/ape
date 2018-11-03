@@ -107,7 +107,7 @@ namespace ape
 		}
 		catch (const std::exception & e)
 		{
-			controller.console().printLine(CColours::red, "[Editor] : Error reading editor hotkeys from config... %s", e.what());
+			controller.console().printLine(CConsole::Error, "[Editor] : Error reading editor hotkeys from config... %s", e.what());
 			return false;
 		}
 		

@@ -39,6 +39,8 @@
 
 namespace ape
 {
+	const juce::Colour DefaultColour(0xC8C8C8);
+
 	constexpr int nPixelPerLine = 15; // height of an text-line
 	constexpr float nPixelPerChar = 8.2f; // length of an single character in pixels (average, safe bet)
 
@@ -260,6 +262,33 @@ namespace ape
 	{
 	}
 
+	int CConsole::printLine(const char * fmt, ...)
+	{
+		std::va_list args;
+		va_start(args, fmt);
+		const auto len = this->printLine(colourFromStandard(Default), fmt, args);
+		va_end(args);
+
+		return len;
+	}
+
+	int CConsole::printLine(APE_TextColour color, const char * fmt, ...)
+	{
+		std::va_list args;
+		va_start(args, fmt);
+		const auto len = this->printLine(colourFromStandard(color), fmt, args);
+		va_end(args);
+
+		return len;
+	}
+
+	int CConsole::printLine(APE_TextColour color, const char * fmt, va_list args)
+	{
+		return this->printLine(colourFromStandard(color), fmt, args);
+	}
+
+
+
 	int CConsole::printLine(CColour color, const char * fmt, ... ) 
 	{
 		std::va_list args;
@@ -275,7 +304,20 @@ namespace ape
 		sendChangeMessage();
 	}
 
-	int CConsole::printLine(CColour color, const char * fmt, va_list args) 
+	juce::Colour CConsole::colourFromStandard(APE_TextColour colour) const
+	{
+		switch (colour)
+		{
+		case ape::CConsole::Error: return juce::Colour(0xFFFFC8C8);
+			break;
+		case ape::CConsole::Warning: return juce::Colour(0xFFC8FFFF);
+			break;
+		default:
+			return juce::Colour(0xFFC8C8C8);
+		};
+	}
+
+	int CConsole::printLine(CColour color, const char * fmt, va_list args)
 	{
 		std::lock_guard<std::mutex> lockGuard(mutex);
 		int nBufLen(0);
