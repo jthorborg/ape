@@ -36,7 +36,9 @@ namespace ape
 		: parent(controller)
 		, compile(*this, *this)
 		, activationState(*this, *this)
+		, clean(*this, *this)
 	{
+		clean.addListener(this);
 		compile.addListener(this);
 		activationState.addListener(this);
 	}
@@ -71,6 +73,10 @@ namespace ape
 		else if (value == &activationState)
 		{
 			command = toggled ? UICommand::Activate : UICommand::Deactivate;
+		}
+		else if (value == &clean)
+		{
+			command = UICommand::Clean;
 		}
 		else
 		{

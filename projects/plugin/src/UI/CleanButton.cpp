@@ -21,52 +21,51 @@
  
  **************************************************************************************
 
-	file:StopButton.cpp
+	file:CleanButton.cpp
 	
-		Implementation of StopButton.h
+		Implementation of CleanButton.h
 
 *************************************************************************************/
 
-#include "StopButton.h"
+#include "CleanButton.h"
 
 namespace ape
 {
 	using namespace cpl;
 
 
-	StopButton::StopButton(ValueEntityBase& activationState)
-		: juce::Button("StopButton")
+	CleanButton::CleanButton(ValueEntityBase& activationState)
+		: juce::Button("CleanButton")
 		, Base(this, &activationState, false)
 	{
-		bSetDescription("Stop plugin and kill all audio");
-
 		setSize(ControlSize::Rectangle.width, ControlSize::Rectangle.height / 2);
 		enableTooltip(true);
+		bSetDescription("Clean all cached state for plugins and compilers");
 		setClickingTogglesState(true);
 		setToggleState(getValueReference().getNormalizedValue() > 0.5 ? true : false, juce::NotificationType::dontSendNotification);
 	}
 
-	StopButton::~StopButton()
+	CleanButton::~CleanButton()
 	{
 	}
 
-	void StopButton::onValueObjectChange(ValueEntityListener * sender, ValueEntityBase * object)
+	void CleanButton::onValueObjectChange(ValueEntityListener * sender, ValueEntityBase * object)
 	{
 		const auto toggled = object->getNormalizedValue() > 0.5 ? true : false;
 		setToggleState(toggled, juce::NotificationType::dontSendNotification);
 	}
 
-	std::string StopButton::bGetTitle() const
+	std::string CleanButton::bGetTitle() const
 	{
 		return "Stop state";
 	}
 
-	void StopButton::clicked()
+	void CleanButton::clicked()
 	{
 		valueObject->setNormalizedValue(0.0f);
 	}
 
-	void StopButton::paintButton(juce::Graphics& g, bool isMouseOverButton, bool isButtonDown)
+	void CleanButton::paintButton(juce::Graphics& g, bool isMouseOverButton, bool isButtonDown)
 	{
 		const bool isPressed = isButtonDown || getToggleState();
 
@@ -81,7 +80,9 @@ namespace ape
 		juce::PathStrokeType pst(1);
 
 		g.setColour(juce::Colours::lightgoldenrodyellow.darker((isMouseOverButton) ? 0.4 : 0));
-		g.fillRect(bounds);
+		g.drawLine(bounds.getX(), bounds.getY(), bounds.getRight(), bounds.getBottom(), 5);
+		g.drawLine(bounds.getX(), bounds.getBottom(), bounds.getRight(), bounds.getY(), 5);
+
 	}
 
 }

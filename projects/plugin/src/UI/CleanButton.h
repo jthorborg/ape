@@ -21,58 +21,39 @@
  
  **************************************************************************************
 
-	file:UICommands.h
+	file:CleanButton.h
 	
-		Interface for an utility memory allocator class which supports RAII (allocations 
-		free'd on destruction).
-		All memory is zeroinitialized and contains corrupted memory checks.
+		Main play/pause animation button for triggering loading effects into audio
+		stream.
 
 *************************************************************************************/
 
-#ifndef UICOMMANDS_H
-#define UICOMMANDS_H
+#ifndef APE_CleanButton_H
+#define APE_CleanButton_H
 
-#include "UIValue.h"
+#include <cpl/gui/controls/ValueControl.h>
+#include <cpl/gui/controls/ControlBase.h>
 
 namespace ape
 {
-	enum class UICommand
+	class CleanButton
+		: public juce::Button
+		, public cpl::ValueControl<cpl::ValueEntityBase, cpl::CompleteValue<cpl::LinearRange<cpl::ValueT>, cpl::BasicFormatter<cpl::ValueT>>>
 	{
-		Invalid,
-		Recompile,
-		Activate,
-		Deactivate,
-		Clean
-	};
+		typedef cpl::ValueControl<cpl::ValueEntityBase, cpl::CompleteValue<cpl::LinearRange<cpl::ValueT>, cpl::BasicFormatter<cpl::ValueT>>> Base;
 
-	class UIController;
-
-	class UICommandState 
-		: public cpl::CSerializer::Serializable
-		, private UIValue::Listener
-		, private cpl::BasicFormatter<cpl::ValueT>
-		, private cpl::UnityRange<cpl::ValueT>
-	{
 	public:
 
-		using Archiver = cpl::CSerializer::Archiver;
-		using Builder = cpl::CSerializer::Builder;
+		CleanButton(cpl::ValueEntityBase& compilationState);
+		~CleanButton();
 
-		UICommandState(UIController& controller);
-
-		UIValue compile, activationState, clean;
-
-		void changeValueExternally(UIValue& value, double newValue);
-
-	protected:
-
-		void serialize(Archiver & ar, cpl::Version version) override;
-		void deserialize(Builder & builder, cpl::Version version) override;
-		void valueEntityChanged(ValueEntityListener * sender, cpl::ValueEntityBase* value) override;
+		void clicked() override;
+		std::string bGetTitle() const override;
 
 	private:
-		UIController& parent;
+		void onValueObjectChange(ValueEntityListener * sender, cpl::ValueEntityBase * object) override;
+		void paintButton(juce::Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+
 	};
 }
-
 #endif

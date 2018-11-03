@@ -42,10 +42,10 @@ namespace cpl
 	#ifndef APE_TESTS
 	const ProgramInfo programInfo
 	{
-		"Audio Programming Environment",
+		"CppAPE",
 		cpl::Version::fromParts(0, 1, 0),
 		"Janus Thorborg",
-		"sgn",
+		"cppape",
 		false,
 		nullptr,
 		""
@@ -61,6 +61,23 @@ ape::ProtoCompiler * CreateCompiler()
 void DeleteCompiler(ape::ProtoCompiler * toBeDeleted)
 {
 	delete toBeDeleted;
+}
+
+APE_Status CleanCompilerCache()
+{
+	using namespace CppAPE;
+
+	fs::path dirRoot = cpl::Misc::DirectoryPath();
+
+	cpl::CExclusiveFile lockFile;
+
+	if (!lockFile.open((dirRoot / "lockfile.l").string()))
+	{
+		return Status::STATUS_ERROR;
+	}
+
+	if (fs::exists(dirRoot / "runtime" / "effect.h.pch"))
+		return fs::remove(dirRoot / "runtime" / "effect.h.pch") ? Status::STATUS_OK : Status::STATUS_ERROR;
 }
 
 namespace CppAPE

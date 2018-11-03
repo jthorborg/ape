@@ -48,6 +48,7 @@ namespace ape
 		"ProcessReplacing",
 		"OnEvent",
 		"ReleaseProject",
+		"CleanCache"
 	};
 
 	/*
@@ -379,6 +380,30 @@ namespace ape
 			return true;
 		}
 		return false;
+	}
+
+	void CCodeGenerator::cleanAllCaches()
+	{
+		try
+		{
+			printError("Cleaning " + std::to_string(compilers.size()) + " loaded compiler(s)");
+			for (auto& pairs : compilers)
+			{
+				if (pairs.second.isInitialized())
+				{
+					printError("Cleaning for " + pairs.first + ": " + pairs.second.name());
+					pairs.second.bindings.cleanCache();
+				}
+				else
+				{
+					printError("Non-initialized compiler for " + pairs.first + " couldn't be cleaned: " + pairs.second.name());
+				}
+			}
+		}
+		catch (const std::exception& e)
+		{
+			printError(e.what());
+		}
 	}
 
 

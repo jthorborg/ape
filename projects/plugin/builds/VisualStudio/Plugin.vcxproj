@@ -1713,6 +1713,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.cpp" />
     <ClCompile Include="..\..\src\ProjectEx.cpp" />
     <ClCompile Include="..\..\src\UIController.cpp" />
+    <ClCompile Include="..\..\src\UI\CleanButton.cpp" />
     <ClCompile Include="..\..\src\UI\DockWindow.cpp" />
     <ClCompile Include="..\..\src\UI\PlayStateButton.cpp" />
     <ClCompile Include="..\..\src\UI\StopButton.cpp" />
@@ -2206,6 +2207,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h" />
     <ClInclude Include="..\..\src\ProjectEx.h" />
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
+    <ClInclude Include="..\..\src\UI\CleanButton.h" />
     <ClInclude Include="..\..\src\UI\DockWindow.h" />
     <ClInclude Include="..\..\src\UI\PlayStateButton.h" />
     <ClInclude Include="..\..\src\UI\StopButton.h" />

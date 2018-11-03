@@ -42,6 +42,8 @@ extern  "C"
 	EXPORTED APE_Status	APE_API ProcessReplacing(APE_Project * p, const float * const * in, float * const * out, size_t sampleFrames);
 	EXPORTED APE_Status	APE_API OnEvent(APE_Project * p, APE_Event * e);
 	EXPORTED APE_Status APE_API ReleaseProject(APE_Project * p);
+	// Guaranteed to never be called concurrently with any other command
+	EXPORTED APE_Status APE_API CleanCache();
 
 #ifdef __cplusplus
 }

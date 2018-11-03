@@ -335,6 +335,12 @@ namespace ape
 			break;
 		}
 
+		case UICommand::Clean:
+		{
+			engine.getCodeGenerator().cleanAllCaches();
+		}
+
+
 		default:
 			break;
 		}

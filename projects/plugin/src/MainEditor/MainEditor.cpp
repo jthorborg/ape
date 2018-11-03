@@ -54,6 +54,7 @@ namespace ape
 		, repaintCallBackCounter(0)
 		, compilation(state.compile, state.activationState)
 		, activation(state.activationState)
+		, clean(state.clean)
 		, dockManager(true, false)
 		, tabs(dockManager)
 		, infoLabel(std::make_unique<CTextControl>())
@@ -85,6 +86,7 @@ namespace ape
 		addAndMakeVisible(activation);
 
 		addAndMakeVisible(compilation);
+		addAndMakeVisible(clean);
 
 		/*
 		if (!approot["greeting_shown"])
@@ -159,6 +161,10 @@ namespace ape
 		buttonRect.translate(size + 10, 0);
 
 		activation.setBounds(buttonRect);
+		buttonRect.translate(size + 10, 0);
+
+		clean.setBounds(buttonRect);
+		buttonRect.translate(size + 10, 0);
 
 		infoLabel->setBounds(buttonRect.getRight() + 20, getHeight() - BottomSpace + 30, 220, 20);
 		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 280, 20));
@@ -179,7 +185,7 @@ namespace ape
 		g.fillAll();
 		g.setGradientFill(lineGradient);
 		g.drawLine(0, getHeight() - 50, getWidth(), getHeight() - 50, 2);
-		g.drawLine(size * 2 + 5 * 4, getHeight() - BottomSpace, size * 2 + 5 * 4, getHeight(), 2);
+		g.drawLine(size * 3 + 5 * 6, getHeight() - BottomSpace, size * 3 + 5 * 6, getHeight(), 2);
 
 	}
 

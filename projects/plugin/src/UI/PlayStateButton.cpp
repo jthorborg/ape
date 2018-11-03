@@ -39,6 +39,8 @@ namespace ape
 		, Base(this, &compilationState, false)
 		, activationState(activationState)
 	{
+		bSetDescription("Recompile and start plugin");
+
 		setSize(ControlSize::Rectangle.width, ControlSize::Rectangle.height / 2);
 		enableTooltip(true);
 		setClickingTogglesState(true);

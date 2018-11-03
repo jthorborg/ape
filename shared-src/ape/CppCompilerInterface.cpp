@@ -32,6 +32,7 @@
 #include "Project.h"
 #include "CompilerBindings.h"
 
+APE_Status CleanCompilerCache();
 ape::ProtoCompiler * CreateCompiler();
 void DeleteCompiler(ape::ProtoCompiler * toBeDeleted);
 
@@ -98,4 +99,8 @@ extern "C"
 		return compiler->onEvent(e);
 	}
 
+	EXPORTED Status	APE_API CleanCache()
+	{
+		return CleanCompilerCache();
+	}
 }

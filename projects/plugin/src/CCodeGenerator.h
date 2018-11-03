@@ -60,6 +60,7 @@
 			ProcessReplacing,
 			OnEvent,
 			ReleaseProject,
+			CleanCache,
 			end
 		};
 
@@ -73,6 +74,8 @@
 			friend class CCodeGenerator;
 
 		public:
+
+			const std::string& name() const noexcept { return compilerName; }
 			bool isInitialized() { return initialized; }
 			bool compileProject(ProjectEx * project);
 			// calls loadBindings() with settings
@@ -96,6 +99,7 @@
 						decltype(ProcessReplacing) * processReplacing;
 						decltype(OnEvent) * onEvent;
 						decltype(ReleaseProject) * releaseProject;
+						decltype(CleanCache) * cleanCache;
 					};
 					/* sizeof(previous struct) / sizeof (void*) */
 					void * _table[MaxExports()];
@@ -115,17 +119,12 @@
 			std::string compilerPath;
 		};
 
-		/*
-			Class responsible for managing compilers opaquely and dispatching
-			call requests to the matching compilers, according to the current project
-		*/
+		/// <summary>
+		/// Class responsible for managing compilers opaquely and dispatching
+		/// call requests to the matching compilers, according to the current project
+		/// </summary>
 		class CCodeGenerator
 		{
-			ErrorFunc errorPrinter;
-			void * opaque;
-			std::map<std::string, CCompiler> compilers;
-			const ape::Engine& engine;
-
 		public:
 
 			CCodeGenerator(const ape::Engine& engine);
@@ -148,6 +147,15 @@
 			bool initProject(ProjectEx & project);
 			bool createProject(ProjectEx & project); 
 			bool releaseProject(ProjectEx & project);
+
+			void cleanAllCaches();
+
+		private:
+
+			ErrorFunc errorPrinter;
+			void * opaque;
+			std::map<std::string, CCompiler> compilers;
+			const ape::Engine& engine;
 
 		};
 	};

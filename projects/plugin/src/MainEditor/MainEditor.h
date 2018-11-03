@@ -43,7 +43,8 @@
 	#include <dockable-windows\Source\JDockableWindows.h>
 	#include "../UI/PlayStateButton.h"
 	#include "../UI/StopButton.h"
-	
+	#include "../UI/CleanButton.h"
+
 	namespace ape 
 	{
 
@@ -90,6 +91,7 @@
 			UIController& parent;
 			PlayStateButton compilation;
 			StopButton activation;
+			CleanButton clean;
 
 			std::shared_ptr<PluginSurface> pluginSurface;
 

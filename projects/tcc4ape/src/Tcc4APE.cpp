@@ -38,10 +38,10 @@ namespace cpl
 	#ifndef APE_TESTS
 	const ProgramInfo programInfo
 	{
-		"Audio Programming Environment",
+		"Tcc4APE",
 		cpl::Version::fromParts(0, 1, 0),
 		"Janus Thorborg",
-		"sgn",
+		"tccape",
 		false,
 		nullptr,
 		""
@@ -57,6 +57,11 @@ ape::ProtoCompiler * CreateCompiler()
 void DeleteCompiler(ape::ProtoCompiler * toBeDeleted)
 {
 	delete toBeDeleted;
+}
+
+APE_Status CleanCompilerCache()
+{
+	return STATUS_OK;
 }
 
 namespace TCC4Ape
