@@ -115,7 +115,7 @@ namespace ape
 			constexpr auto timeScale = 1;
 
 			const auto center = bounds.getCentre();
-			const auto radius = (1 - ballSize) * smallestSide * 0.5;
+			const auto radius = (1 - ballSize * 0.5f) * smallestSide * 0.5;
 
 			const auto fdelta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeAtCompilationStart).count() / (1000.0 * 1000.0);
 
@@ -133,7 +133,9 @@ namespace ape
 				const auto x = std::cos(position * 2 * M_PI + phaseOffset);
 				const auto y = std::sin(position * 2 * M_PI + phaseOffset);
 
-				const auto rect = juce::Rectangle<float>(center.getX() + x * radius, center.getY() + y * radius, radius * ballSize * sizeFactor, radius * ballSize * sizeFactor);
+				const auto side = radius * ballSize * sizeFactor;
+
+				const auto rect = juce::Rectangle<float>(center.getX() + x * radius - side * 0.5f, center.getY() + y * radius - side * 0.5f, side, side);
 
 				p.addEllipse(rect);
 			}
@@ -143,7 +145,7 @@ namespace ape
 		else
 		{
 			if (isPressed)
-				bounds.expand(-5, -5);
+				bounds.expand(-smallestSide * 0.05f, -smallestSide * 0.05f);
 
 			if (activationState.getNormalizedValue() > 0.5)
 			{

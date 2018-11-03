@@ -74,7 +74,7 @@ namespace ape
 		bounds = bounds.withSizeKeepingCentre(smallestSide, smallestSide);
 
 		if (isButtonDown)
-			bounds.expand(-5, -5);
+			bounds.expand(-smallestSide * 0.05f, -smallestSide * 0.05f);
 
 		juce::PathStrokeType pst(1);
 

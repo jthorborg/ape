@@ -63,7 +63,6 @@
 			: public juce::AudioProcessorEditor
 			, private juce::Timer
 			, public cpl::CTopView
-			, private cpl::ValueEntityBase::Listener
 		{
 			friend class UIController;
 			friend class DockWindow;
@@ -83,8 +82,6 @@
 		private:
 
 			juce::Rectangle<int> getContentArea();
-
-			void valueEntityChanged(cpl::ValueEntityBase::Listener * sender, cpl::ValueEntityBase * value) override;
 
 			// Inherited via CTopView
 			virtual juce::Component * getWindow() override;

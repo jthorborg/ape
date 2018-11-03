@@ -43,18 +43,8 @@
 namespace ape
 {
 	using namespace std::string_literals;
-
-	struct ButtonDefinition { const char * untoggled, *toggled; bool sticky; };
-
-	constexpr int ButtonsColumnSpace = 100;
-	constexpr int NumButtons = 2;
-
-	std::array<ButtonDefinition, NumButtons> ButtonDefs {
-		{
-			{ "Compile", "Compiling...", true },
-			{ "Activate", "Deactivate", true }
-		}
-	};
+	using Rect = juce::Rectangle<int>;
+	constexpr int BottomSpace = 50;
 
 	MainEditor::MainEditor(UIController& p)
 		: CTopView(this, "APE editor")
@@ -106,28 +96,25 @@ namespace ape
 		//addAndMakeVisible(background);
 		// background and sizing off gui
 		// everything is sized relative to the background image
-		CPoint size(800, 300);
-		setSize(size.x, size.y);
-
 
 		// labels
 		infoLabel = new CTextControl();
-		infoLabel->setBounds(ButtonsColumnSpace + 5, getHeight() - 40, 220, 20);
 		infoLabel->setColour(CColours::lightgoldenrodyellow);
 		infoLabel->setFontSize(TextSize::smallText);
 		addAndMakeVisible(infoLabel);
 		garbageCollection.push_back(infoLabel);
 
 		statusLabel = new CQueueLabel();
-		statusLabel->setBounds(CRect(getWidth() - 300, getHeight() - 25 , 290, 20));
 		statusLabel->setFontSize(TextSize::largeText);
 		statusLabel->setJustification(juce::Justification::centredRight);
 		statusLabel->setColour(CColours::lightgoldenrodyellow);
 		addAndMakeVisible(statusLabel);
 		garbageCollection.push_back(statusLabel);
 
-		tabs.setBounds(getContentArea());
 		addAndMakeVisible(tabs);
+
+		CPoint size(800, 300);
+		setSize(size.x, size.y);
 
 	}
 
@@ -148,13 +135,7 @@ namespace ape
 
 	juce::Rectangle<int> MainEditor::getContentArea()
 	{
-		return getLocalBounds().withLeft(ButtonsColumnSpace).withBottom(getHeight() - 40);
-	}
-
-	void MainEditor::valueEntityChanged(cpl::ValueEntityBase::Listener * sender, cpl::ValueEntityBase * value)
-	{
-		bool toggled = value->getNormalizedValue() > 0.5f;
-
+		return getLocalBounds().withBottom(getHeight() - BottomSpace - 1);
 	}
 
 	juce::Component * MainEditor::getWindow()
@@ -181,22 +162,34 @@ namespace ape
 
 	void MainEditor::resized()
 	{
-		int i = 0;
-		auto heightPerButton = getHeight() / NumButtons;
-		auto y = 0;
-		for (auto button : { static_cast<juce::Component*>(&compilation), static_cast<juce::Component*>(&activation) })
-		{
-			button->setBounds(0, y, ButtonsColumnSpace, heightPerButton);
-			y += heightPerButton;
-		}
+		constexpr int size = BottomSpace - 10;
+
+		auto buttonRect = Rect(5, getHeight() - BottomSpace + 5, size, size);
+
+		compilation.setBounds(buttonRect);
+		buttonRect.translate(size + 10, 0);
+
+		activation.setBounds(buttonRect);
+
+		infoLabel->setBounds(buttonRect.getRight() + 20, getHeight() - BottomSpace + 30, 220, 20);
+		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 290, 20));
+
+		tabs.setBounds(getContentArea());
 	}
 
 
 	void MainEditor::paint(juce::Graphics & g)
 	{
-		juce::ColourGradient gradient(juce::Colours::black, 0, 0, juce::Colour(37, 3, 55), getWidth() * 0.5f, getHeight() * 2, false);
-		g.setGradientFill(gradient);
+		constexpr int size = BottomSpace - 10;
+
+		juce::ColourGradient backgroundGradient(juce::Colours::black, 0, 0, juce::Colour(37, 3, 55), getWidth() * 0.5f, getHeight() * 2, false);
+		juce::ColourGradient lineGradient(juce::Colours::lightgoldenrodyellow, 0, getHeight() - BottomSpace, juce::Colours::lightgoldenrodyellow.withAlpha(0.0f), getWidth(), getHeight(), false);
+
+		g.setGradientFill(backgroundGradient);
 		g.fillAll();
+		g.setGradientFill(lineGradient);
+		g.drawLine(0, getHeight() - 50, getWidth(), getHeight() - 50, 2);
+		g.drawLine(size * 2 + 5 * 4, getHeight() - BottomSpace, size * 2 + 5 * 4, getHeight(), 2);
 
 	}
 
