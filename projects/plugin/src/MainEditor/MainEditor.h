@@ -91,11 +91,10 @@
 			PlayStateButton compilation;
 			StopButton activation;
 
-			std::vector<juce::Component *> garbageCollection;
 			std::shared_ptr<PluginSurface> pluginSurface;
 
-			CTextControl * infoLabel;
-			CQueueLabel * statusLabel;
+			std::unique_ptr<CTextControl> infoLabel;
+			std::unique_ptr<CQueueLabel> statusLabel;
 			int repaintCallBackCounter;
 
 			juce::OpenGLContext oglc;
@@ -107,6 +106,8 @@
 
 			jcredland::DockableWindowManager dockManager;
 			jcredland::TabDock tabs;
+
+			juce::ResizableCornerComponent rcc;
 		};
 
 	};

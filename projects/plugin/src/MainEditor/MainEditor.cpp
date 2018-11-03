@@ -56,6 +56,9 @@ namespace ape
 		, activation(state.activationState)
 		, dockManager(true, false)
 		, tabs(dockManager)
+		, infoLabel(std::make_unique<CTextControl>())
+		, statusLabel(std::make_unique<CQueueLabel>())
+		, rcc(this, nullptr)
 	{
 		dockManager.setHeavyWeightGenerator(
 			[this](auto& c) 
@@ -92,38 +95,24 @@ namespace ape
 			approot["greeting_shown"] = true;
 		} */
 
-		// get background
-		//addAndMakeVisible(background);
-		// background and sizing off gui
-		// everything is sized relative to the background image
-
 		// labels
-		infoLabel = new CTextControl();
 		infoLabel->setColour(CColours::lightgoldenrodyellow);
 		infoLabel->setFontSize(TextSize::smallText);
-		addAndMakeVisible(infoLabel);
-		garbageCollection.push_back(infoLabel);
+		addAndMakeVisible(*infoLabel);
 
-		statusLabel = new CQueueLabel();
 		statusLabel->setFontSize(TextSize::largeText);
 		statusLabel->setJustification(juce::Justification::centredRight);
 		statusLabel->setColour(CColours::lightgoldenrodyellow);
-		addAndMakeVisible(statusLabel);
-		garbageCollection.push_back(statusLabel);
+		addAndMakeVisible(*statusLabel);
 
 		addAndMakeVisible(tabs);
-
-		CPoint size(800, 300);
-		setSize(size.x, size.y);
-
+		addAndMakeVisible(rcc);
+		setSize(800, 300);
 	}
 
 	MainEditor::~MainEditor()
 	{
 		oglc.detach();
-
-		for (auto garbage : garbageCollection)
-			delete garbage;
 
 		if (isTimerRunning())
 			stopTimer();
@@ -172,9 +161,10 @@ namespace ape
 		activation.setBounds(buttonRect);
 
 		infoLabel->setBounds(buttonRect.getRight() + 20, getHeight() - BottomSpace + 30, 220, 20);
-		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 290, 20));
+		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 280, 20));
 
 		tabs.setBounds(getContentArea());
+		rcc.setBounds(getLocalBounds().withLeft(getWidth() - BottomSpace * 0.33f).withTop(getHeight() - BottomSpace * 0.33f));
 	}
 
 
