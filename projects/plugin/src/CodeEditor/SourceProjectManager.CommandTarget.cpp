@@ -37,7 +37,7 @@ namespace ape
 
 	void SourceProjectManager::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result)
 	{
-		auto & cDesc = CommandTable[Menus::File][commandID];
+		auto & cDesc = CommandTable[commandID];
 		juce::ApplicationCommandInfo aci(cDesc.command);
 		if(userHotKeys[commandID].size())
 		{
@@ -82,6 +82,26 @@ namespace ape
 		case SourceManagerCommand::FileSaveAs:
 			saveAs();
 			break;
+
+		case SourceManagerCommand::BuildCompile:
+			controller.recompile(false);
+			break;
+
+		case SourceManagerCommand::BuildCompileAndActivate:
+			controller.recompile(true);
+			break;
+
+		case SourceManagerCommand::BuildActivate:
+			controller.performCommand(UICommand::Activate);
+			break;
+
+		case SourceManagerCommand::BuildDeactivate:
+			controller.performCommand(UICommand::Deactivate);
+			break;
+
+		case SourceManagerCommand::BuildClean:
+			controller.performCommand(UICommand::Clean);
+			break;
 		}
 		return true;
 	}
@@ -104,6 +124,16 @@ namespace ape
 				userHotKeys[SourceManagerCommand::FileNew] = temp;
 			if(root["editor"].lookupValue("hkey_open", temp))
 				userHotKeys[SourceManagerCommand::FileOpen] = temp;
+			if (root["editor"].lookupValue("hkey_compile", temp))
+				userHotKeys[SourceManagerCommand::BuildCompile] = temp;
+			if (root["editor"].lookupValue("hkey_run", temp))
+				userHotKeys[SourceManagerCommand::BuildCompileAndActivate] = temp;
+			if (root["editor"].lookupValue("hkey_activate", temp))
+				userHotKeys[SourceManagerCommand::BuildActivate] = temp;
+			if (root["editor"].lookupValue("hkey_deactivate", temp))
+				userHotKeys[SourceManagerCommand::BuildDeactivate] = temp;
+			if (root["editor"].lookupValue("hkey_clean", temp))
+				userHotKeys[SourceManagerCommand::BuildClean] = temp;
 		}
 		catch (const std::exception & e)
 		{

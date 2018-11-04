@@ -89,7 +89,7 @@
 			void updateInfoLabel();
 			void * getSystemWindow();
 			void onBreakpointsChanged(const std::set<int>& newTraces);
-			void recompile();
+			void recompile(bool hotReload = true);
 			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
 			const std::string& getProjectName() const noexcept { return projectName; }
 

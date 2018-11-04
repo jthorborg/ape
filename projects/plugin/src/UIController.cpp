@@ -361,11 +361,11 @@ namespace ape
 			builder["command-state"] >> *commandStates;
 	}
 
-	void UIController::recompile()
+	void UIController::recompile(bool hotReload)
 	{
 		if (!compilerState.valid())
 		{
-			compilerState = createPlugin(sourceManager->createProject());
+			compilerState = createPlugin(sourceManager->createProject(), hotReload);
 			//engine.disablePlugin(false);
 		}
 		else
@@ -373,7 +373,7 @@ namespace ape
 			switch (compilerState.wait_for(std::chrono::seconds(0)))
 			{
 			case std::future_status::ready:
-				compilerState = createPlugin(sourceManager->createProject());
+				compilerState = createPlugin(sourceManager->createProject(), hotReload);
 				//engine.disablePlugin(false);
 				break;
 			case std::future_status::deferred:

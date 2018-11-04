@@ -40,18 +40,21 @@ namespace ape
 		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::ctrlModifier
 	#endif
 
-	const MenuEntry CommandTable[][5] =
+	const MenuEntry CommandTable[] =
 	{
 		// File
-		{
-			{"",			0,		0,				SourceManagerCommand::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
-			{ "New File",	'n',	CTRLCOMMANDKEY, SourceManagerCommand::FileNew },
-			{ "Open...",	'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
-			{ "Save",		's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
-			{ "Save As...",	0,		0,				SourceManagerCommand::FileSaveAs },
-		},
+		{"",			0,		0,				SourceManagerCommand::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
+		{ "New File",	'n',	CTRLCOMMANDKEY, SourceManagerCommand::FileNew },
+		{ "Open...",	'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
+		{ "Save",		's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
+		{ "Save As...",	0,		0,				SourceManagerCommand::FileSaveAs },
 		// Edit
-
+		// Build
+		{ "Compile",			juce::KeyPress::F7Key,	0, SourceManagerCommand::BuildCompile },
+		{ "Compile and Run",	juce::KeyPress::F5Key,	0, SourceManagerCommand::BuildCompileAndActivate },
+		{ "Activate",			juce::KeyPress::F3Key,	0, SourceManagerCommand::BuildActivate },
+		{ "Deactivate",			juce::KeyPress::F4Key,	0, SourceManagerCommand::BuildDeactivate },
+		{ "Clean",				juce::KeyPress::F8Key,	0,	SourceManagerCommand::BuildClean },
 	};
 
 	CodeEditorWindow::CodeEditorWindow(const Settings& setting)
@@ -86,7 +89,13 @@ namespace ape
 		{
 			case Menus::File:
 			{
-				for (int i = SourceManagerCommand::Start; i < SourceManagerCommand::End; ++i)
+				for (int i = SourceManagerCommand::FileStart; i < SourceManagerCommand::FileEnd; ++i)
+					ret.addCommandItem(appCM, i);
+				break;
+			}
+			case Menus::Build:
+			{
+				for (int i = SourceManagerCommand::BuildStart; i < SourceManagerCommand::BuildEnd; ++i)
 					ret.addCommandItem(appCM, i);
 				break;
 			}
@@ -109,6 +118,8 @@ namespace ape
 	{
 		juce::StringArray ret;
 		ret.add("File");
+		ret.add("Build");
+
 		//ret.add("Edit");
 		return ret;
 	}

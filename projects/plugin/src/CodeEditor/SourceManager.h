@@ -52,10 +52,21 @@
 		{
 			InvalidCommand = -1,
 			Start = 1,
+
+			FileStart = Start,
 			FileNew = Start,
 			FileOpen,
 			FileSave,
 			FileSaveAs,
+			FileEnd,
+
+			BuildStart = FileEnd,
+			BuildCompile = FileEnd,
+			BuildCompileAndActivate,
+			BuildActivate,
+			BuildDeactivate,
+			BuildClean,
+			BuildEnd,
 			/* -- following are natively supported
 			EditCut,
 			EditCopy,
@@ -75,6 +86,7 @@
 		enum Menus
 		{
 			File,
+			Build,
 			Edit
 		};
 

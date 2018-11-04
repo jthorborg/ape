@@ -38,7 +38,7 @@
 	
 	namespace ape
 	{
-		extern const MenuEntry CommandTable[][5];
+		extern const MenuEntry CommandTable[];
 
 		class CodeEditorWindow 
 			: public DockWindow
