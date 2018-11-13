@@ -111,27 +111,33 @@ namespace ape
 
 	bool SourceProjectManager::loadHotkeys()
 	{
-		/*
-		 try to read the hotkeys from editor {}
-		 */
+		// try to read the hotkeys from editor {}
 		try
 		{
 			std::string temp;
 			const auto& root = settings.root();
+
 			if(root["editor"].lookupValue("hkey_save", temp))
 				userHotKeys[SourceManagerCommand::FileSave] = temp;
+
 			if(root["editor"].lookupValue("hkey_new", temp))
 				userHotKeys[SourceManagerCommand::FileNew] = temp;
+
 			if(root["editor"].lookupValue("hkey_open", temp))
 				userHotKeys[SourceManagerCommand::FileOpen] = temp;
+
 			if (root["editor"].lookupValue("hkey_compile", temp))
 				userHotKeys[SourceManagerCommand::BuildCompile] = temp;
+
 			if (root["editor"].lookupValue("hkey_run", temp))
 				userHotKeys[SourceManagerCommand::BuildCompileAndActivate] = temp;
+
 			if (root["editor"].lookupValue("hkey_activate", temp))
 				userHotKeys[SourceManagerCommand::BuildActivate] = temp;
+
 			if (root["editor"].lookupValue("hkey_deactivate", temp))
 				userHotKeys[SourceManagerCommand::BuildDeactivate] = temp;
+
 			if (root["editor"].lookupValue("hkey_clean", temp))
 				userHotKeys[SourceManagerCommand::BuildClean] = temp;
 		}
