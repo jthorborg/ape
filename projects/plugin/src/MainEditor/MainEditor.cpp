@@ -44,7 +44,7 @@ namespace ape
 {
 	using namespace std::string_literals;
 	using Rect = juce::Rectangle<int>;
-	constexpr int BottomSpace = 50;
+	constexpr int BottomSpace = 40;
 
 	MainEditor::MainEditor(UIController& p)
 		: CTopView(this, "APE editor")
@@ -156,17 +156,15 @@ namespace ape
 		constexpr int size = BottomSpace - 10;
 
 		auto buttonRect = Rect(5, getHeight() - BottomSpace + 5, size, size);
-
 		compilation.setBounds(buttonRect);
-		buttonRect.translate(size + 10, 0);
 
+		buttonRect.translate(size + 10, 0);
 		activation.setBounds(buttonRect);
-		buttonRect.translate(size + 10, 0);
 
+		buttonRect.translate(size + 10, 0);
 		clean.setBounds(buttonRect);
-		buttonRect.translate(size + 10, 0);
 
-		infoLabel->setBounds(buttonRect.getRight() + 20, getHeight() - BottomSpace + 30, 220, 20);
+		infoLabel->setBounds(buttonRect.getRight() + 10, getHeight() - BottomSpace + 20, 220, 20);
 		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 280, 20));
 
 		tabs.setBounds(getContentArea());
@@ -184,7 +182,7 @@ namespace ape
 		g.setGradientFill(backgroundGradient);
 		g.fillAll();
 		g.setGradientFill(lineGradient);
-		g.drawLine(0, getHeight() - 50, getWidth(), getHeight() - 50, 2);
+		g.drawLine(0, getHeight() - BottomSpace, getWidth(), getHeight() - BottomSpace, 2);
 		g.drawLine(size * 3 + 5 * 6, getHeight() - BottomSpace, size * 3 + 5 * 6, getHeight(), 2);
 
 	}
