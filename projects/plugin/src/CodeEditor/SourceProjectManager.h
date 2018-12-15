@@ -123,7 +123,7 @@
 
 			fs::path fullPath;
 			std::shared_ptr<juce::CodeDocument> doc;
-			bool isSingleFile, isActualFile;
+			bool isSingleFile, isActualFile, enableScopePoints;
 			std::optional<bool> lastDirtyState;
 
 			std::map<int, std::string> userHotKeys;

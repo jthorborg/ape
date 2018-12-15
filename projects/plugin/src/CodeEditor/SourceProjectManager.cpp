@@ -54,6 +54,7 @@ namespace ape
 		, isSingleFile(true)
 		, fullPath("Untitled")
 		, isActualFile(false)
+		, enableScopePoints(false)
 		, lastDirtyState(false)
 		, textEditorDSO([this] { return createWindow(); })
 	{
@@ -63,6 +64,8 @@ namespace ape
 		try
 		{
 			std::string file;
+
+			enableScopePoints = settings.lookUpValue(false, "editor", "enable_scopepoints");
 
 			settings.root()["languages"].lookupValue("default_file", file);
 			if (file.length())
@@ -381,15 +384,19 @@ namespace ape
 				assignCStr(getExtension(), project->languageID) &&
 				assignCStr(fullPath.string(), fileLocations[0]))
 			{
-				auto copiedLines = new int[breakpoints.size()];
-				std::size_t counter = 0;
-				for (auto line : breakpoints)
-					copiedLines[counter++] = line;
+				if (enableScopePoints)
+				{
+					auto copiedLines = new int[breakpoints.size()];
+					std::size_t counter = 0;
+					for (auto line : breakpoints)
+						copiedLines[counter++] = line;
 
-				project->traceLines = copiedLines;
-				project->numTraceLines = counter;
+					project->traceLines = copiedLines;
+					project->numTraceLines = counter;
 
-				project->state = CodeState::None;
+					project->state = CodeState::None;
+				}
+
 				return project;
 			}
 		}

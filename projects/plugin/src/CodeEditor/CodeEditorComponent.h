@@ -69,6 +69,8 @@ namespace ape
 
 			textEditor.setVisible(true);
 			tracer.setVisible(true);
+			tracer.setEditable(settings.lookUpValue(false, "editor", "enable_scopepoints"));
+
 			textEditor.addMouseListener(this, true);
 
 			scale = settings.lookUpValue(1.0f, "editor", "zoom");

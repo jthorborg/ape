@@ -96,7 +96,8 @@ namespace ape
 
 	void UIController::onBreakpointsChanged(const std::set<int>& newTraces)
 	{
-		recompile();
+		if (auto currentState = engine.getCurrentPluginState(); currentState->getState() != STATUS_DISABLED)
+			recompile();
 	}
 
 

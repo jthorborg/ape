@@ -52,25 +52,34 @@ namespace ape
 			virtual ~Listener() {}
 		};
 
-
 		BreakpointComponent(CodeTextEditor& codeEditorView)
 			: document(codeEditorView.getDocument())
 			, codeEditor(codeEditorView)
+			, canEdit(false)
 		{
 			document.addListener(this);
 			codeEditor.addCompositionListener(this);
 		}
 
+		void setEditable(bool editable)
+		{
+			canEdit = editable;
+		}
 
 		void paint(juce::Graphics& g) override
 		{
+			g.fillAll({ 0x3E, 0x3E, 0x3E });
+
+			if (!canEdit)
+				return;
+
 			auto const offset = 0;
 			auto const radius = getBounds().getWidth() * 0.5f;
+
 			auto numLines = codeEditor.getNumLinesOnScreen();
 			auto scale = codeEditor.getLineHeight();
 			auto start = codeEditor.getFirstLineOnScreen();
 
-			g.fillAll({ 0x3E, 0x3E, 0x3E });
 			g.setColour(juce::Colours::red);
 
 			for (auto line : breakpoints)
@@ -83,6 +92,9 @@ namespace ape
 
 		void mouseDown(const juce::MouseEvent& e) override
 		{
+			if (!canEdit)
+				return;
+
 			auto fractionalPosition = e.position.y / (getBounds().getHeight() - 1);
 			auto scale = codeEditor.getNumLinesOnScreen() + 1;
 
@@ -171,6 +183,7 @@ namespace ape
 		CodeTextEditor& codeEditor;
 		std::set<int> breakpoints;
 		std::set<Listener*> listeners;
+		bool canEdit;
 	};
 }
 
