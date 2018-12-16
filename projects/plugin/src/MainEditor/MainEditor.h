@@ -97,7 +97,6 @@
 
 			std::unique_ptr<CTextControl> infoLabel;
 			std::unique_ptr<CQueueLabel> statusLabel;
-			int repaintCallBackCounter;
 
 			juce::OpenGLContext oglc;
 			std::unique_ptr<juce::Component> 

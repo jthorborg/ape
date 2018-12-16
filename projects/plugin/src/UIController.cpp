@@ -53,8 +53,6 @@ namespace ape
 		, bIsActive(effect.status.bActivated)
 		, bUseBuffers(engine.status.bUseBuffers)
 		, bUseFPUE(engine.status.bUseFPUE)
-		, bFirstDraw(true)
-		, incGraphicCounter(0)
 		, consolePtr(std::make_unique<CConsole>())
 	{
 		commandStates = std::make_unique<UICommandState>(*this);
@@ -72,11 +70,6 @@ namespace ape
 
 		sourceManager = MakeSourceManager(*this, effect.getSettings(), effect.uniqueInstanceID());
 		autosaveManager = std::make_unique<AutosaveManager>(effect.uniqueInstanceID(), effect.getSettings(), *sourceManager, *this);
-
-		// 0.025 is pretty smooth
-		clockData.pole = 0.025f;
-		clockData.averageClocks = 0;
-		clockData.lastSample = engine.clocksPerSample;
 		
 		setStatusText("Ready");
 	}
@@ -124,43 +117,10 @@ namespace ape
 		// which should be ignored by the func.
 		setEditorError(nLinePos);
 	}
-
-	void UIController::updateInfoLabel()
-	{
-		if (!editor)
-		{
-			console().printLine(CConsole::Error, "[GUI] : error! Request to update clock counter from invalid editor!");
-		}
-		
-		clockData.lastSample = engine.clocksPerSample;
-		clockData.averageClocks = clockData.averageClocks + clockData.pole * (clockData.lastSample - clockData.averageClocks);
-		char buf[200];
-		
-		sprintf_s(buf, "Instance %d - accps: ~%d (%d)",
-				  engine.instanceCounter(),
-				  (unsigned)clockData.averageClocks,
-				  clockData.lastSample);;
-		
-		editor->infoLabel->setText(buf);
-	}
 	
-	void UIController::render()
+	void UIController::pulseUI()
 	{
 		engine.getParameterManager().pulse();
-
-		incGraphicCounter++;
-
-		// stuff that should run once at least
-		if(bFirstDraw)
-		{
-			updateInfoLabel();
-			bFirstDraw = false;
-		}
-		// not-so-often updated stuff
-		if(!(incGraphicCounter % 5))
-		{
-			updateInfoLabel();
-		}
 	}
 
 	UIController::~UIController()
@@ -171,16 +131,12 @@ namespace ape
 
 	void UIController::editorOpened(MainEditor * newEditor)
 	{
-		//setStatusText();
 		if (auto state = engine.getCurrentPluginState(); state && state->isEnabled())
 		{
 			newEditor->onPluginStateChanged(*state, true);
 		}
-		newEditor->startTimer(engine.getSettings().root()["application"]["ui_refresh_interval"]);
 
 		autosaveManager->checkAutosave();
-
-		bFirstDraw = true;
 	}
 
 

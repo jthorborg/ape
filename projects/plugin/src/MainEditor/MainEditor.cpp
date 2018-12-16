@@ -51,7 +51,6 @@ namespace ape
 		, parent(p)
 		, state(p.getUICommandState())
 		, AudioProcessorEditor(p.engine)
-		, repaintCallBackCounter(0)
 		, compilation(state.compile, state.activationState)
 		, activation(state.activationState)
 		, clean(state.clean)
@@ -164,7 +163,7 @@ namespace ape
 		buttonRect.translate(size + 10, 0);
 		clean.setBounds(buttonRect);
 
-		infoLabel->setBounds(buttonRect.getRight() + 10, getHeight() - BottomSpace + 20, 220, 20);
+		infoLabel->setBounds(buttonRect.getRight() + 10, getHeight() - BottomSpace + 20, 250, 20);
 		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 280, 20));
 
 		tabs.setBounds(getContentArea());
@@ -193,24 +192,31 @@ namespace ape
 			oglc.attachTo(*this);
 		
 		parent.editorOpened(this);	
+
+		startTimer(parent.engine.getSettings().lookUpValue(80, "application", "ui_refresh_interval"));
 	}
 
 
 	void MainEditor::timerCallback()
 	{
 		statusLabel->updateMessage();
-		// force a repaint every second (it wont itself, necessarily, even tho childs are set as dirty!! ugh)
-		repaintCallBackCounter++;
-		if ((repaintCallBackCounter * getTimerInterval() / 1000.f) > 1)
-		{
-			//repaint();
-			repaintCallBackCounter = 0;
-		}
-	
+
+		const auto profiler = parent.engine.getProfilingData();
+
+		char buf[200];
+
+		sprintf_s(buf, "Instance %d - cpu: %.2f%% - accps: ~%d (%d)",
+			parent.engine.instanceCounter(),
+			profiler.smoothedCPUUsage * 100,
+			(int)profiler.smoothedClocksPerSample,
+			(int)profiler.clocksPerSample);
+
+		infoLabel->setText(buf);
+
 		if (pluginSurface)
 			pluginSurface->repaintActiveAreas();
 
-		parent.render();
+		parent.pulseUI();
 	}
 
 	void MainEditor::about()

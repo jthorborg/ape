@@ -34,9 +34,9 @@ namespace ape
 		repaint();
 	}
 
-	void CTextLabel::setText(const std::string & newText)
+	void CTextLabel::setText(const cpl::string_ref newText)
 	{
-		text = newText;
+		text = newText.c_str();
 		repaint();
 	}
 

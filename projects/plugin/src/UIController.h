@@ -75,7 +75,7 @@
 
 			void editorOpened(MainEditor * newEditor);
 			void editorClosed();
-			void render();
+			void pulseUI();
 			MainEditor * create();
 			ape::CConsole& console() noexcept { return *consolePtr.get();	};
 			SourceManager& getSourceManager() noexcept { return *sourceManager; }
@@ -86,7 +86,6 @@
 			void setStatusText();
 			std::string getStatusText();
 			void setEditorError(int nLine);
-			void updateInfoLabel();
 			void * getSystemWindow();
 			void onBreakpointsChanged(const std::set<int>& newTraces);
 			void recompile(bool hotReload = true);
@@ -118,21 +117,11 @@
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			std::string projectName, statusLabel;
 			CColour statusColour;
-			bool bFirstDraw;
 			// these are refererences to the engine
 			volatile bool & bUseBuffers;
 			volatile bool & bUseFPUE;
 			volatile bool & bIsActive;
-			int uiRefreshInterval;
-			unsigned int incGraphicCounter;
-			
-			struct
-			{
-				unsigned lastSample;
-				float pole;
-				float averageClocks;
-			} clockData;
-
+			int uiRefreshInterval;			
 		};
 	};
 #endif

@@ -33,6 +33,8 @@
 	#include "Common.h"
 	#include <map>
 	#include <mutex>
+	#include <cpl/Core.h>
+	
 
 	namespace ape
 	{
@@ -54,7 +56,7 @@
 			void setFontName(const juce::String& name);
 			void setFontSize(float newSize);
 			void setColour(CColour newColour);
-			virtual void setText(const std::string & newText);
+			virtual void setText(const cpl::string_ref newText);
 			virtual void paint(juce::Graphics & g) override;
 			void setPos(int x, int y);
 			void setJustification(juce::Justification j) { just = j; }

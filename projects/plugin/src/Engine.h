@@ -67,6 +67,14 @@
 
 		public:
 
+			struct ProfilerData
+			{
+				double smoothedCPUUsage;
+				double clocksPerSample;
+				double smoothedClocksPerSample;
+				double sampleRate;
+			};
+
 			Engine();
 			virtual ~Engine();
 
@@ -77,6 +85,7 @@
 			Settings& getSettings() noexcept { return settings; }
 			const Settings& getSettings() const noexcept { return settings; }
 			ParameterManager& getParameterManager() noexcept { return *params; }
+			ProfilerData getProfilingData() const noexcept;
 
 			void exchangePlugin(std::unique_ptr<PluginState> plugin);
 			void disablePlugin(bool fromEditor = true);
@@ -156,10 +165,11 @@
 			Settings settings;
 			IOConfig ioConfig;
 			bool isPlaying = false;
-			std::atomic<double> clocksPerSample;
 			std::shared_mutex pluginMutex;
 			OscilloscopeData scopeData;
 			AuxMatrix auxMatrix;
+
+			std::atomic<double> averageClocks, clocksPerSample;
 		};
 	}
 #endif

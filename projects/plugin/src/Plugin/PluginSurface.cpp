@@ -105,9 +105,9 @@ namespace ape
 		if (components.empty())
 			return;
 
-		int maxWidth = 0, maxHeight = 0;
+		int maxWidth = 0, maxHeight = 0, size = static_cast<int>(components.size());
 
-		for (std::size_t i = 0; i < components.size(); ++i)
+		for (auto i = 0; i < size; ++i)
 		{
 			maxWidth = std::max(maxWidth, components[i]->getWidth());
 			maxHeight = std::max(maxHeight, components[i]->getHeight());
@@ -119,7 +119,7 @@ namespace ape
 
 		int columns = std::max(1, bounds.getWidth() / maxWidth);
 
-		for (std::size_t i = 0; i < components.size(); ++i)
+		for (auto i = 0; i < size; ++i)
 		{
 			auto localBounds = components[i]->getBounds();
 

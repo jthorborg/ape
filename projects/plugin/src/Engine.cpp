@@ -39,6 +39,7 @@
 #include "CSerializer.h"
 #include "Engine/ParameterManager.h"
 #include "UI/UICommands.h"
+#include <cpl/system/SysStats.h>
 
 namespace cpl
 {
@@ -69,6 +70,7 @@ namespace ape
 		, delay()
 		, programName("Default")
 		, clocksPerSample(0)
+		, averageClocks(0)
 		, codeGenerator(*this)
 		, settings(true, cpl::Misc::DirFSPath() / "config.cfg")
 	{
@@ -152,6 +154,17 @@ namespace ape
 	{
 		disablePlugin();
 		cpl::Misc::ReleaseUniqueInstanceID(instanceID);
+	}
+
+	Engine::ProfilerData Engine::getProfilingData() const noexcept
+	{
+		const auto smoothedClocks = averageClocks.load(std::memory_order_acquire);
+		return { 
+			1e-6 * (smoothedClocks * getSampleRate() / cpl::system::CProcessor::getMHz()),
+			clocksPerSample.load(std::memory_order_acquire), 
+			smoothedClocks, 
+			getSampleRate() 
+		};
 	}
 
 	void Engine::exchangePlugin(std::unique_ptr<PluginState> newPlugin)
@@ -249,6 +262,7 @@ namespace ape
 		if (status.bActivated && pluginState)
 		{
 			const std::size_t numSamples = buffer.getNumSamples();
+			const auto pole = std::pow(0.95, getSampleRate() / numSamples);
 			std::size_t profiledClocks = 0;
 			auxMatrix.softBufferResize(numSamples);
 
@@ -269,7 +283,10 @@ namespace ape
 			if (status.bUseFPUE)
 				pluginState->useFPUExceptions(false);
 
-			clocksPerSample = static_cast<double>(profiledClocks) / numSamples;
+			const auto normalizedClocks = static_cast<double>(profiledClocks) / numSamples;
+
+			clocksPerSample.store(normalizedClocks, std::memory_order_release);
+			averageClocks.store(averageClocks + pole * (normalizedClocks - averageClocks), std::memory_order_release);
 
 			auxMatrix.copy(buffer.getArrayOfReadPointers(), ioConfig.inputs, ioConfig.outputs);
 
