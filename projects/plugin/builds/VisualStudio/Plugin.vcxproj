@@ -1715,6 +1715,7 @@
     <ClCompile Include="..\..\src\UIController.cpp" />
     <ClCompile Include="..\..\src\UI\CleanButton.cpp" />
     <ClCompile Include="..\..\src\UI\DockWindow.cpp" />
+    <ClCompile Include="..\..\src\UI\LabelQueue.cpp" />
     <ClCompile Include="..\..\src\UI\PlayStateButton.cpp" />
     <ClCompile Include="..\..\src\UI\StopButton.cpp" />
     <ClCompile Include="..\..\src\UI\UICommands.cpp" />
@@ -1749,7 +1750,6 @@
     <ClInclude Include="..\..\src\CConsole.h" />
     <ClInclude Include="..\..\src\CMemoryGuard.h" />
     <ClInclude Include="..\..\src\Common.h" />
-    <ClInclude Include="..\..\src\CQueueLabel.h" />
     <ClInclude Include="..\..\src\CSerializer.h" />
     <ClInclude Include="..\..\src\Plugin\PluginCommandQueue.h" />
     <ClInclude Include="..\..\src\Plugin\PluginParameter.h" />
@@ -2209,6 +2209,7 @@
     <ClInclude Include="..\..\src\SharedInterfaceEx.h" />
     <ClInclude Include="..\..\src\UI\CleanButton.h" />
     <ClInclude Include="..\..\src\UI\DockWindow.h" />
+    <ClInclude Include="..\..\src\UI\LabelQueue.h" />
     <ClInclude Include="..\..\src\UI\PlayStateButton.h" />
     <ClInclude Include="..\..\src\UI\StopButton.h" />
     <ClInclude Include="..\..\src\UI\UICommands.h" />

@@ -40,6 +40,7 @@
 	#include <future>
 	#include <memory>
 	#include "UI/UICommands.h"
+	#include "UI/LabelQueue.h"
 
 	namespace ape 
 	{
@@ -49,7 +50,6 @@
 		struct CCompiler;
 		class SourceManager;
 		class CSerializer;
-		class CQueueLabel;
 		class PluginState;
 		struct ProjectEx;
 		class MainEditor;
@@ -80,11 +80,8 @@
 			ape::CConsole& console() noexcept { return *consolePtr.get();	};
 			SourceManager& getSourceManager() noexcept { return *sourceManager; }
 			UICommandState& getUICommandState() noexcept { return *commandStates; }
+			LabelQueue& getLabelQueue() noexcept { return labelQueue; }
 
-			void setStatusText(const std::string &, CColour color = juce::Colours::lightgoldenrodyellow);
-			void setStatusText(const std::string &, CColour color, int timeout);
-			void setStatusText();
-			std::string getStatusText();
 			void setEditorError(int nLine);
 			void * getSystemWindow();
 			void onBreakpointsChanged(const std::set<int>& newTraces);
@@ -105,7 +102,7 @@
 			void onErrorMessage(const cpl::string_ref text);
 
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
-			void setProjectName(const std::string & name) { projectName = name; }
+			void setProjectName(std::string name);
 
 			std::unique_ptr<AutosaveManager> autosaveManager;
 			std::unique_ptr<CConsole> consolePtr;
@@ -115,8 +112,11 @@
 			ape::Engine& engine;
 			MainEditor * editor;
 			std::future<std::unique_ptr<PluginState>> compilerState;
-			std::string projectName, statusLabel;
+			LabelQueue labelQueue;			
 			CColour statusColour;
+			std::string projectName;
+
+
 			// these are refererences to the engine
 			volatile bool & bUseBuffers;
 			volatile bool & bUseFPUE;

@@ -29,7 +29,7 @@
 
 #include "MainEditor.h"
 #include "../UIController.h"
-#include "../CQueueLabel.h"
+#include "../UI/LabelQueue.h"
 #include <string>
 #include "../Engine.h"
 #include "../CConsole.h"
@@ -57,7 +57,7 @@ namespace ape
 		, dockManager(true, false)
 		, tabs(dockManager)
 		, infoLabel(std::make_unique<CTextControl>())
-		, statusLabel(std::make_unique<CQueueLabel>())
+		, statusLabel(std::make_unique<LabelQueueDisplay>(p.getLabelQueue()))
 		, rcc(this, nullptr)
 	{
 		dockManager.setHeavyWeightGenerator(
@@ -199,8 +199,6 @@ namespace ape
 
 	void MainEditor::timerCallback()
 	{
-		statusLabel->updateMessage();
-
 		const auto profiler = parent.engine.getProfilingData();
 
 		char buf[200];

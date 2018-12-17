@@ -53,7 +53,7 @@
 		struct CCompiler;
 		class SourceManager;
 		class CSerializer;
-		class CQueueLabel;
+		class LabelQueueDisplay;
 		class PluginState;
 		struct ProjectEx;
 		class PluginSurface;
@@ -96,7 +96,7 @@
 			std::shared_ptr<PluginSurface> pluginSurface;
 
 			std::unique_ptr<CTextControl> infoLabel;
-			std::unique_ptr<CQueueLabel> statusLabel;
+			std::unique_ptr<LabelQueueDisplay> statusLabel;
 
 			juce::OpenGLContext oglc;
 			std::unique_ptr<juce::Component> 

@@ -34,7 +34,7 @@
 #include "CConsole.h"
 #include "ProjectEx.h"
 #include <stdio.h>
-#include "CQueueLabel.h"
+#include "UI/LabelQueue.h"
 #include <chrono>
 #include "CodeEditor/SourceManager.h"
 #include <typeinfo>
@@ -71,7 +71,7 @@ namespace ape
 		sourceManager = MakeSourceManager(*this, effect.getSettings(), effect.uniqueInstanceID());
 		autosaveManager = std::make_unique<AutosaveManager>(effect.uniqueInstanceID(), effect.getSettings(), *sourceManager, *this);
 		
-		setStatusText("Ready");
+		labelQueue.setDefaultMessage("Ready", juce::Colours::lightgoldenrodyellow);
 	}
 
 	void UIController::errorPrint(void * data, const char * text)
@@ -121,6 +121,7 @@ namespace ape
 	void UIController::pulseUI()
 	{
 		engine.getParameterManager().pulse();
+		labelQueue.pulseQueue();
 	}
 
 	UIController::~UIController()
@@ -152,13 +153,10 @@ namespace ape
 			"Reference to old editor lost!");
 		editor = new MainEditor(*this);
 
-		bool bUseOpenGL(false);
-		bUseOpenGL = engine.getSettings().root()["application"]["render_opengl"];
-
+		auto const bUseOpenGL = engine.getSettings().lookUpValue(false, "application", "render_opengl");
 		
 		editor->initialize(bUseOpenGL);
 		
-		setStatusText();
 		return editor;
 	}
 
@@ -166,45 +164,6 @@ namespace ape
 	void UIController::setEditorError(int nLine) 
 	{
 		sourceManager->setErrorLine(nLine);
-	}
-
-
-	void UIController::setStatusText(const std::string & text, CColour colour)
-	{
-
-		cpl::CMutex lockGuard(this);
-		statusLabel = projectName + " - " + text;
-		statusColour = colour;
-		if (editor)
-		{
-			editor->statusLabel->setDefaultMessage(statusLabel, colour);
-		}
-	}
-
-
-	void UIController::setStatusText(const std::string & text, CColour colour, int ms)
-	{
-		if (editor)
-		{
-			editor->statusLabel->pushMessage(text, colour, ms);
-		}
-	}
-
-
-	void UIController::setStatusText()
-	{
-		cpl::CMutex lockGuard(this);
-		if (editor)
-		{
-			editor->statusLabel->setDefaultMessage(statusLabel, statusColour);
-		}
-	}
-
-
-	std::string UIController::getStatusText()
-	{
-		cpl::CMutex lockGuard(this);
-		return statusLabel;
 	}
 
 	bool UIController::performCommand(UICommand command)
@@ -230,7 +189,7 @@ namespace ape
 					break;
 				case std::future_status::deferred:
 				case std::future_status::timeout:
-					setStatusText("Cannot activate plugin while compiling...", CColours::red, 2000);
+					labelQueue.pushMessage("Cannot activate plugin while compiling...", CColours::red, 2000);
 					console().printLine(CConsole::Error, "[GUI] : cannot activate while compiling.");
 					return false;
 				}
@@ -241,14 +200,14 @@ namespace ape
 				if (currentState->getState() != STATUS_DISABLED)
 				{
 					console().printLine(CConsole::Error, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
-					setStatusText("Error activating plugin.", CColours::red);
+					labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 					return false;
 				}
 
 				if (engine.activatePlugin())
 				{
 					// success
-					setStatusText("Plugin activated", CColours::green);
+					labelQueue.setDefaultMessage("Plugin activated", CColours::green);
 					getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
 					if (editor)
 					{
@@ -259,12 +218,12 @@ namespace ape
 				else
 				{
 					console().printLine(CConsole::Error, "[GUI] : Error activating plugin.", 2000);
-					setStatusText("Error activating plugin.", CColours::red);
+					labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 				}
 			}
 			else
 			{
-				setStatusText("No compiled symbols found", CColours::red, 2000);
+				labelQueue.pushMessage("No compiled symbols found", CColours::red, 2000);
 				console().printLine(CConsole::Error, "[GUI] : Failure to activate plugin, no compiled code available.");
 				return false;
 			}
@@ -281,7 +240,7 @@ namespace ape
 			{
 				if (plugin->getState() != STATUS_DISABLED)
 				{
-					setStatusText("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
+					labelQueue.pushMessage("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
 					if (editor)
 						editor->onPluginStateChanged(*plugin, false);
 					engine.disablePlugin(true);
@@ -335,7 +294,7 @@ namespace ape
 				break;
 			case std::future_status::deferred:
 			case std::future_status::timeout:
-				setStatusText("Already compiling, please wait...", CColours::red, 2000);
+				labelQueue.pushMessage("Already compiling, please wait...", CColours::red, 2000);
 				console().printLine(CColours::red, "[GUI] : cannot compile while compiling.");
 				break;
 
@@ -353,14 +312,15 @@ namespace ape
 	{
 		if (!project)
 		{
-			console().printLine(CConsole::Error, "[GUI] : Compilation error - "
-				"invalid project or no text recieved from editor.");
-			setStatusText("No code to compile", CColours::red, 3000);
+			console().printLine(CConsole::Error, "[GUI] : Compilation error - invalid project or no text recieved from editor.");
+			labelQueue.pushMessage("No code to compile", CColours::red, 3000);
+
 			return {};
 		}
 
 		setProjectName(project->projectName);
-		setStatusText("Compiling...", CColours::red, 500);
+		labelQueue.pushMessage("Compiling...", CColours::red, 500);
+		console().printLine("[GUI] : Compiling...");
 
 		getUICommandState().changeValueExternally(getUICommandState().compile, 1);
 
@@ -376,13 +336,13 @@ namespace ape
 					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
 
 					console().printLine("[GUI] : Compiled successfully (%f ms).", time);
-					setStatusText("Compiled OK!", CColours::green, 2000);
+					labelQueue.pushMessage("Compiled OK!", CColours::green, 2000);
 
 				}
 				catch (const std::exception& e)
 				{
 					console().printLine(CConsole::Error, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
-					setStatusText("Error while compiling (see console)!", CColours::red, 5000);
+					labelQueue.pushMessage("Error while compiling (see console)!", CColours::red, 5000);
 				}
 				
 				cpl::GUIUtils::MainEvent(*this, 
@@ -399,6 +359,12 @@ namespace ape
 			},
 			std::move(project)
 		);
+	}
+
+	void UIController::setProjectName(std::string name) 
+	{ 
+		projectName = std::move(name); 
+		labelQueue.setDefaultPrefix(projectName + " - "); 
 	}
 
 	void * UIController::getSystemWindow() 

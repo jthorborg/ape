@@ -1602,6 +1602,9 @@
     <ClCompile Include="..\..\src\UI\CleanButton.cpp">
       <Filter>Audio Programming Environment\Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\UI\LabelQueue.cpp">
+      <Filter>Audio Programming Environment\Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -2966,9 +2969,6 @@
     <ClInclude Include="..\..\src\CSerializer.h">
       <Filter>Audio Programming Environment\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CQueueLabel.h">
-      <Filter>Audio Programming Environment\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -3087,6 +3087,9 @@
       <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\UI\CleanButton.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UI\LabelQueue.h">
       <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>

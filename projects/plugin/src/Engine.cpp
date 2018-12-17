@@ -213,7 +213,7 @@ namespace ape
 		}
 
 		if (result == STATUS_OK)
-			controller->setStatusText("Plugin disabled", CColours::lightgoldenrodyellow);
+			controller->getLabelQueue().setDefaultMessage("Plugin disabled", CColours::lightgoldenrodyellow);
 
 		changeInitialDelay(0);
 	}

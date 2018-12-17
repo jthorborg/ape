@@ -67,7 +67,7 @@ namespace ape
 		if (manager.isDirty())
 		{
 			if(performAutosave())
-				controller.setStatusText("Autosaved...", CColours::lightgoldenrodyellow, 2000);
+				controller.getLabelQueue().pushMessage("Autosaved...", CColours::lightgoldenrodyellow, 2000);
 		}
 	}
 
