@@ -76,12 +76,26 @@ APE_Status CleanCompilerCache()
 		return Status::STATUS_ERROR;
 	}
 
-	if (fs::exists(dirRoot / "runtime" / "effect.h.pch"))
-		return fs::remove(dirRoot / "runtime" / "effect.h.pch") ? Status::STATUS_OK : Status::STATUS_ERROR;
+	if (fs::exists(dirRoot / "runtime" / "effect.h.pch") && !fs::remove(dirRoot / "runtime" / "effect.h.pch"))
+		return Status::STATUS_ERROR;
+
+	return Status::STATUS_OK;
 }
 
 namespace CppAPE
 {
+	APE_Diagnostic JitToDiagnostic(jit_error_t error)
+	{
+		switch (error)
+		{
+		case jit_error_compilation_remark: return APE_Diag_Info;
+		case jit_error_compilation_warning: return APE_Diag_Warning;
+		case jit_error_compilation_error: return APE_Diag_CompilationError;
+		default:
+			return APE_Diag_Error;
+		}
+	}
+
 	std::shared_ptr<CxxJitContext> ScriptCompiler::acquireCxxRuntime()
 	{
 		static std::shared_ptr<CxxJitContext> cxxRuntime;
@@ -95,7 +109,7 @@ namespace CppAPE
 	{
 		if (pluginData && !freeLocalMemory())
 		{
-			print("[CppAPE] : Leaked memory on script compiler destruction, unable to free!");
+			print(APE_Diag_Error, "[CppAPE] : Leaked memory on script compiler destruction, unable to free!");
 		}
 		
 	}
@@ -108,13 +122,13 @@ namespace CppAPE
 
 		if (!lockFile.open((dirRoot / "lockfile.l").string()))
 		{
-			print("[CppAPE] : error: couldn't lock file");
+			print(APE_Diag_Error, "[CppAPE] : error: couldn't lock file");
 			return Status::STATUS_ERROR;
 		}
 
 		if(!SetupEnvironment())
 		{
-			print("[CppAPE] : Error setting up environment.");
+			print(APE_Diag_Error, "[CppAPE] : Error setting up environment.");
 			return Status::STATUS_ERROR;
 		}
 
@@ -128,18 +142,21 @@ namespace CppAPE
 			memoryEffectPCH.resize(size);
 			if (size == 0 || size == -1 || !pchfile.read(memoryEffectPCH.data(), size))
 			{
-				print("[CppAPE] : Failed to read pchfile into memory");
+				print(APE_Diag_Error, "[CppAPE] : Failed to read pchfile into memory");
 				return Status::STATUS_ERROR;
 			}
 		}
 
-
 		try
 		{
-
-
 			CxxTranslationUnit::Builder builder;
-			builder.onMessage([this](auto err, auto msg) { print(msg); });
+			builder.onMessage(
+				[this](auto e, auto msg) 
+				{
+					print(JitToDiagnostic(e), msg); 
+				}
+			);
+
 			auto root = fs::path(getProject()->rootPath);
 
 			std::string source;
@@ -199,7 +216,12 @@ namespace CppAPE
 			builder.addMemoryFile("effect.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
 			state = std::make_unique<CxxJitContext>();
-			state->setCallback([this](auto err, auto msg) { print(msg); });
+			state->setCallback(
+				[this](auto e, auto msg)
+				{
+					print(JitToDiagnostic(e), msg);
+				}
+			);
 
 			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
 #ifdef _DEBUG
@@ -216,7 +238,7 @@ namespace CppAPE
 		}
 		catch (const std::exception& e)
 		{
-			print(std::string("Exception while compiling: ") + e.what());
+			print(APE_Diag_Error, std::string("Exception while compiling: ") + e.what());
 			return Status::STATUS_ERROR;
 		}
 
@@ -235,7 +257,7 @@ namespace CppAPE
 
 		if (!state)
 		{
-			print("[CppAPE] : No existing jit context.");
+			print(APE_Diag_Error, "[CppAPE] : No existing jit context.");
 			return Status::STATUS_ERROR;
 		}
 
@@ -251,14 +273,14 @@ namespace CppAPE
 
 			if (!plugin.test(true))
 			{
-				print("[CppAPE] : Not all functions required to run plugin was found.");
+				print(APE_Diag_CompilationError, "[CppAPE] : Not all functions required to run plugin was found.");
 				return Status::STATUS_ERROR;
 			}
 
 			globalData = state->getGlobal<PluginGlobalData>(SYMBOL_GLOBAL_DATA);
 			if(!globalData)
 			{
-				print("[CppAPE] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+				print(APE_Diag_CompilationError, "[CppAPE] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
 					"after you declared your PluginData struct?");
 				return Status::STATUS_ERROR;
 			}
@@ -266,13 +288,13 @@ namespace CppAPE
 			#ifdef _DEBUG
 				char buf[8192];
 				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_INIT, plugin.entrypoint);
-				print(buf);
+				print(APE_Diag_Info, buf);
 				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_END, plugin.exitpoint);
-				print(buf);
+				print(APE_Diag_Info, buf);
 				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_PROCESS_REPLACE, plugin.processor);
-				print(buf);
+				print(APE_Diag_Info, buf);
 				sprintf_s(buf, "[CppApe] symbol \"%s\" loaded at 0x%p", SYMBOL_EVENT_HANDLER, plugin.handler);
-				print(buf);
+				print(APE_Diag_Info, buf);
 
 
 			#endif
@@ -280,7 +302,7 @@ namespace CppAPE
 		}
 		catch (const std::exception& e)
 		{
-			print((std::string)"[CppApe] : error initializing project: " + e.what());
+			print(APE_Diag_Error, (std::string)"[CppApe] : error initializing project: " + e.what());
 			return Status::STATUS_ERROR;
 		}
 
@@ -291,7 +313,7 @@ namespace CppAPE
 	{
 		if (!globalData)
 		{
-			print("[CppAPE] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+			print(APE_Diag_CompilationError, "[CppAPE] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
 				"after you declared your PluginData struct?");
 			return Status::STATUS_ERROR;
 		}
@@ -303,14 +325,14 @@ namespace CppAPE
 				pluginData = globalData->PluginAlloc(getProject()->iface);
 				if (!globalData) 
 				{
-					print("[CppAPE] : error allocating memory for the sharedObject.");
+					print(APE_Diag_Error, "[CppAPE] : error allocating memory for the sharedObject.");
 					return false;
 				}
 				return true;
 			}
 			else
 			{
-				print("[CppAPE] : error allocating memory for the sharedObject: plugin specifies own allocators but they do not exist.");
+				print(APE_Diag_Error, "[CppAPE] : error allocating memory for the sharedObject: plugin specifies own allocators but they do not exist.");
 				return false;
 			}
 		}
@@ -319,7 +341,7 @@ namespace CppAPE
 
 		if (!pluginData)
 		{
-			print("[CppAPE] : error allocating memory for the plugin data object.");
+			print(APE_Diag_Error, "[CppAPE] : error allocating memory for the plugin data object.");
 			return false;
 		}
 
@@ -330,14 +352,14 @@ namespace CppAPE
 	{
 		if (!globalData)
 		{
-			print("[CppAPE] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+			print(APE_Diag_Error, "[CppAPE] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
 				"after you declared your PluginData struct?");
 			return false;
 		}
 
 		if (!pluginData)
 		{
-			print("[CppAPE] : freeLocalMemory called without any plugin data");
+			print(APE_Diag_Error, "[CppAPE] : freeLocalMemory called without any plugin data");
 			return false;
 		}
 
@@ -353,7 +375,7 @@ namespace CppAPE
 			}
 			else
 			{
-				print("[CppAPE] : error freeing memory for the sharedObject.");
+				print(APE_Diag_Error, "[CppAPE] : error freeing memory for the sharedObject.");
 				return false;
 			}
 		}
@@ -363,7 +385,7 @@ namespace CppAPE
 			return true;
 		}
 
-		print("[CppAPE] : error freeing memory for the sharedObject.");
+		print(APE_Diag_Error, "[CppAPE] : error freeing memory for the sharedObject.");
 		return false;
 	}
 
@@ -383,7 +405,7 @@ namespace CppAPE
 					auto terminal = line.find_first_of(';');
 					if (terminal == std::string::npos)
 					{
-						print("[CppApe] error: Breakpoints can only be set at single expressions, at line " + std::to_string(lineCounter + 1) + ":\n " + line);
+						print(APE_Diag_CompilationError, "[CppApe] error: Breakpoints can only be set at single expressions, at line " + std::to_string(lineCounter + 1) + ":\n " + line);
 						return false;
 					}
 					else
@@ -422,7 +444,7 @@ namespace CppAPE
 		}
 		catch (const LibCppJitExceptionBase& e)
 		{
-			print((std::string)"JIT Error while activing project: \n" + e.what());
+			print(APE_Diag_Error, (std::string)"JIT Error while activing project: \n" + e.what());
 		}
 
 		return Status::STATUS_ERROR;
@@ -452,7 +474,7 @@ namespace CppAPE
 		}
 		catch (const LibCppJitExceptionBase& e)
 		{
-			print((std::string)"JIT Error while disabling project: \n" + e.what());
+			print(APE_Diag_Error, (std::string)"JIT Error while disabling project: \n" + e.what());
 		}
 
 		return ret;

@@ -54,15 +54,10 @@
 	/// </summary>
 	typedef double PFloat;
 
-	typedef void (APE_API * APE_ErrorFunc)(void*, const char *);
-	/// <summary>
-	/// Deprecated
-	/// </summary>
-	[[deprecated]] typedef float(APE_API * APE_ScaleFunc)(float value, float _min, float _max);
-
 	typedef PFloat (APE_API * APE_Transformer)(PFloat x, PFloat _min, PFloat _max);
 	typedef PFloat (APE_API * APE_Normalizer)(PFloat y, PFloat _min, PFloat _max);
 
+	struct APE_Project;
 
 	// Status definitions for operation and states.
 	typedef enum 
@@ -77,14 +72,24 @@
 		STATUS_NOT_IMPLEMENTED = 7 // operation not supported
 	} APE_Status;
 	
+	typedef enum
+	{
+		APE_Diag_Info,
+		APE_Diag_Warning,
+		APE_Diag_Error,
+		APE_Diag_CompilationError
+	} APE_Diagnostic;
+
+	typedef void (APE_API * APE_ErrorFunc)(APE_Project*, APE_Diagnostic, const char *);
+
 	#if defined(__cplusplus) && !defined(__cfront)
 		namespace ape
 		{
 			using Status = APE_Status;
-			using ScaleFunc = APE_ScaleFunc;
 			using ErrorFunc = APE_ErrorFunc;
 			using Transformer = APE_Transformer;
 			using Normalizer = APE_Normalizer;
+			using Diagnostic = APE_Diagnostic;
 		};
 	#endif
 #endif

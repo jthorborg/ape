@@ -32,6 +32,7 @@
 
 	#include <cpl/CModule.h>
 	#include <cpl/MacroConstants.h>
+	#include <cpl/Core.h>
 	#include <string>
 	#include "CApi.h"
 	#include <map>
@@ -127,9 +128,7 @@
 		{
 		public:
 
-			CCodeGenerator(const ape::Engine& engine);
-			void setErrorFunc(ErrorFunc f, void * op);
-			void printError(const std::string & message);
+			CCodeGenerator(ape::Engine& engine);
 
 			/*
 				Important: Following functions must be RAII-free.
@@ -152,10 +151,12 @@
 
 		private:
 
-			ErrorFunc errorPrinter;
-			void * opaque;
+			static void pluginDiagnostic(Project* project, Diagnostic diag, const char* text);
+
+			void printError(const cpl::string_ref message, APE_TextColour colour = APE_TextColour_Error);
+
 			std::map<std::string, CCompiler> compilers;
-			const ape::Engine& engine;
+			ape::Engine& engine;
 
 		};
 	};

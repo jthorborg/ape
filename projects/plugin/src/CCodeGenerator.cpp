@@ -32,6 +32,10 @@
 #include <sstream>
 #include <cpl/Misc.h>
 #include "Settings.h"
+#include "SharedInterfaceEx.h"
+#include "Engine.h"
+#include "UIController.h"
+#include "CConsole.h"
 
 namespace ape
 {
@@ -146,23 +150,26 @@ namespace ape
 		std::memset(this, 0, sizeof(*this));
 	}
 
-	CCodeGenerator::CCodeGenerator(const ape::Engine& engine)
-		: errorPrinter(nullptr), engine(engine)
+	CCodeGenerator::CCodeGenerator(ape::Engine& engine)
+		: engine(engine)
 	{
 
 	}
 
-	void CCodeGenerator::setErrorFunc(ErrorFunc f, void * op)
+
+	void CCodeGenerator::pluginDiagnostic(Project * project, Diagnostic diag, const char * text)
 	{
-		opaque = op;
-		errorPrinter = f;
+		if (!project || !text || !project->iface)
+			return;
+
+		auto& engine = SharedInterfaceEx::downcast(*project->iface).getEngine();
+
+		engine.getController().externalDiagnostic(diag, text);
 	}
 
-	void CCodeGenerator::printError(const std::string & message)
+	void CCodeGenerator::printError(const cpl::string_ref message, APE_TextColour colour)
 	{
-		if(opaque && errorPrinter)
-			errorPrinter(opaque, std::string("[Generator] : " + message).c_str());
-
+		engine.getController().console().printLine(colour, "[Generator] : %s", message.c_str());
 	}
 
 	Status CCodeGenerator::activateProject(ProjectEx& project)
@@ -231,7 +238,7 @@ namespace ape
 		}
 		else 
 		{
-			if(project.compiler->bindings.compileProject(&project, opaque, errorPrinter) == Status::STATUS_OK)
+			if(project.compiler->bindings.compileProject(&project) == Status::STATUS_OK)
 			{
 				project.state = CodeState::Compiled;
 				return true;
@@ -352,6 +359,8 @@ namespace ape
 			}
 		}
 
+		project.reportDiagnostic = &pluginDiagnostic;
+
 		if (project.compiler->bindings.createProject(&project) == Status::STATUS_OK) 
 		{
 			project.state = CodeState::Created;
@@ -386,12 +395,12 @@ namespace ape
 	{
 		try
 		{
-			printError("Cleaning " + std::to_string(compilers.size()) + " loaded compiler(s)");
+			printError("Cleaning " + std::to_string(compilers.size()) + " loaded compiler(s)", APE_TextColour_Default);
 			for (auto& pairs : compilers)
 			{
 				if (pairs.second.isInitialized())
 				{
-					printError("Cleaning for " + pairs.first + ": " + pairs.second.name());
+					printError("Cleaning for " + pairs.first + ": " + pairs.second.name(), APE_TextColour_Default);
 					pairs.second.bindings.cleanCache();
 				}
 				else

@@ -35,7 +35,7 @@ extern  "C"
 {
 #endif
 	EXPORTED APE_Status APE_API CreateProject(APE_Project * p);
-	EXPORTED APE_Status APE_API CompileProject(APE_Project * p, void * op, APE_ErrorFunc e);
+	EXPORTED APE_Status APE_API CompileProject(APE_Project * p);
 	EXPORTED APE_Status APE_API InitProject(APE_Project * p);
 	EXPORTED APE_Status APE_API ActivateProject(APE_Project * p);
 	EXPORTED APE_Status APE_API DisableProject(APE_Project * p, int misbehaved);

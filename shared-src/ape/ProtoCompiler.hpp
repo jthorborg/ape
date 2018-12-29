@@ -48,21 +48,15 @@
 			void setProject(Project * p) { project = p; }
 			Project * getProject() noexcept { return project; }
 			// prints to error function
-			void print(const char * s)
+			void print(APE_Diagnostic level, const char * s)
 			{
-				if(errorFunc)
-					errorFunc(opaque, s);
+				if(project && project->reportDiagnostic)
+					project->reportDiagnostic(project, level, s);
 			}
 
-			void print(const std::string& s)
+			void print(APE_Diagnostic level, const std::string& s)
 			{
-				print(s.c_str());
-			}
-
-			void setErrorFunc(void * op, ErrorFunc e)
-			{
-				opaque = op;
-				errorFunc = e;
+				print(level, s.c_str());
 			}
 
 			// wrappers for the compiler api
@@ -80,13 +74,7 @@
 
 			virtual ~ProtoCompiler() {}
 
-			std::pair<void *, ErrorFunc> getErrorFuncDetails() const noexcept { return { opaque, errorFunc }; }
-
 		private:
-			// opaque pointer to be used when error printing
-			void * opaque = nullptr;
-			// error function
-			ErrorFunc errorFunc = nullptr;
 			// the project our instance is associated with
 			Project * project = nullptr;
 

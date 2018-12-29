@@ -40,18 +40,17 @@ using namespace ape;
 
 extern "C" 
 {
-	EXPORTED APE_Status APE_API CreateProject(APE_Project * p)
+	EXPORTED APE_Status APE_API CreateProject(Project * p)
 	{
 		ProtoCompiler * compiler = CreateCompiler();
 		p->userData = compiler;
+		compiler->setProject(p);
 		return STATUS_OK;
 	}
 
-	EXPORTED Status APE_API CompileProject(Project * p, void * op, ErrorFunc e)
+	EXPORTED Status APE_API CompileProject(Project * p)
 	{
 		ProtoCompiler * compiler = reinterpret_cast<ProtoCompiler*>(p->userData);
-		compiler->setProject(p);
-		compiler->setErrorFunc(op, e);
 		return compiler->compileProject();
 	}
 

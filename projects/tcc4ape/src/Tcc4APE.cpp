@@ -73,7 +73,7 @@ namespace TCC4Ape
 	{
 		if (pluginData && !freeLocalMemory())
 		{
-			print("[TCC4Ape] : Leaked memory on script compiler destruction, unable to free!");
+			print(APE_Diag_Error, "[TCC4Ape] : Leaked memory on script compiler destruction, unable to free!");
 		}
 		
 	}
@@ -84,7 +84,7 @@ namespace TCC4Ape
 
 		if (!compiler.isLinked())
 		{
-			print("[TCC4Ape] : Error linking against TCC, module is either not found or invalid.");
+			print(APE_Diag_Error, "[TCC4Ape] : Error linking against TCC, module is either not found or invalid.");
 			return Status::STATUS_ERROR;
 		}
 
@@ -92,7 +92,7 @@ namespace TCC4Ape
 
 		if(!state) 
 		{
-			print("[TCC4Ape] : Error allocating state for TCC compiler");
+			print(APE_Diag_Error, "[TCC4Ape] : Error allocating state for TCC compiler");
 			return Status::STATUS_ERROR;
 		}
 
@@ -105,7 +105,15 @@ namespace TCC4Ape
 		compiler.addIncludePath(state.get(), (std::string(getProject()->rootPath) + "/includes").c_str());
 		compiler.addIncludePath(state.get(), (std::string(getProject()->rootPath) + "/includes/tcc").c_str());
 		compiler.setOutputType(state.get(), TCC_OUTPUT_MEMORY);
-		compiler.setErrorFunc(state.get(), getErrorFuncDetails().first, getErrorFuncDetails().second);
+		compiler.setErrorFunc(
+			state.get(), 
+			this, 
+			[](void* opaque, const char* msg)
+			{
+				auto* compiler = static_cast<ScriptCompiler*>(opaque);
+				compiler->print(APE_Diag_CompilationError, msg);
+			}
+		);
 
 		//	TCC has the nice feature of setting size_t to unsigned int even on 64-bit.
 		//	Lets fix that.
@@ -116,7 +124,7 @@ namespace TCC4Ape
 
 		if(!getProject()->isSingleString) 
 		{
-			print("[TCC4Ape] : Error - Compiler only supports compiling single strings (one file).");
+			print(APE_Diag_CompilationError, "[TCC4Ape] : Error - Compiler only supports compiling single strings (one file).");
 			return Status::STATUS_ERROR;
 		}
 
@@ -139,7 +147,7 @@ namespace TCC4Ape
 
 		if (compiler.relocate(state.get(), TCC_RELOCATE_AUTO) == -1)
 		{
-			print("[TCC4Ape] : Error relocating compiled plugin.");
+			print(APE_Diag_CompilationError, "[TCC4Ape] : Error relocating compiled plugin.");
 			return Status::STATUS_ERROR;
 		}
 
@@ -154,20 +162,20 @@ namespace TCC4Ape
 
 		if(!plugin.test(true)) 
 		{
-			print("[TCC4Ape] : Not all functions required to run plugin was found.");
+			print(APE_Diag_CompilationError, "[TCC4Ape] : Not all functions required to run plugin was found.");
 			return Status::STATUS_ERROR;
 		}
 
 		if(!compiler.getSymbol(state.get(), "check"))
 		{
-			print("[TCC4Ape] : Unable to find certain symbols, did you forget to include \"CInterface.h\"?");
+			print(APE_Diag_CompilationError, "[TCC4Ape] : Unable to find certain symbols, did you forget to include \"CInterface.h\"?");
 			return Status::STATUS_ERROR;
 		}
 
 		globalData = reinterpret_cast<PluginGlobalData *>(compiler.getSymbol(state.get(), "_global_data"));
 		if(!globalData)
 		{
-			print("[TCC4Ape] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+			print(APE_Diag_CompilationError, "[TCC4Ape] :  Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
 				"after you declared your PluginData struct?");
 			return Status::STATUS_ERROR;
 		}
@@ -179,7 +187,7 @@ namespace TCC4Ape
 	{
 		if (!globalData)
 		{
-			print("[TCC4Ape] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+			print(APE_Diag_CompilationError, "[TCC4Ape] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
 				"after you declared your PluginData struct?");
 			return Status::STATUS_ERROR;
 		}
@@ -191,14 +199,14 @@ namespace TCC4Ape
 				pluginData = globalData->PluginAlloc(getProject()->iface);
 				if (!globalData) 
 				{
-					print("[TCC4Ape] : error allocating memory for the sharedObject.");
+					print(APE_Diag_Error, "[TCC4Ape] : error allocating memory for the sharedObject.");
 					return false;
 				}
 				return true;
 			}
 			else
 			{
-				print("[TCC4Ape] : error allocating memory for the sharedObject: plugin specifies own allocators but they do not exist.");
+				print(APE_Diag_Error, "[TCC4Ape] : error allocating memory for the sharedObject: plugin specifies own allocators but they do not exist.");
 				return false;
 			}
 		}
@@ -207,7 +215,7 @@ namespace TCC4Ape
 
 		if (!pluginData)
 		{
-			print("[TCC4Ape] : error allocating memory for the plugin data object.");
+			print(APE_Diag_Error, "[TCC4Ape] : error allocating memory for the plugin data object.");
 			return false;
 		}
 
@@ -218,14 +226,14 @@ namespace TCC4Ape
 	{
 		if (!globalData)
 		{
-			print("[TCC4Ape] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
+			print(APE_Diag_Error, "[TCC4Ape] : Unable to find certain global data, did you forget the line GlobalData(\"your plugin name\") "
 				"after you declared your PluginData struct?");
 			return false;
 		}
 
 		if (!pluginData)
 		{
-			print("[TCC4Ape] : freeLocalMemory called without any plugin data");
+			print(APE_Diag_Error, "[TCC4Ape] : freeLocalMemory called without any plugin data");
 			return false;
 		}
 
@@ -239,7 +247,7 @@ namespace TCC4Ape
 			}
 			else
 			{
-				print("[TCC4Ape] : error freeing memory for the sharedObject.");
+				print(APE_Diag_Error, "[TCC4Ape] : error freeing memory for the sharedObject.");
 				return false;
 			}
 		}
@@ -250,7 +258,7 @@ namespace TCC4Ape
 			return true;
 		}
 
-		print("[TCC4Ape] : error freeing memory for the sharedObject.");
+		print(APE_Diag_Error, "[TCC4Ape] : error freeing memory for the sharedObject.");
 		return false;
 	}
 

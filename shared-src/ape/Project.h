@@ -97,6 +97,8 @@
 		/// ^ number of trace lines
 		/// </summary>
 		size_t numTraceLines;
+
+		APE_ErrorFunc reportDiagnostic;
 	};
 	
 	#ifdef __cplusplus

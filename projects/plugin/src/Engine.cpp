@@ -84,13 +84,13 @@ namespace ape
 		
 		// rest of program
 		controller = std::make_unique<UIController>(*this);
-		codeGenerator.setErrorFunc(&UIController::errorPrint, controller.get());
 		params = std::make_unique<ParameterManager>(*this, 50);
 
 		// settings
 		loadSettings();
-		controller->console().printLine(("[Engine] : Audio Programming Environment <%s> (instance %d) " + cpl::programInfo.version.toString() + " (%s) %s loaded.").c_str(),
+		controller->console().printLine("[Engine] : Audio Programming Environment <%s> (instance %d) %s (%s) %s loaded.",
 			engineType().c_str(), instanceID,
+			cpl::programInfo.version.toString().c_str(),
 			sizeof(void*) == 8 ? "64-bit" : "32-bit",
 			#if defined(_DEBUG) || defined(DEBUG)
 				"debug");

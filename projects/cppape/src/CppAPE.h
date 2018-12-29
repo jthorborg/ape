@@ -69,6 +69,8 @@ namespace CppAPE
 		Status pluginStatus;
 	};
 
+	APE_Diagnostic JitToDiagnostic(jit_error_t error);
+
 	// main class of this program.
 	class ScriptCompiler : public ape::ProtoCompiler
 	{

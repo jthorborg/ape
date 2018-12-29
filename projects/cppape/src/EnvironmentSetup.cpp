@@ -45,7 +45,12 @@ namespace CppAPE
 		CxxTranslationUnit::Builder builder;
 
 		builder
-			.onMessage([this](auto e, auto msg) { print(msg); })
+			.onMessage(
+				[this](auto e, auto msg) 
+				{
+					print(JitToDiagnostic(e), msg); 
+				}
+			)
 			.includeDirs({
 				(root / "runtime").string(),
 				(root / ".." / ".." / "includes" / "libcxx").string(),
@@ -72,24 +77,24 @@ namespace CppAPE
 				.fromFile((root / "runtime" / "runtime.cpp").string())
 				.save((root / "runtime" / "runtime.bc").string());
 
-			print("runtime.cpp -> runtime.bc");
+			print(APE_Diag_Info, "runtime.cpp -> runtime.bc");
 
 			builder
 				.generatePCH(root / ".." / ".." / "includes" / "effect.h", root / "runtime" / "effect.h.pch");
 
-			print("includes/effect.h -> runtime/effect.h.pch");
+			print(APE_Diag_Info, "includes/effect.h -> runtime/effect.h.pch");
 
 			builder
 				.fromFile((root / "runtime" / "libcxx.cpp").string())
 				.save((root / "runtime" / "libcxx.bc").string());
 
-			print("libcxx.cpp -> libcxx.bc");
+			print(APE_Diag_Info, "libcxx.cpp -> libcxx.bc");
 
 			return true;
 		}
 		catch (const CxxTranslationUnit::CompilationException& e)
 		{
-			print(std::string("Exception while compiling: ") + e.what());
+			print(APE_Diag_CompilationError, std::string("Exception while compiling: ") + e.what());
 			return false;
 		}
 

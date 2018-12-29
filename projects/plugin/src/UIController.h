@@ -41,6 +41,7 @@
 	#include <memory>
 	#include "UI/UICommands.h"
 	#include "UI/LabelQueue.h"
+	#include <ape/APE.h>
 
 	namespace ape 
 	{
@@ -61,9 +62,6 @@
 			, public cpl::DestructionNotifier
 			, public cpl::CSerializer::Serializable
 		{
-
-			static constexpr std::size_t magic_value = 0xDEADBEEF;
-			const std::size_t magic = magic_value;
 
 		  public:
 			
@@ -94,12 +92,9 @@
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
 
-			static void errorPrint(void * data, const char * text);
-
+			void externalDiagnostic(Diagnostic level, const cpl::string_ref text);
 
 		private:
-
-			void onErrorMessage(const cpl::string_ref text);
 
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
 			void setProjectName(std::string name);

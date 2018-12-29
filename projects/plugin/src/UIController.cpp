@@ -74,19 +74,6 @@ namespace ape
 		labelQueue.setDefaultMessage("Ready", juce::Colours::lightgoldenrodyellow);
 	}
 
-	void UIController::errorPrint(void * data, const char * text)
-	{
-		if (!data || !text)
-			return;
-
-		UIController * controller = static_cast<UIController*>(data);
-
-		if (controller->magic != magic_value)
-			return;
-
-		controller->onErrorMessage(text);
-	}
-
 	void UIController::onBreakpointsChanged(const std::set<int>& newTraces)
 	{
 		if (auto currentState = engine.getCurrentPluginState(); currentState && currentState->getState() != STATUS_DISABLED)
@@ -94,28 +81,30 @@ namespace ape
 	}
 
 
-	void UIController::onErrorMessage(const cpl::string_ref text)
+	void UIController::externalDiagnostic(Diagnostic level, const cpl::string_ref text)
 	{
-		console().printLine(CConsole::Warning, "[Compiler] : %s", text.c_str());
+		auto messageColour = APE_TextColour_Default;
 
-		int nLinePos(-1), i(0);
-
-		for (; i < text.size(); ++i) 
+		switch (level)
 		{
-			// layout of error message: "<%file%>:%line%: error: %msg%
-			if (text[i] == '>')
-			{
-				i += 2; // skip '>:'
-				if (i >= text.size())
-					break;
-				sscanf(text.c_str() + i, "%d", &nLinePos);
-				break;
-			}
+		case APE_Diag_Warning:
+			messageColour = APE_TextColour_Warning;
+			break;
+		case APE_Diag_CompilationError:
+		{
+			// TODO: Find line error
+			// TCC layout of error message: "<%file%>:%line%: error: %msg%
+			// set the error if the editor is open (not our responsibility), defaults to -1 
+			// which should be ignored by the func.
+			// setEditorError(nLinePos);
+		}
+		case APE_Diag_Error:
+			messageColour = APE_TextColour_Error;
+
 		}
 
-		// set the error if the editor is open (not our responsibility), defaults to -1 
-		// which should be ignored by the func.
-		setEditorError(nLinePos);
+		console().printLine(messageColour, "%s", text.c_str());
+
 	}
 	
 	void UIController::pulseUI()
@@ -227,10 +216,6 @@ namespace ape
 				console().printLine(CConsole::Error, "[GUI] : Failure to activate plugin, no compiled code available.");
 				return false;
 			}
-			
-
-
-
 			break;
 		}
 

@@ -57,7 +57,10 @@
 				void deleteState(TCCState * s) const { return bindings.deleteState(s); }
 				void setLibPath(TCCState * s, const char *path) const { return bindings.setLibPath(s, path); }
 				bool addLibPath(TCCState * s, const char *path) const { return bindings.addLibPath(s, path) != -1; }
-				void setErrorFunc(TCCState * s, void * errorOpaque, APE_ErrorFunc errorFunction) const { return bindings.setErrorFunc(s, errorOpaque, errorFunction); }
+				void setErrorFunc(TCCState * s, void * errorOpaque, void (*errorFunction)(void*, const char*) ) const
+				{ 
+					return bindings.setErrorFunc(s, errorOpaque, errorFunction); 
+				}
 				void addIncludePath(TCCState * s, const char * pathName) const { bindings.addIncludePath(s, pathName); }
 				void defineSymbol(TCCState * s, const char * symbol, const char * value) const { return bindings.defineSymbol(s, symbol, value); }
 				bool compileString(TCCState * s, const char * buffer) const { return bindings.compileString(s, buffer) != -1; }

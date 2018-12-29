@@ -81,7 +81,7 @@ extern "C"
 		lastIFace = iface;
 		if (!pluginCreater)
 		{
-			iface->printThemedLine(iface, APE_TextColour_Default, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
+			iface->printThemedLine(iface, APE_TextColour_Error, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
 			return NULL;
 		}
 		Processor * p = pluginCreater();
