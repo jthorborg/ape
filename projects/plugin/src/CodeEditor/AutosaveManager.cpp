@@ -92,7 +92,7 @@ namespace ape
 		}
 		catch (const std::exception& e)
 		{
-			controller.console().printLine(CConsole::Error, "[Autosave] : Error: %s", e.what());
+			controller.getConsole().printLine(CConsole::Error, "[Autosave] : Error: %s", e.what());
 			return false;
 		}
 
@@ -156,7 +156,7 @@ namespace ape
 
 				if (auto bytesRead = stream->read(bytes.data(), static_cast<int>(bytes.size())); bytesRead != bytes.size())
 				{
-					controller.console().printLine(CConsole::Error,
+					controller.getConsole().printLine(CConsole::Error,
 						"[Autosave] : Error reading file contents of %s (read %d, expected %d bytes)",
 						f.getFileName().toRawUTF8(),
 						static_cast<int>(bytesRead),
@@ -178,7 +178,7 @@ namespace ape
 		}
 		catch (const std::exception& e)
 		{
-			controller.console().printLine(CConsole::Error, "[Autosave] : Exception while checking autosaves: %s", e.what());
+			controller.getConsole().printLine(CConsole::Error, "[Autosave] : Exception while checking autosaves: %s", e.what());
 
 			return false;
 		}

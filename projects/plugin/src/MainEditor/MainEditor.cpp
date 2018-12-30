@@ -72,7 +72,7 @@ namespace ape
 
 		codeWindow = parent.getSourceManager().createCodeEditorComponent();
 
-		consoleWindow = parent.console().create();
+		consoleWindow = parent.getConsole().create();
 		tabs.addComponentToDock(consoleWindow.get());
 		
 		scopeWindow = p.engine.getOscilloscopeData().createWindow();

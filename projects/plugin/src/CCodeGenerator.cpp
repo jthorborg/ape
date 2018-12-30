@@ -169,7 +169,7 @@ namespace ape
 
 	void CCodeGenerator::printError(const cpl::string_ref message, APE_TextColour colour)
 	{
-		engine.getController().console().printLine(colour, "[Generator] : %s", message.c_str());
+		engine.getController().getConsole().printLine(colour, "[Generator] : %s", message.c_str());
 	}
 
 	Status CCodeGenerator::activateProject(ProjectEx& project)

@@ -89,7 +89,7 @@ namespace ape
 		std::string msg ("[Plugin] : ");
 		msg += fmt;
 		juce::Colour colour(nColor);
-		int nRet = engine.getController().console().printLine(colour.withAlpha(1.0f), msg.c_str(), args);
+		int nRet = engine.getController().getConsole().printLine(colour.withAlpha(1.0f), msg.c_str(), args);
 
 		va_end(args);
 
@@ -107,7 +107,7 @@ namespace ape
 		va_start(args, fmt);
 		std::string msg("[Plugin] : ");
 		msg += fmt;
-		int nRet = engine.getController().console().printLine((APE_TextColour)color, msg.c_str(), args);
+		int nRet = engine.getController().getConsole().printLine((APE_TextColour)color, msg.c_str(), args);
 
 		va_end(args);
 

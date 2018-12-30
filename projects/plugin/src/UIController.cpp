@@ -50,10 +50,7 @@ namespace ape
 		: projectName(cpl::programInfo.programAbbr)
 		, editor(nullptr)
 		, engine(effect)
-		, bIsActive(effect.status.bActivated)
-		, bUseBuffers(engine.status.bUseBuffers)
-		, bUseFPUE(engine.status.bUseFPUE)
-		, consolePtr(std::make_unique<CConsole>())
+		, console(std::make_unique<CConsole>())
 	{
 		commandStates = std::make_unique<UICommandState>(*this);
 		
@@ -61,12 +58,10 @@ namespace ape
 
 		// create console
 		if(app["log_console"])
-			console().setLogging(true, cpl::Misc::DirFSPath() / "logs" / ("log"s + std::to_string(engine.instanceCounter()) + ".txt"));
+			getConsole().setLogging(true, cpl::Misc::DirFSPath() / "logs" / ("log"s + std::to_string(engine.instanceCounter()) + ".txt"));
 
 		if (app["console_std_writing"])
-			console().setStdWriting(true);
-
-		uiRefreshInterval = app["ui_refresh_interval"];
+			getConsole().setStdWriting(true);
 
 		sourceManager = MakeSourceManager(*this, effect.getSettings(), effect.uniqueInstanceID());
 		autosaveManager = std::make_unique<AutosaveManager>(effect.uniqueInstanceID(), effect.getSettings(), *sourceManager, *this);
@@ -103,7 +98,7 @@ namespace ape
 
 		}
 
-		console().printLine(messageColour, "%s", text.c_str());
+		getConsole().printLine(messageColour, "%s", text.c_str());
 
 	}
 	
@@ -138,7 +133,7 @@ namespace ape
 	MainEditor * UIController::create()
 	{
 		if (editor)
-			console().printLine(CConsole::Error, "[GUI] : error! Request to create new editor while old one still exists. "
+			getConsole().printLine(CConsole::Error, "[GUI] : error! Request to create new editor while old one still exists. "
 			"Reference to old editor lost!");
 		editor = new MainEditor(*this);
 
@@ -179,7 +174,7 @@ namespace ape
 				case std::future_status::deferred:
 				case std::future_status::timeout:
 					labelQueue.pushMessage("Cannot activate plugin while compiling...", CColours::red, 2000);
-					console().printLine(CConsole::Error, "[GUI] : cannot activate while compiling.");
+					getConsole().printLine(CConsole::Error, "[GUI] : cannot activate while compiling.");
 					return false;
 				}
 			}
@@ -188,7 +183,7 @@ namespace ape
 			{
 				if (currentState->getState() != STATUS_DISABLED)
 				{
-					console().printLine(CConsole::Error, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
+					getConsole().printLine(CConsole::Error, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
 					labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 					return false;
 				}
@@ -206,14 +201,14 @@ namespace ape
 				}
 				else
 				{
-					console().printLine(CConsole::Error, "[GUI] : Error activating plugin.", 2000);
+					getConsole().printLine(CConsole::Error, "[GUI] : Error activating plugin.", 2000);
 					labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 				}
 			}
 			else
 			{
 				labelQueue.pushMessage("No compiled symbols found", CColours::red, 2000);
-				console().printLine(CConsole::Error, "[GUI] : Failure to activate plugin, no compiled code available.");
+				getConsole().printLine(CConsole::Error, "[GUI] : Failure to activate plugin, no compiled code available.");
 				return false;
 			}
 			break;
@@ -280,7 +275,7 @@ namespace ape
 			case std::future_status::deferred:
 			case std::future_status::timeout:
 				labelQueue.pushMessage("Already compiling, please wait...", CColours::red, 2000);
-				console().printLine(CColours::red, "[GUI] : cannot compile while compiling.");
+				getConsole().printLine(CColours::red, "[GUI] : cannot compile while compiling.");
 				break;
 
 			}
@@ -292,12 +287,17 @@ namespace ape
 		return createPlugin(sourceManager->createProject(), enableHotReload);
 	}
 
+	const std::string & UIController::getProjectName() const noexcept 
+	{ 
+		return projectName;
+	}
+
 
 	std::future<std::unique_ptr<PluginState>> UIController::createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload)
 	{
 		if (!project)
 		{
-			console().printLine(CConsole::Error, "[GUI] : Compilation error - invalid project or no text recieved from editor.");
+			getConsole().printLine(CConsole::Error, "[GUI] : Compilation error - invalid project or no text recieved from editor.");
 			labelQueue.pushMessage("No code to compile", CColours::red, 3000);
 
 			return {};
@@ -305,7 +305,7 @@ namespace ape
 
 		setProjectName(project->projectName);
 		labelQueue.pushMessage("Compiling...", CColours::red, 500);
-		console().printLine("[GUI] : Compiling...");
+		getConsole().printLine("[GUI] : Compiling...");
 
 		getUICommandState().changeValueExternally(getUICommandState().compile, 1);
 
@@ -320,13 +320,13 @@ namespace ape
 					auto delta = std::chrono::high_resolution_clock::now() - start;
 					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
 
-					console().printLine("[GUI] : Compiled successfully (%f ms).", time);
+					getConsole().printLine("[GUI] : Compiled successfully (%f ms).", time);
 					labelQueue.pushMessage("Compiled OK!", CColours::green, 2000);
 
 				}
 				catch (const std::exception& e)
 				{
-					console().printLine(CConsole::Error, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
+					getConsole().printLine(CConsole::Error, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
 					labelQueue.pushMessage("Error while compiling (see console)!", CColours::red, 5000);
 				}
 				

@@ -88,7 +88,7 @@ namespace ape
 
 		// settings
 		loadSettings();
-		controller->console().printLine("[Engine] : Audio Programming Environment <%s> (instance %d) %s (%s) %s loaded.",
+		controller->getConsole().printLine("[Engine] : Audio Programming Environment <%s> (instance %d) %s (%s) %s loaded.",
 			engineType().c_str(), instanceID,
 			cpl::programInfo.version.toString().c_str(),
 			sizeof(void*) == 8 ? "64-bit" : "32-bit",
@@ -135,7 +135,7 @@ namespace ape
 		}
 		catch(std::exception & e)
 		{
-			controller->console().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
 		}
 
 	}
@@ -199,7 +199,7 @@ namespace ape
 
 		auto result = pluginState->disableProject();
 
-		controller->console().printLine(result == STATUS_OK ?
+		controller->getConsole().printLine(result == STATUS_OK ?
 			"[Engine] : Plugin disabled without error." :
 			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
 		
@@ -233,18 +233,18 @@ namespace ape
 		{
 		case STATUS_DISABLED:
 		case STATUS_ERROR:
-			controller->console().printLine(CConsole::Error, "[Engine] : An error occured while loading the plugin.");
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : An error occured while loading the plugin.");
 			break;
 		case STATUS_SILENT:
 		case STATUS_WAIT:
-			controller->console().printLine(CConsole::Warning, "[Engine] : Plugin is not ready or is silent.");
+			controller->getConsole().printLine(CConsole::Warning, "[Engine] : Plugin is not ready or is silent.");
 			break;
 		case STATUS_READY:
-			controller->console().printLine("[Engine] : Plugin is loaded and reports no error.");
+			controller->getConsole().printLine("[Engine] : Plugin is loaded and reports no error.");
 			status.bActivated = true;
 			break;
 		default:
-			controller->console().printLine(CConsole::Warning,
+			controller->getConsole().printLine(CConsole::Warning,
 				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", result);
 			status.bActivated = true;
 		}
@@ -343,12 +343,12 @@ namespace ape
 		catch (std::exception & e)
 		{
 
-			controller->console().printLine(CConsole::Error, "[Engine] : Exception while serializing: %s", e.what());
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Exception while serializing: %s", e.what());
 		}
 		if (!ret)
-			controller->console().printLine(CConsole::Error, "[Engine] : Error serializing state!");
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Error serializing state!");
 		else
-			controller->console().printLine("[Engine] : Succesfully serialized state!");
+			controller->getConsole().printLine("[Engine] : Succesfully serialized state!");
 	}
 
 	const juce::String Engine::getName() const
@@ -468,7 +468,7 @@ namespace ape
 		// initialisation that you need..
 		if (delay.bDelayChanged)
 		{
-			controller->console().printLine("initialDelay is changed to %d and reported to host.", delay.newDelay);
+			controller->getConsole().printLine("initialDelay is changed to %d and reported to host.", delay.newDelay);
 			if (delay.newDelay != delay.initialDelay)
 			{
 				this->setLatencySamples(delay.newDelay);

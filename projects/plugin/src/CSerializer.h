@@ -171,7 +171,7 @@
 				// check if success
 				if (!plugin)
 				{
-					engine->getController().console().printLine(CConsole::Error,
+					engine->getController().getConsole().printLine(CConsole::Error,
 						"[Serializer] : Error compiling session file (%s)!", sessionName.c_str());
 					return false;
 				}
@@ -181,7 +181,7 @@
 				// project is now compiled, lets try to activate it
 				if (!engine->activatePlugin())
 				{
-					engine->getController().console().printLine(CConsole::Error,
+					engine->getController().getConsole().printLine(CConsole::Error,
 						"[Serializer] : Error activating project (%s)!", sessionName.c_str());
 					return false;
 
@@ -232,7 +232,7 @@
 				{
 					if (!restoreNewVersion(engine, block, size))
 					{
-						engine->getController().console().printLine(CConsole::Error,
+						engine->getController().getConsole().printLine(CConsole::Error,
 							"[Serializer] : Invalid memory block recieved from host (%d, %d, %d, %d)!",
 							se, size, sizeof(SerializedEngine), se->size);
 						return false;
@@ -246,14 +246,14 @@
 
 				if (engine->getController().getSourceManager().checkAutoSave())
 				{
-					engine->getController().console().printLine(CConsole::Error,
+					engine->getController().getConsole().printLine(CConsole::Error,
 						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
 					return false;
 				}
 				// then, we set it to the file from last session
 				if(!engine->getController().getSourceManager().openFile(se->getFileNameConst()))
 				{
-					engine->getController().console().printLine(CConsole::Error,
+					engine->getController().getConsole().printLine(CConsole::Error,
 						"[Serializer] : Error opening session file (%s)!", se->getFileNameConst());
 					return false;
 				}
@@ -266,7 +266,7 @@
 					// check if success
 					if(!plugin)
 					{
-						engine->getController().console().printLine(CConsole::Error,
+						engine->getController().getConsole().printLine(CConsole::Error,
 							"[Serializer] : Error compiling session file (%s)!", se->getFileNameConst());
 						return false;
 					}
@@ -276,7 +276,7 @@
 					// project is now compiled, lets try to activate it
 					if (!engine->activatePlugin())
 					{
-						engine->getController().console().printLine(CConsole::Error,
+						engine->getController().getConsole().printLine(CConsole::Error,
 							"[Serializer] : Error activating project (%s)!", engine->getController().getProjectName().c_str());
 						return false;
 

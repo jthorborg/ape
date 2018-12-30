@@ -71,21 +71,19 @@
 			UIController(ape::Engine& effect);
 			virtual ~UIController();
 
-			void editorOpened(MainEditor * newEditor);
-			void editorClosed();
 			void pulseUI();
 			MainEditor * create();
-			ape::CConsole& console() noexcept { return *consolePtr.get();	};
+			ape::CConsole& getConsole() noexcept { return *console.get();	};
 			SourceManager& getSourceManager() noexcept { return *sourceManager; }
 			UICommandState& getUICommandState() noexcept { return *commandStates; }
 			LabelQueue& getLabelQueue() noexcept { return labelQueue; }
+			const std::string& getProjectName() const noexcept;
+			void * getSystemWindow();
 
 			void setEditorError(int nLine);
-			void * getSystemWindow();
 			void onBreakpointsChanged(const std::set<int>& newTraces);
 			void recompile(bool hotReload = true);
 			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
-			const std::string& getProjectName() const noexcept { return projectName; }
 
 			bool performCommand(UICommand command);
 
@@ -96,11 +94,14 @@
 
 		private:
 
+			void editorOpened(MainEditor * newEditor);
+			void editorClosed();
+
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
 			void setProjectName(std::string name);
 
 			std::unique_ptr<AutosaveManager> autosaveManager;
-			std::unique_ptr<CConsole> consolePtr;
+			std::unique_ptr<CConsole> console;
 			std::unique_ptr<SourceManager> sourceManager;
 			std::unique_ptr<UICommandState> commandStates;
 
@@ -109,14 +110,7 @@
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			LabelQueue labelQueue;			
 			CColour statusColour;
-			std::string projectName;
-
-
-			// these are refererences to the engine
-			volatile bool & bUseBuffers;
-			volatile bool & bUseFPUE;
-			volatile bool & bIsActive;
-			int uiRefreshInterval;			
+			std::string projectName;	
 		};
 	};
 #endif

@@ -461,7 +461,7 @@ namespace ape
 		}
 		catch (const cpl::CProtected::CSystemException& exp)
 		{
-			engine.getController().console().printLine(
+			engine.getController().getConsole().printLine(
 				CConsole::Error,
 				"[PluginState] : Exception 0x%X occured in plugin at operation: %s: \"%s\". Plugin disabled.",
 				exp.data.exceptCode, 
@@ -485,7 +485,7 @@ namespace ape
 					
 					if (!bad)
 					{
-						engine.getController().console().printLine(CConsole::Warning, "[PluginState] : Plugin accessed memory out of bounds. "
+						engine.getController().getConsole().printLine(CConsole::Warning, "[PluginState] : Plugin accessed memory out of bounds. "
 							"Consider saving your project and restarting your application.");
 					}
 					else
@@ -512,7 +512,7 @@ namespace ape
 		}
 		catch (const AbortException& exp)
 		{
-			engine.getController().console().printLine(
+			engine.getController().getConsole().printLine(
 				CConsole::Warning,
 				"[PluginState] : Plugin aborted at operation: %s: \"%s\". Plugin disabled.",
 				reason,
@@ -521,7 +521,7 @@ namespace ape
 		}
 		catch (const std::runtime_error& err)
 		{
-			engine.getController().console().printLine(
+			engine.getController().getConsole().printLine(
 				CConsole::Warning,
 				"[PluginState] : Runtime error at operation: %s: \"%s\". Plugin disabled.",
 				reason,
@@ -530,7 +530,7 @@ namespace ape
 		}
 		catch (const std::exception& err)
 		{
-			engine.getController().console().printLine(
+			engine.getController().getConsole().printLine(
 				CConsole::Warning,
 				"[PluginState] : Unknown exception at operation: %s: \"%s\". Plugin disabled.",
 				reason,
