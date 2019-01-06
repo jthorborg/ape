@@ -134,7 +134,12 @@ namespace ape
 		DockWindowState(jcredland::TabDock& dock, juce::Component& c)
 			: detached(!dock.contains(c)), position(-1)
 		{
-			auto bounds = c.getScreenBounds();
+			juce::Rectangle<int> bounds;
+
+			if (auto* p = c.getPeer())
+				bounds = p->getBounds();
+			else
+				bounds = c.getScreenBounds();
 
 			x = bounds.getX();
 			y = bounds.getY();

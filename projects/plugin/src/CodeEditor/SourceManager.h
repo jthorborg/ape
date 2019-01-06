@@ -77,7 +77,7 @@
 			EditSelectAll
 			*/
 
-			End
+			End = BuildEnd
 		};
 
 		/// <summary>
