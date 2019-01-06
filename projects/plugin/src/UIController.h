@@ -42,6 +42,7 @@
 	#include "UI/UICommands.h"
 	#include "UI/LabelQueue.h"
 	#include <ape/APE.h>
+	#include <cpl/state/DecoupledStateObject.h>
 
 	namespace ape 
 	{
@@ -106,7 +107,7 @@
 			std::unique_ptr<UICommandState> commandStates;
 
 			ape::Engine& engine;
-			MainEditor * editor;
+			std::unique_ptr<cpl::SerializableStateObject<MainEditor>> editorSSO;
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			LabelQueue labelQueue;			
 			CColour statusColour;

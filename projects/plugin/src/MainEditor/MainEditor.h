@@ -33,12 +33,10 @@
 
 	#include "../Common.h"
 	#include "../GraphicComponents.h"
-	#include <vector>
 	#include <cpl/Misc.h>
 	#include <cpl/CMutex.h>
 	#include <cpl/gui/CViews.h>
 	#include <cpl/gui/controls/Controls.h>
-	#include <future>
 	#include <memory>
 	#include <dockable-windows\Source\JDockableWindows.h>
 	#include "../UI/PlayStateButton.h"
@@ -81,6 +79,9 @@
 			void resized() override;
 
 		private:
+
+			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
+			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
 
 			juce::Rectangle<int> getContentArea();
 

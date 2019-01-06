@@ -48,10 +48,17 @@ namespace ape
 
 	UIController::UIController(ape::Engine& effect)
 		: projectName(cpl::programInfo.programAbbr)
-		, editor(nullptr)
 		, engine(effect)
 		, console(std::make_unique<CConsole>())
 	{
+
+		editorSSO = std::make_unique<cpl::SerializableStateObject<MainEditor>>(
+			[this] 
+			{ 
+				return std::make_unique<MainEditor>(*this); 
+			}
+		);
+
 		commandStates = std::make_unique<UICommandState>(*this);
 		
 		auto& app = effect.getSettings().root()["application"];
@@ -127,21 +134,19 @@ namespace ape
 
 	void UIController::editorClosed()
 	{
-		editor = nullptr;
 	}
 
 	MainEditor * UIController::create()
 	{
-		if (editor)
+		if (editorSSO->hasCached())
 			getConsole().printLine(CConsole::Error, "[GUI] : error! Request to create new editor while old one still exists. "
 			"Reference to old editor lost!");
-		editor = new MainEditor(*this);
 
+		auto instance = editorSSO->getUnique();
 		auto const bUseOpenGL = engine.getSettings().lookUpValue(false, "application", "render_opengl");
+		instance->initialize(bUseOpenGL);
 		
-		editor->initialize(bUseOpenGL);
-		
-		return editor;
+		return instance.acquire();
 	}
 
 
@@ -193,9 +198,9 @@ namespace ape
 					// success
 					labelQueue.setDefaultMessage("Plugin activated", CColours::green);
 					getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
-					if (editor)
+					if (editorSSO->hasCached())
 					{
-						editor->onPluginStateChanged(*currentState, true);
+						editorSSO->getCached()->onPluginStateChanged(*currentState, true);
 					}
 
 				}
@@ -221,8 +226,10 @@ namespace ape
 				if (plugin->getState() != STATUS_DISABLED)
 				{
 					labelQueue.pushMessage("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
-					if (editor)
-						editor->onPluginStateChanged(*plugin, false);
+
+					if (editorSSO->hasCached())
+						editorSSO->getCached()->onPluginStateChanged(*plugin, false);
+
 					engine.disablePlugin(true);
 
 					getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
@@ -248,6 +255,7 @@ namespace ape
 	{
 		ar["source-manager"] << *sourceManager;
 		ar["command-state"] << *commandStates;
+		ar["editor"] = editorSSO->getState();
 	}
 
 	void UIController::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
@@ -255,6 +263,8 @@ namespace ape
 		builder["source-manager"] >> *sourceManager;
 		if(builder.findForKey("command-state") != nullptr)
 			builder["command-state"] >> *commandStates;
+
+		editorSSO->setState(builder["editor"], version);
 	}
 
 	void UIController::recompile(bool hotReload)
@@ -354,7 +364,7 @@ namespace ape
 
 	void * UIController::getSystemWindow() 
 	{ 
-		return editor ? editor->getWindowHandle() : nullptr; 
+		return editorSSO->hasCached() ? editorSSO->getCached()->getWindowHandle() : nullptr; 
 	}
 
 	juce::AudioProcessorEditor* Engine::createEditor()

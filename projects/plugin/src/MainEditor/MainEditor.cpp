@@ -103,7 +103,6 @@ namespace ape
 
 		statusLabel->setFontSize(TextSize::largeText);
 		statusLabel->setJustification(juce::Justification::centredRight);
-		statusLabel->setColour(CColours::lightgoldenrodyellow);
 		addAndMakeVisible(*statusLabel);
 
 		addAndMakeVisible(tabs);
@@ -113,6 +112,8 @@ namespace ape
 
 	MainEditor::~MainEditor()
 	{
+		notifyDestruction();
+
 		oglc.detach();
 
 		if (isTimerRunning())
@@ -121,6 +122,67 @@ namespace ape
 		parent.editorClosed();
 
 		scopeWindow = nullptr;
+	}
+
+	struct DockWindowState
+	{
+		std::int32_t x, y;
+		std::int32_t width, height;
+		std::uint8_t detached;
+		std::int8_t position;
+
+		DockWindowState(jcredland::TabDock& dock, juce::Component& c)
+			: detached(!dock.contains(c)), position(-1)
+		{
+			auto bounds = c.getScreenBounds();
+
+			x = bounds.getX();
+			y = bounds.getY();
+			width = bounds.getWidth();
+			height = bounds.getHeight();
+		}
+
+		DockWindowState()
+			: detached(0), x(0), y(0), width(0), height(0), position(-1)
+		{
+
+		}
+
+		void apply(jcredland::DockableWindowManager& mgr, juce::Component& c)
+		{
+			if (detached)
+			{
+				c.setSize(width, height);
+				mgr.detachComponentFromDock(c, { x, y });
+			}
+		}
+	};
+
+	void MainEditor::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
+	{
+		auto& windows = ar["windows"];
+
+		windows << DockWindowState(tabs, *consoleWindow.get());
+		windows << DockWindowState(tabs, *scopeWindow.get());
+		windows << DockWindowState(tabs, *scopeSettingsWindow.get());
+		windows << DockWindowState(tabs, *codeWindow.get());
+		windows << (pluginSurface ? DockWindowState(tabs, *pluginSurface.get()) : DockWindowState());
+
+	}
+
+	void MainEditor::deserialize(cpl::CSerializer::Builder & ar, cpl::Version version)
+	{
+		DockWindowState s;
+		auto& windows = ar["windows"];
+
+		windows >> s; s.apply(dockManager, *consoleWindow.get());
+		windows >> s; s.apply(dockManager, *scopeWindow.get());
+		windows >> s; s.apply(dockManager, *scopeSettingsWindow.get());
+		windows >> s; s.apply(dockManager, *codeWindow.get());
+		windows >> s;
+
+		if(pluginSurface)
+			s.apply(dockManager, *pluginSurface.get());
 	}
 
 	juce::Rectangle<int> MainEditor::getContentArea()
@@ -201,7 +263,7 @@ namespace ape
 	{
 		const auto profiler = parent.engine.getProfilingData();
 
-		char buf[200];
+		char buf[1024];
 
 		sprintf_s(buf, "Instance %d - cpu: %.2f%% - accps: ~%d (%d)",
 			parent.engine.instanceCounter(),

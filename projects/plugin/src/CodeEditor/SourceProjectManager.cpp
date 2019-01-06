@@ -79,6 +79,7 @@ namespace ape
 			controller.getConsole().printLine(CConsole::Error, "Error reading default file from config... %s", e.what());
 		}
 
+		loadHotkeys();
 	}
 
 	SourceProjectManager::~SourceProjectManager()
@@ -216,8 +217,6 @@ namespace ape
 	std::unique_ptr<DockWindow> SourceProjectManager::createSuitableCodeEditorWindow()
 	{
 		auto window = std::make_unique<CodeEditorWindow>(settings);
-
-		loadHotkeys();
 		window->setAppCM(&appCM);
 
 		return std::move(window);
