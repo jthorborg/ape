@@ -101,34 +101,20 @@
 		{
 		public:
 
-			static bool serialize(Engine * engine, juce::MemoryBlock & destination)
+			static bool serialize(Engine& engine, juce::MemoryBlock& destination)
 			{
 				cpl::CCheckedSerializer serializer("Audio Programming Environment");
 				auto& archive = serializer.getArchiver();
 				archive.setMasterVersion(CurrentVersion);
 
-				Status state = engine->getCurrentPluginState() ? engine->getCurrentPluginState()->getState() : STATUS_DISABLED;
-
-				// we basically quantize all engine states to running or not running
-				// anything in between is error states or intermediate states.
-				bool isActivated(false);
-
-				switch (state)
-				{
-				case Status::STATUS_OK:
-				case Status::STATUS_READY:
-					isActivated = true;
-					break;
-				}
-
-				archive << isActivated;
+				archive << engine.isProcessingAPlugin();
 
 				archive["scope-data"]["state"].setMasterVersion({ SIGNALIZER_MAJOR, SIGNALIZER_MINOR, SIGNALIZER_BUILD });
-				archive["scope-data"]["state"] << engine->getOscilloscopeData().getContent();
-				archive["controller"] << *engine->controller;
-				archive["session-name"] << engine->controller->getProjectName();
+				archive["scope-data"]["state"] << engine.getOscilloscopeData().getContent();
+				archive["controller"] << engine.getController();
+				archive["session-name"] << engine.getController().getProjectName();
 
-				archive["params"] << engine->getParameterManager().getParameterSet();
+				archive["params"] << engine.getParameterManager().getParameterSet();
 
 				auto content = serializer.compile(true);
 
@@ -137,7 +123,7 @@
 				return true;
 			}
 
-			static bool restoreNewVersion(Engine* engine, const void* block, unsigned size)
+			static bool restoreNewVersion(Engine& engine, const void* block, unsigned size)
 			{
 				cpl::CCheckedSerializer serializer("Audio Programming Environment");
 				if (!serializer.build({ block, size }))
@@ -152,36 +138,37 @@
 				builder >> isActivated;
 
 				std::string sessionName;
+				auto& controller = engine.getController();
 
 				builder["session-name"] >> sessionName;
-				builder["controller"] >> *engine->controller;
+				builder["controller"] >> controller;
 
 				if (builder.findForKey("scope-data"))
 				{
 					auto& scope = builder["scope-data"];
-					scope["state"] >> engine->getOscilloscopeData().getContent();
+					scope["state"] >> engine.getOscilloscopeData().getContent();
 				}
 
 				if (!isActivated)
 					return true;
 
 				// try to compile the project
-				auto plugin = engine->getController().createPlugin(false).get();
+				auto plugin = controller.createPlugin(false).get();
 
 				// check if success
 				if (!plugin)
 				{
-					engine->getController().getConsole().printLine(CConsole::Error,
+					controller.getConsole().printLine(CConsole::Error,
 						"[Serializer] : Error compiling session file (%s)!", sessionName.c_str());
 					return false;
 				}
 
-				engine->exchangePlugin(std::move(plugin));
+				controller.setPlugin(std::move(plugin));
 
 				// project is now compiled, lets try to activate it
-				if (!engine->activatePlugin())
+				if (!controller.performCommand(UICommand::Activate))
 				{
-					engine->getController().getConsole().printLine(CConsole::Error,
+					controller.getConsole().printLine(CConsole::Error,
 						"[Serializer] : Error activating project (%s)!", sessionName.c_str());
 					return false;
 
@@ -190,7 +177,7 @@
 				if (auto* list = builder.findForKey("params"))
 				{
 					auto& params = builder["params"];
-					params >> engine->getParameterManager().getParameterSet();
+					params >> engine.getParameterManager().getParameterSet();
 
 				}
 				else if(builder.findForKey("parameters"))
@@ -201,7 +188,7 @@
 					if (builder.findForKey("parameter-count"))
 						builder["parameter-count"] >> parameters;
 
-					auto& manager = engine->getParameterManager();
+					auto& manager = engine.getParameterManager();
 
 					for (std::size_t i = 0; i < parameters; ++i)
 					{
@@ -212,17 +199,19 @@
 					}
 				}
 
-				auto& commands = engine->getController().getUICommandState();
+				auto& commands = controller.getUICommandState();
 				commands.changeValueExternally(commands.activationState, 1.0);
 
 				return true;
 
 			}
 
-			static bool restore(Engine * engine, const void * block, unsigned size)
+			static bool restore(Engine& engine, const void * block, unsigned size)
 			{
 				using namespace cpl;
 				const SerializedEngine * se = reinterpret_cast<const SerializedEngine *> (block);
+				auto& controller = engine.getController();
+				auto& console = controller.getConsole();
 				// some basic checks
 				if (
 					!se // nullpointer check
@@ -232,7 +221,7 @@
 				{
 					if (!restoreNewVersion(engine, block, size))
 					{
-						engine->getController().getConsole().printLine(CConsole::Error,
+						console.printLine(CConsole::Error,
 							"[Serializer] : Invalid memory block recieved from host (%d, %d, %d, %d)!",
 							se, size, sizeof(SerializedEngine), se->size);
 						return false;
@@ -244,16 +233,16 @@
 					return restoreNewVersion(engine, block, size);
 				}
 
-				if (engine->getController().getSourceManager().checkAutoSave())
+				if (controller.getSourceManager().checkAutoSave())
 				{
-					engine->getController().getConsole().printLine(CConsole::Error,
+					console.printLine(CConsole::Error,
 						"[Serializer] : Autosave was restored, reopen the project to perform normal serialization.");
 					return false;
 				}
 				// then, we set it to the file from last session
-				if(!engine->getController().getSourceManager().openFile(se->getFileNameConst()))
+				if(!controller.getSourceManager().openFile(se->getFileNameConst()))
 				{
-					engine->getController().getConsole().printLine(CConsole::Error,
+					console.printLine(CConsole::Error,
 						"[Serializer] : Error opening session file (%s)!", se->getFileNameConst());
 					return false;
 				}
@@ -261,23 +250,23 @@
 				if (se->isActivated)
 				{
 					// try to compile the project
-					auto plugin = engine->getController().createPlugin(false).get();
+					auto plugin = controller.createPlugin(false).get();
 
 					// check if success
 					if(!plugin)
 					{
-						engine->getController().getConsole().printLine(CConsole::Error,
+						console.printLine(CConsole::Error,
 							"[Serializer] : Error compiling session file (%s)!", se->getFileNameConst());
 						return false;
 					}
 
-					engine->exchangePlugin(std::move(plugin));
+					controller.setPlugin(std::move(plugin));
 
 					// project is now compiled, lets try to activate it
-					if (!engine->activatePlugin())
+					if (!controller.performCommand(UICommand::Activate))
 					{
-						engine->getController().getConsole().printLine(CConsole::Error,
-							"[Serializer] : Error activating project (%s)!", engine->getController().getProjectName().c_str());
+						console.printLine(CConsole::Error,
+							"[Serializer] : Error activating project (%s)!", controller.getProjectName().c_str());
 						return false;
 
 					}
@@ -285,14 +274,14 @@
 					// get values
 					const SerializedEngine::ControlValue * values = se->getValuesConst();
 
-					auto& manager = engine->getParameterManager();
+					auto& manager = engine.getParameterManager();
 
 					for (std::size_t i = 0; i < se->numValues; ++i)
 					{
 						manager.setParameter(i, values[i].value);
 					}
 
-					auto& commands = engine->getController().getUICommandState();
+					auto& commands = controller.getUICommandState();
 					commands.changeValueExternally(commands.activationState, 1.0);
 				}
 

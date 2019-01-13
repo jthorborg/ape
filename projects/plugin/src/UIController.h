@@ -84,14 +84,17 @@
 			void setEditorError(int nLine);
 			void onBreakpointsChanged(const std::set<int>& newTraces);
 			void recompile(bool hotReload = true);
+
+			// TODO: Make private.
 			std::future<std::unique_ptr<PluginState>> createPlugin(bool enableHotReload = true);
 
 			bool performCommand(UICommand command);
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
-
 			void externalDiagnostic(Diagnostic level, const cpl::string_ref text);
+
+			void setPlugin(std::shared_ptr<PluginState> newPlugin);
 
 		private:
 
@@ -107,6 +110,7 @@
 			std::unique_ptr<UICommandState> commandStates;
 
 			ape::Engine& engine;
+			std::shared_ptr<PluginState> currentPlugin;
 			std::unique_ptr<cpl::SerializableStateObject<MainEditor>> editorSSO;
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			LabelQueue labelQueue;			

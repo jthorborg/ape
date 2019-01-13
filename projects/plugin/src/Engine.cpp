@@ -76,7 +76,6 @@ namespace ape
 	{
 
 		// some variables...
-		status.bUseBuffers = true;
 		status.bUseFPUE = false;
 		programName = "Default";
 		
@@ -125,10 +124,6 @@ namespace ape
 	{
 		try 
 		{
-
-			bool useBuffers = settings.root()["application"]["use_buffers"];
-			status.bUseBuffers = useBuffers;
-
 			bool usefpe = settings.root()["application"]["use_fpe"];
 			status.bUseFPUE = usefpe;
 			
@@ -167,7 +162,7 @@ namespace ape
 		};
 	}
 
-	void Engine::exchangePlugin(std::unique_ptr<PluginState> newPlugin)
+	void Engine::exchangePlugin(std::shared_ptr<PluginState> newPlugin)
 	{
 		std::unique_lock<std::shared_mutex> lock(pluginMutex);
 
@@ -276,7 +271,7 @@ namespace ape
 			pluginState->processReplacing(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numSamples, &profiledClocks);
 
 			if (tracerState.changesPending())
-				consumeTracerChanges(tracerState);
+				onInitialTracerChanges(tracerState);
 
 			tracerState.endPhase();
 
@@ -303,7 +298,12 @@ namespace ape
 
 	}
 
-	void Engine::consumeTracerChanges(TracerState& state)
+	void Engine::pulse()
+	{
+		params->pulse();
+	}
+
+	void Engine::onInitialTracerChanges(TracerState& state)
 	{
 		if (state.getTraceCount() != 0)
 		{
@@ -320,6 +320,10 @@ namespace ape
 		scopeData.initializeColours(ioConfig.inputs + ioConfig.outputs + state.getTraceCount());
 	}
 
+	void Engine::handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount)
+	{
+		tracerState.handleTrace(names, nameCount, values, valueCount);
+	}
 
 	bool Engine::hasEditor() const
 	{
@@ -330,7 +334,7 @@ namespace ape
 	{
 		std::shared_lock<std::shared_mutex> lock(pluginMutex);
 
-		CSerializer::serialize(this, destData);
+		CSerializer::serialize(*this, destData);
 	}
 
 	void Engine::setStateInformation(const void* data, int sizeInBytes)
@@ -338,7 +342,7 @@ namespace ape
 		bool ret = false;
 		try
 		{
-			ret = CSerializer::restore(this, data, sizeInBytes);
+			ret = CSerializer::restore(*this, data, sizeInBytes);
 		}
 		catch (std::exception & e)
 		{
@@ -528,12 +532,6 @@ namespace ape
 		if(pluginState)
 			pluginState->setPlayState(isPlaying);
 	}
-
-	void Engine::handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount)
-	{
-		tracerState.handleTrace(names, nameCount, values, valueCount);
-	}
-
 
 }
 

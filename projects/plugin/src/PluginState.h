@@ -175,6 +175,7 @@
 				playing,
 				expired,
 				enabled;
+
 			IOConfig config;
 			cpl::CMutex::Lockable expiredMutex;
 			std::atomic<int> useCount;

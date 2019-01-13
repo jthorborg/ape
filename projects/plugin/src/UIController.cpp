@@ -78,7 +78,7 @@ namespace ape
 
 	void UIController::onBreakpointsChanged(const std::set<int>& newTraces)
 	{
-		if (auto currentState = engine.getCurrentPluginState(); currentState && currentState->getState() != STATUS_DISABLED)
+		if (engine.isProcessingAPlugin())
 			recompile();
 	}
 
@@ -108,10 +108,22 @@ namespace ape
 		getConsole().printLine(messageColour, "%s", text.c_str());
 
 	}
+
+	void UIController::setPlugin(std::shared_ptr<PluginState> newPlugin)
+	{
+		if (currentPlugin)
+		{
+			// TODO
+			int k = 0;
+		}
+
+		currentPlugin = std::move(newPlugin);
+		engine.exchangePlugin(currentPlugin);
+	}
 	
 	void UIController::pulseUI()
 	{
-		engine.getParameterManager().pulse();
+		engine.pulse();
 		labelQueue.pulseQueue();
 	}
 
@@ -123,9 +135,9 @@ namespace ape
 
 	void UIController::editorOpened(MainEditor * newEditor)
 	{
-		if (auto state = engine.getCurrentPluginState(); state && state->isEnabled())
+		if (currentPlugin && currentPlugin->isEnabled())
 		{
-			newEditor->onPluginStateChanged(*state, true);
+			newEditor->onPluginStateChanged(*currentPlugin, true);
 		}
 
 		autosaveManager->checkAutosave();
@@ -173,8 +185,7 @@ namespace ape
 				switch (compilerState.wait_for(std::chrono::seconds(0)))
 				{
 				case std::future_status::ready:
-					engine.disablePlugin(true);
-					engine.exchangePlugin(compilerState.get());
+					setPlugin(compilerState.get());
 					break;
 				case std::future_status::deferred:
 				case std::future_status::timeout:
@@ -184,9 +195,9 @@ namespace ape
 				}
 			}
 
-			if (auto currentState = engine.getCurrentPluginState())
+			if (currentPlugin)
 			{
-				if (currentState->getState() != STATUS_DISABLED)
+				if (currentPlugin->isEnabled())
 				{
 					getConsole().printLine(CConsole::Error, "[GUI] : Cannot activate plugin that's not disabled.", 2000);
 					labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
@@ -200,7 +211,7 @@ namespace ape
 					getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
 					if (editorSSO->hasCached())
 					{
-						editorSSO->getCached()->onPluginStateChanged(*currentState, true);
+						editorSSO->getCached()->onPluginStateChanged(*currentPlugin, true);
 					}
 
 				}
@@ -221,19 +232,16 @@ namespace ape
 
 		case UICommand::Deactivate:
 		{
-			if (auto plugin = engine.getCurrentPluginState())
+			if (currentPlugin && currentPlugin->isEnabled())
 			{
-				if (plugin->getState() != STATUS_DISABLED)
-				{
-					labelQueue.pushMessage("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
+				labelQueue.pushMessage("Plugin disabled", CColours::lightgoldenrodyellow, 1000);
 
-					if (editorSSO->hasCached())
-						editorSSO->getCached()->onPluginStateChanged(*plugin, false);
+				if (editorSSO->hasCached())
+					editorSSO->getCached()->onPluginStateChanged(*currentPlugin, false);
 
-					engine.disablePlugin(true);
+				engine.disablePlugin(true);
 
-					getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
-				}
+				getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
 			}
 			break;
 		}
@@ -242,7 +250,6 @@ namespace ape
 		{
 			engine.getCodeGenerator().cleanAllCaches();
 		}
-
 
 		default:
 			break;

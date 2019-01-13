@@ -260,8 +260,9 @@ namespace ape
 	{
 		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 
-		if (!IEx::downcast(*iface).getCurrentPluginState().isProcessing())
+		if (!pstate.isProcessing())
 			THROW("Can only be called from a processing callback");
 
 		double ret = 0.0;
@@ -310,9 +311,10 @@ namespace ape
 		REQUIRES_NOTZERO(numNames);
 		REQUIRES_NOTZERO(numValues);
 
+		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 		auto& engine = IEx::downcast(*iface).getEngine();
 
-		if (!engine.getCurrentPluginState()->isProcessing())
+		if (!pstate.isProcessing())
 			THROW("Can only be called from a processing callback");
 
 		engine.handleTraceCallback(nameTuple, numNames, values, numValues);

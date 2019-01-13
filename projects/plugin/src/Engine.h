@@ -62,7 +62,7 @@
 
 			friend class PluginState;
 			friend class UIController;
-			friend class CSerializer;
+			//friend class CSerializer;
 			friend class ParameterManager;
 
 		public:
@@ -80,17 +80,13 @@
 
 			OscilloscopeData& getOscilloscopeData() { return scopeData; }
 			UIController& getController() { return *controller; }
-			PluginState * getCurrentPluginState() { return pluginState.get(); }
 			CCodeGenerator& getCodeGenerator() noexcept { return codeGenerator; }
 			Settings& getSettings() noexcept { return settings; }
 			const Settings& getSettings() const noexcept { return settings; }
 			ParameterManager& getParameterManager() noexcept { return *params; }
 			ProfilerData getProfilingData() const noexcept;
+			bool isProcessingAPlugin() const noexcept { return status.bActivated; }
 
-			void exchangePlugin(std::unique_ptr<PluginState> plugin);
-			void disablePlugin(bool fromEditor = true);
-			bool activatePlugin();
-			void useProtectedBuffers(bool bValue) { status.bUseBuffers = bValue; }
 			std::int32_t uniqueInstanceID() const noexcept;
 			std::int32_t instanceCounter() const noexcept;
 			void changeInitialDelay(long samples) noexcept;
@@ -133,7 +129,13 @@
 
 		private:
 
-			void consumeTracerChanges(TracerState& state);
+			void disablePlugin(bool fromEditor = true);
+			bool activatePlugin();
+			void pulse();
+			void exchangePlugin(std::shared_ptr<PluginState> plugin);
+
+
+			void onInitialTracerChanges(TracerState& state);
 
 			void loadSettings();
 			std::string engineType() const noexcept;
@@ -142,7 +144,6 @@
 
 			struct {
 				volatile bool bActivated;
-				volatile bool bUseBuffers;
 				volatile bool bUseFPUE;
 
 			} status;
@@ -157,7 +158,7 @@
 			CCodeGenerator codeGenerator;
 			cpl::ConcurrentObjectSwapper<PluginState> rtPlugin;
 			std::unique_ptr<UIController> controller;
-			std::unique_ptr<PluginState> pluginState;
+			std::shared_ptr<PluginState> pluginState;
 			std::unique_ptr<ParameterManager> params;
 
 			TracerState tracerState;
@@ -170,6 +171,8 @@
 			AuxMatrix auxMatrix;
 
 			std::atomic<double> averageClocks, clocksPerSample;
+
+			// ----
 		};
 	}
 #endif
