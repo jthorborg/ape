@@ -36,6 +36,25 @@
 
 	namespace ape 
 	{
+		class PluginState;
+
+		enum class PluginExchangeReason
+		{
+			Exchanged = 1 << 0,
+			Crash = 1 << 1
+		};
+
+		PluginExchangeReason operator | (PluginExchangeReason a, PluginExchangeReason b)
+		{
+			return PluginExchangeReason((int)a | (int)b);
+		}
+
+		PluginExchangeReason operator & (PluginExchangeReason a, PluginExchangeReason b)
+		{
+			return PluginExchangeReason((int)a & (int)b);
+		}
+
+
 		class AuxMatrix
 		{
 		public:
@@ -61,6 +80,28 @@
 				for (std::size_t i = 0; i < numBuffers; ++i)
 				{
 					std::memcpy(auxBuffers[i + index], buffers[i], bufferLength * sizeof(float));
+				}
+			}
+
+			void accumulate(const float** buffers, std::size_t index, std::size_t numBuffers, float start, float end)
+			{
+				const auto delta = end - start;
+
+				for (std::size_t i = 0; i < numBuffers; ++i)
+				{
+					for (std::size_t n = 0; n < bufferLength; ++n)
+					{
+						const float progress = n / float(bufferLength - 1);
+						auxBuffers[i + index][n] += buffers[i][n] * (start + progress * delta);
+					}
+				}
+			}
+
+			void clear(std::size_t index, std::size_t numBuffers)
+			{
+				for (std::size_t i = 0; i < numBuffers; ++i)
+				{
+					std::memset(auxBuffers[i + index], 0, bufferLength * sizeof(float));
 				}
 			}
 
@@ -211,6 +252,45 @@
 			ChannelNamePool pool;
 			std::size_t numTraces = 0, traceCounter = 0, matrixOffset = 0;
 			bool firstPhase = true;
+		};
+
+		union EngineCommand
+		{
+		public:
+
+			enum class Type
+			{
+				Transfer = 7
+			};
+
+			struct TransferPlugin
+			{
+				static EngineCommand Create(PluginState* state)
+				{
+					EngineCommand ret;
+					ret.type = Type::Transfer;
+					ret.transfer.state = state;
+					ret.transfer.reason = PluginExchangeReason::Exchanged;
+					ret.transfer.tracer = new TracerState();
+				}
+
+				static EngineCommand Return(PluginState* state, TracerState* tracer, PluginExchangeReason reason)
+				{
+					EngineCommand ret;
+					ret.type = Type::Transfer;
+					ret.transfer.state = state;
+					ret.transfer.tracer = tracer;
+					ret.transfer.reason = reason;
+				}
+
+				PluginState* state;
+				TracerState* tracer;
+				PluginExchangeReason reason;
+			};
+
+			Type type;
+
+			TransferPlugin transfer;
 		};
 	}
 #endif

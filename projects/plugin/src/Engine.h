@@ -43,9 +43,11 @@
 	#include <shared_mutex>
 	#include "CCodeGenerator.h"
 	#include "Engine/EngineStructures.h"
+	#include <vector>
 	// TODO: remove
 	#include "SignalizerWindow.h"
-
+	#include <cpl/lib/LockFreeQueue.h>
+	
 	namespace ape 
 	{
 
@@ -91,6 +93,7 @@
 			std::int32_t instanceCounter() const noexcept;
 			void changeInitialDelay(long samples) noexcept;
 			void handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount);
+			void pulse();
 
 		protected:
 
@@ -129,11 +132,9 @@
 
 		private:
 
-			void disablePlugin(bool fromEditor = true);
-			bool activatePlugin();
-			void pulse();
+			bool processPlugin(PluginState& plugin, TracerState& state, std::size_t numSamples, const float* const* inputs);
+			void processReturnQueue();
 			void exchangePlugin(std::shared_ptr<PluginState> plugin);
-
 
 			void onInitialTracerChanges(TracerState& state);
 
@@ -156,16 +157,14 @@
 			
 			std::int32_t instanceID;
 			CCodeGenerator codeGenerator;
-			cpl::ConcurrentObjectSwapper<PluginState> rtPlugin;
 			std::unique_ptr<UIController> controller;
-			std::shared_ptr<PluginState> pluginState;
+			std::vector<std::shared_ptr<PluginState>> pluginStates;
 			std::unique_ptr<ParameterManager> params;
 
-			TracerState tracerState;
 			std::string programName;
 			Settings settings;
 			IOConfig ioConfig;
-			bool isPlaying = false;
+			bool isPlaying = false, fadePlugins = true;
 			std::shared_mutex pluginMutex;
 			OscilloscopeData scopeData;
 			AuxMatrix auxMatrix;
@@ -173,6 +172,10 @@
 			std::atomic<double> averageClocks, clocksPerSample;
 
 			// ----
+			PluginState* currentPlugin;
+			TracerState* currentTracer;
+			cpl::CLockFreeQueue<EngineCommand> incoming, outgoing;
+			AuxMatrix tempBuffer;
 		};
 	}
 #endif

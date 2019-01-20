@@ -43,6 +43,7 @@
 	#include "UI/LabelQueue.h"
 	#include <ape/APE.h>
 	#include <cpl/state/DecoupledStateObject.h>
+	#include "Engine/EngineStructures.h"
 
 	namespace ape 
 	{
@@ -68,6 +69,7 @@
 			
 			friend class SourceManager;
 			friend class MainEditor;
+			friend class Engine;
 
 			UIController(ape::Engine& effect);
 			virtual ~UIController();
@@ -97,6 +99,10 @@
 			void setPlugin(std::shared_ptr<PluginState> newPlugin);
 
 		private:
+
+			void pluginExchanged(std::shared_ptr<PluginState> plugin, PluginExchangeReason reason);
+
+			bool activatePlugin();
 
 			void editorOpened(MainEditor * newEditor);
 			void editorClosed();

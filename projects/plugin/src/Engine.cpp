@@ -73,6 +73,10 @@ namespace ape
 		, averageClocks(0)
 		, codeGenerator(*this)
 		, settings(true, cpl::Misc::DirFSPath() / "config.cfg")
+		, incoming(0xF, 0xF)
+		, outgoing(0xF, 0xF)
+		, currentPlugin(nullptr)
+		, currentTracer(nullptr)
 	{
 
 		// some variables...
@@ -96,6 +100,12 @@ namespace ape
 			#else
 				"release");
 			#endif
+	}
+
+	Engine::~Engine()
+	{
+		processReturnQueue();
+		cpl::Misc::ReleaseUniqueInstanceID(instanceID);
 	}
 	
 	std::string Engine::engineType() const noexcept
@@ -122,16 +132,16 @@ namespace ape
 
 	void Engine::loadSettings()
 	{
-		try 
-		{
-			bool usefpe = settings.root()["application"]["use_fpe"];
-			status.bUseFPUE = usefpe;
-			
-		}
-		catch(std::exception & e)
-		{
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
-		}
+	try
+	{
+		bool usefpe = settings.root()["application"]["use_fpe"];
+		status.bUseFPUE = usefpe;
+
+	}
+	catch (std::exception & e)
+	{
+		controller->getConsole().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
+	}
 
 	}
 
@@ -145,36 +155,30 @@ namespace ape
 		return instanceID & 0xFF;
 	}
 
-	Engine::~Engine() 
-	{
-		disablePlugin();
-		cpl::Misc::ReleaseUniqueInstanceID(instanceID);
-	}
-
 	Engine::ProfilerData Engine::getProfilingData() const noexcept
 	{
 		const auto smoothedClocks = averageClocks.load(std::memory_order_acquire);
-		return { 
+		return {
 			1e-6 * (smoothedClocks * getSampleRate() / cpl::system::CProcessor::getMHz()),
-			clocksPerSample.load(std::memory_order_acquire), 
-			smoothedClocks, 
-			getSampleRate() 
+			clocksPerSample.load(std::memory_order_acquire),
+			smoothedClocks,
+			getSampleRate()
 		};
 	}
 
 	void Engine::exchangePlugin(std::shared_ptr<PluginState> newPlugin)
 	{
-		std::unique_lock<std::shared_mutex> lock(pluginMutex);
+		auto plugin = newPlugin.get();
 
-		pluginState = std::move(newPlugin);
-		if (pluginState)
+		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin));
+
+		if (plugin)
 		{
-			pluginState->setBounds(ioConfig);
-			pluginState->setPlayState(isPlaying);
-			tracerState = TracerState();
+			pluginStates.emplace_back(std::move(newPlugin));
+			plugin->setBounds(ioConfig);
+			plugin->setPlayState(isPlaying);
 		}
 	}
-
 
 	void Engine::changeInitialDelay(long samples) noexcept
 	{
@@ -182,111 +186,119 @@ namespace ape
 		delay.bDelayChanged = true;
 	}
 
-
-	void Engine::disablePlugin(bool fromEditor)
+	void Engine::processReturnQueue()
 	{
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-		
-		if (!pluginState)
-			return;
-		
-		status.bActivated = false;
-
-		auto result = pluginState->disableProject();
-
-		controller->getConsole().printLine(result == STATUS_OK ?
-			"[Engine] : Plugin disabled without error." :
-			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
-		
-		status.bActivated = false;
-
-		if (!fromEditor)
+		EngineCommand command;
+		while (outgoing.popElement(command))
 		{
-			// (main thread considerations)
-			jassertfalse;
-			//controller->getUICommandState().activationState.setNormalizedValue(0);
+			switch (command.type)
+			{
+			case EngineCommand::Type::Transfer:
+				updateHostDisplay();
+
+				for (std::size_t i = 0; i < pluginStates.size(); ++i)
+				{
+					if (pluginStates[i].get() == command.transfer.state)
+					{
+						controller->pluginExchanged(std::move(pluginStates[i]), command.transfer.reason);
+						pluginStates.erase(pluginStates.begin() + i);
+					}
+				}
+
+			}
 		}
-
-		if (result == STATUS_OK)
-			controller->getLabelQueue().setDefaultMessage("Plugin disabled", CColours::lightgoldenrodyellow);
-
-		changeInitialDelay(0);
 	}
 
-	bool Engine::activatePlugin()
+	bool Engine::processPlugin(PluginState& plugin, TracerState& tracer, const std::size_t numSamples, const float * const * inputs)
 	{
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
+		const auto pole = std::pow(0.95, getSampleRate() / numSamples);
+		std::size_t profiledClocks = 0;
 
-		if (pluginState && pluginState->getState() != STATUS_DISABLED)
-			return false;
+		if (status.bUseFPUE)
+			plugin.useFPUExceptions(true);
 
-		auto result = pluginState->activateProject();
+		tracer.beginPhase(&auxMatrix, ioConfig.inputs + ioConfig.outputs);
 
-		status.bActivated = false;
+		auto ret = plugin.processReplacing(inputs, tempBuffer.data(), numSamples, &profiledClocks);
 
-		switch(result)
-		{
-		case STATUS_DISABLED:
-		case STATUS_ERROR:
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : An error occured while loading the plugin.");
-			break;
-		case STATUS_SILENT:
-		case STATUS_WAIT:
-			controller->getConsole().printLine(CConsole::Warning, "[Engine] : Plugin is not ready or is silent.");
-			break;
-		case STATUS_READY:
-			controller->getConsole().printLine("[Engine] : Plugin is loaded and reports no error.");
-			status.bActivated = true;
-			break;
-		default:
-			controller->getConsole().printLine(CConsole::Warning,
-				"[ape] : Unexpected return value from onLoad (%d), assuming plugin is ready.", result);
-			status.bActivated = true;
-		}
+		if (tracer.changesPending())
+			onInitialTracerChanges(tracer);
 
-		if (status.bActivated)
-			updateHostDisplay();
+		tracer.endPhase();
 
-		return status.bActivated;
+		if (status.bUseFPUE)
+			plugin.useFPUExceptions(false);
+
+		const auto normalizedClocks = static_cast<double>(profiledClocks) / numSamples;
+
+		clocksPerSample.store(normalizedClocks, std::memory_order_release);
+		averageClocks.store(averageClocks + pole * (normalizedClocks - averageClocks), std::memory_order_release);
+
+		return ret != STATUS_OK;
 	}
+
 
 	void Engine::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages)
 	{
 		std::shared_lock<std::shared_mutex> lock(pluginMutex);
 
-		if (status.bActivated && pluginState)
+		const std::size_t numSamples = buffer.getNumSamples();
+		std::size_t numTraces = 0;
+		auxMatrix.softBufferResize(numSamples);
+		tempBuffer.softBufferResize(numSamples);
+
+		auxMatrix.copy(buffer.getArrayOfReadPointers(), 0, ioConfig.inputs);
+		auxMatrix.clear(ioConfig.inputs, ioConfig.outputs);
+
+		bool newPluginArrived = false;
+
+		EngineCommand command;
+
+		while (incoming.popElement(command))
 		{
-			const std::size_t numSamples = buffer.getNumSamples();
-			const auto pole = std::pow(0.95, getSampleRate() / numSamples);
-			std::size_t profiledClocks = 0;
-			auxMatrix.softBufferResize(numSamples);
+			switch (command.type)
+			{
+				case EngineCommand::Type::Transfer:
+				{
+					auto reason = PluginExchangeReason::Exchanged;
 
-			if (status.bUseFPUE)
-				pluginState->useFPUExceptions(true);
+					if (currentPlugin)
+					{
+						if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
+							reason = reason | PluginExchangeReason::Crash;
 
-			auxMatrix.copy(buffer.getArrayOfReadPointers(), 0, ioConfig.inputs);
+						auxMatrix.accumulate(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs, 1.0f, 0.0f);
+					}
 
-			tracerState.beginPhase(&auxMatrix, ioConfig.inputs + ioConfig.outputs);
+					outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, reason));
 
-			pluginState->processReplacing(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numSamples, &profiledClocks);
-
-			if (tracerState.changesPending())
-				onInitialTracerChanges(tracerState);
-
-			tracerState.endPhase();
-
-			if (status.bUseFPUE)
-				pluginState->useFPUExceptions(false);
-
-			const auto normalizedClocks = static_cast<double>(profiledClocks) / numSamples;
-
-			clocksPerSample.store(normalizedClocks, std::memory_order_release);
-			averageClocks.store(averageClocks + pole * (normalizedClocks - averageClocks), std::memory_order_release);
-
-			auxMatrix.copy(buffer.getArrayOfReadPointers(), ioConfig.inputs, ioConfig.outputs);
-
-			scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + tracerState.getTraceCount(), numSamples, *getPlayHead());
+					currentPlugin = command.transfer.state;
+					newPluginArrived = true;
+					currentTracer = command.transfer.tracer;
+				}
+			}
 		}
+
+		if (currentPlugin)
+		{
+			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
+			{
+				outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, PluginExchangeReason::Crash));
+				currentPlugin = nullptr;
+				currentTracer = nullptr;
+
+			}
+			else if (newPluginArrived && fadePlugins)
+			{
+				auxMatrix.accumulate(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs, 0.0f, 1.0f);
+			}
+			else
+			{
+				auxMatrix.copy(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs);
+			}
+		}
+
+		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + numTraces, numSamples, *getPlayHead());
 
 		// In case we have more outputs than inputs, we'll clear any output
 		// channels that didn't contain input data, (because these aren't
@@ -322,7 +334,9 @@ namespace ape
 
 	void Engine::handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount)
 	{
-		tracerState.handleTrace(names, nameCount, values, valueCount);
+		// TODO: Callback shouldn't be able to happen without an associated tracer
+		if(currentTracer)
+			currentTracer->handleTrace(names, nameCount, values, valueCount);
 	}
 
 	bool Engine::hasEditor() const
@@ -468,8 +482,6 @@ namespace ape
 	void Engine::prepareToPlay(double sampleRate, int samplesPerBlock)
 	{
 
-		// Use this method as the place to do any pre-playback
-		// initialisation that you need..
 		if (delay.bDelayChanged)
 		{
 			controller->getConsole().printLine("initialDelay is changed to %d and reported to host.", delay.newDelay);
@@ -477,7 +489,6 @@ namespace ape
 			{
 				this->setLatencySamples(delay.newDelay);
 				delay.initialDelay = delay.newDelay;
-				//ioChanged();
 			}
 			
 			delay.bDelayChanged = false;
@@ -491,10 +502,10 @@ namespace ape
 		ioConfig.inputs = getNumInputChannels();
 		ioConfig.outputs = getNumOutputChannels();
 
-		if (pluginState)
+		for (std::size_t i = 0; i < pluginStates.size(); ++i)
 		{
-			pluginState->setBounds(ioConfig);
-			pluginState->setPlayState(isPlaying);
+			pluginStates[i]->setBounds(ioConfig);
+			pluginStates[i]->setPlayState(isPlaying);
 		}
 
 		auto info = scopeData.getStream().getInfo();
@@ -519,18 +530,20 @@ namespace ape
 			scopeData.getStream().enqueueChannelName(counter, "output " + std::to_string(i));
 		}
 
-
 		scopeData.getContent().triggeringChannel = ioConfig.inputs;
 
 		auxMatrix.resizeChannels(Signalizer::OscilloscopeContent::NumColourChannels);
+		tempBuffer.resizeChannels(ioConfig.outputs);
 	}
 
 	void Engine::releaseResources()
 	{
 		isPlaying = false;
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-		if(pluginState)
-			pluginState->setPlayState(isPlaying);
+
+		for (std::size_t i = 0; i < pluginStates.size(); ++i)
+		{
+			pluginStates[i]->setPlayState(isPlaying);
+		}
 	}
 
 }
