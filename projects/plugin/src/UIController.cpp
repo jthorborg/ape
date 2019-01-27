@@ -241,7 +241,9 @@ namespace ape
 		}
 		else
 		{
-			getConsole().printLine("[Engine] : Unexpected return value from onUnload(), plugin disabled.");
+			getConsole().printLine("[Engine] : Unexpected return value from disabling plugin, plugin disposed");
+			if (plugin == currentPlugin)
+				plugin = currentPlugin = nullptr;
 		}
 
 		engine.changeInitialDelay(0);
@@ -260,7 +262,10 @@ namespace ape
 
 			if (!currentPlugin->activateProject())
 			{
-				getConsole().printLine(CConsole::Error, "[GUI] : An error occured while loading the plugin.");
+				getConsole().printLine(CConsole::Error, "[GUI] : An error occured while loading the plugin - plugin disposed.");
+				// TODO: If plugin can safely be reactivated, we don't have to dispose it here.
+				currentPlugin = nullptr;
+
 				labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 				return false;
 			}

@@ -216,7 +216,7 @@ namespace ape
 		if (ret.second || ret.first != Status::STATUS_READY)
 		{
 			state = STATUS_ERROR;
-			return Status::STATUS_ERROR;
+			return false;
 		}
 
 		consumeCommands();
@@ -241,7 +241,7 @@ namespace ape
 
 		enabled = true;
 
-		return Status::STATUS_READY;
+		return true;
 	}
 
 	bool PluginState::disableProject()
@@ -382,6 +382,7 @@ namespace ape
 	template<typename Function>
 	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, Function&& f)
 	{
+		// TODO: Need to continue this call even if there's an error, for instance when disabling.
 		if (abnormalBehaviour || state == STATUS_ERROR)
 			return { state, true };
 
