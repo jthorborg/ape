@@ -234,7 +234,7 @@ namespace ape
 		clocksPerSample.store(normalizedClocks, std::memory_order_release);
 		averageClocks.store(averageClocks + pole * (normalizedClocks - averageClocks), std::memory_order_release);
 
-		return ret != STATUS_OK;
+		return ret;
 	}
 
 
@@ -300,6 +300,11 @@ namespace ape
 
 		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + numTraces, numSamples, *getPlayHead());
 
+		for (int i = 0; i < getNumOutputChannels(); ++i)
+		{
+			buffer.copyFrom(i, 0, auxMatrix[ioConfig.inputs + i], numSamples);
+		}
+
 		// In case we have more outputs than inputs, we'll clear any output
 		// channels that didn't contain input data, (because these aren't
 		// guaranteed to be empty - they may contain garbage).
@@ -312,6 +317,7 @@ namespace ape
 
 	void Engine::pulse()
 	{
+		processReturnQueue();
 		params->pulse();
 	}
 

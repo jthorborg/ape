@@ -44,12 +44,12 @@
 			Crash = 1 << 1
 		};
 
-		PluginExchangeReason operator | (PluginExchangeReason a, PluginExchangeReason b)
+		inline PluginExchangeReason operator | (PluginExchangeReason a, PluginExchangeReason b)
 		{
 			return PluginExchangeReason((int)a | (int)b);
 		}
 
-		PluginExchangeReason operator & (PluginExchangeReason a, PluginExchangeReason b)
+		inline PluginExchangeReason operator & (PluginExchangeReason a, PluginExchangeReason b)
 		{
 			return PluginExchangeReason((int)a & (int)b);
 		}
@@ -75,7 +75,7 @@
 				bufferLength = length;
 			}
 
-			void copy(const float** buffers, std::size_t index, std::size_t numBuffers)
+			void copy(const float* const* buffers, std::size_t index, std::size_t numBuffers)
 			{
 				for (std::size_t i = 0; i < numBuffers; ++i)
 				{
@@ -83,7 +83,7 @@
 				}
 			}
 
-			void accumulate(const float** buffers, std::size_t index, std::size_t numBuffers, float start, float end)
+			void accumulate(const float* const* buffers, std::size_t index, std::size_t numBuffers, float start, float end)
 			{
 				const auto delta = end - start;
 
@@ -254,7 +254,7 @@
 			bool firstPhase = true;
 		};
 
-		union EngineCommand
+		struct EngineCommand
 		{
 		public:
 
@@ -272,6 +272,8 @@
 					ret.transfer.state = state;
 					ret.transfer.reason = PluginExchangeReason::Exchanged;
 					ret.transfer.tracer = new TracerState();
+
+					return ret;
 				}
 
 				static EngineCommand Return(PluginState* state, TracerState* tracer, PluginExchangeReason reason)
@@ -281,6 +283,8 @@
 					ret.transfer.state = state;
 					ret.transfer.tracer = tracer;
 					ret.transfer.reason = reason;
+
+					return ret;
 				}
 
 				PluginState* state;

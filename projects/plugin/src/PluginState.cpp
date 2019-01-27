@@ -60,13 +60,10 @@ namespace ape
 		: engine(engine)
 		, generator(codeGenerator)
 		, project(std::move(projectToUse))
-		, expired(true)
-		, useCount(0)
 		, state(STATUS_DISABLED)
 		, config{}
 		, playing(false)
 		, enabled(false)
-		, pendingDisable(false)
 		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
 	{
@@ -90,7 +87,8 @@ namespace ape
 	PluginState::~PluginState() 
 	{
 		ProjectReleaser scopedRelease { project.get(), &generator };
-		disableProject();
+		if(enabled)
+			disableProject();
 	}
 
 	/*bool PluginState::valueChanged(CBaseControl * control)
@@ -131,6 +129,8 @@ namespace ape
 
 	void PluginState::setPlayState(bool isPlaying)
 	{
+		CPL_RUNTIME_ASSERTION(enabled);
+
 		if (isPlaying == playing)
 			return;
 
@@ -159,12 +159,8 @@ namespace ape
 	}
 
 
-	Status PluginState::processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles) noexcept
+	bool PluginState::processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles) noexcept
 	{
-		ScopedRefCount ref(*this);
-		if (!ref.valid())
-			return Status::STATUS_DISABLED;
-		
 		processing.store(true, std::memory_order_release);
 
 		auto ret = WrapPluginCall("processReplacing()",
@@ -196,38 +192,17 @@ namespace ape
 			}
 		);
 
+		// TODO: Needs to be here?
+		abnormalBehaviour = ret.first != STATUS_OK || ret.second;
 		processing.store(false, std::memory_order_release);
 
-		if(ret.second)
-		{
-			internalDisable(std::move(ref), ret.first);
-		}
-
-		return ret.first;
+		return ret.first == STATUS_OK && !ret.second;
 	}
 
-	Status PluginState::disableProject()
+	bool PluginState::activateProject()
 	{
-		ScopedRefCount ref(*this);
-		if (ref.valid())
-			internalDisable(std::move(ref), Status::STATUS_OK);
-
-		waitDisable();
-
-		return state == STATUS_DISABLED ? Status::STATUS_OK : Status::STATUS_ERROR;
-	}
-
-	Status PluginState::activateProject()
-	{
-		{
-			cpl::CMutex lock(expiredMutex);
-
-			if (!expired)
-				throw InvalidStateException("Double activation of project");
-
-			if (useCount != 0)
-				throw InvalidStateException("Corrupt reference count");
-		}
+		CPL_RUNTIME_ASSERTION(!enabled);
+		CPL_RUNTIME_ASSERTION(state == STATUS_DISABLED);
 
 		commandQueue = std::make_unique<PluginCommandQueue>();
 
@@ -239,15 +214,14 @@ namespace ape
 		);
 
 		if (ret.second || ret.first != Status::STATUS_READY)
+		{
+			state = STATUS_ERROR;
 			return Status::STATUS_ERROR;
+		}
 
 		consumeCommands();
 
 		commandQueue.reset();
-
-		cpl::CMutex lock(expiredMutex);
-		expired = false;
-		useCount = 1;
 
 		state = Status::STATUS_READY;
 
@@ -270,48 +244,10 @@ namespace ape
 		return Status::STATUS_READY;
 	}
 
-	void PluginState::waitDisable()
+	bool PluginState::disableProject()
 	{
-		if (pendingDisable.load())
-		{
-			if (juce::MessageManager::getInstance()->isThisTheMessageThread())
-			{
-				notifyDestruction();
-				performDisable();
-			}
-			else
-			{
-				// TODO: Potential deadlock on the message thread.
-				while (pendingDisable.load(std::memory_order_relaxed))
-					std::this_thread::yield();
-			}
-		}
-	}
-
-	void PluginState::internalDisable(PluginState::ScopedRefCount::ScopedDisable disable, Status errorCode)
-	{
-		{
-			cpl::CFastMutex lock(expiredMutex);
-			bool prev = pendingDisable.exchange(true);
-			if (prev || state == STATUS_DISABLED)
-				return;
-			abnormalBehaviour = errorCode != Status::STATUS_OK;
-			state = STATUS_DISABLED;
-			expired = true;
-		}
-
-		if (juce::MessageManager::getInstance()->isThisTheMessageThread())
-			performDisable();
-		else
-			cpl::GUIUtils::MainEvent(*this, [this] { if(pendingDisable) performDisable(); });
-	}
-
-	void PluginState::performDisable()
-	{
-		useCount--;
-
-		while (useCount.load(std::memory_order_relaxed) > 0)
-			std::this_thread::yield();
+		CPL_RUNTIME_ASSERTION(enabled);
+		CPL_RUNTIME_ASSERTION(state == STATUS_READY);
 
 		currentlyDisabling.store(true, std::memory_order_release);
 
@@ -322,15 +258,21 @@ namespace ape
 			}
 		);
 
-		currentlyDisabling.store(false, std::memory_order_release);
-
 		// TODO: check RET code.
+		if (ret.first != STATUS_OK || ret.second)
+			state = STATUS_ERROR;
+		else
+			state = STATUS_DISABLED;
+
+		currentlyDisabling.store(false, std::memory_order_release);
 
 		cleanupResources();
 		abnormalBehaviour = false;
-		pendingDisable = false;
 		enabled = false;
+
+		return state == STATUS_DISABLED;
 	}
+
 
 	SharedInterfaceEx & PluginState::getSharedInterface()
 	{
@@ -363,21 +305,12 @@ namespace ape
 
 	Status PluginState::dispatchEvent(const char * reason, APE_Event& event)
 	{
-		ScopedRefCount ref(*this);
-		if (!ref.valid())
-			return STATUS_DISABLED;
-
 		auto ret = WrapPluginCall(reason,
 			[&]
 			{
 				return generator.onEvent(*project, &event);
 			}
 		);
-
-		if (ret.second)
-		{
-			internalDisable(std::move(ref), ret.first);
-		}
 
 		return ret.first;
 	}
@@ -449,6 +382,9 @@ namespace ape
 	template<typename Function>
 	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, Function&& f)
 	{
+		if (abnormalBehaviour || state == STATUS_ERROR)
+			return { state, true };
+
 		try
 		{
 			Status ret;
@@ -496,16 +432,8 @@ namespace ape
 							"your code and double-check it for errors, especially pointer dereferences "
 							"and loops that might cause segmentation faults.";
 
-						auto errorNotification = [&]()
-						{
-							cpl::Misc::MsgBox(errString, cpl::programInfo.name + " Fatal Error",
-								cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, engine.getController().getSystemWindow(), false);
-						};
-
-						if (!juce::MessageManager::getInstance()->isThisTheMessageThread())
-							errorNotification();
-						else
-							cpl::GUIUtils::MainEvent(*this, errorNotification);
+						cpl::Misc::MsgBox(errString, cpl::programInfo.name + " Fatal Error",
+							cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, engine.getController().getSystemWindow(), false);
 					}
 				}
 			}
@@ -538,6 +466,7 @@ namespace ape
 			);
 		}
 
+		abnormalBehaviour = true;
 		return { STATUS_ERROR, true };
 	}
 

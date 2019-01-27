@@ -207,9 +207,8 @@ namespace ape
 				if (editorSSO->hasCached())
 					editorSSO->getCached()->onPluginStateChanged(*currentPlugin, false);
 
-				engine.disablePlugin(true);
+				engine.exchangePlugin({});
 
-				getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
 			}
 			break;
 		}
@@ -228,19 +227,21 @@ namespace ape
 
 	void UIController::pluginExchanged(std::shared_ptr<PluginState> plugin, PluginExchangeReason reason)
 	{
-		auto result = plugin->disableProject();
-
-		getConsole().printLine(result == STATUS_OK ?
-			"[Engine] : Plugin disabled without error." :
-			"[Engine] : Unexpected return value from onUnload(), plugin disabled.");
-
-
-		if (result == STATUS_OK)
+		if (plugin->disableProject())
 		{
-			if(!currentPlugin)
+			if (!currentPlugin)
+			{
 				getLabelQueue().setDefaultMessage("Plugin disabled", CColours::lightgoldenrodyellow);
+				getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
+			}
 			else
 				getLabelQueue().pushMessage("Previous plugin disabled", CColours::lightgoldenrodyellow, 2000);
+
+			getConsole().printLine("[Engine] : Plugin disabled without error." );
+		}
+		else
+		{
+			getConsole().printLine("[Engine] : Unexpected return value from onUnload(), plugin disabled.");
 		}
 
 		engine.changeInitialDelay(0);
@@ -257,25 +258,14 @@ namespace ape
 				return false;
 			}
 
-			auto result = currentPlugin->activateProject();
-
-			switch (result)
+			if (!currentPlugin->activateProject())
 			{
-			case STATUS_SILENT: case STATUS_WAIT:
-				getConsole().printLine(CConsole::Warning, "[GUI] : Plugin is not ready or is silent.");
-			case STATUS_DISABLED: case STATUS_ERROR:
 				getConsole().printLine(CConsole::Error, "[GUI] : An error occured while loading the plugin.");
 				labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 				return false;
-
-			case STATUS_READY:
-				getConsole().printLine("[GUI] : Plugin is loaded and reports no error.");
-				break;
-			default:
-				getConsole().printLine(CConsole::Warning,
-					"[GUI] : Unexpected return value from onLoad (%d), assuming plugin is ready.", result);
 			}
 
+			getConsole().printLine("[GUI] : Plugin is loaded and reports no error.");
 			labelQueue.setDefaultMessage("Plugin activated", CColours::green);
 			getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
 

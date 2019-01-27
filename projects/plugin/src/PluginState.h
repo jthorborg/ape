@@ -64,8 +64,7 @@
 		class PluginWidget;
 
 		class PluginState final
-			: private cpl::DestructionNotifier
-			, private ParameterSet::RTListener
+			: private ParameterSet::RTListener
 		{
 		public:
 
@@ -93,65 +92,22 @@
 
 			static void useFPUExceptions(bool b);
 
-			Status activateProject();
-			Status disableProject();
-			Status processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
+			bool activateProject();
+			bool disableProject();
+			bool processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
 			bool isProcessing() const noexcept { return processing.load(std::memory_order_acquire); }
 			bool isDisabling() const noexcept { return currentlyDisabling.load(std::memory_order_acquire); }
 			bool isEnabled() const noexcept { return enabled; }
 			void setPlayState(bool isPlaying);
 
-			Status getState() const noexcept { return state; }
 			PluginCommandQueue* getCommandQueue() noexcept { return commandQueue.get(); }
 			std::shared_ptr<PluginSurface> getOrCreateSurface();
 
 		private:
 
-			struct ScopedRefCount
-			{
-				ScopedRefCount(PluginState& parent)
-					: parent(parent), good(false)
-				{
-					cpl::CFastMutex expiredLock(parent.expiredMutex);
-					if (!parent.expired)
-					{
-						parent.useCount.fetch_add(1, std::memory_order_acquire);
-						good = true;
-					}
-				}
-
-				ScopedRefCount(ScopedRefCount&& other)
-					: parent(other.parent), good(other.good)
-				{
-					other.good = false;
-				}
-
-				struct ScopedDisable
-				{
-					ScopedDisable(ScopedRefCount ref)
-					{
-					}
-				};
-
-				bool valid() const noexcept { return good; }
-
-				~ScopedRefCount()
-				{
-					if (good)
-						parent.useCount.fetch_sub(1, std::memory_order_release);
-				}
-
-				bool good;
-				PluginState& parent;
-			};
-
 			template<typename Function>
 			std::pair<Status, bool> WrapPluginCall(const char * reason, Function&& f);
 
-			void performDisable();
-			void waitDisable();
-
-			void internalDisable(ScopedRefCount::ScopedDisable disable, Status errorCode);
 			void parameterChangedRT(cpl::Parameters::Handle localHandle, cpl::Parameters::Handle globalHandle, ParameterSet::BaseParameter * param) override;
 
 			void dispatchPlayEvent();
@@ -173,16 +129,12 @@
 
 			bool
 				playing,
-				expired,
 				enabled;
 
 			IOConfig config;
-			cpl::CMutex::Lockable expiredMutex;
-			std::atomic<int> useCount;
 			std::atomic<Status> state;
 			std::atomic<bool>
 				abnormalBehaviour,
-				pendingDisable,
 				currentlyDisabling,
 				processing;
 			
