@@ -146,6 +146,8 @@ namespace ape
 
 	std::shared_ptr<PluginSurface> PluginState::getOrCreateSurface()
 	{
+		CPL_RUNTIME_ASSERTION(enabled);
+
 		if (auto ptr = surface.lock())
 		{
 			return ptr;
@@ -161,6 +163,9 @@ namespace ape
 
 	bool PluginState::processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles) noexcept
 	{
+		if (!enabled)
+			return false;
+
 		processing.store(true, std::memory_order_release);
 
 		auto ret = WrapPluginCall("processReplacing()",
@@ -220,24 +225,9 @@ namespace ape
 		}
 
 		consumeCommands();
-
 		commandQueue.reset();
 
 		state = Status::STATUS_READY;
-
-		Event e;
-		e.eventType = IOChanged;
-		Events::IOChanged aevent{ config.inputs, config.outputs, config.blockSize, config.sampleRate };
-		e.event.eIOChanged = &aevent;
-		dispatchEvent("initial ioChanged() event", e);
-
-		if (playing)
-		{
-			Events::PlayStateChanged pevent{ true };
-			e.event.ePlayStateChanged = &pevent;
-			e.eventType = PlayStateChanged;
-			dispatchEvent("initial playStateChanged() event", e);
-		}
 
 		enabled = true;
 
@@ -251,7 +241,7 @@ namespace ape
 
 		currentlyDisabling.store(true, std::memory_order_release);
 
-		auto ret = WrapPluginCall("Disabling plugin",
+		auto ret = WrapPluginCall("Disabling plugin", AlwaysPerformInvocation,
 			[&]
 			{
 				return generator.disableProject(*project, abnormalBehaviour);
@@ -281,6 +271,8 @@ namespace ape
 
 	void PluginState::setBounds(const IOConfig& newSettings)
 	{
+		CPL_RUNTIME_ASSERTION(enabled);
+
 		while (protectedMemory.size() < 2)
 			protectedMemory.emplace_back().setProtect(CMemoryGuard::protection::readwrite);
 
@@ -382,8 +374,14 @@ namespace ape
 	template<typename Function>
 	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, Function&& f)
 	{
+		return WrapPluginCall(reason, DisregardInvocationIfErrorState, std::move(f));
+	}
+
+	template<typename Function>
+	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, PluginState::InvocationSemantics semantics, Function&& f)
+	{
 		// TODO: Need to continue this call even if there's an error, for instance when disabling.
-		if (abnormalBehaviour || state == STATUS_ERROR)
+		if (semantics == DisregardInvocationIfErrorState && (abnormalBehaviour || state == STATUS_ERROR))
 			return { state, true };
 
 		try

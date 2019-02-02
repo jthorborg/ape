@@ -105,12 +105,16 @@
 
 		private:
 
+			enum InvocationSemantics { DisregardInvocationIfErrorState, AlwaysPerformInvocation};
+
+			template<typename Function>
+			std::pair<Status, bool> WrapPluginCall(const char * reason, InvocationSemantics semantics, Function&& f);
+
 			template<typename Function>
 			std::pair<Status, bool> WrapPluginCall(const char * reason, Function&& f);
 
 			void parameterChangedRT(cpl::Parameters::Handle localHandle, cpl::Parameters::Handle globalHandle, ParameterSet::BaseParameter * param) override;
 
-			void dispatchPlayEvent();
 			Status dispatchEvent(const char * reason, APE_Event& event);
 			void consumeCommands();
 			void cleanupResources();
@@ -128,15 +132,15 @@
 			std::weak_ptr<PluginSurface> surface;
 
 			bool
-				playing,
-				enabled;
+				playing;
 
 			IOConfig config;
 			std::atomic<Status> state;
 			std::atomic<bool>
 				abnormalBehaviour,
 				currentlyDisabling,
-				processing;
+				processing,
+				enabled;
 			
 
 };

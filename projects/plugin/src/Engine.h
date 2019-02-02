@@ -37,10 +37,8 @@
 	#include "CMemoryGuard.h"
 	#include <string>
 	#include "Settings.h"
-	#include <cpl/CMutex.h>
 	#include <memory>
 	#include <cpl/ConcurrentServices.h>
-	#include <shared_mutex>
 	#include "CCodeGenerator.h"
 	#include "Engine/EngineStructures.h"
 	#include <vector>
@@ -87,7 +85,7 @@
 			const Settings& getSettings() const noexcept { return settings; }
 			ParameterManager& getParameterManager() noexcept { return *params; }
 			ProfilerData getProfilingData() const noexcept;
-			bool isProcessingAPlugin() const noexcept { return status.bActivated; }
+			bool isProcessingAPlugin() const noexcept { return pluginStates.size() > 0; }
 
 			std::int32_t uniqueInstanceID() const noexcept;
 			std::int32_t instanceCounter() const noexcept;
@@ -144,16 +142,10 @@
 			void onSettingsChanged(const Settings& s, const libconfig::Setting& setting) override;
 
 			struct {
-				volatile bool bActivated;
-				volatile bool bUseFPUE;
-
-			} status;
-			struct {
-				volatile bool bDelayChanged;
+				std::atomic<bool> delayChanged;
 				long initialDelay;
 				long newDelay;
 			} delay;
-			unsigned numBuffers;
 			
 			std::int32_t instanceID;
 			CCodeGenerator codeGenerator;
@@ -161,11 +153,9 @@
 			std::vector<std::shared_ptr<PluginState>> pluginStates;
 			std::unique_ptr<ParameterManager> params;
 
-			std::string programName;
 			Settings settings;
 			IOConfig ioConfig;
-			bool isPlaying = false, fadePlugins = true;
-			std::shared_mutex pluginMutex;
+			bool isPlaying = false, fadePlugins = true, useFPE;
 			OscilloscopeData scopeData;
 			AuxMatrix auxMatrix;
 

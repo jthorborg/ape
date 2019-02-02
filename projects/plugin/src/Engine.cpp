@@ -1,29 +1,29 @@
 /*************************************************************************************
- 
+
 	 Audio Programming Environment - Audio Plugin - v. 0.3.0.
-	 
+
 	 Copyright (C) 2014 Janus Lynggaard Thorborg [LightBridge Studios]
-	 
+
 	 This program is free software: you can redistribute it and/or modify
 	 it under the terms of the GNU General Public License as published by
 	 the Free Software Foundation, either version 3 of the License, or
 	 (at your option) any later version.
-	 
+
 	 This program is distributed in the hope that it will be useful,
 	 but WITHOUT ANY WARRANTY; without even the implied warranty of
 	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	 GNU General Public License for more details.
-	 
+
 	 You should have received a copy of the GNU General Public License
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	 
+
 	 See \licenses\ for additional details on licenses associated with this program.
- 
+
  **************************************************************************************
 
-	file:ape.cpp
-	
-		Implementation of the audio effect interface.
+	file:engine.cpp
+
+		Implementation of engine.
 
 *************************************************************************************/
 
@@ -43,7 +43,7 @@
 
 namespace cpl
 {
-	#ifndef APE_TESTS
+#ifndef APE_TESTS
 	const ProgramInfo programInfo
 	{
 		"Audio Programming Environment",
@@ -54,21 +54,13 @@ namespace cpl
 		nullptr,
 		APE_BUILD_INFO
 	};
-	#endif
+#endif
 };
 
-namespace ape 
+namespace ape
 {
-	/*********************************************************************************************
-
-		Implementation for the constructor.
-
-	 *********************************************************************************************/
-	Engine::Engine() 
-		: numBuffers(2)
-		, status()
-		, delay()
-		, programName("Default")
+	Engine::Engine()
+		: delay()
 		, clocksPerSample(0)
 		, averageClocks(0)
 		, codeGenerator(*this)
@@ -78,13 +70,8 @@ namespace ape
 		, currentPlugin(nullptr)
 		, currentTracer(nullptr)
 	{
-
-		// some variables...
-		status.bUseFPUE = false;
-		programName = "Default";
-		
 		instanceID = cpl::Misc::AcquireUniqueInstanceID();
-		
+
 		// rest of program
 		controller = std::make_unique<UIController>(*this);
 		params = std::make_unique<ParameterManager>(*this, 50);
@@ -95,11 +82,11 @@ namespace ape
 			engineType().c_str(), instanceID,
 			cpl::programInfo.version.toString().c_str(),
 			sizeof(void*) == 8 ? "64-bit" : "32-bit",
-			#if defined(_DEBUG) || defined(DEBUG)
-				"debug");
-			#else
-				"release");
-			#endif
+#if defined(_DEBUG) || defined(DEBUG)
+			"debug");
+#else
+			"release");
+#endif
 	}
 
 	Engine::~Engine()
@@ -107,41 +94,39 @@ namespace ape
 		processReturnQueue();
 		cpl::Misc::ReleaseUniqueInstanceID(instanceID);
 	}
-	
+
 	std::string Engine::engineType() const noexcept
 	{
-		switch(wrapperType)
+		switch (wrapperType)
 		{
-			case wrapperType_VST:
-				return "VST 2.4";
-			case wrapperType_VST3:
-				return "VST 3";
-			case wrapperType_AudioUnit:
-				return "Audio Unit";
-			case wrapperType_RTAS:
-				return "RTAS";
-			case wrapperType_AAX:
-				return "AAX";
-			case wrapperType_Standalone:
-				return "Stand-alone";
-			default:
-				return "Unknown";
+		case wrapperType_VST:
+			return "VST 2.4";
+		case wrapperType_VST3:
+			return "VST 3";
+		case wrapperType_AudioUnit:
+			return "Audio Unit";
+		case wrapperType_RTAS:
+			return "RTAS";
+		case wrapperType_AAX:
+			return "AAX";
+		case wrapperType_Standalone:
+			return "Stand-alone";
+		default:
+			return "Unknown";
 		}
-		
+
 	}
 
 	void Engine::loadSettings()
 	{
-	try
-	{
-		bool usefpe = settings.root()["application"]["use_fpe"];
-		status.bUseFPUE = usefpe;
-
-	}
-	catch (std::exception & e)
-	{
-		controller->getConsole().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
-	}
+		try
+		{
+			useFPE = settings.root()["application"]["use_fpe"];
+		}
+		catch (std::exception & e)
+		{
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
+		}
 
 	}
 
@@ -183,7 +168,7 @@ namespace ape
 	void Engine::changeInitialDelay(long samples) noexcept
 	{
 		delay.newDelay = samples;
-		delay.bDelayChanged = true;
+		delay.delayChanged = true;
 	}
 
 	void Engine::processReturnQueue()
@@ -214,7 +199,7 @@ namespace ape
 		const auto pole = std::pow(0.95, getSampleRate() / numSamples);
 		std::size_t profiledClocks = 0;
 
-		if (status.bUseFPUE)
+		if (useFPE)
 			plugin.useFPUExceptions(true);
 
 		tracer.beginPhase(&auxMatrix, ioConfig.inputs + ioConfig.outputs);
@@ -226,7 +211,7 @@ namespace ape
 
 		tracer.endPhase();
 
-		if (status.bUseFPUE)
+		if (useFPE)
 			plugin.useFPUExceptions(false);
 
 		const auto normalizedClocks = static_cast<double>(profiledClocks) / numSamples;
@@ -240,8 +225,6 @@ namespace ape
 
 	void Engine::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages)
 	{
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-
 		const std::size_t numSamples = buffer.getNumSamples();
 		std::size_t numTraces = 0;
 		auxMatrix.softBufferResize(numSamples);
@@ -258,24 +241,24 @@ namespace ape
 		{
 			switch (command.type)
 			{
-				case EngineCommand::Type::Transfer:
+			case EngineCommand::Type::Transfer:
+			{
+				auto reason = PluginExchangeReason::Exchanged;
+
+				if (currentPlugin)
 				{
-					auto reason = PluginExchangeReason::Exchanged;
+					if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
+						reason = reason | PluginExchangeReason::Crash;
 
-					if (currentPlugin)
-					{
-						if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
-							reason = reason | PluginExchangeReason::Crash;
-
-						auxMatrix.accumulate(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs, 1.0f, 0.0f);
-					}
-
-					outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, reason));
-
-					currentPlugin = command.transfer.state;
-					newPluginArrived = true;
-					currentTracer = command.transfer.tracer;
+					auxMatrix.accumulate(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs, 1.0f, 0.0f);
 				}
+
+				outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, reason));
+
+				currentPlugin = command.transfer.state;
+				newPluginArrived = true;
+				currentTracer = command.transfer.tracer;
+			}
 			}
 		}
 
@@ -341,7 +324,7 @@ namespace ape
 	void Engine::handleTraceCallback(const char** names, std::size_t nameCount, const float * values, std::size_t valueCount)
 	{
 		// TODO: Callback shouldn't be able to happen without an associated tracer
-		if(currentTracer)
+		if (currentTracer)
 			currentTracer->handleTrace(names, nameCount, values, valueCount);
 	}
 
@@ -352,8 +335,6 @@ namespace ape
 
 	void Engine::getStateInformation(juce::MemoryBlock& destData)
 	{
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-
 		CSerializer::serialize(*this, destData);
 	}
 
@@ -377,11 +358,11 @@ namespace ape
 
 	const juce::String Engine::getName() const
 	{
-		#ifdef JucePlugin_Name
-			return JucePlugin_Name;
-		#else
-			return _PROGRAM_NAME;
-		#endif
+#ifdef JucePlugin_Name
+		return JucePlugin_Name;
+#else
+		return _PROGRAM_NAME;
+#endif
 	}
 
 	void Engine::onSettingsChanged(const Settings& s, const libconfig::Setting& changed)
@@ -436,20 +417,20 @@ namespace ape
 
 	bool Engine::acceptsMidi() const
 	{
-		#if JucePlugin_WantsMidiInput
-			return true;
-		#else
-			return false;
-		#endif
+#if JucePlugin_WantsMidiInput
+		return true;
+#else
+		return false;
+#endif
 	}
 
 	bool Engine::producesMidi() const
 	{
-		#if JucePlugin_ProducesMidiOutput
-			return true;
-		#else
-			return false;
-		#endif
+#if JucePlugin_ProducesMidiOutput
+		return true;
+#else
+		return false;
+#endif
 	}
 
 	bool Engine::silenceInProducesSilenceOut() const
@@ -484,11 +465,11 @@ namespace ape
 	void Engine::changeProgramName(int index, const juce::String& newName)
 	{
 	}
-	
+
 	void Engine::prepareToPlay(double sampleRate, int samplesPerBlock)
 	{
 
-		if (delay.bDelayChanged)
+		if (delay.delayChanged)
 		{
 			controller->getConsole().printLine("initialDelay is changed to %d and reported to host.", delay.newDelay);
 			if (delay.newDelay != delay.initialDelay)
@@ -496,12 +477,10 @@ namespace ape
 				this->setLatencySamples(delay.newDelay);
 				delay.initialDelay = delay.newDelay;
 			}
-			
-			delay.bDelayChanged = false;
-		}		
-		
-		std::shared_lock<std::shared_mutex> lock(pluginMutex);
-		
+
+			delay.delayChanged = false;
+		}
+
 		isPlaying = true;
 		ioConfig.blockSize = samplesPerBlock;
 		ioConfig.sampleRate = sampleRate;
@@ -523,7 +502,7 @@ namespace ape
 		info.audioHistorySize = sampleRate;
 		info.audioHistoryCapacity = sampleRate;
 		scopeData.getStream().initializeInfo(info);
-		
+
 		std::size_t counter = 0;
 
 		for (std::size_t i = 0; i < ioConfig.inputs; ++i, counter++)
@@ -552,7 +531,7 @@ namespace ape
 		}
 	}
 
-}
+	}
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
@@ -570,7 +549,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 		cpl::Misc::MsgBox(csf.str(), cpl::programInfo.programAbbr + " construction error!",
 			cpl::Misc::MsgStyle::sOk | cpl::Misc::MsgIcon::iStop, nullptr, true);
 	}
-		
+
 	return effect;
-		
+
 }

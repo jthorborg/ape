@@ -129,6 +129,8 @@ namespace ape
 	UIController::~UIController()
 	{
 		notifyDestruction();
+		autosaveManager = nullptr;
+		sourceManager = nullptr;
 	}
 
 	void UIController::editorOpened(MainEditor * newEditor)
@@ -244,6 +246,11 @@ namespace ape
 			getConsole().printLine("[Engine] : Unexpected return value from disabling plugin, plugin disposed");
 			if (plugin == currentPlugin)
 				plugin = currentPlugin = nullptr;
+		}
+
+		if (editorSSO->hasCached())
+		{
+			editorSSO->getCached()->onPluginStateChanged(*currentPlugin, false);
 		}
 
 		engine.changeInitialDelay(0);
