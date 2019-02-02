@@ -145,6 +145,15 @@ namespace ape
 		dispatchEvent("playStateChanged()", e);
 	}
 
+	void PluginState::syncParametersToEngine()
+	{
+		auto& pManager = engine.getParameterManager();
+		for (std::size_t i = 0; i < parameters.size(); ++i)
+		{
+			parameters[i]->setParameterRealtime(pManager.getParameter(static_cast<ParameterManager::IndexHandle>(i)));
+		}
+	}
+
 	std::shared_ptr<PluginSurface> PluginState::getOrCreateSurface()
 	{
 		CPL_RUNTIME_ASSERTION(enabled);
@@ -330,15 +339,16 @@ namespace ape
 			}
 		}
 
+		auto& pManager = engine.getParameterManager();
 		for (std::size_t i = 0; i < parameters.size(); ++i)
 		{
-			engine.getParameterManager().emplaceTrait(
+			pManager.emplaceTrait(
 				static_cast<ParameterManager::IndexHandle>(i), 
 				*parameters[i]
 			);
 		}
 
-		engine.getParameterManager().getParameterSet().addRTListener(this, true);
+		pManager.getParameterSet().addRTListener(this, true);
 	}
 
 	void PluginState::cleanupResources()

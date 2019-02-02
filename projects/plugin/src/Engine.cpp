@@ -234,6 +234,7 @@ namespace ape
 		auxMatrix.clear(ioConfig.inputs, ioConfig.outputs);
 
 		bool newPluginArrived = false;
+		bool hadOldPlugin = currentPlugin != nullptr;
 
 		EngineCommand command;
 
@@ -264,6 +265,13 @@ namespace ape
 
 		if (currentPlugin)
 		{
+			if (hadOldPlugin && newPluginArrived)
+			{
+				// hot reloading, copy over parameters
+				// TODO: Only do this if hash of old and new parameters match up
+				currentPlugin->syncParametersToEngine();
+			}
+
 			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
 			{
 				outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, PluginExchangeReason::Crash));
