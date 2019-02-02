@@ -29,6 +29,7 @@
 
 #include "CAllocator.h"
 #include <cpl/Protected.h>
+#include <cpl/Misc.h>
 
 namespace ape 
 {
@@ -47,7 +48,7 @@ namespace ape
 			size = sizeof(mem_block) + memsize + sizeof(mem_block::mem_end);
 		}
 		// allocate the memory
-		void * m = std::malloc(size);
+		void * m = cpl::Misc::alignedMalloc<std::byte>(size);
 		// crash here perhaps.
 		if(!m)
 			return nullptr;
@@ -120,7 +121,7 @@ namespace ape
 			cpl::CProtected::instance().throwException<std::runtime_error>("double free of pointer: " + std::to_string((std::uintptr_t)block));
 
 		removeBlock(header);
-		std::free(reinterpret_cast<void*>(header));
+		cpl::Misc::alignedFree(header);
 	}
 
 
@@ -129,7 +130,7 @@ namespace ape
 		cpl::CMutex lock (mutex);
 		for(auto it = allocations.begin(); it != allocations.end(); it++)
 		{
-			std::free(*it);
+			cpl::Misc::alignedFree(*it);
 		}
 		allocations.clear();
 	}

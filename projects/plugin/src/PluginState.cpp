@@ -66,6 +66,7 @@ namespace ape
 		, enabled(false)
 		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
+		, pluginAllocator(32)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
 		project->iface = sharedObject.get();

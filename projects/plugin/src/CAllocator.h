@@ -50,7 +50,7 @@
 			using Label = APE_AllocationLabel;
 
 		public:
-			CAllocator(unsigned align = 8);
+			CAllocator(unsigned align);
 			void * alloc(Label l, size_t memsize);
 			
 			template <typename T> 
@@ -81,10 +81,20 @@
 				{
 					unsigned int ncheck;
 				};
-				// sizeof start of header + memoryblock + mem_end
-				std::size_t totalSize;
-				Label memLabel;
-				mem_end * end;
+
+				union
+				{
+					struct
+					{
+						// sizeof start of header + memoryblock + mem_end
+						std::size_t totalSize;
+						mem_end * end;
+						Label memLabel;
+					};
+
+					std::byte align[32];
+				};
+
 
 				// held memory is after this block, so we add the size of this block to it's pointer.
 				void * getMemory() { return reinterpret_cast<char*>(this) + sizeof(*this); }
