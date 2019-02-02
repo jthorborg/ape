@@ -309,8 +309,9 @@ namespace ape
 	void UIController::deserialize(cpl::CSerializer::Builder & builder, cpl::Version version)
 	{
 		builder["source-manager"] >> *sourceManager;
-		if(builder.findForKey("command-state") != nullptr)
-			builder["command-state"] >> *commandStates;
+
+		/* if(builder.findForKey("command-state") != nullptr)
+			builder["command-state"] >> *commandStates; */
 
 		editorSSO->setState(builder["editor"], version);
 	}

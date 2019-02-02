@@ -55,6 +55,7 @@ namespace ape
 
 	void UICommandState::deserialize(Builder & builder, cpl::Version version)
 	{
+		// TODO: Really how we want to activate a plugin?
 		builder >> compile >> activationState;
 	}
 
