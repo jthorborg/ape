@@ -38,6 +38,7 @@ namespace ape
 {
 
 	PluginSurface::PluginSurface(Engine& engine, PluginState& state)
+		: state(state)
 	{
 		auto& paramDefs = state.parameters;
 		auto& paramManager = engine.getParameterManager();

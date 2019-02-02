@@ -202,18 +202,23 @@ namespace ape
 
 	void MainEditor::onPluginStateChanged(PluginState& plugin, bool activated)
 	{
-		if (pluginSurface)
-			tabs.removeChildComponent(pluginSurface.get());
-
-		if (activated)
+		if (!activated && pluginSurface && &pluginSurface->getPluginState() == &plugin)
 		{
+			tabs.removeChildComponent(pluginSurface.get());
+			pluginSurface = nullptr;
+
+		} 
+		else if (activated)
+		{
+			if (pluginSurface)
+			{
+				tabs.removeChildComponent(pluginSurface.get());
+				pluginSurface = nullptr;
+			}
+
 			pluginSurface = plugin.getOrCreateSurface();
 			pluginSurface->setBounds(getBounds());
 			tabs.addComponentToDock(pluginSurface.get());
-		}
-		else
-		{
-			pluginSurface = nullptr;
 		}
 	}
 

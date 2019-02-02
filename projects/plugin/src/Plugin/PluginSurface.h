@@ -46,6 +46,8 @@
 
 			void repaintActiveAreas();
 
+			const PluginState& getPluginState() const noexcept { return state; }
+
 		protected:
 
 			void resized() override;
@@ -62,6 +64,8 @@
 				controls,
 				widgets,
 				meters;
+
+			PluginState& state;
 		};
 
 	};

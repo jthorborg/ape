@@ -250,7 +250,7 @@ namespace ape
 
 		if (editorSSO->hasCached())
 		{
-			editorSSO->getCached()->onPluginStateChanged(*currentPlugin, false);
+			editorSSO->getCached()->onPluginStateChanged(*plugin, false);
 		}
 
 		engine.changeInitialDelay(0);
