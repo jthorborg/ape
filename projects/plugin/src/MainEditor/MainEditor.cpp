@@ -129,17 +129,25 @@ namespace ape
 		std::int32_t x, y;
 		std::int32_t width, height;
 		std::uint8_t detached;
-		std::int8_t position;
+
+		std::int8_t 
+			position = -1,
+			minimised = 0,
+			maximised = 0;
 
 		DockWindowState(jcredland::TabDock& dock, juce::Component& c)
-			: detached(!dock.contains(c)), position(-1)
+			: detached(!dock.contains(c))
 		{
 			juce::Rectangle<int> bounds;
 
+			bounds = c.getScreenBounds();
+
 			if (auto* p = c.getPeer())
-				bounds = p->getBounds();
-			else
-				bounds = c.getScreenBounds();
+			{
+				bounds.setPosition(p->getBounds().getPosition());
+				minimised = p->isMinimised();
+				maximised = p->isFullScreen();
+			}
 
 			x = bounds.getX();
 			y = bounds.getY();
@@ -148,7 +156,7 @@ namespace ape
 		}
 
 		DockWindowState()
-			: detached(0), x(0), y(0), width(0), height(0), position(-1)
+			: detached(0), x(0), y(0), width(0), height(0)
 		{
 
 		}
@@ -159,6 +167,15 @@ namespace ape
 			{
 				c.setSize(width, height);
 				mgr.detachComponentFromDock(c, { x, y });
+
+				if (auto* p = c.getPeer())
+				{
+					if (minimised)
+						p->setMinimised(true);
+
+					if (maximised)
+						p->setFullScreen(true);
+				}
 			}
 		}
 	};
@@ -173,6 +190,11 @@ namespace ape
 		windows << DockWindowState(tabs, *codeWindow.get());
 		windows << (pluginSurface ? DockWindowState(tabs, *pluginSurface.get()) : DockWindowState());
 
+		std::int32_t
+			w = getWidth(),
+			h = getHeight();
+
+		ar << w << h;
 	}
 
 	void MainEditor::deserialize(cpl::CSerializer::Builder & ar, cpl::Version version)
@@ -188,6 +210,12 @@ namespace ape
 
 		if(pluginSurface)
 			s.apply(dockManager, *pluginSurface.get());
+
+		std::int32_t w, h;
+
+		ar >> w >> h;
+
+		setSize(w, h);
 	}
 
 	juce::Rectangle<int> MainEditor::getContentArea()

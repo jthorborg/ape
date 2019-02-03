@@ -192,8 +192,8 @@ namespace ape
 			if (juce::FileInputStream s(f); s.openedOk())
 			{
 				auto contents = s.readEntireStreamAsString();
-
-				if (doc->getAllContent() != contents)
+				auto current = doc->getAllContent();
+				if (current != contents)
 				{
 					using namespace cpl::Misc;
 
