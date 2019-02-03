@@ -54,6 +54,7 @@ namespace ape
 		, isSingleFile(true)
 		, fullPath("Untitled")
 		, isActualFile(false)
+		, shouldCheckContentsAgainstDisk(true)
 		, enableScopePoints(false)
 		, lastDirtyState(false)
 		, textEditorDSO([this] { return createWindow(); })
@@ -66,7 +67,7 @@ namespace ape
 			std::string file;
 
 			enableScopePoints = settings.lookUpValue(false, "editor", "enable_scopepoints");
-
+			shouldCheckContentsAgainstDisk = settings.lookUpValue(true, "editor", "check_restored_against_disk");
 			settings.root()["languages"].lookupValue("default_file", file);
 			if (file.length())
 				openFile((cpl::Misc::DirectoryPath() + file).c_str());
@@ -184,28 +185,29 @@ namespace ape
 		textEditor->getLineTracer().setBreakpoints(breakpoints);
 		textEditor->getLineTracer().addBreakpointListener(this);
 
-		// TODO: Should this be here?
-		bool currentlyExists = fs::exists(fullPath);
-
-		if (currentlyExists && isActualFile)
+		if (shouldCheckContentsAgainstDisk && isActualFile && fs::exists(fullPath))
 		{
 			juce::File f(fullPath.string());
-			juce::FileInputStream s(f);
-			auto contents = s.readEntireStreamAsString();
 
-			if (doc->getAllContent() != contents)
+			if (juce::FileInputStream s(f); s.openedOk())
 			{
-				using namespace cpl::Misc;
+				auto contents = s.readEntireStreamAsString();
 
-				std::string message = "File on disk: \"" + fullPath.string() + "\"\nis different from loaded document, do you want to reload the disk version?";
-
-				int choice = MsgBox(message, cpl::programInfo.name, MsgStyle::sYesNo | MsgIcon::iQuestion, getParentWindow(), true);
-
-				if (choice == MsgButton::bYes)
+				if (doc->getAllContent() != contents)
 				{
-					openFile(fullPath);
+					using namespace cpl::Misc;
+
+					std::string message = "File on disk: \"" + fullPath.string() + "\"\nis different from loaded document, do you want to reload the disk version?";
+
+					int choice = MsgBox(message, cpl::programInfo.name, MsgStyle::sYesNo | MsgIcon::iQuestion, getParentWindow(), true);
+
+					if (choice == MsgButton::bYes)
+					{
+						openFile(fullPath);
+					}
 				}
 			}
+
 		}
 
 		textEditor->documentDirtynessChanged(doc->hasChangedSinceSavePoint());
@@ -519,7 +521,7 @@ namespace ape
 
 		fullPath = fileName;
 
-		std::ofstream file(fileName.string().c_str());
+		std::ofstream file(fileName.string().c_str(), std::ios::binary);
 
 		if (file)
 		{

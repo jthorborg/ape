@@ -84,10 +84,10 @@ namespace ape
 
 		void handleReturnKey() override
 		{
+			juce::CodeEditorComponent::handleReturnKey();
+
 			if (!autoIndent)
 				return;
-
-			juce::CodeEditorComponent::handleReturnKey();
 
 			auto position = getCaretPos();
 			auto previousLine = position.movedByLines(-1).getLineText();
