@@ -147,6 +147,13 @@
 				long newDelay;
 			} delay;
 			
+			bool 
+				isPlaying = false, 
+				fadePlugins = true, 
+				useFPE = false, 
+				preserveParameters = true;
+
+
 			std::int32_t instanceID;
 			CCodeGenerator codeGenerator;
 			std::unique_ptr<UIController> controller;
@@ -155,7 +162,6 @@
 
 			Settings settings;
 			IOConfig ioConfig;
-			bool isPlaying = false, fadePlugins = true, useFPE;
 			OscilloscopeData scopeData;
 			AuxMatrix auxMatrix;
 

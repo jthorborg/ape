@@ -145,12 +145,23 @@ namespace ape
 		dispatchEvent("playStateChanged()", e);
 	}
 
-	void PluginState::syncParametersToEngine()
+	void PluginState::syncParametersToEngine(bool takeEngineValue)
 	{
 		auto& pManager = engine.getParameterManager();
-		for (std::size_t i = 0; i < parameters.size(); ++i)
+
+		if (takeEngineValue)
 		{
-			parameters[i]->setParameterRealtime(pManager.getParameter(static_cast<ParameterManager::IndexHandle>(i)));
+			for (std::size_t i = 0; i < parameters.size(); ++i)
+			{
+				parameters[i]->setParameterRealtime(pManager.getParameter(static_cast<ParameterManager::IndexHandle>(i)));
+			}
+		}
+		else
+		{
+			for (std::size_t i = 0; i < parameters.size(); ++i)
+			{
+				pManager.setParameter(static_cast<ParameterManager::IndexHandle>(i), parameters[i]->getValue());
+			}
 		}
 	}
 

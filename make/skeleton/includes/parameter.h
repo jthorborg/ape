@@ -89,7 +89,11 @@ public:
 			return min + value * (max - min);
 		else
 			return min * pow(max / min, value);
+	}
 
+	PFloat inverse(bool quantized, PFloat value) const noexcept
+	{
+		return getNormalizer(quantized)(value, min, max);
 	}
 
 	APE_Transformer getTransformer(bool quantized) const noexcept
@@ -137,6 +141,13 @@ public:
 		return convert(range(read));
 	}
 
+	Derived& operator = (Type t) noexcept
+	{
+		volatile PFloat& write = storage;
+		write = range.inverse(false, Derived::representationFor(t));
+		return static_cast<Derived&>(*this);
+	}
+
 	~ParameterBase()
 	{
 		getInterface().destroyResource(&getInterface(), internalID, -1);
@@ -158,10 +169,7 @@ public:
 	typedef ParameterBase<bool, Param<bool>> Base;
 	typedef bool ParameterType;
 
-	static ParameterType convert(float value) noexcept
-	{
-		return static_cast<int>(std::floor((value + static_cast<PFloat>(0.5f)))) ? true : false;
-	}
+	using Base::operator =;
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
 		: Param(paramName, "", parameterRange)
@@ -175,6 +183,15 @@ public:
 		this->internalID = getInterface().createBooleanParameter(&getInterface(), this->name.c_str(), &this->storage);
 	}
 
+	static ParameterType convert(PFloat value) noexcept
+	{
+		return static_cast<int>(std::floor((value + static_cast<PFloat>(0.5f)))) ? true : false;
+	}
+
+	static PFloat representationFor(ParameterType value) noexcept
+	{
+		return static_cast<PFloat>(value ? 1.0f : 0.0f);
+	}
 }; 
 
 template<typename T>
@@ -184,10 +201,7 @@ public:
 	typedef ParameterBase<T, Param<T>> Base;
 	typedef T ParameterType;
 
-	static ParameterType convert(float value) noexcept
-	{
-		return static_cast<ParameterType>(std::round(value));
-	}
+	using Base::operator =;
 
 	Param(const std::string_view paramName, const std::initializer_list<const char*> values)
 		: Base(paramName, Range(0, values.size() - 1))
@@ -199,9 +213,19 @@ public:
 			values.size(),
 			values.begin()
 		);
+
+
 	}
 
+	static ParameterType convert(PFloat value) noexcept
+	{
+		return static_cast<ParameterType>(std::round(value));
+	}
 
+	static PFloat representationFor(ParameterType value) noexcept
+	{
+		return static_cast<float>(value);
+	}
 };
 
 template<>
@@ -211,10 +235,7 @@ public:
 	typedef ParameterBase<float, Param<float>> Base;
 	typedef float ParameterType;
 
-	static constexpr ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(value);
-	}
+	using Base::operator =;
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
 		: Param(paramName, "", parameterRange)
@@ -237,6 +258,15 @@ public:
 		);
 	}
 
+	static constexpr ParameterType convert(PFloat value) noexcept
+	{
+		return static_cast<ParameterType>(value);
+	}
+
+	static constexpr PFloat representationFor(ParameterType value) noexcept
+	{
+		return static_cast<PFloat>(value);
+	}
 };
 
 template<>
@@ -246,10 +276,7 @@ public:
 	typedef ParameterBase<double, Param<double>> Base;
 	typedef double ParameterType;
 
-	static constexpr ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(value);
-	}
+	using Base::operator =;
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
 		: Param(paramName, "", parameterRange)
@@ -270,6 +297,16 @@ public:
 			this->range.min,
 			this->range.max
 		);
+	}
+
+	static constexpr ParameterType convert(PFloat value) noexcept
+	{
+		return static_cast<ParameterType>(value);
+	}
+
+	static constexpr PFloat representationFor(ParameterType value) noexcept
+	{
+		return static_cast<PFloat>(value);
 	}
 
 };
@@ -281,10 +318,7 @@ public:
 	typedef ParameterBase<int, Param<int>> Base;
 	typedef int ParameterType;
 
-	static ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(std::round(value));
-	}
+	using Base::operator =;
 
 	Param(const std::string_view paramName = "", const Range parameterRange = Range())
 		: Param(paramName, "", parameterRange)
@@ -307,6 +341,15 @@ public:
 		);
 	}
 
+	static ParameterType convert(PFloat value) noexcept
+	{
+		return static_cast<ParameterType>(std::round(value));
+	}
+
+	static constexpr PFloat representationFor(ParameterType value) noexcept
+	{
+		return static_cast<PFloat>(value);
+	}
 }; 
 
 #endif

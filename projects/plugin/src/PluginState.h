@@ -99,7 +99,7 @@
 			bool isDisabling() const noexcept { return currentlyDisabling.load(std::memory_order_acquire); }
 			bool isEnabled() const noexcept { return enabled; }
 			void setPlayState(bool isPlaying);
-			void syncParametersToEngine();
+			void syncParametersToEngine(bool takeEngineValues);
 
 			PluginCommandQueue* getCommandQueue() noexcept { return commandQueue.get(); }
 			std::shared_ptr<PluginSurface> getOrCreateSurface();

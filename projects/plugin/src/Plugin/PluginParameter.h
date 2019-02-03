@@ -48,10 +48,20 @@
 
 			static std::unique_ptr<PluginParameter> FromRecord(ParameterRecord&& record);
 
+			PFloat getValue() const noexcept { return *param; }
 			virtual void setParameterRealtime(PFloat value) noexcept = 0;
 			virtual std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const = 0;
 			virtual ~PluginParameter() {}
 
+		protected:
+
+			PluginParameter(PFloat* value) 
+				: param(value)
+			{
+
+			}
+
+			PFloat* param;
 		};
 
 	}

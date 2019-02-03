@@ -40,9 +40,9 @@ namespace ape
 	public:
 
 		NormalParameter(std::string name, std::string_view unit, PFloat* value, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
-			: name(std::move(name))
+			: PluginParameter(value)
+			, name(std::move(name))
 			, formatter(unit)
-			, param(value)
 			, transformer(transformer)
 			, normalizer(normalizer)
 			, min(min)
@@ -53,6 +53,8 @@ namespace ape
 
 
 	private:
+
+		using PluginParameter::param;
 
 		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
 		{
@@ -91,8 +93,6 @@ namespace ape
 
 		std::string name;
 		cpl::UnitFormatter<PFloat> formatter;
-
-		PFloat* param = nullptr;
 		PFloat min = 0;
 		PFloat max = 1;
 		Transformer transformer;
@@ -104,13 +104,15 @@ namespace ape
 	public:
 
 		BooleanParameter(std::string name, PFloat* value)
-			: name(std::move(name))
-			, param(value)
+			: PluginParameter(value)
+			, name(std::move(name))
 		{
 
 		}
 
 	private:
+
+		using PluginParameter::param;
 
 		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
 		{
@@ -155,8 +157,6 @@ namespace ape
 		std::string name;
 		cpl::BooleanFormatter<PFloat> formatter;
 		cpl::BooleanRange<PFloat> range;
-
-		PFloat* param = nullptr;
 	};
 
 	class ListParameter final : public PluginParameter
@@ -164,14 +164,16 @@ namespace ape
 	public:
 
 		ListParameter(std::string name, PFloat* value, std::vector<std::string> values)
-			: name(std::move(name))
-			, param(value)
+			: PluginParameter(value)
+			, name(std::move(name))
 			, formatter(range)
 		{
 			formatter.setValues(std::move(values));
 		}
 
 	private:
+
+		using PluginParameter::param;
 
 		std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const override
 		{
@@ -216,8 +218,6 @@ namespace ape
 		std::string name;
 		cpl::ChoiceTransformer<PFloat> range;
 		cpl::ChoiceFormatter<PFloat> formatter;
-
-		PFloat* param = nullptr;
 	};
 
 

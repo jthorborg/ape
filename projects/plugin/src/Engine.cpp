@@ -119,15 +119,8 @@ namespace ape
 
 	void Engine::loadSettings()
 	{
-		try
-		{
-			useFPE = settings.root()["application"]["use_fpe"];
-		}
-		catch (std::exception & e)
-		{
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : Unknown error occured while reading settings! (%s)", e.what());
-		}
-
+		useFPE = settings.lookUpValue(false, "application", "use_fpe");
+		preserveParameters = settings.lookUpValue(true, "application", "preserve_parameters");
 	}
 
 	std::int32_t Engine::uniqueInstanceID() const noexcept
@@ -265,11 +258,11 @@ namespace ape
 
 		if (currentPlugin)
 		{
-			if (hadOldPlugin && newPluginArrived)
+			if (newPluginArrived)
 			{
 				// hot reloading, copy over parameters
 				// TODO: Only do this if hash of old and new parameters match up
-				currentPlugin->syncParametersToEngine();
+				currentPlugin->syncParametersToEngine(hadOldPlugin && preserveParameters);
 			}
 
 			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
