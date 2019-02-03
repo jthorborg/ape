@@ -93,6 +93,9 @@ namespace ape
 	{
 		processReturnQueue();
 		cpl::Misc::ReleaseUniqueInstanceID(instanceID);
+		// these need to be deleted before other members in the engine
+		controller = nullptr;
+		pluginStates.clear();
 	}
 
 	std::string Engine::engineType() const noexcept
