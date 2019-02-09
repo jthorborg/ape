@@ -41,6 +41,7 @@ namespace ape
 		Invalid,
 		Recompile,
 		Activate,
+		AsyncActivate,
 		Deactivate,
 		Clean
 	};

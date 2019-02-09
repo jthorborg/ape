@@ -102,7 +102,7 @@
 
 			void pluginExchanged(std::shared_ptr<PluginState> plugin, PluginExchangeReason reason);
 
-			bool activatePlugin();
+			bool activatePlugin(bool sync = true);
 
 			void editorOpened(MainEditor * newEditor);
 			void editorClosed();
@@ -119,6 +119,8 @@
 			std::shared_ptr<PluginState> currentPlugin;
 			std::unique_ptr<cpl::SerializableStateObject<MainEditor>> editorSSO;
 			std::future<std::unique_ptr<PluginState>> compilerState;
+			std::future<bool> activationState;
+
 			LabelQueue labelQueue;			
 			CColour statusColour;
 			std::string projectName;	

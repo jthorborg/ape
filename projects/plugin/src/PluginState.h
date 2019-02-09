@@ -92,7 +92,8 @@
 
 			static void useFPUExceptions(bool b);
 
-			bool activateProject();
+			bool initializeActivation();
+			bool finalizeActivation();
 			bool disableProject();
 			bool processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
 			bool isProcessing() const noexcept { return processing.load(std::memory_order_acquire); }
@@ -141,7 +142,8 @@
 				abnormalBehaviour,
 				currentlyDisabling,
 				processing,
-				enabled;
+				enabled,
+				activating;
 			
 
 };

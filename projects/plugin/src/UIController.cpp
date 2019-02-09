@@ -169,6 +169,8 @@ namespace ape
 
 	bool UIController::performCommand(UICommand command)
 	{
+		bool syncActivation = true;
+
 		switch (command)
 		{
 
@@ -178,6 +180,8 @@ namespace ape
 			break;
 		}
 
+		case UICommand::AsyncActivate:
+			syncActivation = false;
 		case UICommand::Activate:
 		{
 			if (compilerState.valid())
@@ -195,7 +199,7 @@ namespace ape
 				}
 			}
 
-			activatePlugin();
+			activatePlugin(syncActivation);
 
 			break;
 		}
@@ -256,8 +260,10 @@ namespace ape
 		engine.changeInitialDelay(0);
 	}
 
-	bool UIController::activatePlugin()
+	bool UIController::activatePlugin(bool sync)
 	{
+		activationState = {};
+
 		if (currentPlugin)
 		{
 			if (currentPlugin->isEnabled())
@@ -267,26 +273,59 @@ namespace ape
 				return false;
 			}
 
-			if (!currentPlugin->activateProject())
+			auto abortActivation = [this]()
 			{
 				getConsole().printLine(CConsole::Error, "[GUI] : An error occured while loading the plugin - plugin disposed.");
 				// TODO: If plugin can safely be reactivated, we don't have to dispose it here.
 				currentPlugin = nullptr;
 
 				labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
-				return false;
-			}
+			};
 
-			getConsole().printLine("[GUI] : Plugin is loaded and reports no error.");
-			labelQueue.setDefaultMessage("Plugin activated", CColours::green);
-			getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
-
-			if (editorSSO->hasCached())
+			auto finalizeActivation = [this, abortActivation]()
 			{
-				editorSSO->getCached()->onPluginStateChanged(*currentPlugin, true);
-			}
+				if (!currentPlugin->finalizeActivation())
+				{
+					abortActivation();
+					return;
+				}
 
-			engine.exchangePlugin(currentPlugin);
+				getConsole().printLine("[GUI] : Plugin is loaded and reports no error.");
+				labelQueue.setDefaultMessage("Plugin activated", CColours::green);
+				getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
+
+				if (editorSSO->hasCached())
+				{
+					editorSSO->getCached()->onPluginStateChanged(*currentPlugin, true);
+				}
+
+				engine.exchangePlugin(currentPlugin);
+			};
+
+			if (sync)
+			{
+				if (!currentPlugin->initializeActivation())
+					abortActivation();
+				else
+					finalizeActivation();
+			}
+			else
+			{
+				activationState = std::async(
+					[this, abortActivation, finalizeActivation](std::shared_ptr<PluginState> plugin)
+					{
+						getConsole().printLine("[GUI] : Activating asynchronously...");
+
+						if(!plugin->initializeActivation())
+							cpl::GUIUtils::MainEventBlocking(*this, abortActivation);
+						else
+							cpl::GUIUtils::MainEventBlocking(*this, finalizeActivation);
+
+						return true;
+					},
+					currentPlugin
+				);
+			}
 
 			return true;
 		}
@@ -393,7 +432,7 @@ namespace ape
 					[=] 
 					{ 
 						if(enableHotReload)
-							performCommand(UICommand::Activate); 
+							performCommand(UICommand::AsyncActivate); 
 
 						getUICommandState().changeValueExternally(getUICommandState().compile, 0);
 					}

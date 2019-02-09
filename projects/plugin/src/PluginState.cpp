@@ -66,6 +66,7 @@ namespace ape
 		, enabled(false)
 		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
+		, activating(false)
 		, pluginAllocator(32)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
@@ -225,10 +226,13 @@ namespace ape
 		return ret.first == STATUS_OK && !ret.second;
 	}
 
-	bool PluginState::activateProject()
+	bool PluginState::initializeActivation()
 	{
 		CPL_RUNTIME_ASSERTION(!enabled);
 		CPL_RUNTIME_ASSERTION(state == STATUS_DISABLED);
+		CPL_RUNTIME_ASSERTION(!activating);
+
+		activating = true;
 
 		commandQueue = std::make_unique<PluginCommandQueue>();
 
@@ -245,13 +249,22 @@ namespace ape
 			return false;
 		}
 
+		return true;
+	}
+
+	bool PluginState::finalizeActivation()
+	{
+		CPL_RUNTIME_ASSERTION(!enabled);
+		CPL_RUNTIME_ASSERTION(state == STATUS_DISABLED);
+		CPL_RUNTIME_ASSERTION(activating);
+
 		consumeCommands();
 		commandQueue.reset();
 
 		state = Status::STATUS_READY;
 
 		enabled = true;
-
+		activating = false;
 		return true;
 	}
 
@@ -402,7 +415,6 @@ namespace ape
 	template<typename Function>
 	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, PluginState::InvocationSemantics semantics, Function&& f)
 	{
-		// TODO: Need to continue this call even if there's an error, for instance when disabling.
 		if (semantics == DisregardInvocationIfErrorState && (abnormalBehaviour || state == STATUS_ERROR))
 			return { state, true };
 
