@@ -43,6 +43,7 @@
 #include "Plugin/PluginParameter.h"
 #include "Plugin/PluginSurface.h"
 #include "Plugin/PluginWidget.h"
+#include "Plugin/PluginAudioFile.h"
 
 namespace ape
 {

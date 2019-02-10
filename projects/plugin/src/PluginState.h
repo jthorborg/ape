@@ -62,6 +62,7 @@
 		class PluginParameter;
 		class PluginSurface;
 		class PluginWidget;
+		class PluginAudioFile;
 
 		class PluginState final
 			: private ParameterSet::RTListener
@@ -86,7 +87,9 @@
 
 			SharedInterfaceEx& getSharedInterface();
 			CAllocator& getPluginAllocator() noexcept { return pluginAllocator; }
+			std::vector<std::unique_ptr<PluginAudioFile>>& getPluginAudioFiles() { return audioFiles; }
 			std::vector<CMemoryGuard> & getPMemory() noexcept { return protectedMemory; }
+			const ProjectEx& getProject() const noexcept { return *project; }
 
 			void setBounds(const IOConfig& o);
 
@@ -125,6 +128,8 @@
 			std::unique_ptr<PluginCommandQueue> commandQueue;
 			std::vector<std::unique_ptr<PluginParameter>> parameters;
 			std::vector<std::unique_ptr<PluginWidget>> widgets;
+			std::vector<std::unique_ptr<PluginAudioFile>> audioFiles;
+
 			CCodeGenerator& generator;
 			Engine& engine;
 			CAllocator pluginAllocator;

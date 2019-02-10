@@ -1605,6 +1605,9 @@
     <ClCompile Include="..\..\src\UI\LabelQueue.cpp">
       <Filter>Audio Programming Environment\Source\UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Plugin\PluginAudioFile.cpp">
+      <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -3091,6 +3094,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\UI\LabelQueue.h">
       <Filter>Audio Programming Environment\Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Plugin\PluginAudioFile.h">
+      <Filter>Audio Programming Environment\Headers\Plugin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

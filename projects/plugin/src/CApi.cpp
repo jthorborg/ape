@@ -39,6 +39,7 @@
 #include "Engine.h"
 #include <cpl/Protected.h>
 #include "Plugin/PluginCommandQueue.h"
+#include "Plugin/PluginAudioFile.h"
 
 namespace ape 
 {
@@ -68,13 +69,6 @@ namespace ape
 		REQUIRES_NOTNULL(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
 		return static_cast<float>(engine.getSampleRate());
-	}
-
-	Status APE_API setStatus(APE_SharedInterface * iface, Status status) 
-	{
-		abortPlugin(iface, "setStatus is a deprecated API.");
-
-		return Status::STATUS_ERROR;
 	}
 
 	int APE_API_VARI printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... ) 
@@ -381,6 +375,54 @@ namespace ape
 			THROW("Cannot release resources at this point in time!");
 
 		return 0;
+	}
+
+	int APE_API loadAudioFile(APE_SharedInterface * iface, const char * path, APE_AudioFile * result)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(path);
+		REQUIRES_NOTNULL(result);
+
+		auto& shared = IEx::downcast(*iface);
+		auto& pstate = shared.getCurrentPluginState();
+		auto& console = shared.getEngine().getController().getConsole();
+
+		*result = {};
+
+		try
+		{
+			const auto& project = pstate.getProject();
+			juce::File workingDirectory = project.workingDirectory;
+
+			if (!workingDirectory.exists())
+			{
+				console.printLine(CConsole::Error, "[Plugin] : Error loading audio file, working directory doesn't exist: %s", workingDirectory.getFullPathName().toStdString().c_str());
+				return 0;
+			}
+
+			auto candidate = workingDirectory.getChildFile(path);
+
+			if (!candidate.existsAsFile())
+			{
+				console.printLine(CConsole::Error, "[Plugin] : Error loading audio file %s, canonical path doesn't exist: %s", path, candidate.getFullPathName().toStdString().c_str());
+				return 0;
+			}
+
+			auto file = std::make_unique<PluginAudioFile>(candidate);
+
+			*result = file->getAudioFile();
+
+			pstate
+				.getPluginAudioFiles()
+				.emplace_back(std::move(file));
+
+			return 1;
+		}
+		catch(const std::exception& e)
+		{
+			console.printLine(CConsole::Error, "[Plugin] : Error loading audio file %s: %s", path, e.what());
+			return 0;
+		}
 	}
 
 }

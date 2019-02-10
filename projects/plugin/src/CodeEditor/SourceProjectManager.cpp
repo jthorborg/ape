@@ -378,12 +378,14 @@ namespace ape
 			fileLocations[0] = nullptr;
 			project->files = fileLocations;
 
+			assignCStr(fullPath.parent_path().string(), project->workingDirectory);
+			assignCStr(fullPath.string(), fileLocations[0]);
+			
 			if (getDocumentText(text) && text.length() != 0 && 
 				assignCStr(text, project->sourceString) &&
 				assignCStr(getProjectName(), project->projectName) &&
 				assignCStr(cpl::Misc::DirectoryPath(), project->rootPath) &&
-				assignCStr(getExtension(), project->languageID) &&
-				assignCStr(fullPath.string(), fileLocations[0]))
+				assignCStr(getExtension(), project->languageID))
 			{
 				if (enableScopePoints)
 				{

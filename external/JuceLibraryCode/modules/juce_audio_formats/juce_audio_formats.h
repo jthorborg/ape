@@ -59,7 +59,7 @@
     of using this code, then do not enable this setting.
 */
 #ifndef JUCE_USE_MP3AUDIOFORMAT
- #define JUCE_USE_MP3AUDIOFORMAT 0
+ #define JUCE_USE_MP3AUDIOFORMAT 1
 #endif
 
 /** Config: JUCE_USE_LAME_AUDIO_FORMAT

@@ -55,6 +55,15 @@
 
 	struct APE_SharedInterface;
 
+	struct APE_AudioFile
+	{
+		const char* name;
+		unsigned int channels;
+		unsigned long long samples;
+		double sampleRate;
+		const float* const* data;
+	};
+
 	struct APE_SharedInterface
 	{
 		void		(APE_API * abortPlugin)				(struct APE_SharedInterface * iface, const char * reason);
@@ -62,7 +71,6 @@
 		int			(APE_API_VARI * printLine)			(struct APE_SharedInterface * iface, unsigned nColor, const char * fmt, ...);
 		int			(APE_API_VARI * printThemedLine)	(struct APE_SharedInterface * iface, APE_TextColour color, const char * fmt, ...);
 		int			(APE_API * msgBox)					(struct APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);
-		APE_Status	(APE_API * setStatus)				(struct APE_SharedInterface * iface, APE_Status status);
 		long long	(APE_API * timerGet)				(struct APE_SharedInterface * iface);
 		double		(APE_API * timerDiff)				(struct APE_SharedInterface * iface, long long time);
 		void *		(APE_API * alloc)					(struct APE_SharedInterface * iface, APE_AllocationLabel label, size_t size);
@@ -79,6 +87,7 @@
 		int			(APE_API * createBooleanParameter)	(struct APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
 		int			(APE_API * destroyResource)			(struct APE_SharedInterface * iface, int resourceID, int reserved);
+		int			(APE_API * loadAudioFile)			(struct APE_SharedInterface * iface, const char* path, APE_AudioFile* result);
 
 		struct APE_SIExtra extra;
 	};

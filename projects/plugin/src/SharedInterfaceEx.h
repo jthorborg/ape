@@ -50,7 +50,6 @@
 				APE_GTOL(printLine);
 				APE_GTOL(printThemedLine);
 				APE_GTOL(msgBox);
-				APE_GTOL(setStatus);
 				APE_GTOL(timerGet);
 				APE_GTOL(timerDiff);
 				APE_GTOL(alloc);
@@ -67,6 +66,7 @@
 				APE_GTOL(createBooleanParameter);
 				APE_GTOL(createListParameter);
 				APE_GTOL(destroyResource);
+				APE_GTOL(loadAudioFile);
 
 				std::memset(&extra, 0, sizeof(extra));
 #undef APE_GTOL

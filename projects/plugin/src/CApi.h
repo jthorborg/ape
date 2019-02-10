@@ -59,15 +59,6 @@
 		/// </summary>
 		int			APE_API			msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);
 		/// <summary>
-		/// The c-subsystem can here request a change to it's status, it may or may not be 
-		/// accepted, return value is always the(possible changed) state of ape.
-		/// </summary>
-		Status		APE_API			setStatus(APE_SharedInterface * iface, Status status);
-		/// <summary>
-		/// Adds a automatable parameter to the GUI.
-		/// </summary>
-		int			APE_API			createKnob(APE_SharedInterface * iface, const char * name, float * extVal, int type);
-		/// <summary>
 		/// Returns an opaque handle to a starting point using the system's high-resolution clock.
 		/// </summary>
 		long long	APE_API			timerGet(APE_SharedInterface * iface);
@@ -118,7 +109,7 @@
 		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
 		int			APE_API			destroyResource(APE_SharedInterface * iface, int resource, int reserved);
-
+		int			APE_API			loadAudioFile(APE_SharedInterface * iface, const char* path, APE_AudioFile* result);
 
 	};
 #endif
