@@ -7,6 +7,7 @@
 #include "label.h"
 #include "meter.h"
 #include "plot.h"
+#include "audiofile.h"
 
 #include <complex>
 #include <map>

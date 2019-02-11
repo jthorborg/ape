@@ -58,8 +58,8 @@
 	struct APE_AudioFile
 	{
 		const char* name;
-		unsigned int channels;
 		unsigned long long samples;
+		unsigned int channels;
 		double sampleRate;
 		const float* const* data;
 	};

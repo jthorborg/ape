@@ -959,6 +959,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\external\tinycc\libtcc.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\misc_tasks.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\audiofile.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\baselib.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tests|Win32'">true</ExcludedFromBuild>
@@ -981,6 +982,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\label.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\meter.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\misc.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\parameter.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\plot.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\processor.h">

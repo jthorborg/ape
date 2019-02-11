@@ -372,6 +372,12 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\plot.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\audiofile.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\misc.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
