@@ -274,6 +274,8 @@ namespace ape
 		CPL_RUNTIME_ASSERTION(enabled);
 		CPL_RUNTIME_ASSERTION(state == STATUS_READY);
 
+		setPlayState(false);
+
 		currentlyDisabling.store(true, std::memory_order_release);
 
 		auto ret = WrapPluginCall("Disabling plugin", AlwaysPerformInvocation,

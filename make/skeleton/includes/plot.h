@@ -6,49 +6,52 @@
 #include <cmath>
 #include <vector>
 
-template<std::size_t Size>
-class Plot
+namespace ape
 {
-public:
 
-	typedef double value_type;
-
-	Plot(std::string name)
-		: values(Size)
+	template<std::size_t Size>
+	class Plot
 	{
-		id = getInterface().createPlot(&getInterface(), name.c_str(), values.data(), values.size());
-	}
+	public:
 
-	~Plot()
-	{
-		getInterface().destroyResource(&getInterface(), id, 0);
-	}
+		typedef double value_type;
 
-	value_type& operator [] (std::size_t index)
-	{
-		if (index < Size)
-			return values[index];
+		Plot(std::string name)
+			: values(Size)
+		{
+			id = getInterface().createPlot(&getInterface(), name.c_str(), values.data(), values.size());
+		}
 
-		abort("Index out of range for Plot");
-	}
+		~Plot()
+		{
+			getInterface().destroyResource(&getInterface(), id, 0);
+		}
 
-	const value_type& operator [] (std::size_t index) const
-	{
-		if (index < Size)
-			return values[index];
+		value_type& operator [] (std::size_t index)
+		{
+			if (index < Size)
+				return values[index];
 
-		abort("Index out of range for Plot");
-	}
+			abort("Index out of range for Plot");
+		}
 
-	const std::size_t size() const noexcept
-	{
-		return Size;
-	}
+		const value_type& operator [] (std::size_t index) const
+		{
+			if (index < Size)
+				return values[index];
 
-private:
+			abort("Index out of range for Plot");
+		}
 
-	std::vector<value_type> values;
-	int id;
-};
+		const std::size_t size() const noexcept
+		{
+			return Size;
+		}
 
+	private:
+
+		std::vector<value_type> values;
+		int id;
+	};
+}
 #endif

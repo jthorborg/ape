@@ -5,20 +5,24 @@
 #include <cmath>
 #include "misc_tasks.h"
 
-APE_SharedInterface * lastIFace;
-FactoryBase::ProcessorCreater pluginCreater;
-
-
-void FactoryBase::SetCreater(ProcessorCreater factory)
+namespace ape
 {
-	pluginCreater = factory;
+	APE_SharedInterface * lastIFace;
+	FactoryBase::ProcessorCreater pluginCreater;
+
+	void FactoryBase::SetCreater(ProcessorCreater factory)
+	{
+		pluginCreater = factory;
+	}
+
+	APE_SharedInterface& getInterface()
+	{
+		// TODO: thread_local
+		return *lastIFace;
+	}
 }
 
-APE_SharedInterface& getInterface()
-{
-	// TODO: thread_local
-	return *lastIFace;
-}
+using namespace ape;
 
 extern "C"
 {
@@ -72,7 +76,6 @@ int fpclassify(float x) {
 	return FP_NORMAL;
 }
 
-
 extern "C"
 {
 
@@ -84,6 +87,7 @@ extern "C"
 			iface->printThemedLine(iface, APE_TextColour_Error, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")?");
 			return NULL;
 		}
+
 		Processor * p = pluginCreater();
 		return p;
 	}
@@ -110,14 +114,8 @@ void *operator new(std::size_t am)
 {
 	return lastIFace->alloc(lastIFace, APE_Alloc_Tiny, am);
 }
-/*
-void *operator new(std::size_t am, void * loc)
-{
-	return loc;
-} */
 
-
-void operator delete(void * loc)
+void operator delete(void * loc) noexcept
 {
 	lastIFace->free(lastIFace, loc);
 }
@@ -132,13 +130,13 @@ extern "C"
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
 		if (!p)
-			return Status(Status::Error);
+			return StatusCode::Error;
 
 		p->process(inputs, outputs, frames);
 
 		Tracing::PresentTracers();
 
-		return Status(Status::Ok);
+		return StatusCode::Ok;
 	}
 
 	APE_Status SCRIPT_API NAME_INIT(ScriptInstance * instance, APE_SharedInterface * iface)
@@ -147,11 +145,11 @@ extern "C"
 		Processor * p = (Processor*)instance;
 
 		if(!p)
-			return Status(Status::Error);
+			return StatusCode::Error;
 
 		p->init();
 
-		return Status(Status::Ready);
+		return StatusCode::Ready;
 	}
 
 	APE_Status SCRIPT_API NAME_END(ScriptInstance * instance, APE_SharedInterface * iface)
@@ -160,11 +158,11 @@ extern "C"
 		Processor * p = (Processor*)instance;
 
 		if (!p)
-			return Status(Status::Error);
+			return StatusCode::Error;
 
 		p->close();
 
-		return Status(Status::Ok);
+		return StatusCode::Ok;
 
 	}
 
@@ -173,7 +171,7 @@ extern "C"
 		lastIFace = iface;
 		Processor * p = (Processor*)instance;
 
-		return p ? p->onEvent(event) : Status(Status::Error);
+		return p ? p->onEvent(event) : StatusCode::Error;
 	}
 
 };

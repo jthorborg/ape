@@ -21,43 +21,27 @@ inline size_t nextpow2(size_t current)
 }
 
 int printf(const char * fmt, ...);
-APE_SharedInterface& getInterface();
 [[noreturn]] void abort(const char* reason);
 
-struct Status
+namespace ape
 {
-	enum Codes
+	APE_SharedInterface& getInterface();
+
+	struct StatusCode
 	{
-		Ok = 0,
-		Error = 1,
-		Wait = 2,
-		Silent = 3,
-		Ready = 4,
-		Disabled = 5,
-		Handled = 6,
-		NotImplemented = 7
+		static constexpr APE_Status
+			Ok = STATUS_OK,
+			Error = STATUS_ERROR,
+			Wait = STATUS_WAIT,
+			Silent = STATUS_SILENT,
+			Ready = STATUS_READY,
+			Disabled = STATUS_DISABLED,
+			Handled = STATUS_HANDLED,
+			NotImplemented = STATUS_NOT_IMPLEMENTED;
+
 	};
+}
 
-	Status() {}
-	Status(Codes c) : code(c) {}
-	Status& operator = (Codes c)
-	{
-		code = c;
-		return *this;
-	}
 
-	operator Codes ()
-	{
-		return code;
-	}
-
-	operator APE_Status()
-	{
-		return (APE_Status)code;
-	}
-
-private:
-	Codes code;
-};
 
 #endif

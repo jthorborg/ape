@@ -8,348 +8,352 @@
 #include <atomic>
 #include <initializer_list>
 
-template<class Type, typename Select = std::true_type>
-class Param;
-
-namespace
+namespace ape
 {
-	static PFloat scaleLin(PFloat x, PFloat mi, PFloat ma)
+
+	template<class Type, typename Select = std::true_type>
+	class Param;
+
+	namespace
 	{
-		return mi + x * (ma - mi);
+		static PFloat scaleLin(PFloat x, PFloat mi, PFloat ma)
+		{
+			return mi + x * (ma - mi);
+		}
+
+		static PFloat scaleExp(PFloat x, PFloat mi, PFloat ma)
+		{
+			return mi * std::pow(ma / mi, x);
+		}
+
+		static PFloat scaleLinQ(PFloat x, PFloat mi, PFloat ma)
+		{
+			return std::floor(static_cast<PFloat>(0.5) + mi + x * (ma - mi));
+		}
+
+		static PFloat scaleExpQ(PFloat x, PFloat mi, PFloat ma)
+		{
+			return std::floor(static_cast<PFloat>(0.5) + mi * std::pow(ma / mi, x));
+		}
+
+		// inverted
+
+		static PFloat invScaleLin(PFloat y, PFloat mi, PFloat ma)
+		{
+			return (y - mi) / (ma - mi);
+		}
+
+		static PFloat invScaleExp(PFloat y, PFloat mi, PFloat ma)
+		{
+			return std::log(y / mi) / std::log(ma / mi);
+		}
+
+		static PFloat invScaleLinQ(PFloat y, PFloat mi, PFloat ma)
+		{
+			return (std::floor(static_cast<PFloat>(0.5) + y) - mi) / (ma - mi);
+		}
+
+		static PFloat invScaleExpQ(PFloat y, PFloat mi, PFloat ma)
+		{
+			return std::log(std::floor(static_cast<PFloat>(0.5) + y) / mi) / std::log(ma / mi);
+		}
 	}
 
-	static PFloat scaleExp(PFloat x, PFloat mi, PFloat ma)
+
+
+	class Range
 	{
-		return mi * std::pow(ma / mi, x);
-	}
+		template<class Type, typename Select>
+		friend class Param;
 
-	static PFloat scaleLinQ(PFloat x, PFloat mi, PFloat ma)
-	{
-		return std::floor(static_cast<PFloat>(0.5) + mi + x * (ma - mi));
-	}
+	public:
 
-	static PFloat scaleExpQ(PFloat x, PFloat mi, PFloat ma)
-	{
-		return std::floor(static_cast<PFloat>(0.5) + mi * std::pow(ma / mi, x));
-	}
+		enum Mapping
+		{
+			Lin,
+			Exp
+		};
 
-	// inverted
+		Range()
+			: min(0), max(1), mapping(Lin)
+		{
 
-	static PFloat invScaleLin(PFloat y, PFloat mi, PFloat ma)
-	{
-		return (y - mi) / (ma - mi);
-	}
+		}
 
-	static PFloat invScaleExp(PFloat y, PFloat mi, PFloat ma)
-	{
-		return std::log(y / mi) / std::log(ma / mi);
-	}
+		Range(PFloat minValue, PFloat maxValue, Mapping parameterMapping = Lin)
+			: min(minValue), max(maxValue), mapping(parameterMapping)
+		{
 
-	static PFloat invScaleLinQ(PFloat y, PFloat mi, PFloat ma)
-	{
-		return (std::floor(static_cast<PFloat>(0.5) + y) - mi) / (ma - mi);
-	}
+		}
 
-	static PFloat invScaleExpQ(PFloat y, PFloat mi, PFloat ma)
-	{
-		return std::log(std::floor(static_cast<PFloat>(0.5) + y) / mi) / std::log(ma / mi);
-	}
-}
+		PFloat operator()(PFloat value) const noexcept
+		{
+			if (mapping == Lin)
+				return min + value * (max - min);
+			else
+				return min * pow(max / min, value);
+		}
 
+		PFloat inverse(bool quantized, PFloat value) const noexcept
+		{
+			return getNormalizer(quantized)(value, min, max);
+		}
 
+		APE_Transformer getTransformer(bool quantized) const noexcept
+		{
+			return !quantized ? (mapping == Lin ? scaleLin : scaleExp)  : (mapping == Lin ? scaleLinQ : scaleExpQ);
+		}
 
-class Range
-{
-	template<class Type, typename Select>
-	friend class Param;
+		APE_Normalizer getNormalizer(bool quantized) const noexcept
+		{
+			return !quantized ? (mapping == Lin ? invScaleLin : invScaleExp) : (mapping == Lin ? invScaleLinQ : invScaleExpQ);
+		}
 
-public:
+	private:
 
-	enum Mapping
-	{
-		Lin,
-		Exp
+		PFloat min, max;
+		Mapping mapping;
 	};
 
-	Range()
-		: min(0), max(1), mapping(Lin)
+	template<class Type, class Derived>
+	class ParameterBase
 	{
+	public:
 
-	}
+		ParameterBase(const std::string_view paramName = "", const Range parameterRange = Range())
+			: internalID()
+			, name(paramName.size() == 0 ? "Unnamed" : paramName)
+			, range(parameterRange)
+		{
+		}
 
-	Range(PFloat minValue, PFloat maxValue, Mapping parameterMapping = Lin)
-		: min(minValue), max(maxValue), mapping(parameterMapping)
+		static Type convert(PFloat normalized) noexcept
+		{
+			return Derived::convert(normalized);
+		}
+
+		int id() const noexcept
+		{
+			return internalID;
+		}
+
+		operator Type() const noexcept
+		{
+			// TODO: Atomic read
+			const volatile PFloat& read = storage;
+			return convert(range(read));
+		}
+
+		Derived& operator = (Type t) noexcept
+		{
+			volatile PFloat& write = storage;
+			write = range.inverse(false, Derived::representationFor(t));
+			return static_cast<Derived&>(*this);
+		}
+
+		~ParameterBase()
+		{
+			getInterface().destroyResource(&getInterface(), internalID, -1);
+		}
+
+	protected:
+
+		int internalID;
+		std::string name;
+		Range range;
+		PFloat storage;
+	};
+
+
+	template<>
+	class Param<bool> : public ParameterBase<bool, Param<bool>>
 	{
+	public:
+		typedef ParameterBase<bool, Param<bool>> Base;
+		typedef bool ParameterType;
 
-	}
+		using Base::operator =;
 
-	PFloat operator()(PFloat value) const noexcept
+		Param(const std::string_view paramName = "", const Range parameterRange = Range())
+			: Param(paramName, "", parameterRange)
+		{
+
+		}
+
+		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
+			: Base(paramName, parameterRange)
+		{
+			this->internalID = getInterface().createBooleanParameter(&getInterface(), this->name.c_str(), &this->storage);
+		}
+
+		static ParameterType convert(PFloat value) noexcept
+		{
+			return static_cast<int>(std::floor((value + static_cast<PFloat>(0.5f)))) ? true : false;
+		}
+
+		static PFloat representationFor(ParameterType value) noexcept
+		{
+			return static_cast<PFloat>(value ? 1.0f : 0.0f);
+		}
+	}; 
+
+	template<typename T>
+	class Param<T, typename std::is_enum<T>::type> : public ParameterBase<T, Param<T>>
 	{
-		if (mapping == Lin)
-			return min + value * (max - min);
-		else
-			return min * pow(max / min, value);
-	}
+	public:
+		typedef ParameterBase<T, Param<T>> Base;
+		typedef T ParameterType;
 
-	PFloat inverse(bool quantized, PFloat value) const noexcept
+		using Base::operator =;
+
+		Param(const std::string_view paramName, const std::initializer_list<const char*> values)
+			: Base(paramName, Range(0, values.size() - 1))
+		{
+			this->internalID = getInterface().createListParameter(
+				&getInterface(),
+				this->name.c_str(),
+				&this->storage,
+				values.size(),
+				values.begin()
+			);
+
+
+		}
+
+		static ParameterType convert(PFloat value) noexcept
+		{
+			return static_cast<ParameterType>(std::round(value));
+		}
+
+		static PFloat representationFor(ParameterType value) noexcept
+		{
+			return static_cast<float>(value);
+		}
+	};
+
+	template<>
+	class Param<float> : public ParameterBase<float, Param<float>>
 	{
-		return getNormalizer(quantized)(value, min, max);
-	}
+	public:
+		typedef ParameterBase<float, Param<float>> Base;
+		typedef float ParameterType;
 
-	APE_Transformer getTransformer(bool quantized) const noexcept
+		using Base::operator =;
+
+		Param(const std::string_view paramName = "", const Range parameterRange = Range())
+			: Param(paramName, "", parameterRange)
+		{
+
+		}
+
+		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
+			: Base(paramName, parameterRange)
+		{
+			this->internalID = getInterface().createNormalParameter(
+				&getInterface(),
+				this->name.c_str(),
+				unit.c_str(),
+				&this->storage,
+				this->range.getTransformer(false),
+				this->range.getNormalizer(false),
+				this->range.min,
+				this->range.max
+			);
+		}
+
+		static constexpr ParameterType convert(PFloat value) noexcept
+		{
+			return static_cast<ParameterType>(value);
+		}
+
+		static constexpr PFloat representationFor(ParameterType value) noexcept
+		{
+			return static_cast<PFloat>(value);
+		}
+	};
+
+	template<>
+	class Param<double> : public ParameterBase<double, Param<double>>
 	{
-		return !quantized ? (mapping == Lin ? scaleLin : scaleExp)  : (mapping == Lin ? scaleLinQ : scaleExpQ);
-	}
+	public:
+		typedef ParameterBase<double, Param<double>> Base;
+		typedef double ParameterType;
 
-	APE_Normalizer getNormalizer(bool quantized) const noexcept
+		using Base::operator =;
+
+		Param(const std::string_view paramName = "", const Range parameterRange = Range())
+			: Param(paramName, "", parameterRange)
+		{
+
+		}
+
+		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
+			: Base(paramName, parameterRange)
+		{
+			this->internalID = getInterface().createNormalParameter(
+				&getInterface(),
+				this->name.c_str(),
+				unit.c_str(),
+				&this->storage,
+				this->range.getTransformer(false),
+				this->range.getNormalizer(false),
+				this->range.min,
+				this->range.max
+			);
+		}
+
+		static constexpr ParameterType convert(PFloat value) noexcept
+		{
+			return static_cast<ParameterType>(value);
+		}
+
+		static constexpr PFloat representationFor(ParameterType value) noexcept
+		{
+			return static_cast<PFloat>(value);
+		}
+
+	};
+
+	template<>
+	class Param<int> : public ParameterBase<int, Param<int>>
 	{
-		return !quantized ? (mapping == Lin ? invScaleLin : invScaleExp) : (mapping == Lin ? invScaleLinQ : invScaleExpQ);
-	}
+	public:
+		typedef ParameterBase<int, Param<int>> Base;
+		typedef int ParameterType;
 
-private:
+		using Base::operator =;
 
-	PFloat min, max;
-	Mapping mapping;
-};
+		Param(const std::string_view paramName = "", const Range parameterRange = Range())
+			: Param(paramName, "", parameterRange)
+		{
 
-template<class Type, class Derived>
-class ParameterBase
-{
-public:
+		}
 
-	ParameterBase(const std::string_view paramName = "", const Range parameterRange = Range())
-		: internalID()
-		, name(paramName.size() == 0 ? "Unnamed" : paramName)
-		, range(parameterRange)
-	{
-	}
+		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
+			: Base(paramName, parameterRange)
+		{
+			this->internalID = getInterface().createNormalParameter(
+				&getInterface(),
+				this->name.c_str(),
+				unit.c_str(),
+				&this->storage,
+				this->range.getTransformer(true),
+				this->range.getNormalizer(true),
+				this->range.min,
+				this->range.max
+			);
+		}
 
-	static Type convert(PFloat normalized) noexcept
-	{
-		return Derived::convert(normalized);
-	}
+		static ParameterType convert(PFloat value) noexcept
+		{
+			return static_cast<ParameterType>(std::round(value));
+		}
 
-	int id() const noexcept
-	{
-		return internalID;
-	}
+		static constexpr PFloat representationFor(ParameterType value) noexcept
+		{
+			return static_cast<PFloat>(value);
+		}
+	}; 
 
-	operator Type() const noexcept
-	{
-		// TODO: Atomic read
-		const volatile PFloat& read = storage;
-		return convert(range(read));
-	}
-
-	Derived& operator = (Type t) noexcept
-	{
-		volatile PFloat& write = storage;
-		write = range.inverse(false, Derived::representationFor(t));
-		return static_cast<Derived&>(*this);
-	}
-
-	~ParameterBase()
-	{
-		getInterface().destroyResource(&getInterface(), internalID, -1);
-	}
-
-protected:
-
-	int internalID;
-	std::string name;
-	Range range;
-	PFloat storage;
-};
-
-
-template<>
-class Param<bool> : public ParameterBase<bool, Param<bool>>
-{
-public:
-	typedef ParameterBase<bool, Param<bool>> Base;
-	typedef bool ParameterType;
-
-	using Base::operator =;
-
-	Param(const std::string_view paramName = "", const Range parameterRange = Range())
-		: Param(paramName, "", parameterRange)
-	{
-
-	}
-
-	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
-		: Base(paramName, parameterRange)
-	{
-		this->internalID = getInterface().createBooleanParameter(&getInterface(), this->name.c_str(), &this->storage);
-	}
-
-	static ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<int>(std::floor((value + static_cast<PFloat>(0.5f)))) ? true : false;
-	}
-
-	static PFloat representationFor(ParameterType value) noexcept
-	{
-		return static_cast<PFloat>(value ? 1.0f : 0.0f);
-	}
-}; 
-
-template<typename T>
-class Param<T, typename std::is_enum<T>::type> : public ParameterBase<T, Param<T>>
-{
-public:
-	typedef ParameterBase<T, Param<T>> Base;
-	typedef T ParameterType;
-
-	using Base::operator =;
-
-	Param(const std::string_view paramName, const std::initializer_list<const char*> values)
-		: Base(paramName, Range(0, values.size() - 1))
-	{
-		this->internalID = getInterface().createListParameter(
-			&getInterface(),
-			this->name.c_str(),
-			&this->storage,
-			values.size(),
-			values.begin()
-		);
-
-
-	}
-
-	static ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(std::round(value));
-	}
-
-	static PFloat representationFor(ParameterType value) noexcept
-	{
-		return static_cast<float>(value);
-	}
-};
-
-template<>
-class Param<float> : public ParameterBase<float, Param<float>>
-{
-public:
-	typedef ParameterBase<float, Param<float>> Base;
-	typedef float ParameterType;
-
-	using Base::operator =;
-
-	Param(const std::string_view paramName = "", const Range parameterRange = Range())
-		: Param(paramName, "", parameterRange)
-	{
-
-	}
-
-	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
-		: Base(paramName, parameterRange)
-	{
-		this->internalID = getInterface().createNormalParameter(
-			&getInterface(),
-			this->name.c_str(),
-			unit.c_str(),
-			&this->storage,
-			this->range.getTransformer(false),
-			this->range.getNormalizer(false),
-			this->range.min,
-			this->range.max
-		);
-	}
-
-	static constexpr ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(value);
-	}
-
-	static constexpr PFloat representationFor(ParameterType value) noexcept
-	{
-		return static_cast<PFloat>(value);
-	}
-};
-
-template<>
-class Param<double> : public ParameterBase<double, Param<double>>
-{
-public:
-	typedef ParameterBase<double, Param<double>> Base;
-	typedef double ParameterType;
-
-	using Base::operator =;
-
-	Param(const std::string_view paramName = "", const Range parameterRange = Range())
-		: Param(paramName, "", parameterRange)
-	{
-
-	}
-
-	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
-		: Base(paramName, parameterRange)
-	{
-		this->internalID = getInterface().createNormalParameter(
-			&getInterface(),
-			this->name.c_str(),
-			unit.c_str(),
-			&this->storage,
-			this->range.getTransformer(false),
-			this->range.getNormalizer(false),
-			this->range.min,
-			this->range.max
-		);
-	}
-
-	static constexpr ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(value);
-	}
-
-	static constexpr PFloat representationFor(ParameterType value) noexcept
-	{
-		return static_cast<PFloat>(value);
-	}
-
-};
-
-template<>
-class Param<int> : public ParameterBase<int, Param<int>>
-{
-public:
-	typedef ParameterBase<int, Param<int>> Base;
-	typedef int ParameterType;
-
-	using Base::operator =;
-
-	Param(const std::string_view paramName = "", const Range parameterRange = Range())
-		: Param(paramName, "", parameterRange)
-	{
-
-	}
-
-	Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
-		: Base(paramName, parameterRange)
-	{
-		this->internalID = getInterface().createNormalParameter(
-			&getInterface(),
-			this->name.c_str(),
-			unit.c_str(),
-			&this->storage,
-			this->range.getTransformer(true),
-			this->range.getNormalizer(true),
-			this->range.min,
-			this->range.max
-		);
-	}
-
-	static ParameterType convert(PFloat value) noexcept
-	{
-		return static_cast<ParameterType>(std::round(value));
-	}
-
-	static constexpr PFloat representationFor(ParameterType value) noexcept
-	{
-		return static_cast<PFloat>(value);
-	}
-}; 
-
+}
 #endif

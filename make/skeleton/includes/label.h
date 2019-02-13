@@ -4,269 +4,272 @@
 #include "baselib.h"
 #include <vector>
 
-namespace detail
+namespace ape
 {
-	template<typename T>
-	struct fmt_type_traits;
-
-	template<>
-	struct fmt_type_traits<signed int>
+	namespace detail
 	{
-		static constexpr const char* designator()
+		template<typename T>
+		struct fmt_type_traits;
+
+		template<>
+		struct fmt_type_traits<signed int>
 		{
-			return "d";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "d";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<const char*>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<const char*>
 		{
-			return "s";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "s";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<void*>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<void*>
 		{
-			return "x";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "x";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<unsigned int>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<unsigned int>
 		{
-			return "u";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "u";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<float>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<float>
 		{
-			return "f";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "f";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<double>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<double>
 		{
-			return "lf";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "lf";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<char>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<char>
 		{
-			return "c";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "c";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<long double>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<long double>
 		{
-			return "ld";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "ld";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<unsigned long long>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<unsigned long long>
 		{
-			return "lu";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "lu";
+			}
+		};
 
-	template<>
-	struct fmt_type_traits<signed long long>
-	{
-		static constexpr const char* designator()
+		template<>
+		struct fmt_type_traits<signed long long>
 		{
-			return "li";
-		}
-	};
+			static constexpr const char* designator()
+			{
+				return "li";
+			}
+		};
 
-	class ControlBlockBase
-	{
-	public:
-
-		class Handle
+		class ControlBlockBase
 		{
 		public:
-			friend class ControlBlockBase;
 
-			~Handle()
+			class Handle
 			{
-				parent->decRef();
-			}
+			public:
+				friend class ControlBlockBase;
 
-			Handle(Handle&& other) = default;
-			Handle& operator = (Handle&& other) = default;
+				~Handle()
+				{
+					parent->decRef();
+				}
 
-			Handle(const Handle& other)
-				: parent(other.parent)
+				Handle(Handle&& other) = default;
+				Handle& operator = (Handle&& other) = default;
+
+				Handle(const Handle& other)
+					: parent(other.parent)
+				{
+					parent->addRef();
+				}
+
+				Handle& operator = (const Handle& other)
+				{
+					other.parent->addRef();
+					parent->decRef();
+					parent = other.parent;
+					return *this;
+				}
+
+			private:
+
+				Handle(ControlBlockBase& parent)
+					: parent(&parent)
+				{
+					parent.addRef();
+				}
+
+				ControlBlockBase* parent;
+			};
+
+			virtual ~ControlBlockBase() {}
+
+			Handle handle()
 			{
-				parent->addRef();
-			}
-
-			Handle& operator = (const Handle& other)
-			{
-				other.parent->addRef();
-				parent->decRef();
-				parent = other.parent;
-				return *this;
+				return { *this };
 			}
 
 		private:
 
-			Handle(ControlBlockBase& parent)
-				: parent(&parent)
+			void addRef()
 			{
-				parent.addRef();
+				counter++;
 			}
 
-			ControlBlockBase* parent;
+			void decRef()
+			{
+				if (--counter == 0)
+				{
+					delete this;
+				}
+			}
+
+
+			std::size_t counter = 0;
 		};
 
-		virtual ~ControlBlockBase() {}
+	}
 
-		Handle handle()
+	template<typename T>
+	class SharedValue
+	{
+	public:
+
+		SharedValue(const T value = T())
+			: memory(new ControlBlock())
+			, handle(memory->handle())
 		{
-			return { *this };
+
+		}
+
+		SharedValue<T>& operator = (const T& value)
+		{
+			*getPtr() = value;
+			return *this;
+		}
+
+		operator T ()
+		{
+			return *getPtr();
+		}
+
+		detail::ControlBlockBase::Handle createHandle()
+		{
+			return memory->handle();
+		}
+
+		T* getPtr()
+		{
+			return &memory->value;
+		}
+
+		const char* getTypeDesignator()
+		{
+			return detail::fmt_type_traits<T>::designator();
 		}
 
 	private:
 
-		void addRef()
+		class ControlBlock : public detail::ControlBlockBase
 		{
-			counter++;
-		}
+		public:
+			T value;
+		};
 
-		void decRef()
+		ControlBlock* memory;
+		detail::ControlBlockBase::Handle handle;
+	};
+
+	class Label
+	{
+	public:
+
+		template<typename... Args>
+		Label(const std::string& name, const std::string_view fmt, Args&... args)
 		{
-			if (--counter == 0)
+			values = { args.createHandle()... };
+			const char* types[] = { args.getTypeDesignator()... };
+
+			std::string temp;
+			auto numTypes = std::extent<decltype(types)>::value;
+			temp.reserve(fmt.size() + numTypes);
+
+			for (std::size_t i = 0, c = 0; i < fmt.size(); ++i)
 			{
-				delete this;
+				temp += fmt[i];
+
+				if (fmt[i] == '%')
+				{
+					if (i + 1 < fmt.size() && fmt[i + 1] == '%')
+					{
+						continue;
+					}
+					else if (c < numTypes)
+					{
+						temp += types[c++];
+					}
+					else
+					{
+						abort("Invalid format specifier + argument list combination");
+					}
+				}
+
 			}
+
+			id = getInterface().createLabel(&getInterface(), name.c_str(), temp.c_str(), args.getPtr()...);
 		}
 
+		~Label()
+		{
+			getInterface().destroyResource(&getInterface(), id, 0);
+		}
 
-		std::size_t counter = 0;
+	private:
+
+		int id;
+		std::vector<detail::ControlBlockBase::Handle> values;
 	};
 
 }
-
-template<typename T>
-class SharedValue
-{
-public:
-
-	SharedValue(const T value = T())
-		: memory(new ControlBlock())
-		, handle(memory->handle())
-	{
-
-	}
-
-	SharedValue<T>& operator = (const T& value)
-	{
-		*getPtr() = value;
-		return *this;
-	}
-
-	operator T ()
-	{
-		return *getPtr();
-	}
-
-	detail::ControlBlockBase::Handle createHandle()
-	{
-		return memory->handle();
-	}
-
-	T* getPtr()
-	{
-		return &memory->value;
-	}
-
-	const char* getTypeDesignator()
-	{
-		return detail::fmt_type_traits<T>::designator();
-	}
-
-private:
-
-	class ControlBlock : public detail::ControlBlockBase
-	{
-	public:
-		T value;
-	};
-
-	ControlBlock* memory;
-	detail::ControlBlockBase::Handle handle;
-};
-
-class Label
-{
-public:
-
-	template<typename... Args>
-	Label(const std::string& name, const std::string_view fmt, Args&... args)
-	{
-		values = { args.createHandle()... };
-		const char* types[] = { args.getTypeDesignator()... };
-
-		std::string temp;
-		auto numTypes = std::extent<decltype(types)>::value;
-		temp.reserve(fmt.size() + numTypes);
-
-		for (std::size_t i = 0, c = 0; i < fmt.size(); ++i)
-		{
-			temp += fmt[i];
-
-			if (fmt[i] == '%')
-			{
-				if (i + 1 < fmt.size() && fmt[i + 1] == '%')
-				{
-					continue;
-				}
-				else if (c < numTypes)
-				{
-					temp += types[c++];
-				}
-				else
-				{
-					abort("Invalid format specifier + argument list combination");
-				}
-			}
-
-		}
-
-		id = getInterface().createLabel(&getInterface(), name.c_str(), temp.c_str(), args.getPtr()...);
-	}
-
-	~Label()
-	{
-		getInterface().destroyResource(&getInterface(), id, 0);
-	}
-
-private:
-
-	int id;
-	std::vector<detail::ControlBlockBase::Handle> values;
-};
-
 #endif

@@ -4,59 +4,119 @@
 #include "baselib.h"
 #include "shared-src/ape/Events.h"
 
-class Processor
+namespace ape
 {
-public:
-
-	Processor()
+	struct IOConfig
 	{
+		std::size_t
+			inputs,
+			outputs,
+			maxBlockSize;
 
-	}
+		double sampleRate;
+	};
 
-	virtual void init() {}
-
-	virtual void close() {}
-
-	virtual void process(float ** inputs, float ** outputs, size_t frames)
+	class Processor
 	{
-		(void)inputs;
-		(void)outputs;
-		(void)frames;
-	}
+	public:
 
-	virtual Status onEvent(APE_Event * event)
+		Processor()
+		{
+
+		}
+
+		void defaultProcess(float ** inputs, float ** outputs, size_t frames)
+		{
+			return process(inputs, outputs, frames);
+		}
+
+		virtual void init() {}
+		virtual void close() {}
+
+		virtual void process(float ** inputs, float ** outputs, size_t frames)
+		{
+			const auto shared = configuration.inputs > configuration.outputs ? configuration.outputs : configuration.inputs;
+
+			for (std::size_t c = 0; c < shared; ++c)
+			{
+				for(std::size_t n = 0; n < frames; ++c)
+					outputs[c][n] = inputs[c][n];
+			}
+
+			for (std::size_t c = shared; c < configuration.outputs; ++c)
+			{
+				for (std::size_t n = 0; n < frames; ++c)
+					outputs[c][n] = 0;
+			}
+		}
+
+		virtual Status onEvent(Event * e)
+		{
+			switch (e->eventType)
+			{
+				case IOChanged:
+				{
+					const auto old = config();
+					const auto newC = *e->event.eIOChanged;
+					configuration.inputs = newC.inputs;
+					configuration.outputs = newC.outputs;
+					configuration.maxBlockSize = newC.blockSize;
+					configuration.sampleRate = newC.sampleRate;
+					return StatusCode::Handled;
+				}
+
+				case PlayStateChanged:
+				{
+					e->event.ePlayStateChanged->isPlaying ? start(config()) : stop();
+					return StatusCode::Handled;
+				}
+
+				default:
+					return StatusCode::NotImplemented;
+			}
+		}
+
+		virtual ~Processor()
+		{
+
+		}
+
+		const IOConfig& config()
+		{
+			return configuration;
+		}
+
+	protected:
+
+		virtual void start(const IOConfig& config) { }
+		virtual void stop() { }
+
+	private:
+		IOConfig configuration;
+	};
+
+	class FactoryBase
 	{
-		(void)event;
-		return Status::NotImplemented;
-	}
+	public:
+		typedef Processor * (*ProcessorCreater)();
+		static void SetCreater(ProcessorCreater factory);
 
-	virtual ~Processor()
+	};
+
+	template<class ProcessorType>
+	class ProcessorFactory
 	{
+	public:
 
-	}
-};
-
-class FactoryBase
-{
-public:
-	typedef Processor * (*ProcessorCreater)();
-	static void SetCreater(ProcessorCreater factory);
-
-};
+		static Processor * create()
+		{
+			return new ProcessorType();
+		}
+	};
+}
 
 template<class ProcessorType>
-class ProcessorFactory
-{
-public:
-
-	static Processor * create()
-	{
-		return new ProcessorType();
-	}
-};
-
-template<class ProcessorType>
-int registerClass(ProcessorType* formal_null);
+static int registerClass(ProcessorType* formal_null);
 
 #define GlobalData(type, str) \
 	class type; \

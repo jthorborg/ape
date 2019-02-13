@@ -15,20 +15,24 @@
 #include <algorithm>
 #include <typeinfo>
 
-class Effect : public Processor
+namespace ape
 {
-protected:
-
-	Effect()
+	class Effect : public Processor
 	{
+	protected:
 
-	}
+		Effect()
+		{
 
-	virtual ~Effect()
-	{
-		getInterface().destroyResource(&getInterface(), 0, 0);
-	}
+		}
 
-};
+		virtual ~Effect()
+		{
+			getInterface().destroyResource(&getInterface(), 0, 0);
+		}
+
+	};
+}
+
 
 #endif
