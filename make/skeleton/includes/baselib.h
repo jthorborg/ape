@@ -23,6 +23,14 @@ inline size_t nextpow2(size_t current)
 int printf(const char * fmt, ...);
 [[noreturn]] void abort(const char* reason);
 
+#define printf_once(...) \
+	static bool __once_flag ## __COUNTER__ = false; \
+	if(!(__once_flag ## __COUNTER__)) \
+	{	\
+		__once_flag ## __COUNTER__ = true; \
+		printf(__VA_ARGS__); \
+	}
+
 namespace ape
 {
 	APE_SharedInterface& getInterface();

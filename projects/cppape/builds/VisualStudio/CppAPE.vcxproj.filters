@@ -378,6 +378,15 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\misc.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\dsp.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\interpolation.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\resampling.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

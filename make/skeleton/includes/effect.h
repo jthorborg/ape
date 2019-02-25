@@ -8,6 +8,9 @@
 #include "meter.h"
 #include "plot.h"
 #include "audiofile.h"
+#include "dsp.h"
+#include "interpolation.h"
+#include "resampling.h"
 
 #include <complex>
 #include <map>
