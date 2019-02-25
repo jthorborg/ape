@@ -78,6 +78,11 @@ int fpclassify(float x) {
 
 extern "C"
 {
+	void _ccore_assert(const char* expression, const char* file, unsigned line)
+	{
+		lastIFace->printThemedLine(lastIFace, APE_TextColour_Error, "Assertion in %s:%d: %s", file, (int)line, expression);
+		abort("Assertion failure");
+	}
 
 	void * SCRIPT_API PluginCreate(APE_SharedInterface * iface)
 	{
