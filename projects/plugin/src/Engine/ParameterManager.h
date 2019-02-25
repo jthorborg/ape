@@ -33,7 +33,9 @@
 	#include <cpl/infrastructure/parameters/ParameterSystem.h>
 	#include <cpl/infrastructure/values/Values.h>
 	#include <ape/APE.h>
-
+	#include <atomic>
+	#include <vector>
+	
 	namespace ape 
 	{
 		/*
@@ -176,6 +178,8 @@
 			cpl::ValueEntityBase& getValueFor(IndexHandle index);
 			void emplaceTrait(IndexHandle index, ExternalParameterTraits& trait);
 			void clearTrait(IndexHandle index);
+			void clearTraitIfMatching(IndexHandle index, ExternalParameterTraits& trait);
+
 			void pulse();
 			ParameterSet& getParameterSet() noexcept { return parameterSet; }
 
@@ -202,7 +206,7 @@
 			Engine& engine;
 			const std::size_t numParameters;
 			std::vector<LowLevelParameter> parameters;
-			std::vector<ExternalParameterTraits*> traits;
+			std::vector<std::atomic<ExternalParameterTraits*>> traits;
 			std::vector<ParameterValueWrapper> valueWrappers;
 
 			ParameterSet parameterSet;

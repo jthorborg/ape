@@ -393,7 +393,7 @@ namespace ape
 
 		for (std::size_t i = 0; i < parameters.size(); ++i)
 		{
-			engine.getParameterManager().clearTrait(static_cast<ParameterManager::IndexHandle>(i));
+			engine.getParameterManager().clearTraitIfMatching(static_cast<ParameterManager::IndexHandle>(i), *parameters[i]);
 		}
 
 		// kill parameters

@@ -37,8 +37,8 @@ namespace ape
 		, numParameters(numParameters)
 		, parameterSet("", "", *this)
 		, unnamed("unnamed")
+		, traits(numParameters)
 	{
-		traits.resize(numParameters);
 		parameters.reserve(numParameters);
 		
 		for (std::size_t i = 0; i < numParameters; ++i)
@@ -90,12 +90,19 @@ namespace ape
 
 	void ParameterManager::emplaceTrait(IndexHandle index, ExternalParameterTraits& trait)
 	{
-		traits.at(index) = &trait;
+		traits.at(index).exchange(&trait, std::memory_order_release);
 	}
 
 	void ParameterManager::clearTrait(IndexHandle index)
 	{
-		traits.at(index) = nullptr;
+		traits.at(index).store(nullptr, std::memory_order_release);
+	}
+
+	void ParameterManager::clearTraitIfMatching(IndexHandle index, ExternalParameterTraits& trait)
+	{
+		auto* pTrait = &trait;
+
+		traits.at(index).compare_exchange_strong(pTrait, nullptr, std::memory_order_release);
 	}
 
 	void ParameterManager::pulse()
@@ -120,9 +127,10 @@ namespace ape
 
 	bool ParameterManager::format(int ID, const LowLevelParameter::ValueType & val, std::string & buf)
 	{
-		if (ID < traits.size() && traits[ID])
+		if (ID < traits.size())
 		{
-			return traits[ID]->format(val, buf);
+			if (auto* trait = traits[ID].load(std::memory_order_acquire))
+				return trait->format(val, buf);
 		}
 
 		return defaultFormatter.format(val, buf);
@@ -130,9 +138,10 @@ namespace ape
 
 	bool ParameterManager::interpret(int ID, const cpl::string_ref buf, LowLevelParameter::ValueType & val)
 	{
-		if (ID < traits.size() && traits[ID])
+		if (ID < traits.size())
 		{
-			return traits[ID]->interpret(buf, val);
+			if (auto* trait = traits[ID].load(std::memory_order_acquire))
+				return trait->interpret(buf, val);
 		}
 
 		return defaultFormatter.interpret(buf, val);
@@ -140,9 +149,10 @@ namespace ape
 
 	LowLevelParameter::ValueType ParameterManager::transform(int ID, LowLevelParameter::ValueType val) const noexcept
 	{
-		if (ID < traits.size() && traits[ID])
+		if (ID < traits.size())
 		{
-			return traits[ID]->transform(val);
+			if (auto* trait = traits[ID].load(std::memory_order_acquire))
+				return trait->transform(val);
 		}
 
 		return defaultRange.transform(val);
@@ -150,9 +160,10 @@ namespace ape
 
 	LowLevelParameter::ValueType ParameterManager::normalize(int ID, LowLevelParameter::ValueType val) const noexcept
 	{
-		if (ID < traits.size() && traits[ID])
+		if (ID < traits.size())
 		{
-			return traits[ID]->normalize(val);
+			if (auto* trait = traits[ID].load(std::memory_order_acquire))
+				return trait->normalize(val);
 		}
 
 		return defaultRange.normalize(val);
@@ -160,9 +171,10 @@ namespace ape
 
 	const std::string& ParameterManager::getName(int ID) const noexcept
 	{
-		if (ID < traits.size() && traits[ID])
+		if (ID < traits.size())
 		{
-			return traits[ID]->getName();
+			if (auto* trait = traits[ID].load(std::memory_order_acquire))
+				return trait->getName();
 		}
 
 		return unnamed;
@@ -170,9 +182,10 @@ namespace ape
 
 	int ParameterManager::getQuantization(int ID) const noexcept
 	{
-		if (ID < traits.size() && traits[ID])
+		if (ID < traits.size())
 		{
-			return traits[ID]->getQuantization();
+			if (auto* trait = traits[ID].load(std::memory_order_acquire))
+				return trait->getQuantization();
 		}
 
 		return 0;
