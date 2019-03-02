@@ -12,6 +12,14 @@
 #define NULL 0
 
 
+// #define CPPAPE_RELEASE
+
+#ifdef CPPAPE_RELEASE
+#define CPPAPE_NOEXCEPT_IF_RELEASE noexcept
+#else
+#define CPPAPE_NOEXCEPT_IF_RELEASE
+#endif
+
 inline size_t nextpow2(size_t current)
 {
 	size_t p = 1;

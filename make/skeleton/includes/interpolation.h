@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <utility>
+#include "dsp.h"
 
 namespace ape
 {

@@ -6,21 +6,17 @@
 
 namespace ape
 {
-	class AudioFile
+	class AudioFile : public const_umatrix<const float>
 	{
 	public:
 
+		using const_umatrix<const float>::data;
+		using const_umatrix<const float>::samples;
+
 		AudioFile(const char* relativePath) : AudioFile(loadFile(relativePath))	{ }
 
+		explicit operator bool() const noexcept { return loadedOk && data && samples(); }
 
-		const float* getChannel(std::size_t i) const
-		{
-			return samples.data[i];
-		}
-
-		explicit operator bool() const noexcept { return loadedOk && samples.data && samples.count; }
-
-		const SampleMatrix<const float> samples;
 		const bool loadedOk;
 		const double sampleRate;
 		const char* const name;
@@ -36,7 +32,7 @@ namespace ape
 		}
 
 		AudioFile(const APE_AudioFile& audioFile)
-			: samples{audioFile.data, audioFile.samples, audioFile.channels}
+			: const_umatrix<const float>{audioFile.data, audioFile.samples, audioFile.channels}
 			, loadedOk(audioFile.name)
 			, sampleRate(audioFile.sampleRate)
 			, name(audioFile.name)

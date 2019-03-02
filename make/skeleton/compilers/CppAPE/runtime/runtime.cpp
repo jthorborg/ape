@@ -136,8 +136,8 @@ extern "C"
 		Processor * p = (Processor*)instance;
 		if (!p)
 			return StatusCode::Error;
-
-		p->process(inputs, outputs, frames);
+		
+		p->processBase(inputs, outputs, frames);
 
 		Tracing::PresentTracers();
 

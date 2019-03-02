@@ -3,6 +3,7 @@
 
 #include "baselib.h"
 #include "shared-src/ape/Events.h"
+#include "misc.h"
 
 namespace ape
 {
@@ -25,21 +26,13 @@ namespace ape
 
 		}
 
-		void defaultProcess(float ** inputs, float ** outputs, size_t frames)
-		{
-			return process(inputs, outputs, frames);
-		}
-
-		virtual void init() {}
-		virtual void close() {}
-
-		virtual void process(float ** inputs, float ** outputs, size_t frames)
+		void defaultProcess(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			const auto shared = configuration.inputs > configuration.outputs ? configuration.outputs : configuration.inputs;
 
 			for (std::size_t c = 0; c < shared; ++c)
 			{
-				for(std::size_t n = 0; n < frames; ++c)
+				for (std::size_t n = 0; n < frames; ++c)
 					outputs[c][n] = inputs[c][n];
 			}
 
@@ -48,6 +41,23 @@ namespace ape
 				for (std::size_t n = 0; n < frames; ++c)
 					outputs[c][n] = 0;
 			}
+		}
+
+		virtual void init() {}
+		virtual void close() {}
+
+		void processBase(float** inputs, float** outputs, size_t frames)
+		{
+			process(
+				{ inputs, frames, configuration.inputs }, 
+				{ outputs, frames, configuration.outputs },
+				frames
+			);
+		}
+
+		virtual void process(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
+		{
+			defaultProcess(inputs, outputs, frames);
 		}
 
 		virtual Status onEvent(Event * e)

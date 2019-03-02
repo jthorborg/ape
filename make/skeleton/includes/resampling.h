@@ -25,7 +25,7 @@ namespace ape
 		public:
 
 			AFImpl(const AudioFile& file)
-				: source(file.samples)
+				: source(file)
 			{
 
 			}
@@ -38,16 +38,16 @@ namespace ape
 					const auto x0 = static_cast<std::size_t>(position);
 					auto x1 = x0 + 1;
 
-					if (x1 >= source.count)
-						x1 -= source.count;
+					if (x1 >= source.samples())
+						x1 -= source.samples();
 
 
 					const auto weight = position - x0;
 
-					for (std::size_t c = 0; c < source.channels; ++c)
+					for (std::size_t c = 0; c < source.channels(); ++c)
 					{
-						const auto y0 = source.data[c][x0];
-						const auto y1 = source.data[c][x1];
+						const auto y0 = source[c][x0];
+						const auto y1 = source[c][x1];
 
 						output.channels[c][f] = y0 * (1 - weight) + weight * y1;
 
@@ -55,25 +55,25 @@ namespace ape
 
 					position += factor;
 
-					while (position >= source.count)
-						position -= source.count;
+					while (position >= source.samples())
+						position -= source.samples();
 				}
 			}
 
 			double position;
-			const SampleMatrix<const float> source;
+			const const_umatrix<const float> source;
 		};
 
 	public:
 
 		RealSourceResampler(const AudioFile& file)
-			: channels(file.samples.channels)
+			: channels(file.channels())
 		{
 			impl = std::make_unique<AFImpl>(file);
 		}
 
 
-		const SampleMatrix<const T> produce(std::size_t frames, double factor = 1)
+		const umatrix<T> produce(std::size_t frames, double factor = 1)
 		{
 			buffer.resize(channels, frames);
 			impl->produce(buffer, frames, factor);
@@ -88,7 +88,7 @@ namespace ape
 			for (std::size_t frame = 0; frame < frames; ++frame)
 			{
 				for (std::size_t c = 0; c < channelBuffer.size(); ++c)
-					channelBuffer[c] = matrix.data[c][frame];
+					channelBuffer[c] = matrix[c][frame];
 
 				f(frame, channels, channelBuffer);
 			}
