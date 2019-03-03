@@ -48,6 +48,8 @@
 	#include "Settings.h"
 	#include "Engine/ParameterManager.h"
 	#include <memory>
+	#include <string>
+	#include <map>
 
 	namespace ape
 	{
@@ -88,6 +90,7 @@
 			SharedInterfaceEx& getSharedInterface();
 			CAllocator& getPluginAllocator() noexcept { return pluginAllocator; }
 			std::vector<std::unique_ptr<PluginAudioFile>>& getPluginAudioFiles() { return audioFiles; }
+			std::map<std::string, PluginAudioFile*>& getOriginalFiles() noexcept { return originalSampleRateFiles; }
 			std::vector<CMemoryGuard> & getPMemory() noexcept { return protectedMemory; }
 			const ProjectEx& getProject() const noexcept { return *project; }
 
@@ -129,6 +132,7 @@
 			std::vector<std::unique_ptr<PluginParameter>> parameters;
 			std::vector<std::unique_ptr<PluginWidget>> widgets;
 			std::vector<std::unique_ptr<PluginAudioFile>> audioFiles;
+			std::map<std::string, PluginAudioFile*> originalSampleRateFiles;
 
 			CCodeGenerator& generator;
 			Engine& engine;

@@ -377,7 +377,7 @@ namespace ape
 		return 0;
 	}
 
-	int APE_API loadAudioFile(APE_SharedInterface * iface, const char * path, APE_AudioFile * result)
+	int APE_API loadAudioFile(APE_SharedInterface * iface, const char * path, double sampleRate, APE_AudioFile * result)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(path);
@@ -408,13 +408,46 @@ namespace ape
 				return 0;
 			}
 
-			auto file = std::make_unique<PluginAudioFile>(candidate);
+			const auto currentSampleRate = shared.getEngine().getSampleRate();
 
-			*result = file->getAudioFile();
+			auto originalFiles = pstate.getOriginalFiles();
+			auto originalFile = originalFiles.find(path);
+			PluginAudioFile* source = nullptr;
 
-			pstate
-				.getPluginAudioFiles()
-				.emplace_back(std::move(file));
+			if (originalFile == originalFiles.end())
+			{
+				auto newFile = std::make_unique<PluginAudioFile>(candidate);
+				source = pstate.getPluginAudioFiles().emplace_back(std::move(newFile)).get();
+				originalFiles[path] = source;
+			}
+			else
+			{
+				source = originalFile->second;
+			}
+
+			// If the adopted sample rate is 0, just return the original.
+			if (sampleRate == APE_SampleRate_Retain || sampleRate == source->getAudioFile().sampleRate)
+			{
+				*result = source->getAudioFile();
+			}
+			else if (sampleRate == APE_SampleRate_Adopt)
+			{
+				if (currentSampleRate == 0 || currentSampleRate == source->getAudioFile().sampleRate)
+				{
+					*result = source->getAudioFile();
+					return 1;
+				}
+				else
+				{
+					auto newFile = std::make_unique<PluginAudioFile>(*source, currentSampleRate);
+					*result = pstate.getPluginAudioFiles().emplace_back(std::move(newFile))->getAudioFile();
+				}
+			}
+			else
+			{
+				auto newFile = std::make_unique<PluginAudioFile>(*source, sampleRate);
+				*result = pstate.getPluginAudioFiles().emplace_back(std::move(newFile))->getAudioFile();
+			}
 
 			return 1;
 		}

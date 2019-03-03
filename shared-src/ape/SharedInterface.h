@@ -87,7 +87,7 @@
 		int			(APE_API * createBooleanParameter)	(struct APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
 		int			(APE_API * destroyResource)			(struct APE_SharedInterface * iface, int resourceID, int reserved);
-		int			(APE_API * loadAudioFile)			(struct APE_SharedInterface * iface, const char* path, APE_AudioFile* result);
+		int			(APE_API * loadAudioFile)			(struct APE_SharedInterface * iface, const char* path, double sampleRate, APE_AudioFile* result);
 
 		struct APE_SIExtra extra;
 	};

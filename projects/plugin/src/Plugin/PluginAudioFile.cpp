@@ -30,6 +30,7 @@
 #include "PluginAudioFile.h"
 #include <cpl/Common.h>
 #include <cpl/Exceptions.h>
+#include <cmath>
 
 namespace ape
 {
@@ -57,6 +58,16 @@ namespace ape
 			readFormat(*reader);
 		else
 			CPL_RUNTIME_EXCEPTION("No available codecs for: " + file.getFullPathName().toStdString());
+	}
+
+	PluginAudioFile::PluginAudioFile(const PluginAudioFile& other, double targetSampleRate)
+	{
+		sampleRate = other.sampleRate;
+		name = other.name;
+		channels = other.channels;
+		samples = other.samples;
+
+		resampleFrom(other, *this, targetSampleRate);
 	}
 
 	APE_AudioFile PluginAudioFile::getAudioFile() const noexcept
@@ -100,6 +111,68 @@ namespace ape
 			std::memcpy(&intRepresentation, storage.data() + i, sizeof(float));
 			storage[i] = (1.0 / (1.0 + 0x7FFFFFFF)) * intRepresentation;
 		}
+	}
+
+	// laurent de soras
+	template<typename T>
+	inline const T hermite4(const T offset, const T ym1, const T y0, const T y1, const T y2)
+	{
+		const T c = (y1 - ym1) * static_cast<T>(0.5);
+		const T v = y0 - y1;
+		const T w = c + v;
+		const T a = w + v + (y2 - y0) * static_cast<T>(0.5);
+		const T b_neg = w + a;
+
+		return ((((a * offset) - b_neg) * offset + c) * offset + y0);
+	}
+
+	void PluginAudioFile::resampleFrom(const PluginAudioFile& source, PluginAudioFile& dest, double newSampleRate)
+	{
+		CPL_RUNTIME_ASSERTION(newSampleRate > 0);
+		CPL_RUNTIME_ASSERTION(source.sampleRate != newSampleRate);
+
+		const auto ratio = source.sampleRate / newSampleRate;
+
+		dest.sampleRate = newSampleRate;
+		dest.samples = 0;
+
+		if (source.samples == 0)
+			return;
+
+		const auto newSampleCount = static_cast<std::uint64_t>(std::ceil(source.samples * (newSampleRate / source.sampleRate)));
+
+		std::vector<float> newSamples(newSampleCount * source.channels);
+		std::vector<float*> newChannels(source.channels);
+
+		const auto oldSamples = source.samples;
+		const auto channels = source.channels;
+
+		for (std::size_t c = 0; c < channels; ++c)
+			newChannels[c] = newSamples.data() + c * newSampleCount;
+
+
+		for (std::uint64_t n = 0; n < newSampleCount; ++n)
+		{
+			const auto x = n * ratio;
+			std::uint64_t x0 = static_cast<std::uint64_t>(x);
+
+			float ym1, y0, y1, y2;
+
+			for (std::size_t c = 0; c < channels; ++c)
+			{
+				ym1 = x0 > 0 && (x0 - 1) < oldSamples ? source.columns[c][x0 - 1] : 0.0f;
+				y0 = x0 < oldSamples ? source.columns[c][x0] : 0.0f;
+				y1 = (x0 + 1) < oldSamples ? source.columns[c][x0 + 1] : 0.0f;
+				y2 = (x0 + 2) < oldSamples ? source.columns[c][x0 + 2] : 0.0f;
+
+				newChannels[c][n] = hermite4(static_cast<float>(x - x0), ym1, y0, y1, y2);
+			}
+		}
+
+		dest.columns = std::move(newChannels);
+		dest.storage = std::move(newSamples);
+
+		dest.samples = newSampleCount;
 	}
 
 }

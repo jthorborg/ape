@@ -21,12 +21,12 @@ namespace ape
 		const double sampleRate;
 		const char* const name;
 
-	private:
+	protected:
 
-		static APE_AudioFile loadFile(const char* relativePath)
+		static APE_AudioFile loadFile(const char* relativePath, double sampleRate = APE_SampleRate_Retain)
 		{
 			APE_AudioFile file;
-			getInterface().loadAudioFile(&getInterface(), relativePath, &file);
+			getInterface().loadAudioFile(&getInterface(), relativePath, sampleRate, &file);
 
 			return file;
 		}
@@ -39,6 +39,17 @@ namespace ape
 		{
 
 		}
+	};
+
+	class ResampledAudioFile : public AudioFile
+	{
+		using AudioFile::loadFile;
+	public:
+
+		constexpr static double AdoptProjectRate = APE_SampleRate_Adopt;
+		constexpr static double OriginalSampleRate = APE_SampleRate_Retain;
+
+		ResampledAudioFile(const char* relativePath, double targetSampleRate = AdoptProjectRate) : AudioFile(loadFile(relativePath, targetSampleRate)) { }
 	};
 
 }

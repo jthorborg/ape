@@ -44,10 +44,13 @@
 		public:
 
 			PluginAudioFile(juce::File path);
+			PluginAudioFile(const PluginAudioFile& other, double targetSampleRate);
+
 			APE_AudioFile getAudioFile() const noexcept;
 
 		private:
 
+			static void resampleFrom(const PluginAudioFile& source, PluginAudioFile& dest, double newSampleRate);
 			void readFormat(juce::AudioFormatReader& reader);
 			void convertToFloatingPoint();
 

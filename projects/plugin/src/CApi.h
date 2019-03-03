@@ -109,7 +109,16 @@
 		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal);
 		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
 		int			APE_API			destroyResource(APE_SharedInterface * iface, int resource, int reserved);
-		int			APE_API			loadAudioFile(APE_SharedInterface * iface, const char* path, APE_AudioFile* result);
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="targetSampleRate">
+		/// Can either be:
+		/// 1) a specific sample rate,
+		/// 2) 0 for original sample rate (don't resample)
+		/// 3) -1 for adopting current sample rate 
+		/// </param>
+		int			APE_API			loadAudioFile(APE_SharedInterface * iface, const char* path, double targetSampleRate, APE_AudioFile* result);
 
 	};
 #endif

@@ -80,6 +80,12 @@
 		APE_Diag_CompilationError
 	} APE_Diagnostic;
 
+	typedef enum
+	{
+		APE_SampleRate_Adopt = -1,
+		APE_SampleRate_Retain = 0
+	} APE_SampleRateOptions;
+
 	typedef void (APE_API * APE_ErrorFunc)(APE_Project*, APE_Diagnostic, const char *);
 
 	#if defined(__cplusplus) && !defined(__cfront)
