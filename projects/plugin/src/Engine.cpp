@@ -151,14 +151,14 @@ namespace ape
 	{
 		auto plugin = newPlugin.get();
 
-		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin));
-
 		if (plugin)
 		{
 			pluginStates.emplace_back(std::move(newPlugin));
 			plugin->setBounds(ioConfig);
 			plugin->setPlayState(isPlaying);
 		}
+
+		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin));
 	}
 
 	void Engine::changeInitialDelay(long samples) noexcept
