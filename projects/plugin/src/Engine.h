@@ -85,6 +85,8 @@
 			const Settings& getSettings() const noexcept { return settings; }
 			ParameterManager& getParameterManager() noexcept { return *params; }
 			ProfilerData getProfilingData() const noexcept;
+			const IOConfig& getConfig() const noexcept { return ioConfig; }
+			bool getPlayState() const noexcept { return isPlaying; }
 			bool isProcessingAPlugin() const noexcept { return pluginStates.size() > 0; }
 
 			std::int32_t uniqueInstanceID() const noexcept;

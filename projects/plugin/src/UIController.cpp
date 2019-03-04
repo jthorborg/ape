@@ -312,18 +312,26 @@ namespace ape
 			else
 			{
 				activationState = std::async(
-					[this, abortActivation, finalizeActivation](std::shared_ptr<PluginState> plugin)
+					[this, abortActivation, finalizeActivation](std::shared_ptr<PluginState> plugin, bool startProcessing, IOConfig configuration)
 					{
 						getConsole().printLine("[GUI] : Activating asynchronously...");
 
 						if(!plugin->initializeActivation())
 							cpl::GUIUtils::MainEventBlocking(*this, abortActivation);
-						else
-							cpl::GUIUtils::MainEventBlocking(*this, finalizeActivation);
+
+						if (startProcessing)
+						{
+							plugin->setConfig(configuration);
+							plugin->setPlayState(true);
+						}
+							
+						cpl::GUIUtils::MainEventBlocking(*this, finalizeActivation);
 
 						return true;
 					},
-					currentPlugin
+					currentPlugin,
+					engine.getPlayState(),
+					engine.getConfig()
 				);
 			}
 

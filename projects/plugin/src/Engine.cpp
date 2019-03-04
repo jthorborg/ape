@@ -154,8 +154,23 @@ namespace ape
 		if (plugin)
 		{
 			pluginStates.emplace_back(std::move(newPlugin));
-			plugin->setBounds(ioConfig);
-			plugin->setPlayState(isPlaying);
+
+			if (isPlaying)
+			{
+				// need to ensure plugin is playing, and has the right config
+				if (plugin->getConfig() != ioConfig)
+				{
+					if (!plugin->getPlayState())
+						plugin->setPlayState(false);
+
+					plugin->setConfig(ioConfig);
+					plugin->setPlayState(true);
+				}
+				else if (!plugin->getPlayState())
+				{
+					plugin->setPlayState(true);
+				}
+			} 
 		}
 
 		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin));
@@ -493,8 +508,13 @@ namespace ape
 
 		for (std::size_t i = 0; i < pluginStates.size(); ++i)
 		{
-			pluginStates[i]->setBounds(ioConfig);
-			pluginStates[i]->setPlayState(isPlaying);
+			if (pluginStates[i]->getPlayState() == true)
+			{
+				controller->getConsole().printLine(CConsole::Warning, "[Engine] : Plugin still playing when preparing to play, anomaly...");
+				pluginStates[i]->setPlayState(false);
+			}
+			pluginStates[i]->setConfig(ioConfig);
+			pluginStates[i]->setPlayState(true);
 		}
 
 		auto info = scopeData.getStream().getInfo();

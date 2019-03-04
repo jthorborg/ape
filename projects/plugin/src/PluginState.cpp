@@ -130,18 +130,18 @@ namespace ape
 		return false;
 	} */
 
-	void PluginState::setPlayState(bool isPlaying)
+	void PluginState::setPlayState(bool shouldPlay)
 	{
-		CPL_RUNTIME_ASSERTION(enabled);
+		CPL_RUNTIME_ASSERTION(enabled || activating);
 
-		if (isPlaying == playing)
+		if (shouldPlay == playing)
 			return;
 
-		playing = isPlaying;
+		playing = shouldPlay;
 
 		Event e;
 		e.eventType = PlayStateChanged;
-		Events::PlayStateChanged aevent = { isPlaying };
+		Events::PlayStateChanged aevent = { shouldPlay };
 		e.event.ePlayStateChanged = &aevent;
 
 		dispatchEvent("playStateChanged()", e);
@@ -306,9 +306,13 @@ namespace ape
 		return *sharedObject.get();
 	}
 
-	void PluginState::setBounds(const IOConfig& newSettings)
+	void PluginState::setConfig(const IOConfig& newSettings)
 	{
-		CPL_RUNTIME_ASSERTION(enabled);
+		CPL_RUNTIME_ASSERTION(enabled || activating);
+		CPL_RUNTIME_ASSERTION(!playing);
+
+		if (newSettings == config)
+			return;
 
 		while (protectedMemory.size() < 2)
 			protectedMemory.emplace_back().setProtect(CMemoryGuard::protection::readwrite);
@@ -318,9 +322,6 @@ namespace ape
 
 		pluginInputs.resize(newSettings.inputs);
 		pluginOutputs.resize(newSettings.outputs);
-
-		if (newSettings == config)
-			return;
 
 		config = newSettings;
 

@@ -94,7 +94,8 @@
 			std::vector<CMemoryGuard> & getPMemory() noexcept { return protectedMemory; }
 			const ProjectEx& getProject() const noexcept { return *project; }
 
-			void setBounds(const IOConfig& o);
+			void setConfig(const IOConfig& o);
+			const IOConfig& getConfig() const noexcept { return config; }
 
 			static void useFPUExceptions(bool b);
 
@@ -106,6 +107,8 @@
 			bool isDisabling() const noexcept { return currentlyDisabling.load(std::memory_order_acquire); }
 			bool isEnabled() const noexcept { return enabled; }
 			void setPlayState(bool isPlaying);
+			bool getPlayState() const noexcept { return playing; }
+
 			void syncParametersToEngine(bool takeEngineValues);
 
 			PluginCommandQueue* getCommandQueue() noexcept { return commandQueue.get(); }
