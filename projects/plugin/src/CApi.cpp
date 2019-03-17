@@ -40,23 +40,38 @@
 #include <cpl/Protected.h>
 #include "Plugin/PluginCommandQueue.h"
 #include "Plugin/PluginAudioFile.h"
+#include "Plugin/PluginFFT.h"
 
-namespace ape 
+namespace ape::api
 {
 	using IEx = SharedInterfaceEx;
 
-#define THROW(msg) \
-	cpl::CProtected::instance().throwException<std::runtime_error>(std::string(__FUNCTION__) + ": " + (msg))
+	thread_local int FaultLevel;
 
-// TODO: Better exception type
+#define THROW(msg) \
+	do { \
+		if(FaultLevel) cpl::LogException("Double fault, level: " + std::to_string(FaultLevel)); \
+		FaultLevel++; cpl::CProtected::instance().throwException<std::runtime_error>(std::string(__FUNCTION__) + ": " + (msg)); \
+	} while(0)
+
+	// TODO: Better exception type
 #define APE_STRINGIFY(p) #p
 #define REQUIRES_NOTNULL(param) \
 	if(param == nullptr) \
-			THROW(APE_STRINGIFY(param) " cannot be null");
+		THROW(APE_STRINGIFY(param) " cannot be null");
 
 #define REQUIRES_NOTZERO(param) \
 	if(param == 0) \
 			THROW(APE_STRINGIFY(param) " cannot be zero");
+
+#define REQUIRES_TRUE(expression) \
+	if(!(expression)) \
+			THROW(APE_STRINGIFY(expression) " cannot be false");
+
+	void clearThreadFaults()
+	{
+		FaultLevel = 0;
+	}
 
 	void APE_API abortPlugin(APE_SharedInterface * iface, const char * reason)
 	{
@@ -369,6 +384,10 @@ namespace ape
 
 	int	APE_API	destroyResource(APE_SharedInterface * iface, int resource, int reserved)
 	{
+		// Destruction allowed while unwinding a plugin.
+		if (FaultLevel > 0)
+			return 0;
+
 		REQUIRES_NOTNULL(iface);
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 		if (!pstate.isDisabling())
@@ -456,6 +475,52 @@ namespace ape
 			console.printLine(CConsole::Error, "[Plugin] : Error loading audio file %s: %s", path, e.what());
 			return 0;
 		}
+	}
+
+	APE_FFT *APE_API createFFT(APE_SharedInterface * iface, APE_DataType type, size_t size)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_TRUE(type == APE_DataType_Single || type == APE_DataType_Double);
+		REQUIRES_TRUE(size > 0);
+		REQUIRES_TRUE((size & (size - 1)) == 0);
+
+		auto& shared = IEx::downcast(*iface);
+		auto& pstate = shared.getCurrentPluginState();
+
+		return pstate.getPluginFFTs().emplace_back(APE_FFT::factory(size, type)).get();
+	}
+
+	void APE_API performFFT(APE_SharedInterface * iface, APE_FFT * fft, APE_FFT_Options options, const void * in, void * out)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(in);
+		REQUIRES_NOTNULL(out);
+		REQUIRES_NOTNULL(fft);
+
+		return fft->transform(in, out, options);
+	}
+
+	void APE_API releaseFFT(APE_SharedInterface * iface, APE_FFT * fft)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(fft);
+
+		auto& ffts = IEx::downcast(*iface).getCurrentPluginState().getPluginFFTs();
+
+		bool done = false;
+
+		for (std::size_t i = 0; i < ffts.size(); ++i)
+		{
+			if (fft == ffts[i].get())
+			{
+				ffts.erase(ffts.begin() + i);
+				done = true;
+				break;
+			}
+		}
+
+		if(!done)
+			THROW("Request to release non-owned FFT");
 	}
 
 }

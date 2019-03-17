@@ -43,33 +43,35 @@
 		{
 			BindingsInterfaceResolver()
 			{
-#define APE_GTOL(func) this->func = ape::func
+#define APE_BIND(func) this->func = ape::api::func
 
-				APE_GTOL(abortPlugin);
-				APE_GTOL(getSampleRate);
-				APE_GTOL(printLine);
-				APE_GTOL(printThemedLine);
-				APE_GTOL(msgBox);
-				APE_GTOL(timerGet);
-				APE_GTOL(timerDiff);
-				APE_GTOL(alloc);
-				APE_GTOL(free);
-				APE_GTOL(setInitialDelay);
-				APE_GTOL(createLabel);
-				APE_GTOL(getNumInputs);
-				APE_GTOL(getNumOutputs);
-				APE_GTOL(createMeter);
-				APE_GTOL(getBPM);
-				APE_GTOL(createPlot);
-				APE_GTOL(presentTrace);
-				APE_GTOL(createNormalParameter);
-				APE_GTOL(createBooleanParameter);
-				APE_GTOL(createListParameter);
-				APE_GTOL(destroyResource);
-				APE_GTOL(loadAudioFile);
+				APE_BIND(abortPlugin);
+				APE_BIND(getSampleRate);
+				APE_BIND(printLine);
+				APE_BIND(printThemedLine);
+				APE_BIND(msgBox);
+				APE_BIND(timerGet);
+				APE_BIND(timerDiff);
+				APE_BIND(alloc);
+				APE_BIND(free);
+				APE_BIND(setInitialDelay);
+				APE_BIND(createLabel);
+				APE_BIND(getNumInputs);
+				APE_BIND(getNumOutputs);
+				APE_BIND(createMeter);
+				APE_BIND(getBPM);
+				APE_BIND(createPlot);
+				APE_BIND(presentTrace);
+				APE_BIND(createNormalParameter);
+				APE_BIND(createBooleanParameter);
+				APE_BIND(createListParameter);
+				APE_BIND(destroyResource);
+				APE_BIND(loadAudioFile);
+				APE_BIND(createFFT);
+				APE_BIND(performFFT);
+				APE_BIND(releaseFFT);
 
-				std::memset(&extra, 0, sizeof(extra));
-#undef APE_GTOL
+#undef APE_BIND
 			}
 		};
 

@@ -11,6 +11,7 @@
 #include "dsp.h"
 #include "interpolation.h"
 #include "resampling.h"
+#include "fft.h"
 
 #include <complex>
 #include <map>

@@ -284,6 +284,12 @@ namespace ape
 
 			auto finalizeActivation = [this, abortActivation]()
 			{
+				if (!currentPlugin)
+				{
+					getConsole().printLine(CConsole::Error, "[GUI] : Plugin was null in last stage of activation.");
+					return;
+				}
+
 				if (!currentPlugin->finalizeActivation())
 				{
 					abortActivation();
@@ -316,8 +322,11 @@ namespace ape
 					{
 						getConsole().printLine("[GUI] : Activating asynchronously...");
 
-						if(!plugin->initializeActivation())
+						if (!plugin->initializeActivation())
+						{
 							cpl::GUIUtils::MainEventBlocking(*this, abortActivation);
+							return false;
+						}
 
 						if (startProcessing)
 						{

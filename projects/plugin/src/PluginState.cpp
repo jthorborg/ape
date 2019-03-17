@@ -44,6 +44,7 @@
 #include "Plugin/PluginSurface.h"
 #include "Plugin/PluginWidget.h"
 #include "Plugin/PluginAudioFile.h"
+#include "Plugin/PluginFFT.h"
 
 namespace ape
 {
@@ -419,6 +420,8 @@ namespace ape
 	template<typename Function>
 	std::pair<Status, bool> PluginState::WrapPluginCall(const char * reason, PluginState::InvocationSemantics semantics, Function&& f)
 	{
+		api::clearThreadFaults();
+
 		if (semantics == DisregardInvocationIfErrorState && (abnormalBehaviour || state == STATUS_ERROR))
 			return { state, true };
 

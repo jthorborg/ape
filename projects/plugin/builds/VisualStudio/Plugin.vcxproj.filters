@@ -1608,6 +1608,9 @@
     <ClCompile Include="..\..\src\Plugin\PluginAudioFile.cpp">
       <Filter>Audio Programming Environment\Source\Plugin</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Plugin\PluginFFT.cpp">
+      <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -3096,6 +3099,9 @@
       <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Plugin\PluginAudioFile.h">
+      <Filter>Audio Programming Environment\Headers\Plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Plugin\PluginFFT.h">
       <Filter>Audio Programming Environment\Headers\Plugin</Filter>
     </ClInclude>
   </ItemGroup>

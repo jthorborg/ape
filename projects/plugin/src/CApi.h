@@ -34,8 +34,10 @@
 	#include <exception>
 	#include <ape/SharedInterface.h>
 
-	namespace ape
+	namespace ape::api
 	{
+		void clearThreadFaults();
+
 		/// <summary>
 		/// Throws an abort exception, picked up by the engine and disables the plugin.
 		/// </summary>
@@ -119,6 +121,8 @@
 		/// 3) -1 for adopting current sample rate 
 		/// </param>
 		int			APE_API			loadAudioFile(APE_SharedInterface * iface, const char* path, double targetSampleRate, APE_AudioFile* result);
-
+		struct APE_FFT*	APE_API		createFFT(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
+		void		APE_API			performFFT(struct APE_SharedInterface * iface, APE_FFT* fft, APE_FFT_Options options, const void* in, void* out);
+		void		APE_API			releaseFFT(struct APE_SharedInterface * iface, APE_FFT* fft);
 	};
 #endif

@@ -616,6 +616,7 @@
     <ClCompile Include="..\..\src\CCodeGenerator.cpp" />
     <ClCompile Include="..\..\src\CConsole.cpp" />
     <ClCompile Include="..\..\src\Plugin\PluginAudioFile.cpp" />
+    <ClCompile Include="..\..\src\Plugin\PluginFFT.cpp" />
     <ClCompile Include="..\..\src\Plugin\PluginParameter.cpp" />
     <ClCompile Include="..\..\src\Plugin\PluginWidget.cpp" />
     <ClCompile Include="..\..\src\ReferenceFormattedString.cpp" />
@@ -1754,6 +1755,7 @@
     <ClInclude Include="..\..\src\CSerializer.h" />
     <ClInclude Include="..\..\src\Plugin\PluginAudioFile.h" />
     <ClInclude Include="..\..\src\Plugin\PluginCommandQueue.h" />
+    <ClInclude Include="..\..\src\Plugin\PluginFFT.h" />
     <ClInclude Include="..\..\src\Plugin\PluginParameter.h" />
     <ClInclude Include="..\..\src\Plugin\PluginWidget.h" />
     <ClInclude Include="..\..\src\ReferenceFormattedString.h" />

@@ -33,25 +33,32 @@
 
 	#include "APE.h"
 
-	enum APE_AllocationLabel
+	typedef enum
 	{
 		APE_Alloc_Buffer,
 		APE_Alloc_Tiny,
 		APE_Alloc_Temp
-	};
+	} APE_AllocationLabel;
 
-	enum APE_TextColour
+	typedef enum
 	{
 		APE_TextColour_Default,
 		APE_TextColour_Warning,
 		APE_TextColour_Error
-	};
+	} APE_TextColour;
 
-	struct APE_SIExtra
+	typedef enum 
 	{
-		void * userData;
-		void * reserved;
-	};
+		APE_DataType_Single,
+		APE_DataType_Double
+	} APE_DataType;
+
+	typedef enum
+	{
+		APE_FFT_Backward = 0,
+		APE_FFT_Forward = 1 << 0,
+		APE_FFT_Real = 1 << 1
+	} APE_FFT_Options;
 
 	struct APE_SharedInterface;
 
@@ -63,6 +70,10 @@
 		double sampleRate;
 		const float* const* data;
 	};
+
+	struct APE_FFT;
+
+	
 
 	struct APE_SharedInterface
 	{
@@ -88,8 +99,9 @@
 		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
 		int			(APE_API * destroyResource)			(struct APE_SharedInterface * iface, int resourceID, int reserved);
 		int			(APE_API * loadAudioFile)			(struct APE_SharedInterface * iface, const char* path, double sampleRate, APE_AudioFile* result);
-
-		struct APE_SIExtra extra;
+		struct APE_FFT*	(APE_API * createFFT)			(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
+		void		(APE_API * performFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft, APE_FFT_Options options, const void* in, void* out);
+		void		(APE_API * releaseFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft);
 	};
 	
 #if defined(__cplusplus) && !defined(__cfront)

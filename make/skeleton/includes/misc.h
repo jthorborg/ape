@@ -13,6 +13,8 @@ namespace ape
 	{
 	public:
 
+		uarray(std::vector<T>& source) : uarray(source.data(), source.size()) {}
+
 		uarray(T* buffer, std::size_t length)
 			: buffer(buffer), length(length)
 		{
@@ -67,6 +69,9 @@ namespace ape
 	struct const_uarray
 	{
 	public:
+
+		const_uarray(const std::vector<T>& source) : const_uarray(source.data(), source.size()) {}
+
 
 		const_uarray(const T* buffer, std::size_t length)
 			: buffer(buffer), length(length)
