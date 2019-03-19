@@ -42,7 +42,7 @@ namespace ape
 		{
 			assert(inout.size() == size);
 
-			perform(APE_FFT_Backward, inout.data(), inout.data());
+			perform(APE_FFT_Inverse, inout.data(), inout.data());
 		}
 
 		void inverse(const_uarray<std::complex<T>> in, uarray<std::complex<T>> out)
@@ -50,7 +50,22 @@ namespace ape
 			assert(in.size() == size);
 			assert(out.size() == size);
 
-			perform(APE_FFT_Backward, in.data(), out.data());
+			perform(APE_FFT_Inverse, in.data(), out.data());
+		}
+
+		void inverseNonScaled(uarray<std::complex<T>> inout)
+		{
+			assert(inout.size() == size);
+
+			perform(APE_FFT_Inverse | APE_FFT_NonScaled, inout.data(), inout.data());
+		}
+
+		void inverseNonScaled(const_uarray<std::complex<T>> in, uarray<std::complex<T>> out)
+		{
+			assert(in.size() == size);
+			assert(out.size() == size);
+
+			perform(APE_FFT_Inverse | APE_FFT_NonScaled, in.data(), out.data());
 		}
 
 		~FFTBase()

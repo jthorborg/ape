@@ -55,9 +55,10 @@
 
 	typedef enum
 	{
-		APE_FFT_Backward = 0,
-		APE_FFT_Forward = 1 << 0,
-		APE_FFT_Real = 1 << 1
+		APE_FFT_Inverse		= 0 << 0,
+		APE_FFT_Forward		= 1 << 0,
+		APE_FFT_Real		= 1 << 1,
+		APE_FFT_NonScaled	= 1 << 2
 	} APE_FFT_Options;
 
 	struct APE_SharedInterface;

@@ -37,10 +37,24 @@
 namespace ape
 {
 
-	static void Transform(std::complex<double>* signal, std::size_t N, bool forward)
+	static void Transform(std::complex<double>* signal, std::size_t N, APE_FFT_Options options)
 	{
 		double* buffer = reinterpret_cast<double*>(signal);
-		forward ? signaldust::DustFFT_fwdDa(buffer, N) : signaldust::DustFFT_revDa(buffer, N);
+		if (options & APE_FFT_Forward)
+		{
+			signaldust::DustFFT_fwdDa(buffer, N);
+		}
+		else
+		{
+			signaldust::DustFFT_revDa(buffer, N);
+
+			if ((options & APE_FFT_NonScaled) == 0)
+			{
+				auto recip = 1.0 / N; 
+				for (std::size_t i = 0; i < N; ++i)
+					signal[i] *= recip;
+			}
+		}
 	}
 
 	class PluginFFTSingle : public APE_FFT
@@ -74,7 +88,7 @@ namespace ape
 				}
 			}
 
-			Transform(buffer.data(), N, options & APE_FFT_Forward);
+			Transform(buffer.data(), N, options);
 
 
 			const std::complex<float>* source = static_cast<const std::complex<float>*>(out);
@@ -113,7 +127,7 @@ namespace ape
 					buffer[i] = source[i];
 				}
 
-				Transform(buffer.data(), N, options & APE_FFT_Forward);
+				Transform(buffer.data(), N, options);
 
 				std::memcpy(out, buffer.data(), sizeof(double) * 2 * N);
 				return;
@@ -121,13 +135,13 @@ namespace ape
 			else if (in == out)
 			{
 				std::complex<double>* source = static_cast<std::complex<double>*>(out);
-				Transform(source, N, options & APE_FFT_Forward);
+				Transform(source, N, options);
 				return;
 			}
 			else
 			{
 				std::memcpy(buffer.data(), in, sizeof(double) * 2 * N);
-				Transform(buffer.data(), N, options & APE_FFT_Forward);
+				Transform(buffer.data(), N, options);
 
 				std::memcpy(out, buffer.data(), sizeof(double) * 2 * N);
 				return;
