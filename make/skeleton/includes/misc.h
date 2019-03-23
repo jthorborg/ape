@@ -59,6 +59,11 @@ namespace ape
 
 		std::size_t size() const noexcept { return length; }
 
+		void clear() noexcept
+		{
+			std::fill(begin(), end(), T());
+		}
+
 	private:
 
 		T* buffer;

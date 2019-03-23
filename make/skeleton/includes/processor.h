@@ -32,13 +32,13 @@ namespace ape
 
 			for (std::size_t c = 0; c < shared; ++c)
 			{
-				for (std::size_t n = 0; n < frames; ++c)
+				for (std::size_t n = 0; n < frames; ++n)
 					outputs[c][n] = inputs[c][n];
 			}
 
 			for (std::size_t c = shared; c < configuration.outputs; ++c)
 			{
-				for (std::size_t n = 0; n < frames; ++c)
+				for (std::size_t n = 0; n < frames; ++n)
 					outputs[c][n] = 0;
 			}
 		}

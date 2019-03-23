@@ -282,7 +282,7 @@ namespace ape
 				labelQueue.setDefaultMessage("Error activating plugin.", CColours::red);
 			};
 
-			auto finalizeActivation = [this, abortActivation]()
+			auto finalizeActivation = [this, abortActivation](double clock)
 			{
 				if (!currentPlugin)
 				{
@@ -296,7 +296,7 @@ namespace ape
 					return;
 				}
 
-				getConsole().printLine("[GUI] : Plugin is loaded and reports no error.");
+				getConsole().printLine("[GUI] : Plugin is loaded (%f ms) and reports no error.", clock);
 				labelQueue.setDefaultMessage("Plugin activated", CColours::green);
 				getUICommandState().changeValueExternally(getUICommandState().activationState, 1);
 
@@ -310,10 +310,24 @@ namespace ape
 
 			if (sync)
 			{
+				auto start = std::chrono::high_resolution_clock::now();
+
+
 				if (!currentPlugin->initializeActivation())
 					abortActivation();
 				else
-					finalizeActivation();
+				{
+					if (engine.getPlayState())
+					{
+						currentPlugin->setConfig(engine.getConfig());
+						currentPlugin->setPlayState(true);
+					}
+
+					auto delta = std::chrono::high_resolution_clock::now() - start;
+					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
+
+					finalizeActivation(time.count());
+				}
 			}
 			else
 			{
@@ -321,6 +335,8 @@ namespace ape
 					[this, abortActivation, finalizeActivation](std::shared_ptr<PluginState> plugin, bool startProcessing, IOConfig configuration)
 					{
 						getConsole().printLine("[GUI] : Activating asynchronously...");
+
+						auto start = std::chrono::high_resolution_clock::now();
 
 						if (!plugin->initializeActivation())
 						{
@@ -333,8 +349,16 @@ namespace ape
 							plugin->setConfig(configuration);
 							plugin->setPlayState(true);
 						}
-							
-						cpl::GUIUtils::MainEventBlocking(*this, finalizeActivation);
+
+						auto delta = std::chrono::high_resolution_clock::now() - start;
+						auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
+
+						cpl::GUIUtils::MainEventBlocking(*this, 
+							[finalizeActivation, time]
+							{
+								finalizeActivation(time.count());
+							}
+						);
 
 						return true;
 					},
@@ -435,7 +459,7 @@ namespace ape
 					auto delta = std::chrono::high_resolution_clock::now() - start;
 					auto time = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(delta);
 
-					getConsole().printLine("[GUI] : Compiled successfully (%f ms).", time);
+					getConsole().printLine("[GUI] : Compiled successfully (%f ms).", time.count());
 					labelQueue.pushMessage("Compiled OK!", CColours::green, 2000);
 
 				}

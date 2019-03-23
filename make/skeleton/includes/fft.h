@@ -68,9 +68,28 @@ namespace ape
 			perform(APE_FFT_Inverse | APE_FFT_NonScaled, in.data(), out.data());
 		}
 
+		FFTBase(FFTBase&& other)
+			: size(other.size), fft(other.fft)
+		{
+			other.fft = nullptr;
+		}
+
+		FFTBase& operator = (FFTBase&& other)
+		{
+			size = other.size;
+			fft = other.fft;
+			other.fft = nullptr;
+
+			return *this;
+		}
+
+		FFTBase& operator = (const FFTBase& other) = delete;
+		FFTBase(const FFTBase& other) = delete;
+
 		~FFTBase()
 		{
-			getInterface().releaseFFT(&getInterface(), fft);
+			if(fft != nullptr)
+				getInterface().releaseFFT(&getInterface(), fft);
 		}
 
 	protected:

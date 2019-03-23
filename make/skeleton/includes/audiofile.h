@@ -15,11 +15,11 @@ namespace ape
 
 		AudioFile(const char* relativePath) : AudioFile(loadFile(relativePath))	{ }
 
-		explicit operator bool() const noexcept { return loadedOk && data && samples(); }
+		explicit operator bool() const noexcept { return loadedOk() && data && samples(); }
 
-		const bool loadedOk;
-		const double sampleRate;
-		const char* const name;
+		bool loadedOk() const noexcept { return fileLoadedOk; }
+		double sampleRate() const noexcept { return fileSampleRate; }
+		const char* name() const noexcept { return fileName; }
 
 	protected:
 
@@ -33,12 +33,18 @@ namespace ape
 
 		AudioFile(const APE_AudioFile& audioFile)
 			: const_umatrix<const float>{audioFile.data, audioFile.samples, audioFile.channels}
-			, loadedOk(audioFile.name)
-			, sampleRate(audioFile.sampleRate)
-			, name(audioFile.name)
+			, fileLoadedOk(audioFile.name)
+			, fileSampleRate(audioFile.sampleRate)
+			, fileName(audioFile.name)
 		{
 
 		}
+
+	private:
+
+		bool fileLoadedOk;
+		double fileSampleRate;
+		const char* fileName;
 	};
 
 	class ResampledAudioFile : public AudioFile
@@ -50,6 +56,7 @@ namespace ape
 		constexpr static double OriginalSampleRate = APE_SampleRate_Retain;
 
 		ResampledAudioFile(const char* relativePath, double targetSampleRate = AdoptProjectRate) : AudioFile(loadFile(relativePath, targetSampleRate)) { }
+
 	};
 
 }
