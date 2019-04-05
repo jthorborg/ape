@@ -20,22 +20,19 @@
 #define CPPAPE_NOEXCEPT_IF_RELEASE
 #endif
 
-inline size_t nextpow2(size_t current)
-{
-	size_t p = 1;
-	while (p < current)
-		p <<= 1;
-	return p;
-}
+
 
 int printf(const char * fmt, ...);
 [[noreturn]] void abort(const char* reason);
 
+#define CPPAPE_CONCAT_IMPL( x, y ) x##y
+#define CPPAPE_MACRO_CONCAT( x, y ) CPPAPE_CONCAT_IMPL( x, y )
+
 #define printf_once(...) \
-	static bool __once_flag ## __COUNTER__ = false; \
-	if(!(__once_flag ## __COUNTER__)) \
+	static bool CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__) = false; \
+	if(!(CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__))) \
 	{	\
-		__once_flag ## __COUNTER__ = true; \
+		CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__) = true; \
 		printf(__VA_ARGS__); \
 	}
 

@@ -984,6 +984,7 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\fft.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\interpolation.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\label.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\mathutil.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\meter.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\misc.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\parameter.h" />

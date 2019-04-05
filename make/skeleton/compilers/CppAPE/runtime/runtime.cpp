@@ -137,7 +137,13 @@ extern "C"
 		if (!p)
 			return StatusCode::Error;
 		
-		p->processBase(inputs, outputs, frames);
+		auto configuration = p->config();
+
+		p->processFrames(
+			{ inputs, frames, configuration.inputs },
+			{ outputs, frames, configuration.outputs },
+			frames
+		);
 
 		Tracing::PresentTracers();
 

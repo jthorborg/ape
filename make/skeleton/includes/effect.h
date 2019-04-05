@@ -12,6 +12,7 @@
 #include "interpolation.h"
 #include "resampling.h"
 #include "fft.h"
+#include "mathutil.h"
 
 #include <complex>
 #include <map>

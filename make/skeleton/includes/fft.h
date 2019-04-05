@@ -103,6 +103,9 @@ namespace ape
 
 		void perform(APE_FFT_Options options, const void* in, void* out)
 		{
+			assert(fft != nullptr);
+			assert(size != 0);
+
 			getInterface().performFFT(&getInterface(), fft, options, in, out);
 		}
 
@@ -119,6 +122,8 @@ namespace ape
 			: FFTBase(N, getInterface().createFFT(&getInterface(), APE_DataType_Single, N))
 		{
 		}
+
+		FFT() : FFTBase(0, nullptr) {}
 	};
 
 	template<>
@@ -130,6 +135,9 @@ namespace ape
 			: FFTBase(N, getInterface().createFFT(&getInterface(), APE_DataType_Double, N))
 		{
 		}
+
+		FFT() : FFTBase(0, nullptr) {}
+
 	};
 
 }

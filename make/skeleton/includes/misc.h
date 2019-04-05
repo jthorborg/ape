@@ -396,6 +396,118 @@ namespace ape
 
 		const_uarray<T> source;
 	};
+
+
+	template<typename T>
+	struct circular_iterator // : std::iterator<std::forward_iterator_tag, T>
+	{
+	public:
+
+		using value_type = T;
+		using difference_type = std::ptrdiff_t;
+		using reference = value_type&;
+		using pointer = T*;
+		using iterator_category = std::forward_iterator_tag;
+		using this_type = circular_iterator<T>;
+
+		template<typename Container>
+		friend auto cyclic_begin(Container& c, std::size_t offset);
+
+		template<typename Container>
+		friend auto cyclic_end(Container& c, std::size_t offset, std::size_t length);
+
+		// LegacyIterator
+		reference operator * () noexcept { return base[origin]; }
+
+		this_type operator ++(int) noexcept
+		{
+			this_type copy(*this);
+			++copy;
+			return copy;
+		}
+
+
+
+		// LegacyInputIterator
+		this_type& operator ++() noexcept
+		{
+			if (++origin >= bounds)
+				origin -= bounds;
+
+			distance++;
+
+			return *this;
+		}
+
+		pointer operator -> () noexcept { return base + origin; }
+
+
+		// LegacyBidirectionalIterator
+		this_type operator --(int) noexcept
+		{
+			this_type copy(*this);
+			--copy;
+			return copy;
+		}
+
+		// LegacyInputIterator
+		this_type& operator --() noexcept
+		{
+			if (origin == 0)
+				origin = bounds - 1;
+			else
+				origin--;
+
+			distance--;
+
+			return *this;
+		}
+
+
+		friend bool operator == (circular_iterator<T> left, circular_iterator<T> right)
+		{
+			return
+				left.base == right.base &&
+				left.distance == right.distance &&
+				left.origin == right.origin &&
+				left.bounds == right.bounds;
+		}
+
+		friend bool operator != (circular_iterator<T> left, circular_iterator<T> right)
+		{
+			return !(left == right);
+		}
+
+		// TODO: Make private when clang supports it
+		pointer base;
+		std::ptrdiff_t distance;
+		std::size_t origin;
+		std::size_t bounds;
+	};
+
+
+	template<typename Container>
+	auto cyclic_begin(Container& c, std::size_t offset)
+	{
+		circular_iterator<typename Container::value_type> ret;
+		ret.base = c.data();
+		ret.distance = 0;
+		ret.origin = offset % c.size();
+		ret.bounds = c.size();
+		return ret;
+	}
+
+	template<typename Container>
+	auto cyclic_end(Container& c, std::size_t offset, std::size_t length)
+	{
+		circular_iterator<typename Container::value_type> ret;
+		ret.base = c.data();
+		ret.distance = length;
+		ret.origin = (offset + length) % c.size();
+		ret.bounds = c.size();
+
+		return ret;
+	}
 }
 
 #endif
