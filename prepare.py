@@ -44,7 +44,7 @@ for filename in os.listdir("projects"):
 print(">> Setting up skeletons...")
 print(">> Downloading latest cpp-jit binaries...")
 
-latest_cppjit = urlopen("https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.1-windows.zip")
+latest_cppjit = urlopen("https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.2-windows.zip")
 with open("temp.zip", "wb") as out:
 	out.write(latest_cppjit.read())
 
