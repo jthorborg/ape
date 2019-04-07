@@ -21,20 +21,7 @@
 #endif
 
 
-
-int printf(const char * fmt, ...);
 [[noreturn]] void abort(const char* reason);
-
-#define CPPAPE_CONCAT_IMPL( x, y ) x##y
-#define CPPAPE_MACRO_CONCAT( x, y ) CPPAPE_CONCAT_IMPL( x, y )
-
-#define printf_once(...) \
-	static bool CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__) = false; \
-	if(!(CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__))) \
-	{	\
-		CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__) = true; \
-		printf(__VA_ARGS__); \
-	}
 
 namespace ape
 {
@@ -54,7 +41,6 @@ namespace ape
 
 	};
 }
-
 
 
 #endif

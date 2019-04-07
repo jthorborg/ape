@@ -195,7 +195,7 @@
 						SerializedEngine::ControlValue value;
 						list[i] >> value;
 
-						manager.setParameter(i, value.value);
+						manager.setParameter(static_cast<cpl::Parameters::Handle>(i), value.value);
 					}
 				}
 
@@ -278,7 +278,7 @@
 
 					for (std::size_t i = 0; i < se->numValues; ++i)
 					{
-						manager.setParameter(i, values[i].value);
+						manager.setParameter(static_cast<cpl::Parameters::Handle>(i), values[i].value);
 					}
 
 					auto& commands = controller.getUICommandState();

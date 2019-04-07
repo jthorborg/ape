@@ -393,6 +393,9 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\mathutil.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\print.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
