@@ -88,6 +88,7 @@ namespace CppAPE
 	{
 		switch (error)
 		{
+		case jit_error_compilation_note:
 		case jit_error_compilation_remark: return APE_Diag_Info;
 		case jit_error_compilation_warning: return APE_Diag_Warning;
 		case jit_error_compilation_error: return APE_Diag_CompilationError;
@@ -222,6 +223,7 @@ namespace CppAPE
 					print(JitToDiagnostic(e), msg);
 				}
 			);
+
 
 			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
 #ifdef _DEBUG

@@ -44,7 +44,7 @@ for filename in os.listdir("projects"):
 print(">> Setting up skeletons...")
 print(">> Downloading latest cpp-jit binaries...")
 
-latest_cppjit = urlopen("https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.2-windows.zip")
+latest_cppjit = urlopen("https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.3-windows.zip")
 with open("temp.zip", "wb") as out:
 	out.write(latest_cppjit.read())
 
@@ -58,6 +58,10 @@ with zipfile.ZipFile("temp.zip") as cppjit:
 	with cppjit.open("libCppJit.lib") as lib:
 		with open(os.path.join("projects", "cppape", "builds", "VisualStudio", "libCppJit.lib"), "wb") as outlib:
 		   outlib.write(lib.read())
+
+	with cppjit.open("libCppJit.h") as header:
+		with open(os.path.join("projects", "cppape", "src", "libCppJit.h"), "wb") as outheader:
+		   outheader.write(header.read())
 
 if os.path.exists("temp.zip"):
 	os.remove("temp.zip")

@@ -139,6 +139,9 @@
     <ClCompile Include="..\..\..\..\make\skeleton\compilers\CppAPE\runtime\misc_tasks.cpp">
       <Filter>Plugin\Runtime</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\external\libcxx\src\charconv.cpp">
+      <Filter>Plugin\libcxx\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CppAPE.h">

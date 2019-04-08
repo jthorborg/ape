@@ -21,6 +21,7 @@ typedef enum
 	jit_error_at_previous_stage,
 	jit_error_verbose,
 	jit_error_parsing,
+	jit_error_compilation_note,
 	jit_error_compilation_remark,
 	jit_error_compilation_warning,
 	jit_error_compilation_error
