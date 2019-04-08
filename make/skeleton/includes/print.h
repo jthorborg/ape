@@ -5,8 +5,16 @@
 
 #include <cstddef>
 #include <charconv>
+#include <complex>
 
 int printf(const char * fmt, ...);
+extern "C" int sprintf(char* buffer, const char* fmt, ...);
+
+namespace std
+{
+	using ::printf;
+	using ::sprintf;
+}
 
 #define CPPAPE_CONCAT_IMPL( x, y ) x##y
 #define CPPAPE_MACRO_CONCAT( x, y ) CPPAPE_CONCAT_IMPL( x, y )
@@ -19,13 +27,11 @@ namespace ape
 	namespace detail
 	{
 		template<typename T>
-		char* format(const T& val, char* b, char* e)
+		inline char* format(const T& val, char* b, char* e)
 		{
-
 #define __CPPAPE_FORMAT_ERROR "<format error>"
 
 			using namespace std;
-
 			auto result = to_chars(b, e, val);
 
 			if (result.ec != std::errc())
@@ -34,7 +40,15 @@ namespace ape
 				return b + sizeof(__CPPAPE_FORMAT_ERROR) - 1;
 			}
 
+#undef __CPPAPE_FORMAT_ERROR
+
 			return result.ptr;
+		}
+
+		template<typename T>
+		inline char* format(const std::complex<T>& val, char* b, char* e)
+		{
+			return b + std::sprintf(b, "(%f, %fi)", val.real(), val.imag());
 		}
 
 		struct print_buffer
@@ -122,9 +136,13 @@ namespace ape
 	template<typename Derived>
 	struct PrintFormatter
 	{
+		friend std::to_chars_result to_chars(char* begin, char* end, const Derived& type)
+		{
+			if (!type.format(begin, end, &begin))
+				return { end, std::errc::value_too_large };
 
-
-
+			return { begin, std::errc() };
+		}
 	};
 
 }
