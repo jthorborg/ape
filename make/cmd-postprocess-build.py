@@ -45,7 +45,7 @@ sh.copytree("skeleton", temp_output)
 sh.copytree("../external/ccore/include", os.path.join(temp_output, "includes", "ccore"))
 sh.copytree("../external/libcxx/include", os.path.join(temp_output, "includes", "libcxx"))
 sh.copytree("../external/libcxx/src", os.path.join(temp_output, "compilers", "CppAPE", "runtime", "libcxx-src"))
-
+# TODO: copy presets from /external/signalizer/make/presets that match *oscilloscope*
 # du.copy_tree("../external/tinycc/include", os.path.join(temp_output, "includes", "tcc"))
 du.copy_tree("../shared-src", os.path.join(temp_output, "includes", "shared-src"))
 sh.copytree("../external/ape-snippets", os.path.join(temp_output, "examples"), ignore = sh.ignore_patterns("*.md", "*.git"))

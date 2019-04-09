@@ -32,15 +32,14 @@
 
 	#include "SignalizerConfiguration.h"
 	#include "Oscilloscope/Oscilloscope.h"
-
+	#include <cpl/CPresetManager.h>
+	
 	namespace ape
 	{
 		class Engine;
 
 		struct OscilloscopeData : private Signalizer::ParameterSet::AutomatedProcessor
 		{
-
-
 			OscilloscopeData()
 				: stream(4, true)
 				, view(stream, *this)
@@ -48,6 +47,17 @@
 			{
 				behaviour.hideWidgetsOnMouseExit = true;
 				behaviour.stopProcessingOnSuspend = true;
+
+				cpl::CCheckedSerializer state("oscilloscope");
+
+				juce::File location;
+				auto& manager = cpl::CPresetManager::instance();
+
+				if (manager.loadPreset(manager.getPresetDirectory() + "init.oscilloscope.sgn", state, location))
+				{
+					// HACK: Use Signalizer::SentientViewState here properly
+					content.deserializeObject(state.getBuilder()["Parameters"], state.getBuilder().getLocalVersion());
+				}
 
 				initializeColours(Signalizer::OscilloscopeContent::NumColourChannels);
 			}
