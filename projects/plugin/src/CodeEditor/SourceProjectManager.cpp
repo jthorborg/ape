@@ -61,24 +61,43 @@ namespace ape
 	{
 		doc = std::make_shared<juce::CodeDocument>();
 		doc->addListener(this);
+		doc->setSavePoint();
 
 		try
 		{
-			std::string file;
+			std::string stringTemplatePath, stringHomeDirectory;
 
+			stringHomeDirectory = settings.lookUpValue((cpl::Misc::DirectoryPath() + "/examples/").c_str(), "languages.home");
+			defaultLanguageExtension = settings.lookUpValue("hpp", "languages.default");
+			stringTemplatePath = settings.lookUpValue("", "languages", "default_file");
 			enableScopePoints = settings.lookUpValue(false, "editor", "enable_scopepoints");
 			shouldCheckContentsAgainstDisk = settings.lookUpValue(true, "editor", "check_restored_against_disk");
-			settings.root()["languages"].lookupValue("default_file", file);
-			if (file.length())
-				openFile((cpl::Misc::DirectoryPath() + file).c_str());
+
+			homeDirectory = stringHomeDirectory;
+
+			if (!fs::exists(homeDirectory) || !fs::is_directory(homeDirectory))
+				homeDirectory = juce::File::getSpecialLocation(juce::File::userHomeDirectory).getFullPathName().toStdString();
+
+			templateFile = stringTemplatePath;
+
+			if (!fs::exists(templateFile))
+			{
+				templateFile = homeDirectory / templateFile;
+
+				if (!fs::exists(templateFile))
+					templateFile = fs::path();
+			}
+
+			openTemplate();
 
 			setTitle();
-
 		}
 		catch (const std::exception & e)
 		{
-			controller.getConsole().printLine(CConsole::Error, "Error reading default file from config... %s", e.what());
+			controller.getConsole().printLine(CConsole::Error, "Error setting up editor defaults: %s", e.what());
 		}
+
+		cacheValidFileTypes(s);
 
 		loadHotkeys();
 	}
@@ -227,79 +246,8 @@ namespace ape
 
 	void SourceProjectManager::openAFile()
 	{
-		// array of types. these are read from the config and defines what sources
-		// the program can open
-		std::vector<std::string> filetypes;
-
-		try
-		{
-			// look up languages part
-			const auto& langs = settings.root()["languages"];
-			// check if theres anything there (and if its a group)
-			if (!langs.isGroup())
-			{
-				controller.getConsole().printLine(CConsole::Warning,
-					"[Editor] Warning: No languages specified in config. Can't open files. ");
-				return;
-			}
-			else
-			{
-				// get number of languages defined.
-				int elements = langs.getLength();
-				// iterate over languages
-				for (int x = 0; x < elements; ++x)
-				{
-					if (langs[x].isGroup()) 
-					{
-						// look up list of extensions
-						try
-						{
-							const auto& exts = langs[x]["extensions"];
-							if (!exts.isList())
-							{
-								// this is not really ideal control transfer, 
-								// but every lookup on libconfig::Setting might throw,
-								// so we use the same method here.. and only here.
-								throw std::runtime_error("Not a list");
-							}
-							else
-							{
-								// get number of extensions
-								int numExts = exts.getLength();
-								// iterate over these
-								for (int y = 0; y < numExts; ++y)
-								{
-									const char * type = exts[y].c_str();
-									filetypes.push_back(type);
-								}
-							}
-						}
-						catch (const std::exception & e)
-						{
-							controller.getConsole().printLine(CConsole::Warning,
-								"[Editor] Warning: language %s has no defined extensions in config. "
-								"Program will not be able to open any files for that language. (%s)",
-								langs[x].getName(), e.what());
-						}
-					}
-				}
-
-			}
-
-		}
-		catch (const std::exception & e)
-		{
-			controller.getConsole().printLine(CConsole::Error,
-				"[Editor] Error parsing file type extensions in config (%s).", e.what());
-			return;
-		}
-
-		std::string validTypes;
-		for (auto & str : filetypes)
-			validTypes += "*." + str + ";";
-
-		juce::File initialPath(cpl::Misc::DirectoryPath() + "/examples/");
-		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " - Select a source file...", initialPath, validTypes);
+		juce::File initialPath(homeDirectory.string());
+		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " - Select a source file...", initialPath, validFileTypePattern);
 
 		if (fileSelector.browseForFileToOpen())
 		{
@@ -329,7 +277,8 @@ namespace ape
 
 	void SourceProjectManager::newDocument()
 	{
-		fullPath = "Untitled";
+		fullPath = "untitled";
+		fullPath.replace_extension(defaultLanguageExtension);
 		doc->clearUndoHistory();
 		doc->replaceAllContent("");
 		doc->setSavePoint();
@@ -378,14 +327,16 @@ namespace ape
 			fileLocations[0] = nullptr;
 			project->files = fileLocations;
 
-			assignCStr(fullPath.parent_path().string(), project->workingDirectory);
+			auto projectRoot = isActualFile ? fullPath.parent_path() : homeDirectory;
+
+			assignCStr(projectRoot.string(), project->workingDirectory);
 			assignCStr(fullPath.string(), fileLocations[0]);
-			
+
 			if (getDocumentText(text) && text.length() != 0 && 
 				assignCStr(text, project->sourceString) &&
 				assignCStr(getProjectName(), project->projectName) &&
 				assignCStr(cpl::Misc::DirectoryPath(), project->rootPath) &&
-				assignCStr(getExtension(), project->languageID))
+				assignCStr(getCurrentLanguageID(), project->languageID))
 			{
 				if (enableScopePoints)
 				{
@@ -435,6 +386,13 @@ namespace ape
 			return fullPath.extension().string().substr(1);
 
 		return "";
+	}
+
+	std::string SourceProjectManager::getCurrentLanguageID()
+	{
+		auto ext = getExtension();
+
+		return ext.length() ? ext : defaultLanguageExtension;
 	}
 
 	std::string SourceProjectManager::getProjectName()
@@ -505,12 +463,24 @@ namespace ape
 
 	void SourceProjectManager::saveAs() 
 	{
-		juce::File suggestedPath(isActualFile ? fullPath.string() : cpl::Misc::DirectoryPath());
-
-		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " :: Select where to save your file...", suggestedPath);
+		juce::File suggestedPath;
+		
+		if (isActualFile)
+		{
+			suggestedPath = fullPath.string();
+		}
+		else
+		{
+			suggestedPath = (homeDirectory / fullPath).string();
+		}
+		
+		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " :: Select where to save your file...", suggestedPath, validFileTypePattern);
 		if (fileSelector.browseForFileToSave(true))
 		{
 			fullPath = fileSelector.getResult().getFullPathName().toStdString();
+
+			if (!fullPath.has_extension())
+				fullPath.replace_extension(defaultLanguageExtension);
 
 			setTitle();
 			doSaveFile(fullPath);
@@ -573,4 +543,94 @@ namespace ape
 	{
 		doc->replaceAllContent(newContent);
 	}
+
+	void SourceProjectManager::cacheValidFileTypes(const Settings& s)
+	{
+		validFileTypes.clear();
+
+		try
+		{
+			// look up languages part
+			const auto& langs = s.root()["languages"];
+			// check if theres anything there (and if its a group)
+			if (!langs.isGroup())
+			{
+				controller.getConsole().printLine(CConsole::Warning,
+					"[Editor] Warning: No languages specified in config. Can't open files. ");
+				return;
+			}
+			else
+			{
+				// get number of languages defined.
+				int elements = langs.getLength();
+				// iterate over languages
+				for (int x = 0; x < elements; ++x)
+				{
+					if (langs[x].isGroup())
+					{
+						// look up list of extensions
+						try
+						{
+							const auto& exts = langs[x]["extensions"];
+							if (!exts.isList())
+							{
+								// this is not really ideal control transfer, 
+								// but every lookup on libconfig::Setting might throw,
+								// so we use the same method here.. and only here.
+								throw std::runtime_error("Not a list");
+							}
+							else
+							{
+								// get number of extensions
+								int numExts = exts.getLength();
+								// iterate over these
+								for (int y = 0; y < numExts; ++y)
+								{
+									validFileTypes.emplace_back(exts[y].c_str());
+								}
+							}
+						}
+						catch (const std::exception & e)
+						{
+							controller.getConsole().printLine(CConsole::Warning,
+								"[Editor] Warning: language %s has no defined extensions in config. "
+								"Program will not be able to open any files for that language. (%s)",
+								langs[x].getName(), e.what());
+						}
+					}
+				}
+
+			}
+
+		}
+		catch (const std::exception & e)
+		{
+			controller.getConsole().printLine(CConsole::Error,
+				"[Editor] Error parsing file type extensions in config (%s).", e.what());
+			return;
+		}
+
+		validFileTypePattern = defaultLanguageExtension.size() ? ("*." + defaultLanguageExtension + ";") : "";
+
+		for (auto& str : validFileTypes)
+			if (str != defaultLanguageExtension)
+				validFileTypePattern += "*." + str + ";";
+
+	}
+
+	void SourceProjectManager::openTemplate()
+	{
+		if (!fs::exists(templateFile))
+			return;
+
+		openFile(templateFile);
+
+		isActualFile = false;
+	}
+
+	void SourceProjectManager::openHomeDirectory()
+	{
+		juce::File{ homeDirectory.string() }.revealToUser();
+	}
+
 }

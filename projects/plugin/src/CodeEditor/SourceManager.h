@@ -55,9 +55,11 @@
 
 			FileStart = Start,
 			FileNew = Start,
+			FileNewFromTemplate,
 			FileOpen,
 			FileSave,
 			FileSaveAs,
+			FileOpenScriptsHome,
 			FileEnd,
 
 			BuildStart = FileEnd,

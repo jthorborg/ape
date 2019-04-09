@@ -104,12 +104,16 @@
 			std::string getProjectName();
 			std::string getDirectory();
 			std::string getExtension();
+			std::string getCurrentLanguageID();
 			int saveIfUnsure();
 			void saveAs();
 			void doSaveFile(const fs::path&);
 			void saveCurrentFile();
 			void openAFile();
 			void setContents(const juce::String &);
+			void cacheValidFileTypes(const Settings& s);
+			void openTemplate();
+			void openHomeDirectory();
 
 			//ApplicationCommandTarget overloads
 			ApplicationCommandTarget * getNextCommandTarget() override { return nullptr; }
@@ -129,6 +133,12 @@
 			std::map<int, std::string> userHotKeys;
 			std::set<int> breakpoints;
 			std::set<CodeDocumentListener*> listeners;
+
+			std::vector<std::string> validFileTypes;
+			std::string validFileTypePattern;
+			fs::path templateFile;
+			fs::path homeDirectory;
+			std::string defaultLanguageExtension;
 		};
 	}
 #endif

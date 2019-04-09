@@ -53,7 +53,7 @@ namespace ape
 
 	void SourceProjectManager::getAllCommands(juce::Array<juce::CommandID> & commands)
 	{
-		for (int c = SourceManagerCommand::FileNew; c < SourceManagerCommand::End; ++c)
+		for (int c = SourceManagerCommand::Start; c < SourceManagerCommand::End; ++c)
 		{
 			commands.add(c);
 		}
@@ -82,7 +82,15 @@ namespace ape
 		case SourceManagerCommand::FileSaveAs:
 			saveAs();
 			break;
-
+		case SourceManagerCommand::FileNewFromTemplate:
+			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel)
+			{
+				openTemplate();
+			}
+			break;
+		case SourceManagerCommand::FileOpenScriptsHome:
+			openHomeDirectory();
+			break;
 		case SourceManagerCommand::BuildCompile:
 			controller.recompile(false);
 			break;

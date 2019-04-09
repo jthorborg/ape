@@ -43,11 +43,13 @@ namespace ape
 	const MenuEntry CommandTable[] =
 	{
 		// File
-		{"",			0,		0,				SourceManagerCommand::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
-		{ "New File",	'n',	CTRLCOMMANDKEY, SourceManagerCommand::FileNew },
-		{ "Open...",	'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
-		{ "Save",		's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
-		{ "Save As...",	0,		0,				SourceManagerCommand::FileSaveAs },
+		{"",					0,		0,				SourceManagerCommand::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
+		{ "New File",			'n',	CTRLCOMMANDKEY, SourceManagerCommand::FileNew },
+		{ "New from Template",	0,		0,				SourceManagerCommand::FileNewFromTemplate },
+		{ "Open...",			'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
+		{ "Save",				's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
+		{ "Save As...",			0,		0,				SourceManagerCommand::FileSaveAs },
+		{ "Open home...",		0,		0,				SourceManagerCommand::FileOpenScriptsHome },
 		// Edit
 		// Build
 		{ "Compile",			juce::KeyPress::F7Key,	0, SourceManagerCommand::BuildCompile },

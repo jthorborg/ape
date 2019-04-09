@@ -126,7 +126,7 @@
 						if (!setting->exists(path))
 							return defaultValue;
 						else
-							setting = &((*setting)[path]);
+							setting = &setting->lookup(path);
 					}
 
 					return (T)*setting;
@@ -134,6 +134,30 @@
 				catch (const libconfig::SettingNotFoundException&)
 				{
 					return defaultValue;
+				}
+			}
+
+			template<typename... Paths>
+			std::string lookUpValue(std::string_view defaultValue, Paths&&... paths) const
+			{
+				const char* compiledPaths[] = { paths... };
+
+				try
+				{
+					const libconfig::Setting* setting = &config.getRoot();
+					for (const auto& path : compiledPaths)
+					{
+						if (!setting->exists(path))
+							return std::string{ defaultValue };
+						else
+							setting = &setting->lookup(path);
+					}
+
+					return setting->c_str();
+				}
+				catch (const libconfig::SettingNotFoundException&)
+				{
+					return std::string { defaultValue };
 				}
 			}
 
@@ -150,7 +174,7 @@
 						if (!setting->exists(path))
 							return defaultValue;
 						else
-							setting = &((*setting)[path]);
+							setting = &setting->lookup(path);
 					}
 
 					if (setting->getType() != libconfig::Setting::TypeString)
