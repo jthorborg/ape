@@ -24,6 +24,14 @@ else:
 
 print(">> Setting up symlinks...")
 
+def dirlink(source, dest):
+	if os.name == "nt":
+		print("Creating junction for: " + dest)
+		os.system("mklink /J \"" + dest + "\" \"" + source + "\"")
+	else:
+		print("Creating symlink for: " + dest)
+		os.symlink(dest, source)
+
 for filename in os.listdir("projects"):
 	path = os.path.join("projects", filename)
 	if os.path.isdir(path):
@@ -33,13 +41,7 @@ for filename in os.listdir("projects"):
 				if os.path.isdir(subpath):
 					moduleFolder = os.path.join(subpath, "modules")
 					if not os.path.isdir(moduleFolder):
-						if os.name == "nt":
-							print("Creating junction for: " + moduleFolder)
-							os.system("mklink /J \"" + moduleFolder + "\" \"external/JuceLibraryCode/modules")
-						else:
-							print("Creating symlinkk for: " + moduleFolder)
-							os.symlink(moduleFolder, "external/JuceLibraryCode/modules")
-
+						dirlink("external/JuceLibraryCode/modules", moduleFolder)
 
 print(">> Setting up skeletons...")
 print(">> Downloading latest cpp-jit binaries...")
@@ -53,15 +55,15 @@ print(">> Extracting cpp-jit...")
 with zipfile.ZipFile("temp.zip") as cppjit:
 	with cppjit.open("libCppJit.dll") as dll:
 		with open(os.path.join("make", "skeleton", "compilers", "CppAPE", "libCppJit.dll"), "wb") as outdll:
-		   outdll.write(dll.read())
+			outdll.write(dll.read())
 
 	with cppjit.open("libCppJit.lib") as lib:
 		with open(os.path.join("projects", "cppape", "builds", "VisualStudio", "libCppJit.lib"), "wb") as outlib:
-		   outlib.write(lib.read())
+			outlib.write(lib.read())
 
 	with cppjit.open("libCppJit.h") as header:
 		with open(os.path.join("projects", "cppape", "src", "libCppJit.h"), "wb") as outheader:
-		   outheader.write(header.read())
+			outheader.write(header.read())
 
 if os.path.exists("temp.zip"):
 	os.remove("temp.zip")

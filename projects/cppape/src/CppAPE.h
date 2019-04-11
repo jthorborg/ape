@@ -103,6 +103,7 @@ namespace CppAPE
 		bool SetupEnvironment();
 		static std::shared_ptr<CxxJitContext> acquireCxxRuntime();
 
+		static const std::vector<const char*> defines;
 		std::vector<char> memoryEffectPCH;
 		std::unique_ptr<CxxJitContext> state;
 		ScriptPlugin plugin;

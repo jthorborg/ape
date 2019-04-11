@@ -41,6 +41,7 @@ namespace CppAPE
 		if (fs::exists(root / "runtime" / "runtime.bc") && fs::exists(root / "runtime" / "libcxx.bc") && fs::exists(root / "runtime" / "effect.h.pch"))
 			return true;
 
+		memoryEffectPCH.clear();
 
 		CxxTranslationUnit::Builder builder;
 
@@ -72,6 +73,9 @@ namespace CppAPE
 
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace);
+
+			for (auto define : defines)
+				builder.args().argPair("-D", define, cpl::Args::NoSpace);
 
 			builder
 				.fromFile((root / "runtime" / "runtime.cpp").string())

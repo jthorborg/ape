@@ -84,6 +84,10 @@ APE_Status CleanCompilerCache()
 
 namespace CppAPE
 {
+	const std::vector<const char*> ScriptCompiler::defines = {
+		"__cppape"
+	};
+
 	APE_Diagnostic JitToDiagnostic(jit_error_t error)
 	{
 		switch (error)
@@ -214,6 +218,9 @@ namespace CppAPE
 			if (getProject()->numTraceLines > 0)
 				builder.args().argPair("-D", "CPPAPE_TRACING_ENABLED", cpl::Args::NoSpace);
 
+			for(auto define : defines)
+				builder.args().argPair("-D", define, cpl::Args::NoSpace);
+
 			builder.addMemoryFile("effect.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
 			state = std::make_unique<CxxJitContext>();
@@ -224,13 +231,10 @@ namespace CppAPE
 				}
 			);
 
-
 			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
 #ifdef _DEBUG
 			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
 #endif
-			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get());
-
 			auto tasks = builder.fromFile((dirRoot / "runtime" / "misc_tasks.cpp").string());
 
 			state->addTranslationUnit(projectUnit);

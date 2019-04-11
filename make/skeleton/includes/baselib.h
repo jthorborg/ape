@@ -5,10 +5,19 @@
 #error baselib.h can only be used with a C++ compiler
 #endif
 
-
 #include <cstddef>
+
+#ifdef __cppape
 #include "shared-src/ape/SharedInterface.h"
+#else
+// (folder layout different in dev mode)
+#include <SharedInterface.h>
+#endif
+
+#ifdef NULL
 #undef NULL
+#endif
+
 #define NULL 0
 
 
