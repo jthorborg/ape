@@ -18,6 +18,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppAPE", "..\..\projects\cp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scripts", "..\..\projects\scripts\builds\VisualStudio\Scripts.vcxproj", "{B97FEEA6-516F-4570-85AF-DE8AF4C21E26}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{F9583B67-B7D4-448A-896E-B61DC91D50EA}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\make\cmd-postprocess-build.py = ..\..\make\cmd-postprocess-build.py
+		..\..\make\skeleton\config.cfg = ..\..\make\skeleton\config.cfg
+		..\..\make\config.ini = ..\..\make\config.ini
+		..\..\prepare.py = ..\..\prepare.py
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

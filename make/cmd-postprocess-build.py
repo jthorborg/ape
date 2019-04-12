@@ -19,7 +19,15 @@ config.read("config.ini")
 def cleanup():
 	if os.path.isdir(temp_output):
 		sh.rmtree(temp_output)
+	return
 
+def dirlink(source, dest):
+	if os.name == "nt":
+		print("Creating junction for: " + dest)
+		os.system("mklink /J \"" + dest + "\" \"" + source + "\"")
+	else:
+		print("Creating symlink for: " + dest)
+		os.symlink(dest, source)
 
 # check build output
 
@@ -27,6 +35,8 @@ if not len(sys.argv) == 4:
 	print(">> Invalid number of post processing arguments")
 	exit(-1)
 
+# TODO: query from args.
+release = False
 
 output_dir = sys.argv[1]
 platform_agnostic_dir = sys.argv[3]
@@ -48,7 +58,10 @@ sh.copytree("../external/libcxx/src", os.path.join(temp_output, "compilers", "Cp
 # TODO: copy presets from /external/signalizer/make/presets that match *oscilloscope*
 # du.copy_tree("../external/tinycc/include", os.path.join(temp_output, "includes", "tcc"))
 du.copy_tree("../shared-src", os.path.join(temp_output, "includes", "shared-src"))
-sh.copytree("../external/ape-snippets", os.path.join(temp_output, "examples"), ignore = sh.ignore_patterns("*.md", "*.git"))
+
+
+examples_output = "examples" if release else "examples-release"
+sh.copytree("../external/ape-snippets", os.path.join(temp_output, examples_output), ignore = sh.ignore_patterns("*.md", "*.git"))
 
 # copy build files
 
@@ -74,7 +87,10 @@ dest_dir = os.path.join(dest_dir, "Audio Programming Environment")
 
 print("\nInstalling into: " + dest_dir)
 
-du.copy_tree(temp_output, dest_dir)
+du.copy_tree(temp_output, dest_dir, not release)
+
+if not release:
+	dirlink("../external/ape-snippets", os.path.join(dest_dir, "examples"))
 
 cleanup()
 
