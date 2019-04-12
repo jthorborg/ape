@@ -36,9 +36,14 @@ namespace ape
 			, fileLoadedOk(audioFile.name)
 			, fileSampleRate(audioFile.sampleRate)
 			, fileName(audioFile.name)
+			, preciseLength(audioFile.fractionalLength)
 		{
 
 		}
+
+	protected:
+
+		double preciseLength;
 
 	private:
 
@@ -57,6 +62,7 @@ namespace ape
 
 		ResampledAudioFile(const char* relativePath, double targetSampleRate = AdoptProjectRate) : AudioFile(loadFile(relativePath, targetSampleRate)) { }
 
+		double fractionalLength() const noexcept { return this->preciseLength; }
 	};
 
 }

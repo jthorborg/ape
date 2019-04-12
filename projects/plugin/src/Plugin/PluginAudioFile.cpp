@@ -78,6 +78,7 @@ namespace ape
 		ret.data = columns.data();
 		ret.name = name.c_str();
 		ret.sampleRate = sampleRate;
+		ret.fractionalLength = fractionalLength;
 		ret.samples = samples;
 
 		return ret;
@@ -89,6 +90,7 @@ namespace ape
 		channels = reader.numChannels;
 		samples = reader.lengthInSamples;
 		sampleRate = reader.sampleRate;
+		fractionalLength = samples;
 
 		storage.resize(channels * samples);
 		columns.resize(channels);
@@ -131,9 +133,10 @@ namespace ape
 		CPL_RUNTIME_ASSERTION(newSampleRate > 0);
 		CPL_RUNTIME_ASSERTION(source.sampleRate != newSampleRate);
 
-		const auto ratio = source.sampleRate / newSampleRate;
+		const auto inverseRatio = source.sampleRate / newSampleRate;
 
 		dest.sampleRate = newSampleRate;
+		dest.fractionalLength = source.samples * newSampleRate / source.sampleRate;
 		dest.samples = 0;
 
 		if (source.samples == 0)
@@ -153,7 +156,7 @@ namespace ape
 
 		for (std::uint64_t n = 0; n < newSampleCount; ++n)
 		{
-			const auto x = n * ratio;
+			const auto x = n * inverseRatio;
 			std::uint64_t x0 = static_cast<std::uint64_t>(x);
 
 			float ym1, y0, y1, y2;

@@ -56,7 +56,7 @@
 
 			std::uint64_t samples;
 			std::uint32_t channels;
-			double sampleRate;
+			double sampleRate, fractionalLength;
 			std::string name;
 			std::vector<float*> columns;
 			std::vector<float> storage;

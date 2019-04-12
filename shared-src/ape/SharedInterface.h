@@ -68,6 +68,7 @@
 		const char* name;
 		unsigned long long samples;
 		unsigned int channels;
+		double fractionalLength;
 		double sampleRate;
 		const float* const* data;
 	};

@@ -478,7 +478,7 @@ namespace ape
 			return !(left == right);
 		}
 
-		// TODO: Make private when clang supports it
+	private:
 		pointer base;
 		std::ptrdiff_t distance;
 		std::size_t origin;
