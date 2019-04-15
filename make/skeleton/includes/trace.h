@@ -11,7 +11,7 @@
 	#include <algorithm>
 	#include <complex>
 
-	namespace Tracing
+	namespace ape::Tracing
 	{
 
 		using Twine = std::pair<const char*, const char*>;
@@ -104,7 +104,7 @@
 	}
 
 
-	#define TRC(...) Tracing::TraceData(0, #__VA_ARGS__, (__VA_ARGS__))
+	#define TRC(...) ape::Tracing::TraceData(0, #__VA_ARGS__, (__VA_ARGS__))
 
 #endif
 

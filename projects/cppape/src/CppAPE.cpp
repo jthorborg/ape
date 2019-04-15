@@ -397,36 +397,60 @@ namespace CppAPE
 
 	bool ScriptCompiler::transformSource(const Project& project, std::string& source)
 	{
-		if (project.traceLines != nullptr && project.numTraceLines != 0)
-		{
-			std::stringstream stream("#include <trace.h>\n" + source);
-			source.resize(0);
-			std::string result, line;
-			int lineCounter = -1;
+		if (project.traceLines == nullptr || project.numTraceLines == 0)
+			return true;
 
-			while (std::getline(stream, line))
+		std::string result = "#include <trace.h>\n";
+		result.reserve(source.size());
+		int lineCounter = 0;
+		std::string line;
+
+		const auto traceBegin = project.traceLines;
+		const auto traceEnd = project.traceLines + project.numTraceLines;
+
+		for (std::size_t i = 0; i < source.size(); ++i)
+		{
+			switch (auto c = source[i])
 			{
-				if (std::find(project.traceLines, project.traceLines + project.numTraceLines, lineCounter) != project.traceLines + project.numTraceLines)
+				case '\r':
 				{
-					auto terminal = line.find_first_of(';');
-					if (terminal == std::string::npos)
+					if (i + 1 < source.size() && source[i + 1] == '\n')
+						++i;
+				}
+				case '\n':
+				{
+					if (std::find(traceBegin, traceEnd, lineCounter) != traceEnd)
 					{
-						print(APE_Diag_CompilationError, "[CppApe] error: Breakpoints can only be set at single expressions, at line " + std::to_string(lineCounter + 1) + ":\n " + line);
-						return false;
+						auto terminal = line.find_first_of(';');
+
+						if (terminal == std::string::npos)
+						{
+							print(APE_Diag_CompilationError, 
+								"[CppApe] error: Breakpoints can only be set at single statements, at line " + 
+								std::to_string(lineCounter + 1) + ":\n " + line
+							);
+							return false;
+						}
+
+						result += "TRC(" + line.substr(0, terminal) + ")" + line.substr(terminal) + "\n";
 					}
 					else
 					{
-						source += "TRC(" + line.substr(0, terminal) + ")" + line.substr(terminal) + "\n";
+						result += line + "\n";
 					}
-				}
-				else
-				{
-					source += line + "\n";
-				}
 
-				lineCounter++;
+					line.resize(0);
+
+					lineCounter++;
+					break;
+				}
+				default:
+					line += c;
 			}
+
 		}
+
+		source = std::move(result);
 
 		return true;
 	}

@@ -117,7 +117,6 @@ namespace ape
 		default:
 			return "Unknown";
 		}
-
 	}
 
 	void Engine::loadSettings()
@@ -300,7 +299,7 @@ namespace ape
 			}
 		}
 
-		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + numTraces, numSamples, *getPlayHead());
+		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + currentTracer->getTraceCount(), numSamples, *getPlayHead());
 
 		for (int i = 0; i < getNumOutputChannels(); ++i)
 		{

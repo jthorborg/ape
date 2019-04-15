@@ -1,32 +1,38 @@
 #include "misc_tasks.h"
 #include <trace.h>
 
-APE_SharedInterface& getInterface();
-
-namespace Tracing
+namespace ape
 {
 
-#ifdef CPPAPE_TRACING_ENABLED
-	Tracer GlobalTracer;
-#endif
+	APE_SharedInterface& getInterface();
 
-	void ResetTracers()
+	namespace Tracing
 	{
-#ifdef CPPAPE_TRACING_ENABLED
-		GlobalTracer.reset();
-#endif
-	}
 
-	void PresentTracers()
-	{
-#ifdef CPPAPE_TRACING_ENABLED
-		const auto& traces = GlobalTracer.getTraces();
+	#ifdef CPPAPE_TRACING_ENABLED
+		Tracer GlobalTracer;
+	#endif
 
-		for (const auto& trace : traces)
+		void ResetTracers()
 		{
-			const char* traceNames[2] = { trace.first.first, trace.first.second };
-			getInterface().presentTrace(&getInterface(), traceNames, trace.first.second ? 2 : 1, trace.second.data.data(), trace.second.index);
+	#ifdef CPPAPE_TRACING_ENABLED
+			GlobalTracer.reset();
+	#endif
 		}
-#endif
+
+		void PresentTracers()
+		{
+	#ifdef CPPAPE_TRACING_ENABLED
+			const auto& traces = GlobalTracer.getTraces();
+
+			for (const auto& trace : traces)
+			{
+				const char* traceNames[2] = { trace.first.first, trace.first.second };
+				getInterface().presentTrace(&getInterface(), traceNames, trace.first.second ? 2 : 1, trace.second.data.data(), trace.second.index);
+			}
+	#endif
+		}
 	}
+
+
 }

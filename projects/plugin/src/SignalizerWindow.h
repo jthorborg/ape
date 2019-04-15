@@ -75,7 +75,7 @@
 				for (std::size_t i = 0; i < Signalizer::OscilloscopeContent::NumColourChannels; ++i)
 				{
 					auto& colour = content.getColour(i);
-					auto prototype = juce::Colour::fromHSV(i / (count), 0.7f, 0.7f, 1.0f);
+					auto prototype = juce::Colour::fromHSV(i / (count - 0.0f), 0.7f, 0.7f, 1.0f);
 
 					colour.getValueIndex(cpl::ColourValue::A).setNormalizedValue(1);
 					colour.getValueIndex(cpl::ColourValue::R).setNormalizedValue(prototype.getFloatRed());
