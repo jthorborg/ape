@@ -508,6 +508,7 @@ namespace ape
 			}
 			else
 			{
+				isActualFile = true;
 				doc->setSavePoint();
 				checkDirtynessState();
 				setTitle();
