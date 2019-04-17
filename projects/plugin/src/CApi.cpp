@@ -331,7 +331,7 @@ namespace ape::api
 		return 1;
 	}
 
-	int	APE_API	createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
+	int	APE_API	createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, APE_Parameter* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
@@ -347,7 +347,7 @@ namespace ape::api
 		return queue->enqueueCommand(ParameterRecord::NormalParameter(name, unit, extVal, transformer, normalizer, min, max)).getClassCounter();
 	}
 
-	int APE_API createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat * extVal)
+	int APE_API createBooleanParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);
@@ -362,7 +362,7 @@ namespace ape::api
 		return queue->enqueueCommand(ParameterRecord::BoolFlag(name, extVal)).getClassCounter();
 	}
 
-	int APE_API createListParameter(APE_SharedInterface * iface, const char * name, PFloat * extVal, int numNames, const char* const* names)
+	int APE_API createListParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal, int numNames, const char* const* names)
 	{
 		REQUIRES_NOTNULL(iface);
 		REQUIRES_NOTNULL(name);

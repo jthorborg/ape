@@ -39,7 +39,7 @@ namespace ape
 	{
 	public:
 
-		NormalParameter(std::string name, std::string_view unit, PFloat* value, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
+		NormalParameter(std::string name, std::string_view unit, APE_Parameter* value, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
 			: PluginParameter(value)
 			, name(std::move(name))
 			, formatter(unit)
@@ -81,11 +81,6 @@ namespace ape
 			return normalizer(val, min, max);
 		}
 
-		void setParameterRealtime(PFloat value) noexcept override
-		{
-			*param = value;
-		}
-
 		const std::string& getName() noexcept override
 		{
 			return name;
@@ -103,7 +98,7 @@ namespace ape
 	{
 	public:
 
-		BooleanParameter(std::string name, PFloat* value)
+		BooleanParameter(std::string name, APE_Parameter* value)
 			: PluginParameter(value)
 			, name(std::move(name))
 		{
@@ -144,11 +139,6 @@ namespace ape
 			return range.normalize(val);
 		}
 
-		void setParameterRealtime(PFloat value) noexcept override
-		{
-			*param = value;
-		}
-
 		const std::string& getName() noexcept override
 		{
 			return name;
@@ -163,7 +153,7 @@ namespace ape
 	{
 	public:
 
-		ListParameter(std::string name, PFloat* value, std::vector<std::string> values)
+		ListParameter(std::string name, APE_Parameter* value, std::vector<std::string> values)
 			: PluginParameter(value)
 			, name(std::move(name))
 			, formatter(range)
@@ -198,11 +188,6 @@ namespace ape
 		UIFloat normalize(UIFloat val) const noexcept override
 		{
 			return range.normalize(val);
-		}
-
-		void setParameterRealtime(PFloat value) noexcept override
-		{
-			*param = value;
 		}
 
 		const std::string& getName() noexcept override

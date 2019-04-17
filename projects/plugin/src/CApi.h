@@ -107,9 +107,9 @@
 		/// </summary>
 		int			APE_API			createPlot(APE_SharedInterface * iface, const char * name, const double * const vals, const unsigned int numVals);
 		int			APE_API			presentTrace(APE_SharedInterface* iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
-		int			APE_API			createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max);
-		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal);
-		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
+		int			APE_API			createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, APE_Parameter* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max);
+		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal);
+		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal, int numValues, const char* const* values);
 		int			APE_API			destroyResource(APE_SharedInterface * iface, int resource, int reserved);
 		/// <summary>
 		/// 

@@ -34,6 +34,7 @@
 	#include <string>
 	#include <memory>
 	#include <ape/APE.h>
+	#include <ape/SharedInterface.h>
 	#include <typeindex>
 	#include "../ReferenceFormattedString.h"
 	#include <cpl/Mathext.h>
@@ -137,7 +138,7 @@
 		public:
 			using CommandBase::CommandBase;
 
-			static ParameterRecord BoolFlag(const char* name, double* val)
+			static ParameterRecord BoolFlag(const char* name, APE_Parameter* val)
 			{
 				ParameterRecord ret(CommandType::Parameter);
 				ret.name = name;
@@ -146,7 +147,7 @@
 				return ret;
 			}
 
-			static ParameterRecord ValueList(const char* name, PFloat* val, std::size_t numValues, const char* const* values)
+			static ParameterRecord ValueList(const char* name, APE_Parameter* val, std::size_t numValues, const char* const* values)
 			{
 				ParameterRecord ret(CommandType::Parameter);
 				ret.name = name;
@@ -161,7 +162,7 @@
 				return ret;
 			} 
 
-			static ParameterRecord NormalParameter(const char* name, const char* unit, PFloat* val, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
+			static ParameterRecord NormalParameter(const char* name, const char* unit, APE_Parameter* val, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
 			{
 				ParameterRecord ret(CommandType::Parameter);
 				ret.name = name;
@@ -200,7 +201,7 @@
 			std::string name;
 			std::string unit;
 			std::vector<std::string> values;
-			PFloat* value = nullptr;
+			APE_Parameter* value = nullptr;
 			PFloat min = 0;
 			PFloat max = 1;
 

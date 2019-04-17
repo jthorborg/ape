@@ -31,6 +31,7 @@
 	#define APE_PLUGINPARAMETER_H
 
 	#include <ape/APE.h>
+	#include <ape/SharedInterface.h>
 	#include "../Engine/ParameterManager.h"
 
 	namespace juce
@@ -48,20 +49,39 @@
 
 			static std::unique_ptr<PluginParameter> FromRecord(ParameterRecord&& record);
 
-			PFloat getValue() const noexcept { return *param; }
-			virtual void setParameterRealtime(PFloat value) noexcept = 0;
+			PFloat getValue() const noexcept { return param->next; }
+
+			void setParameterRealtime(PFloat value) noexcept
+			{
+				nextValue = value;
+				flag = true;
+			}
+
+			void swapParameters(std::size_t nextFrameSize) noexcept
+			{
+				param->old = param->next;
+				param->next = nextValue;
+
+				auto diff = param->next - param->old;
+
+				param->step = diff / nextFrameSize;
+				param->changeFlags = flag.cas();
+			}
+
 			virtual std::unique_ptr<juce::Component> createController(cpl::ValueEntityBase& value) const = 0;
 			virtual ~PluginParameter() {}
 
 		protected:
 
-			PluginParameter(PFloat* value) 
+			PluginParameter(APE_Parameter* value) 
 				: param(value)
 			{
 
 			}
 
-			PFloat* param;
+			PFloat nextValue;
+			cpl::ABoolFlag flag;
+			APE_Parameter* param;
 		};
 
 	}

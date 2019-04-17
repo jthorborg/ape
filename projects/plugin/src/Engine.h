@@ -132,7 +132,7 @@
 
 		private:
 
-			bool processPlugin(PluginState& plugin, TracerState& state, std::size_t numSamples, const float* const* inputs);
+			bool processPlugin(PluginState& plugin, TracerState& state, std::size_t numSamples, const float* const* inputs, std::size_t* numTraces);
 			void processReturnQueue();
 			void exchangePlugin(std::shared_ptr<PluginState> plugin);
 

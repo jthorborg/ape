@@ -121,8 +121,7 @@ namespace ape
 	public:
 
 		ParameterBase(const std::string_view paramName = "", const Range parameterRange = Range())
-			: internalID()
-			, name(paramName.size() == 0 ? "Unnamed" : paramName)
+			: name(paramName.size() == 0 ? "Unnamed" : paramName)
 			, range(parameterRange)
 		{
 		}
@@ -134,34 +133,47 @@ namespace ape
 
 		int id() const noexcept
 		{
-			return internalID;
+			return param.id;
+		}
+
+		bool changed() const noexcept
+		{
+			return param.changeFlags != 0;
 		}
 
 		operator Type() const noexcept
 		{
-			// TODO: Atomic read
-			const volatile PFloat& read = storage;
-			return convert(range(read));
+			return convert(range(param.next));
+		}
+
+		template<typename Index>
+		Type operator [] (Index idx) const noexcept
+		{
+			return at(idx);
+		}
+
+		template<typename Index>
+		Type at(Index idx) const noexcept
+		{
+			return convert(range(static_cast<Type>(param.old + param.step * idx)));
 		}
 
 		Derived& operator = (Type t) noexcept
 		{
-			volatile PFloat& write = storage;
-			write = range.inverse(false, Derived::representationFor(t));
+			param.next = range.inverse(false, Derived::representationFor(t));
 			return static_cast<Derived&>(*this);
 		}
 
 		~ParameterBase()
 		{
-			getInterface().destroyResource(&getInterface(), internalID, -1);
+			getInterface().destroyResource(&getInterface(), param.id, -1);
 		}
 
 	protected:
 
-		int internalID;
-		std::string name;
+		APE_Parameter param;
 		Range range;
-		PFloat storage;
+		std::string name;
 	};
 
 
@@ -183,7 +195,7 @@ namespace ape
 		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 			: Base(paramName, parameterRange)
 		{
-			this->internalID = getInterface().createBooleanParameter(&getInterface(), this->name.c_str(), &this->storage);
+			getInterface().createBooleanParameter(&getInterface(), this->name.c_str(), &this->param);
 		}
 
 		static ParameterType convert(PFloat value) noexcept
@@ -216,8 +228,6 @@ namespace ape
 				values.size(),
 				values.begin()
 			);
-
-
 		}
 
 		static ParameterType convert(PFloat value) noexcept
@@ -249,11 +259,11 @@ namespace ape
 		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 			: Base(paramName, parameterRange)
 		{
-			this->internalID = getInterface().createNormalParameter(
+			getInterface().createNormalParameter(
 				&getInterface(),
 				this->name.c_str(),
 				unit.c_str(),
-				&this->storage,
+				&this->param,
 				this->range.getTransformer(false),
 				this->range.getNormalizer(false),
 				this->range.min,
@@ -290,11 +300,11 @@ namespace ape
 		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 			: Base(paramName, parameterRange)
 		{
-			this->internalID = getInterface().createNormalParameter(
+			getInterface().createNormalParameter(
 				&getInterface(),
 				this->name.c_str(),
 				unit.c_str(),
-				&this->storage,
+				&this->param,
 				this->range.getTransformer(false),
 				this->range.getNormalizer(false),
 				this->range.min,
@@ -332,11 +342,11 @@ namespace ape
 		Param(const std::string_view paramName, const std::string& unit, const Range parameterRange = Range())
 			: Base(paramName, parameterRange)
 		{
-			this->internalID = getInterface().createNormalParameter(
+			getInterface().createNormalParameter(
 				&getInterface(),
 				this->name.c_str(),
 				unit.c_str(),
-				&this->storage,
+				&this->param,
 				this->range.getTransformer(true),
 				this->range.getNormalizer(true),
 				this->range.min,

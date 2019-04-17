@@ -204,7 +204,7 @@ namespace ape
 		}
 	}
 
-	bool Engine::processPlugin(PluginState& plugin, TracerState& tracer, const std::size_t numSamples, const float * const * inputs)
+	bool Engine::processPlugin(PluginState& plugin, TracerState& tracer, const std::size_t numSamples, const float * const * inputs, std::size_t* numTraces)
 	{
 		const auto pole = std::pow(0.95, getSampleRate() / numSamples);
 		std::size_t profiledClocks = 0;
@@ -220,6 +220,8 @@ namespace ape
 			onInitialTracerChanges(tracer);
 
 		tracer.endPhase();
+
+		*numTraces = tracer.getTraceCount();
 
 		if (useFPE)
 			plugin.useFPUExceptions(false);
@@ -258,7 +260,7 @@ namespace ape
 
 				if (currentPlugin)
 				{
-					if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
+					if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers(), &numTraces))
 						reason = reason | PluginExchangeReason::Crash;
 
 					auxMatrix.accumulate(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs, 1.0f, 0.0f);
@@ -282,7 +284,7 @@ namespace ape
 				currentPlugin->syncParametersToEngine(hadOldPlugin && preserveParameters);
 			}
 
-			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers()))
+			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers(), &numTraces))
 			{
 				outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, PluginExchangeReason::Crash));
 				currentPlugin = nullptr;
@@ -299,12 +301,13 @@ namespace ape
 			}
 		}
 
-		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + currentTracer->getTraceCount(), numSamples, *getPlayHead());
+		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + numTraces, numSamples, *getPlayHead());
 
 		for (int i = 0; i < getNumOutputChannels(); ++i)
 		{
 			buffer.copyFrom(i, 0, auxMatrix[ioConfig.inputs + i], numSamples);
 		}
+
 
 		// In case we have more outputs than inputs, we'll clear any output
 		// channels that didn't contain input data, (because these aren't

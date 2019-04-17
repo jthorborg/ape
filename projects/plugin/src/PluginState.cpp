@@ -206,6 +206,11 @@ namespace ape
 					pluginOutputs[i] = protectedMemory[1].get<float>() + sampleFrames * i;
 				}
 
+				for (std::size_t i = 0; i < parameters.size(); ++i)
+				{
+					parameters[i]->swapParameters(sampleFrames);
+				}
+
 				auto start = cpl::Misc::ClockCounter();
 				auto result = generator.processReplacing(*project, pluginInputs.data(), pluginOutputs.data(), sampleFrames);
 

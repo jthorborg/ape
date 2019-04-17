@@ -75,7 +75,11 @@
 
 	struct APE_FFT;
 
-	
+	struct APE_Parameter
+	{
+		PFloat old, next, step;
+		int id, changeFlags;
+	};
 
 	struct APE_SharedInterface
 	{
@@ -96,9 +100,9 @@
 		double		(APE_API * getBPM)					(struct APE_SharedInterface * iface);
 		int			(APE_API * createPlot)				(struct APE_SharedInterface * iface, const char * name, const double * const values, const unsigned int numVals);
 		int			(APE_API * presentTrace)			(struct APE_SharedInterface * iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues);
-		int			(APE_API * createNormalParameter)	(struct APE_SharedInterface * iface, const char * name, const char * unit, PFloat* extVal, APE_Transformer transformer, APE_Normalizer normalizer, PFloat min, PFloat max);
-		int			(APE_API * createBooleanParameter)	(struct APE_SharedInterface * iface, const char * name, PFloat* extVal);
-		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, PFloat* extVal, int numValues, const char* const* values);
+		int			(APE_API * createNormalParameter)	(struct APE_SharedInterface * iface, const char * name, const char * unit, APE_Parameter* extVal, APE_Transformer transformer, APE_Normalizer normalizer, PFloat min, PFloat max);
+		int			(APE_API * createBooleanParameter)	(struct APE_SharedInterface * iface, const char * name, APE_Parameter* extVal);
+		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, APE_Parameter* extVal, int numValues, const char* const* values);
 		int			(APE_API * destroyResource)			(struct APE_SharedInterface * iface, int resourceID, int reserved);
 		int			(APE_API * loadAudioFile)			(struct APE_SharedInterface * iface, const char* path, double sampleRate, APE_AudioFile* result);
 		struct APE_FFT*	(APE_API * createFFT)			(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
