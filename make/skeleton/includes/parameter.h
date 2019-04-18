@@ -221,10 +221,10 @@ namespace ape
 		Param(const std::string_view paramName, const std::initializer_list<const char*> values)
 			: Base(paramName, Range(0, values.size() - 1))
 		{
-			this->internalID = getInterface().createListParameter(
+			getInterface().createListParameter(
 				&getInterface(),
 				this->name.c_str(),
-				&this->storage,
+				&this->param,
 				values.size(),
 				values.begin()
 			);
