@@ -109,6 +109,7 @@
 
 			std::future<std::unique_ptr<PluginState>> createPlugin(std::unique_ptr<ProjectEx> project, bool enableHotReload = true);
 			void setProjectName(std::string name);
+			void setupProject(ProjectEx& project);
 
 			std::unique_ptr<AutosaveManager> autosaveManager;
 			std::unique_ptr<CConsole> console;
@@ -122,7 +123,6 @@
 			std::future<bool> activationState;
 
 			LabelQueue labelQueue;			
-			CColour statusColour;
 			std::string projectName;	
 		};
 	};

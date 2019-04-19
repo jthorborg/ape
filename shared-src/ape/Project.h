@@ -99,6 +99,11 @@
 		size_t numTraceLines;
 
 		APE_ErrorFunc reportDiagnostic;
+
+		/// <summary>
+		/// Suggestion to carry out floating-point operations with approximately this amount of bits.
+		/// </summary>
+		int floatPrecision;
 	};
 	
 	#ifdef __cplusplus

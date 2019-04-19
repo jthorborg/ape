@@ -37,8 +37,8 @@
 
 namespace ape
 {
-	using UITransformer = cpl::UnityRange<cpl::ValueT>;
-	using UIFormatter = cpl::BasicFormatter<cpl::ValueT>;
+	using UITransformer = cpl::VirtualTransformer<cpl::ValueT>;
+	using UIFormatter = cpl::VirtualFormatter<cpl::ValueT>;
 
 	class UIValue : public cpl::ValueEntityBase
 	{

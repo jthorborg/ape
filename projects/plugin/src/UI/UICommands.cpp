@@ -34,13 +34,18 @@ namespace ape
 {
 	UICommandState::UICommandState(UIController& controller)
 		: parent(controller)
+		, precisionChoices(precisionTransformer)
 		, compile(*this, *this)
 		, activationState(*this, *this)
 		, clean(*this, *this)
+		, precision(precisionTransformer, precisionChoices)
 	{
 		clean.addListener(this);
 		compile.addListener(this);
 		activationState.addListener(this);
+		precision.addListener(this);
+
+		precisionChoices.setValues({ "32-bit", "64-bit", "80-bit" });
 	}
 
 	void UICommandState::changeValueExternally(UIValue& value, double newValue)
@@ -50,13 +55,13 @@ namespace ape
 
 	void UICommandState::serialize(Archiver & ar, cpl::Version version)
 	{
-		ar << compile << activationState;
+		ar << compile << activationState << precision;
 	}
 
 	void UICommandState::deserialize(Builder & builder, cpl::Version version)
 	{
 		// TODO: Really how we want to activate a plugin?
-		builder >> compile >> activationState;
+		builder >> compile >> activationState >> precision;
 	}
 
 	void UICommandState::valueEntityChanged(ValueEntityListener * sender, cpl::ValueEntityBase * value)
@@ -67,7 +72,7 @@ namespace ape
 		const auto toggled = value->getNormalizedValue() > 0.5;
 		auto command = UICommand::Invalid;
 
-		if(value == &compile && toggled)
+		if(value == &precision || (value == &compile && toggled))
 		{
 			command = UICommand::Recompile;
 		}

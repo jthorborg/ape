@@ -46,6 +46,13 @@ namespace ape
 		Clean
 	};
 
+	enum class FPrecision
+	{
+		FP32,
+		FP64,
+		FP80
+	};
+
 	class UIController;
 
 	class UICommandState 
@@ -61,7 +68,7 @@ namespace ape
 
 		UICommandState(UIController& controller);
 
-		UIValue compile, activationState, clean;
+		UIValue compile, activationState, clean, precision;
 
 		void changeValueExternally(UIValue& value, double newValue);
 
@@ -72,6 +79,8 @@ namespace ape
 		void valueEntityChanged(ValueEntityListener * sender, cpl::ValueEntityBase* value) override;
 
 	private:
+		cpl::ChoiceFormatter<cpl::ValueT> precisionChoices;
+		cpl::ChoiceTransformer<cpl::ValueT> precisionTransformer;
 		UIController& parent;
 	};
 }

@@ -442,7 +442,8 @@ namespace ape
 			return {};
 		}
 
-		setProjectName(project->projectName);
+		setupProject(*project);
+
 		labelQueue.pushMessage("Compiling...", CColours::red, 500);
 		getConsole().printLine("[GUI] : Compiling...");
 
@@ -483,6 +484,18 @@ namespace ape
 			},
 			std::move(project)
 		);
+	}
+
+	void UIController::setupProject(ProjectEx& project)
+	{
+		setProjectName(project.projectName);
+
+		switch (commandStates->precision.getAsTEnum<FPrecision>())
+		{
+		case FPrecision::FP32: project.floatPrecision = 32; break;
+		case FPrecision::FP64: project.floatPrecision = 64; break;
+		case FPrecision::FP80: project.floatPrecision = 80; break;
+		}
 	}
 
 	void UIController::setProjectName(std::string name) 

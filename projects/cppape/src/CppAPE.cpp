@@ -211,6 +211,7 @@ namespace CppAPE
 				//.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
 				.arg("-fexceptions")
 				.arg("-fcxx-exceptions")
+				.argPair("-D__CPPAPE_PRECISION__=", std::to_string(getProject()->floatPrecision), cpl::Args::NoSpace)
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace)
 				.argPair("-include-pch", (dirRoot / "runtime" / "effect.h.pch").string());

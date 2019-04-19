@@ -93,6 +93,7 @@
 			PlayStateButton compilation;
 			StopButton activation;
 			CleanButton clean;
+			cpl::CValueComboBox precision;
 
 			std::shared_ptr<PluginSurface> pluginSurface;
 

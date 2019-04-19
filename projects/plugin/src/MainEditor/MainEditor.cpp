@@ -53,6 +53,7 @@ namespace ape
 		, AudioProcessorEditor(p.engine)
 		, compilation(state.compile, state.activationState)
 		, activation(state.activationState)
+		, precision(&state.precision)
 		, clean(state.clean)
 		, dockManager(true, false)
 		, tabs(dockManager)
@@ -83,9 +84,9 @@ namespace ape
 		tabs.addComponentToDock(codeWindow.get());
 
 		addAndMakeVisible(activation);
-
 		addAndMakeVisible(compilation);
 		addAndMakeVisible(clean);
+		addAndMakeVisible(precision);
 
 		/*
 		if (!approot["greeting_shown"])
@@ -263,6 +264,7 @@ namespace ape
 		buttonRect.translate(size + 10, 0);
 		clean.setBounds(buttonRect);
 
+		precision.setBounds(buttonRect.getRight() + 10, getHeight() - BottomSpace - 16, 80, 40);
 		infoLabel->setBounds(buttonRect.getRight() + 10, getHeight() - BottomSpace + 20, 250, 20);
 		statusLabel->setBounds(Rect(getWidth() - 300, getHeight() - 25, 280, 20));
 
