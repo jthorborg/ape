@@ -76,7 +76,7 @@ APE_Status CleanCompilerCache()
 		return Status::STATUS_ERROR;
 	}
 
-	if (fs::exists(dirRoot / "runtime" / "effect.h.pch") && !fs::remove(dirRoot / "runtime" / "effect.h.pch"))
+	if (fs::exists(dirRoot / "runtime" / "common.h.pch") && !fs::remove(dirRoot / "runtime" / "common.h.pch"))
 		return Status::STATUS_ERROR;
 
 	return Status::STATUS_OK;
@@ -140,7 +140,7 @@ namespace CppAPE
 		// TODO: Cache static
 		if (memoryEffectPCH.empty())
 		{
-			std::ifstream pchfile(dirRoot / "runtime" / "effect.h.pch", std::ios::binary | std::ios::ate);
+			std::ifstream pchfile(dirRoot / "runtime" / "common.h.pch", std::ios::binary | std::ios::ate);
 			std::streamsize size = pchfile.tellg();
 			pchfile.seekg(0, std::ios::beg);
 
@@ -214,7 +214,7 @@ namespace CppAPE
 				.argPair("-D__CPPAPE_PRECISION__=", std::to_string(getProject()->floatPrecision), cpl::Args::NoSpace)
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace)
-				.argPair("-include-pch", (dirRoot / "runtime" / "effect.h.pch").string());
+				.argPair("-include-pch", (dirRoot / "runtime" / "common.h.pch").string());
 
 			if (getProject()->numTraceLines > 0)
 				builder.args().argPair("-D", "CPPAPE_TRACING_ENABLED", cpl::Args::NoSpace);
@@ -222,7 +222,7 @@ namespace CppAPE
 			for(auto define : defines)
 				builder.args().argPair("-D", define, cpl::Args::NoSpace);
 
-			builder.addMemoryFile("effect.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
+			builder.addMemoryFile("common.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
 			state = std::make_unique<CxxJitContext>();
 			state->setCallback(

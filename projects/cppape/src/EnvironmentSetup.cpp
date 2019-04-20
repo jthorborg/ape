@@ -38,7 +38,7 @@ namespace CppAPE
 	{
 		auto root = fs::path(cpl::Misc::DirectoryPath());
 
-		if (fs::exists(root / "runtime" / "runtime.bc") && fs::exists(root / "runtime" / "libcxx.bc") && fs::exists(root / "runtime" / "effect.h.pch"))
+		if (fs::exists(root / "runtime" / "runtime.bc") && fs::exists(root / "runtime" / "libcxx.bc") && fs::exists(root / "runtime" / "common.h.pch"))
 			return true;
 
 		memoryEffectPCH.clear();
@@ -84,9 +84,9 @@ namespace CppAPE
 			print(APE_Diag_Info, "runtime.cpp -> runtime.bc");
 
 			builder
-				.generatePCH(root / ".." / ".." / "includes" / "effect.h", root / "runtime" / "effect.h.pch");
+				.generatePCH(root / ".." / ".." / "includes" / "common.h", root / "runtime" / "common.h.pch");
 
-			print(APE_Diag_Info, "includes/effect.h -> runtime/effect.h.pch");
+			print(APE_Diag_Info, "includes/common.h -> runtime/common.h.pch");
 
 			builder
 				.fromFile((root / "runtime" / "libcxx.cpp").string())

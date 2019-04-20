@@ -980,6 +980,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\common.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\dsp.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\effect.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -992,6 +993,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\fft.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\fpoint.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\interpolation.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\label.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\mathutil.h" />

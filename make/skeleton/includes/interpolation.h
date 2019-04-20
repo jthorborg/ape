@@ -15,7 +15,7 @@ namespace ape
 		for (auto i = start - wsize + 1; i < (start + wsize + 1); ++i)
 		{
 			auto impulse = s(i);
-			auto response = lanczos(x - i, wsize);
+			auto response = lanczos<T>(x - i, wsize);
 			resonance += impulse * response;
 		}
 		return resonance;
@@ -29,7 +29,7 @@ namespace ape
 		for (auto i = start - wsize + 1; i < (start + wsize + 1); ++i)
 		{
 			auto impulse = s(i);
-			auto response = sinc(x - i);
+			auto response = sinc<T>(x - i);
 			resonance += impulse * response;
 		}
 		return resonance;
