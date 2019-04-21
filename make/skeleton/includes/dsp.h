@@ -10,6 +10,37 @@
 
 namespace ape
 {
+
+#if 0
+
+	constexpr inline long double operator ""dB(long double arg)
+	{
+		return std::pow(10, arg / 20);
+	}
+
+	constexpr inline long double operator ""_dB(long double arg)
+	{
+		return std::pow(10, arg / 20);
+	}
+
+#endif
+
+	class dB
+	{
+	public:
+		template<typename T>
+		static inline T from(T arg)
+		{
+			return std::pow(10, arg / 20);
+		}
+
+		template<typename T>
+		static inline T to(T arg)
+		{
+			return 20 * std::log10(arg);
+		}
+	};
+
 	template<typename T>
 	T lanczos(T x, int size)
 	{

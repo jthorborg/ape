@@ -47,6 +47,7 @@ namespace ape
 			, normalizer(normalizer)
 			, min(min)
 			, max(max)
+			, isDbFormatter(isDecibelUnits(unit))
 		{
 
 		}
@@ -68,6 +69,9 @@ namespace ape
 
 		bool interpret(const cpl::string_ref buf, UIFloat & val) override
 		{
+			if (!isDbFormatter && isDecibelUnits(buf))
+				return dbFormatter.interpret(buf, val);
+
 			return formatter.interpret(buf, val);
 		}
 
@@ -85,11 +89,18 @@ namespace ape
 		{
 			return name;
 		}
+		
+		static bool isDecibelUnits(std::string_view str)
+		{
+			return str.find("db") != std::string_view::npos || str.find("dB") != std::string_view::npos;
+		}
 
 		std::string name;
+		cpl::DBFormatter<PFloat> dbFormatter;
 		cpl::UnitFormatter<PFloat> formatter;
 		PFloat min = 0;
 		PFloat max = 1;
+		const bool isDbFormatter;
 		Transformer transformer;
 		Normalizer normalizer;
 	};
