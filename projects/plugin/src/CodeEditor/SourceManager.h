@@ -63,23 +63,18 @@
 			FileOpenScriptsHome,
 			FileEnd,
 
-			BuildStart = FileEnd,
-			BuildCompile = FileEnd,
+			EditStart = FileEnd,
+			EditExternally = EditStart,
+			EditEnd,
+
+			BuildStart = EditEnd,
+			BuildCompile = BuildStart,
 			BuildCompileAndActivate,
 			BuildActivate,
 			BuildDeactivate,
 			BuildClean,
 			BuildEnd,
-			/* -- following are natively supported
-			EditCut,
-			EditCopy,
-			EditUndo,
-			EditRedo,
-			EditPaste,
-			EditDelete,
-			EditSelectAll
-			*/
-
+			
 			End = BuildEnd
 		};
 
@@ -89,8 +84,8 @@
 		enum Menus
 		{
 			File,
-			Build,
-			Edit
+			Edit,
+			Build
 		};
 
 		/// <summary>
@@ -139,7 +134,7 @@
 			virtual ~SourceManager() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual SourceFile getSourceFile() = 0;
+			virtual const SourceFile& getSourceFile() = 0;
 			virtual bool isDirty() = 0;
 			virtual bool openFile(const fs::path& fileName) { return false; }
 			virtual void autoSave() {};

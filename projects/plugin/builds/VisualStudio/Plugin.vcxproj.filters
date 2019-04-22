@@ -379,6 +379,9 @@
     <Filter Include="External\DockableWindows\Source">
       <UniqueIdentifier>{005564e5-bfab-4df0-b729-40a3b3a86a8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External\FileSystemWatcher">
+      <UniqueIdentifier>{ef05266c-6716-4297-879c-e1ceaadbda25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1610,6 +1613,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Plugin\PluginFFT.cpp">
       <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.cpp">
+      <Filter>External\FileSystemWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\SourceFile.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3107,6 +3116,9 @@
     <ClInclude Include="..\..\src\CodeEditor\SourceFile.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.h">
+      <Filter>External\FileSystemWatcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">
@@ -3153,6 +3165,9 @@
     </None>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_plugin_client\RTAS\juce_RTAS_WinResources.rsr">
       <Filter>Juce Library Code</Filter>
+    </None>
+    <None Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.mm">
+      <Filter>External\FileSystemWatcher</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

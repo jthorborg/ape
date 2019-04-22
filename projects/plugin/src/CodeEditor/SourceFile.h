@@ -33,6 +33,7 @@
 	#include <cpl/Common.h>
 	#include <cpl/state/Serialization.h>
 	#include <cpl/Core.h>
+	#include <memory>
 
 	namespace ape
 	{
@@ -42,11 +43,19 @@
 		{
 		public:
 
-			SourceFile(fs::path pathToUse)
-				: path(std::move(pathToUse))
+			class Listener
 			{
-				isFile = fs::exists(path);
-			}
+			public:
+				virtual void fileChanged(const SourceFile& file) = 0;
+				virtual ~Listener() {}
+			};
+
+			SourceFile(fs::path pathToUse);
+			
+			SourceFile(SourceFile&& other);
+			SourceFile& operator = (SourceFile&& other);
+
+			~SourceFile();
 
 			const fs::path& getPath() const noexcept
 			{
@@ -96,6 +105,9 @@
 				return { path.string() };
 			}
 
+			void addListener(Listener& list);
+			void removeListener(Listener& list);
+
 		protected:
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override
@@ -119,14 +131,17 @@
 
 		private:
 
-			SourceFile(fs::path pathToUse, bool isActualFile)
-				: path(std::move(pathToUse)), isFile(isActualFile)
-			{
+			void onFileChanged();
 
-			}
+			class ListenerManager;
+			ListenerManager& getListenerManager();
+
+			SourceFile(fs::path pathToUse, bool isActualFile);
 
 			fs::path path;
 			bool isFile;
+
+			std::unique_ptr<ListenerManager> listenerManager;
 		};
 	}
 #endif

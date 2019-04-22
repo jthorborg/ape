@@ -70,18 +70,22 @@ namespace ape
 				newDocument();
 			}
 			break;
+
 		case SourceManagerCommand::FileOpen:
 			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel) 
 			{
 				openAFile();
 			}
 			break;
+
 		case SourceManagerCommand::FileSave:
 			saveCurrentFile();
 			break;
+
 		case SourceManagerCommand::FileSaveAs:
 			saveAs();
 			break;
+
 		case SourceManagerCommand::FileNewFromTemplate:
 			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel)
 			{
@@ -97,9 +101,15 @@ namespace ape
 				}
 			}
 			break;
+
 		case SourceManagerCommand::FileOpenScriptsHome:
 			openHomeDirectory();
 			break;
+
+		case SourceManagerCommand::EditExternally:
+			editExternally();
+			break;
+
 		case SourceManagerCommand::BuildCompile:
 			controller.recompile(false);
 			break;
@@ -123,40 +133,40 @@ namespace ape
 		return true;
 	}
 
-
-
-
 	bool SourceProjectManager::loadHotkeys()
 	{
 		// try to read the hotkeys from editor {}
 		try
 		{
 			std::string temp;
-			const auto& root = settings.root();
+			const auto& root = settings.root()["editor"];
 
-			if(root["editor"].lookupValue("hkey_save", temp))
+			if(root.lookupValue("hkey_save", temp))
 				userHotKeys[SourceManagerCommand::FileSave] = temp;
 
-			if(root["editor"].lookupValue("hkey_new", temp))
+			if(root.lookupValue("hkey_new", temp))
 				userHotKeys[SourceManagerCommand::FileNew] = temp;
 
-			if(root["editor"].lookupValue("hkey_open", temp))
+			if(root.lookupValue("hkey_open", temp))
 				userHotKeys[SourceManagerCommand::FileOpen] = temp;
 
-			if (root["editor"].lookupValue("hkey_compile", temp))
+			if (root.lookupValue("hkey_compile", temp))
 				userHotKeys[SourceManagerCommand::BuildCompile] = temp;
 
-			if (root["editor"].lookupValue("hkey_run", temp))
+			if (root.lookupValue("hkey_run", temp))
 				userHotKeys[SourceManagerCommand::BuildCompileAndActivate] = temp;
 
-			if (root["editor"].lookupValue("hkey_activate", temp))
+			if (root.lookupValue("hkey_activate", temp))
 				userHotKeys[SourceManagerCommand::BuildActivate] = temp;
 
-			if (root["editor"].lookupValue("hkey_deactivate", temp))
+			if (root.lookupValue("hkey_deactivate", temp))
 				userHotKeys[SourceManagerCommand::BuildDeactivate] = temp;
 
-			if (root["editor"].lookupValue("hkey_clean", temp))
+			if (root.lookupValue("hkey_clean", temp))
 				userHotKeys[SourceManagerCommand::BuildClean] = temp;
+
+			if (root.lookupValue("hkey_externaledit", temp))
+				userHotKeys[SourceManagerCommand::EditExternally] = temp;
 		}
 		catch (const std::exception & e)
 		{

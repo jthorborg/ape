@@ -39,6 +39,7 @@
 #include <memory>
 #include "CodeEditorWindow.h"
 #include <fstream>
+#include <cpl/Process.h>
 
 namespace ape
 {
@@ -65,8 +66,11 @@ namespace ape
 		{
 			std::string stringTemplatePath, stringHomeDirectory;
 
-			stringHomeDirectory = settings.lookUpValue((cpl::Misc::DirectoryPath() + "/examples/").c_str(), "languages.home");
-			defaultLanguageExtension = settings.lookUpValue("hpp", "languages.default");
+			if(settings.exists("editor", "external_edit_command_line"))
+				editCommandLine = settings.lookUpValue("", "editor", "external_edit_command_line");
+
+			stringHomeDirectory = settings.lookUpValue((cpl::Misc::DirectoryPath() + "/examples/").c_str(), "languages", "home");
+			defaultLanguageExtension = settings.lookUpValue("hpp", "languages", "default");
 			stringTemplatePath = settings.lookUpValue("", "languages", "default_file");
 			enableScopePoints = settings.lookUpValue(false, "editor", "enable_scopepoints");
 			shouldCheckContentsAgainstDisk = settings.lookUpValue(true, "editor", "check_restored_against_disk");
@@ -103,6 +107,7 @@ namespace ape
 	SourceProjectManager::~SourceProjectManager()
 	{
 		saveIfUnsure();
+		sourceFile = SourceFile::asNonExisting("untitled");
 	}
 
 	void SourceProjectManager::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
@@ -362,9 +367,24 @@ namespace ape
 		return doc->hasChangedSinceSavePoint();
 	}
 
-	SourceFile SourceProjectManager::getSourceFile()
+	const SourceFile& SourceProjectManager::getSourceFile()
 	{
 		return sourceFile;
+	}
+
+	void SourceProjectManager::fileChanged(const SourceFile& file)
+	{
+		auto stream = juce::FileInputStream(file.getJuceFile());
+
+		if (!stream.openedOk())
+		{
+			controller.getConsole().printLine(CConsole::Error, "Failed to read %s for hot-reloading changed document...", file.getPath().string().c_str());
+			return;
+		}
+
+		doc->loadFromStream(stream);
+
+		controller.recompile();
 	}
 
 	cpl::Misc::MsgButton SourceProjectManager::saveIfUnsure()
@@ -388,12 +408,9 @@ namespace ape
 		return MsgButton::bYes;
 	}
 
-	void SourceProjectManager::saveCurrentFile() 
+	bool SourceProjectManager::saveCurrentFile() 
 	{
-		if (sourceFile.isActualFile())
-			doSaveFile(sourceFile.getPath());
-		else
-			saveAs();
+		return sourceFile.isActualFile() ? doSaveFile(sourceFile.getPath()) : saveAs();
 	}
 
 	bool SourceProjectManager::openFile(const fs::path& fileName)
@@ -410,7 +427,6 @@ namespace ape
 			return false;
 		}
 
-		doc->replaceAllContent("");
 		doc->loadFromStream(s);
 		doc->setSavePoint();
 		checkDirtynessState();
@@ -422,7 +438,7 @@ namespace ape
 		return true;
 	}
 
-	void SourceProjectManager::saveAs() 
+	bool SourceProjectManager::saveAs() 
 	{
 		juce::File suggestedPath;
 		
@@ -443,11 +459,13 @@ namespace ape
 			if (!newPath.has_extension())
 				newPath.replace_extension(defaultLanguageExtension);
 
-			doSaveFile(newPath);
+			return doSaveFile(newPath);
 		}
+
+		return false;
 	}
 
-	void SourceProjectManager::doSaveFile(const fs::path& fileName)
+	bool SourceProjectManager::doSaveFile(const fs::path& fileName)
 	{
 		using namespace cpl::Misc;
 
@@ -470,6 +488,7 @@ namespace ape
 				doc->setSavePoint();
 				checkDirtynessState();
 				setTitle();
+				return true;
 			}
 		}
 		else 
@@ -478,6 +497,8 @@ namespace ape
 			fmt << "Could not open file \"" << fileName.string() << "\" for saving.";
 			MsgBox(fmt.str(), cpl::programInfo.name, MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 		}
+
+		return false;
 	}
 
 	void * SourceProjectManager::getParentWindow()
@@ -593,6 +614,30 @@ namespace ape
 	void SourceProjectManager::openHomeDirectory()
 	{
 		juce::File{ homeDirectory.string() }.revealToUser();
+	}
+
+	void SourceProjectManager::editExternally()
+	{
+		saveCurrentFile();
+
+		sourceFile.addListener(*this);
+
+		if (editCommandLine)
+		{
+			try
+			{
+				cpl::Process::Builder command(editCommandLine.value());
+				cpl::Args args;
+
+				args.arg(sourceFile.getPath().string(), cpl::Args::Flags::Escaped);
+
+				command.shell(args, 0, cpl::Process::ScopeExitOperation::Detach);
+			}
+			catch (const std::system_error& e)
+			{
+				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing externally: %s", editCommandLine.value.c_str(), e.what());
+			}
+		}
 	}
 
 }

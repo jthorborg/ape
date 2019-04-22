@@ -59,6 +59,7 @@
 			, private BreakpointComponent::Listener
 			, private juce::CodeDocument::Listener
 			, private CodeDocumentSource
+			, private SourceFile::Listener
 		{
 
 		public:
@@ -75,7 +76,7 @@
 			bool getDocumentText(std::string &) override;
 			bool openFile(const fs::path& fileName) override;
 			bool isDirty() override;
-			SourceFile getSourceFile() override;
+			const SourceFile& getSourceFile() override;
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
@@ -102,14 +103,15 @@
 			void newDocument();
 			std::string getCurrentLanguageID();
 			cpl::Misc::MsgButton saveIfUnsure();
-			void saveAs();
-			void doSaveFile(const fs::path&);
-			void saveCurrentFile();
+			bool saveAs();
+			bool doSaveFile(const fs::path&);
+			bool saveCurrentFile();
 			void openAFile();
 			void setContents(const juce::String &);
 			void cacheValidFileTypes(const Settings& s);
 			bool openTemplate();
 			void openHomeDirectory();
+			void editExternally();
 
 			//ApplicationCommandTarget overloads
 			ApplicationCommandTarget * getNextCommandTarget() override { return nullptr; }
@@ -135,6 +137,10 @@
 			fs::path templateFile;
 			fs::path homeDirectory;
 			std::string defaultLanguageExtension;
+			std::optional<std::string> editCommandLine;
+
+			// Inherited via Listener
+			virtual void fileChanged(const SourceFile & file) override;
 		};
 	}
 #endif

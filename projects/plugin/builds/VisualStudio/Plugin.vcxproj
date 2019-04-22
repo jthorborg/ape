@@ -579,6 +579,7 @@
     <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JAdvancedDock.cpp" />
     <ClCompile Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.cpp" />
     <ClCompile Include="..\..\..\..\external\dockable-windows\Source\MainComponent.cpp" />
+    <ClCompile Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\utility\juce_PluginUtilities.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST3\juce_VST3_Wrapper.cpp" />
     <ClCompile Include="..\..\..\..\external\JuceLibraryCode\modules\juce_audio_plugin_client\VST\juce_VST_Wrapper.cpp" />
@@ -605,6 +606,7 @@
     <ClCompile Include="..\..\src\CodeEditor\AutosaveManager.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\CLangCodeTokeniser.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\SourceFile.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.CommandTarget.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
     <ClCompile Include="..\..\src\Engine\ParameterManager.cpp" />
@@ -1726,6 +1728,7 @@
     <ClInclude Include="..\..\..\..\external\dockable-windows\Source\JAdvancedDock.h" />
     <ClInclude Include="..\..\..\..\external\dockable-windows\Source\JDockableWindows.h" />
     <ClInclude Include="..\..\..\..\external\dockable-windows\Source\MainComponent.h" />
+    <ClInclude Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.h" />
     <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh" />
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\Events.h" />
@@ -2223,6 +2226,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.mm" />
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info" />
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_devices\juce_module_info" />
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_formats\juce_module_info" />

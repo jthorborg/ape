@@ -50,6 +50,9 @@ namespace ape
 		{ "Save",				's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
 		{ "Save As...",			0,		0,				SourceManagerCommand::FileSaveAs },
 		{ "Open home...",		0,		0,				SourceManagerCommand::FileOpenScriptsHome },
+
+		{ "Edit externally",	juce::KeyPress::F10Key,	0, SourceManagerCommand::EditExternally },
+
 		// Edit
 		// Build
 		{ "Compile",			juce::KeyPress::F7Key,	0, SourceManagerCommand::BuildCompile },
@@ -95,15 +98,17 @@ namespace ape
 					ret.addCommandItem(appCM, i);
 				break;
 			}
+
+			case Menus::Edit:
+			{
+				for (int i = SourceManagerCommand::EditStart; i < SourceManagerCommand::EditEnd; ++i)
+					ret.addCommandItem(appCM, i);
+				break;
+			}
 			case Menus::Build:
 			{
 				for (int i = SourceManagerCommand::BuildStart; i < SourceManagerCommand::BuildEnd; ++i)
 					ret.addCommandItem(appCM, i);
-				break;
-			}
-			case Menus::Edit:
-			{
-
 				break;
 			}
 		}
@@ -120,9 +125,9 @@ namespace ape
 	{
 		juce::StringArray ret;
 		ret.add("File");
+		ret.add("Edit");
 		ret.add("Build");
 
-		//ret.add("Edit");
 		return ret;
 	}
 

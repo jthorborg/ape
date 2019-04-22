@@ -162,6 +162,33 @@
 			}
 
 			template<typename... Paths>
+			bool exists(Paths&&... paths) const
+			{
+				const char* compiledPaths[] = { paths... };
+
+				try
+				{
+					const libconfig::Setting* setting = &config.getRoot();
+					for (const auto& path : compiledPaths)
+					{
+						if (!setting->exists(path))
+							return false;
+						else
+							setting = &setting->lookup(path);
+					}
+
+					return true;
+				}
+				catch (const libconfig::SettingNotFoundException&)
+				{
+					return false;
+				}
+
+				return false;
+			}
+
+
+			template<typename... Paths>
 			juce::Colour lookUpValue(juce::Colour defaultValue, Paths&&... paths) const
 			{
 				const char* compiledPaths[] = { paths... };
