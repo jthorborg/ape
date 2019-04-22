@@ -51,13 +51,11 @@ namespace ape
 
 	SourceProjectManager::SourceProjectManager(UIController& ui, const Settings& s, int instanceID)
 		: SourceManager(ui, s, instanceID)
-		, isSingleFile(true)
-		, fullPath("Untitled")
-		, isActualFile(false)
 		, shouldCheckContentsAgainstDisk(true)
 		, enableScopePoints(false)
 		, lastDirtyState(false)
 		, textEditorDSO([this] { return createWindow(); })
+		, sourceFile("untitled")
 	{
 		doc = std::make_shared<juce::CodeDocument>();
 		doc->addListener(this);
@@ -110,7 +108,7 @@ namespace ape
 	void SourceProjectManager::serialize(cpl::CSerializer::Archiver & ar, cpl::Version version)
 	{
 		ar["code-editor"]["state"] = textEditorDSO.getState();
-		ar["source-path"] << fullPath.string();
+		ar["source-file"] << sourceFile;
 
 		std::string contents;
 		getDocumentText(contents);
@@ -126,15 +124,14 @@ namespace ape
 	{
 		textEditorDSO.setState(builder["code-editor"]["state"], builder["code-editor"]["state"].getLocalVersion());
 
-		std::string path;
-
-		builder["source-path"] >> path;
-		fullPath = path;
-		// TODO: Check contents vs. fullPath
+		builder["source-file"] >> sourceFile;
 
 		std::string contents;
 		builder["source"] >> contents;
+
 		doc->replaceAllContent(contents);
+		doc->clearUndoHistory();
+		doc->setSavePoint();
 
 		std::size_t numTraces;
 		builder["traces"]["size"] >> numTraces;
@@ -161,14 +158,9 @@ namespace ape
 
 	void SourceProjectManager::validateInvariants()
 	{
-		using namespace cpl::Misc;
-
-		bool currentlyExists = fs::exists(fullPath);
-
-		if (currentlyExists && isActualFile)
+		if (sourceFile.isActualFile())
 		{
-			juce::File f(fullPath.string());
-			juce::FileInputStream s(f);
+			juce::FileInputStream s(sourceFile.getJuceFile());
 			auto contents = s.readEntireStreamAsString();
 
 			if (doc->getAllContent() == contents)
@@ -204,11 +196,9 @@ namespace ape
 		textEditor->getLineTracer().setBreakpoints(breakpoints);
 		textEditor->getLineTracer().addBreakpointListener(this);
 
-		if (shouldCheckContentsAgainstDisk && isActualFile && fs::exists(fullPath))
+		if (shouldCheckContentsAgainstDisk && sourceFile.isActualFile())
 		{
-			juce::File f(fullPath.string());
-
-			if (juce::FileInputStream s(f); s.openedOk())
+			if (juce::FileInputStream s(sourceFile.getJuceFile()); s.openedOk())
 			{
 				auto contents = s.readEntireStreamAsString();
 				auto current = doc->getAllContent();
@@ -216,13 +206,13 @@ namespace ape
 				{
 					using namespace cpl::Misc;
 
-					std::string message = "File on disk: \"" + fullPath.string() + "\"\nis different from loaded document, do you want to reload the disk version?";
+					std::string message = "File on disk: \"" + sourceFile.getPath().string() + "\"\nis different from loaded document, do you want to reload the disk version?";
 
 					int choice = MsgBox(message, cpl::programInfo.name, MsgStyle::sYesNo | MsgIcon::iQuestion, getParentWindow(), true);
 
 					if (choice == MsgButton::bYes)
 					{
-						openFile(fullPath);
+						openFile(sourceFile.getPath());
 					}
 				}
 			}
@@ -230,7 +220,7 @@ namespace ape
 		}
 
 		textEditor->documentDirtynessChanged(doc->hasChangedSinceSavePoint());
-		textEditor->documentChangedName(getDocumentName());
+		textEditor->documentChangedName(sourceFile.getName());
 
 		return std::move(textEditor);
 	}
@@ -258,9 +248,7 @@ namespace ape
 	void SourceProjectManager::setTitle()
 	{
 		for (auto listener : listeners)
-			listener->documentChangedName(getDocumentName());
-
-		return;
+			listener->documentChangedName(sourceFile.getPath().filename().string());
 	}
 
 
@@ -270,21 +258,18 @@ namespace ape
 		controller.onBreakpointsChanged(breakpoints);
 	}
 
-	fs::path SourceProjectManager::getDocumentPath()
-	{
-		return fullPath;
-	}
-
 	void SourceProjectManager::newDocument()
 	{
-		fullPath = "untitled";
-		fullPath.replace_extension(defaultLanguageExtension);
+		const auto newPath = fs::path("untitled").replace_extension(defaultLanguageExtension);
+
 		doc->clearUndoHistory();
 		doc->replaceAllContent("");
 		doc->setSavePoint();
+
+		sourceFile = SourceFile::asNonExisting(newPath);
+
 		checkDirtynessState();
 		setTitle();
-		isActualFile = false;
 	}
 
 
@@ -295,64 +280,60 @@ namespace ape
 		Consider the implementation of this.
 		*/
 		std::unique_ptr<ProjectEx> project;
-		// for now we only support single files. 
-		// we set the appropiate values in the project struct and fill it.
-		if (isSingleFile) 
+
+		project = std::make_unique<ProjectEx>();
+		project->files = nullptr;
+		project->nFiles = 1;
+		project->uniqueID = (unsigned)-1;
+		project->isSingleString = true;
+		std::string text;
+		// Copy strings here. We have to do it this tedious way to stay c-compatible.
+		// only FreeProjectStruct is supposed to free this stuff.
+		// copy document text
+		;
+		auto len = text.length();
+
+		auto assignCStr = [] (const std::string & orig, auto & location)
 		{
-			project = std::make_unique<ProjectEx>();
-			project->files = nullptr;
-			project->nFiles = 1;
-			project->uniqueID = (unsigned)-1;
-			project->isSingleString = true;
-			std::string text;
-			// Copy strings here. We have to do it this tedious way to stay c-compatible.
-			// only FreeProjectStruct is supposed to free this stuff.
-			// copy document text
-			;
-			auto len = text.length();
+			auto length = std::size(orig);
+			if (!length)
+				return false;
+			auto pointer = new char[length + 1];
+			std::copy(std::begin(orig), std::end(orig), pointer);
+			pointer[length] = '\0';
+			location = pointer;
+			return true;
+		};
 
-			auto assignCStr = [] (const std::string & orig, auto & location)
+		auto fileLocations = new char *[1];
+		fileLocations[0] = nullptr;
+		project->files = fileLocations;
+
+		auto projectRoot = sourceFile.isActualFile() ? sourceFile.getDirectory() : homeDirectory;
+
+		assignCStr(projectRoot.string(), project->workingDirectory);
+		assignCStr(sourceFile.getPath().string(), fileLocations[0]);
+
+		if (getDocumentText(text) && text.length() != 0 && 
+			assignCStr(text, project->sourceString) &&
+			assignCStr(sourceFile.getPath().stem().string(), project->projectName) &&
+			assignCStr(cpl::Misc::DirectoryPath(), project->rootPath) &&
+			assignCStr(getCurrentLanguageID(), project->languageID))
+		{
+			if (enableScopePoints)
 			{
-				auto length = std::size(orig);
-				if (!length)
-					return false;
-				auto pointer = new char[length + 1];
-				std::copy(std::begin(orig), std::end(orig), pointer);
-				pointer[length] = '\0';
-				location = pointer;
-				return true;
-			};
+				auto copiedLines = new int[breakpoints.size()];
+				std::size_t counter = 0;
+				for (auto line : breakpoints)
+					copiedLines[counter++] = line;
 
-			auto fileLocations = new char *[1];
-			fileLocations[0] = nullptr;
-			project->files = fileLocations;
+				project->traceLines = copiedLines;
+				project->numTraceLines = counter;
 
-			auto projectRoot = isActualFile ? fullPath.parent_path() : homeDirectory;
-
-			assignCStr(projectRoot.string(), project->workingDirectory);
-			assignCStr(fullPath.string(), fileLocations[0]);
-
-			if (getDocumentText(text) && text.length() != 0 && 
-				assignCStr(text, project->sourceString) &&
-				assignCStr(getProjectName(), project->projectName) &&
-				assignCStr(cpl::Misc::DirectoryPath(), project->rootPath) &&
-				assignCStr(getCurrentLanguageID(), project->languageID))
-			{
-				if (enableScopePoints)
-				{
-					auto copiedLines = new int[breakpoints.size()];
-					std::size_t counter = 0;
-					for (auto line : breakpoints)
-						copiedLines[counter++] = line;
-
-					project->traceLines = copiedLines;
-					project->numTraceLines = counter;
-
-					project->state = CodeState::None;
-				}
-
-				return project;
+				project->state = CodeState::None;
 			}
+
+			return project;
 		}
 		// some error occured.
 		return nullptr;
@@ -369,35 +350,11 @@ namespace ape
 		return true;
 	}
 
-	std::string SourceProjectManager::getDocumentName() 
-	{
-		return fullPath.filename().string();
-	}
-
-	std::string SourceProjectManager::getDirectory() 
-	{
-		// TODO: fullpath -> std::path
-		return fullPath.parent_path().string();
-	}
-
-	std::string SourceProjectManager::getExtension()
-	{
-		if(fullPath.has_extension())
-			return fullPath.extension().string().substr(1);
-
-		return "";
-	}
-
 	std::string SourceProjectManager::getCurrentLanguageID()
 	{
-		auto ext = getExtension();
+		auto ext = sourceFile.getExtension();
 
 		return ext.length() ? ext : defaultLanguageExtension;
-	}
-
-	std::string SourceProjectManager::getProjectName()
-	{
-		return fullPath.stem().string();
 	}
 
 	bool SourceProjectManager::isDirty()
@@ -405,18 +362,23 @@ namespace ape
 		return doc->hasChangedSinceSavePoint();
 	}
 
-	int SourceProjectManager::saveIfUnsure()
+	SourceFile SourceProjectManager::getSourceFile()
+	{
+		return sourceFile;
+	}
+
+	cpl::Misc::MsgButton SourceProjectManager::saveIfUnsure()
 	{
 		using namespace cpl::Misc;
 		if (isDirty()) 
 		{
 			std::string msg("Save changes to \"");
-			msg += fullPath.string();
+			msg += sourceFile.getPath().string();
 			msg += "\"?";
-			int decision = MsgBox(msg, cpl::programInfo.name, MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
+			const auto decision = (cpl::Misc::MsgButton)MsgBox(msg, cpl::programInfo.name, MsgStyle::sYesNoCancel | MsgIcon::iQuestion, getParentWindow(), true);
 			if (decision == MsgButton::bYes) 
 			{
-				if (isActualFile)
+				if (sourceFile.isActualFile())
 					saveCurrentFile();
 				else
 					saveAs();
@@ -428,8 +390,8 @@ namespace ape
 
 	void SourceProjectManager::saveCurrentFile() 
 	{
-		if (isActualFile)
-			doSaveFile(fullPath);
+		if (sourceFile.isActualFile())
+			doSaveFile(sourceFile.getPath());
 		else
 			saveAs();
 	}
@@ -453,8 +415,7 @@ namespace ape
 		doc->setSavePoint();
 		checkDirtynessState();
 
-		isActualFile = true;
-		fullPath = fileName;
+		sourceFile = { fileName };
 
 		setTitle();
 
@@ -465,33 +426,30 @@ namespace ape
 	{
 		juce::File suggestedPath;
 		
-		if (isActualFile)
+		if (sourceFile.isActualFile())
 		{
-			suggestedPath = fullPath.string();
+			suggestedPath = sourceFile.getPath().string();
 		}
 		else
 		{
-			suggestedPath = (homeDirectory / fullPath).string();
+			suggestedPath = (homeDirectory / sourceFile.getPath()).string();
 		}
 		
 		juce::FileChooser fileSelector(cpl::programInfo.programAbbr + " :: Select where to save your file...", suggestedPath, validFileTypePattern);
 		if (fileSelector.browseForFileToSave(true))
 		{
-			fullPath = fileSelector.getResult().getFullPathName().toStdString();
+			fs::path newPath = fileSelector.getResult().getFullPathName().toStdString();
 
-			if (!fullPath.has_extension())
-				fullPath.replace_extension(defaultLanguageExtension);
+			if (!newPath.has_extension())
+				newPath.replace_extension(defaultLanguageExtension);
 
-			setTitle();
-			doSaveFile(fullPath);
+			doSaveFile(newPath);
 		}
 	}
 
 	void SourceProjectManager::doSaveFile(const fs::path& fileName)
 	{
 		using namespace cpl::Misc;
-
-		fullPath = fileName;
 
 		std::ofstream file(fileName.string().c_str(), std::ios::binary);
 
@@ -503,12 +461,12 @@ namespace ape
 			if (!file.write(data.data(), data.size()))
 			{
 				std::stringstream fmt;
-				fmt << "Error saving to file \"" << fullPath << "\".";
+				fmt << "Error saving to file \"" << fileName.string() << "\".";
 				MsgBox(fmt.str(), cpl::programInfo.name, MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 			}
 			else
 			{
-				isActualFile = true;
+				sourceFile = { fileName };
 				doc->setSavePoint();
 				checkDirtynessState();
 				setTitle();
@@ -517,7 +475,7 @@ namespace ape
 		else 
 		{
 			std::stringstream fmt;
-			fmt << "Could not open file \"" << fullPath << "\" for saving.";
+			fmt << "Could not open file \"" << fileName.string() << "\" for saving.";
 			MsgBox(fmt.str(), cpl::programInfo.name, MsgStyle::sOk | MsgIcon::iStop, getParentWindow());
 		}
 	}
@@ -619,14 +577,17 @@ namespace ape
 
 	}
 
-	void SourceProjectManager::openTemplate()
+	bool SourceProjectManager::openTemplate()
 	{
 		if (!fs::exists(templateFile))
-			return;
+			return false;
 
-		openFile(templateFile);
+		if (!openFile(templateFile))
+			return false;
 
-		isActualFile = false;
+		sourceFile = sourceFile.asNonExisting();
+
+		return true;
 	}
 
 	void SourceProjectManager::openHomeDirectory()

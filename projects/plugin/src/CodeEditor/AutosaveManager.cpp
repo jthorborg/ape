@@ -80,7 +80,7 @@ namespace ape
 
 			ar.setMasterVersion(CurrentVersion);
 			ar["autosave"] << manager;
-			ar["path"] << manager.getDocumentPath().string();
+			ar["path"] << manager.getSourceFile().getPath().string();
 
 			autosaveState = std::async(
 				[this](auto ptr)

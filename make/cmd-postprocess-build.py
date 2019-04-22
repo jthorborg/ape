@@ -89,7 +89,7 @@ print("\nInstalling into: " + dest_dir)
 
 du.copy_tree(temp_output, dest_dir, not release)
 
-if not release:
+if not release and not os.path.isdir(os.path.join(dest_dir, "examples")):
 	dirlink("../external/ape-snippets", os.path.join(dest_dir, "examples"))
 
 cleanup()

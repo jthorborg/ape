@@ -42,11 +42,11 @@ namespace ape
 		double* buffer = reinterpret_cast<double*>(signal);
 		if (options & APE_FFT_Forward)
 		{
-			signaldust::DustFFT_fwdDa(buffer, N);
+			signaldust::DustFFT_fwdDa(buffer, static_cast<unsigned>(N));
 		}
 		else
 		{
-			signaldust::DustFFT_revDa(buffer, N);
+			signaldust::DustFFT_revDa(buffer, static_cast<unsigned>(N));
 
 			if ((options & APE_FFT_NonScaled) == 0)
 			{

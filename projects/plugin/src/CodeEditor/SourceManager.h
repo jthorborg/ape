@@ -43,6 +43,7 @@
 	#include <cpl/state/Serialization.h>
 	#include <cpl/Core.h>
 	#include "../UI/DockWindow.h"
+	#include "SourceFile.h"
 
 	namespace ape
 	{
@@ -138,8 +139,7 @@
 			virtual ~SourceManager() {};
 			virtual void setErrorLine(int nLine) = 0;
 			virtual bool getDocumentText(std::string & buffer) = 0;
-			virtual std::string getDocumentName() { return ""; }
-			virtual fs::path getDocumentPath() = 0;
+			virtual SourceFile getSourceFile() = 0;
 			virtual bool isDirty() = 0;
 			virtual bool openFile(const fs::path& fileName) { return false; }
 			virtual void autoSave() {};

@@ -85,7 +85,16 @@ namespace ape
 		case SourceManagerCommand::FileNewFromTemplate:
 			if (saveIfUnsure() != cpl::Misc::MsgButton::bCancel)
 			{
-				openTemplate();
+				if (!openTemplate())
+				{
+					cpl::Misc::MsgBox(
+						"Error opening template, check path in settings", 
+						cpl::programInfo.name, 
+						cpl::Misc::MsgIcon::iInfo | cpl::Misc::MsgStyle::sOk,
+						getParentWindow(), 
+						true
+					);
+				}
 			}
 			break;
 		case SourceManagerCommand::FileOpenScriptsHome:

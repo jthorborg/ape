@@ -305,7 +305,7 @@ namespace ape
 
 		for (int i = 0; i < getNumOutputChannels(); ++i)
 		{
-			buffer.copyFrom(i, 0, auxMatrix[ioConfig.inputs + i], numSamples);
+			buffer.copyFrom(i, 0, auxMatrix[ioConfig.inputs + i], static_cast<int>(numSamples));
 		}
 
 

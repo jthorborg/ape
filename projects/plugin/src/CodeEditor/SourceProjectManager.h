@@ -74,9 +74,8 @@
 			void setErrorLine(int) override;
 			bool getDocumentText(std::string &) override;
 			bool openFile(const fs::path& fileName) override;
-			std::string getDocumentName() override;
-			fs::path getDocumentPath() override;
 			bool isDirty() override;
+			SourceFile getSourceFile() override;
 
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
@@ -101,18 +100,15 @@
 			bool loadHotkeys();
 			void setTitle();
 			void newDocument();
-			std::string getProjectName();
-			std::string getDirectory();
-			std::string getExtension();
 			std::string getCurrentLanguageID();
-			int saveIfUnsure();
+			cpl::Misc::MsgButton saveIfUnsure();
 			void saveAs();
 			void doSaveFile(const fs::path&);
 			void saveCurrentFile();
 			void openAFile();
 			void setContents(const juce::String &);
 			void cacheValidFileTypes(const Settings& s);
-			void openTemplate();
+			bool openTemplate();
 			void openHomeDirectory();
 
 			//ApplicationCommandTarget overloads
@@ -125,9 +121,9 @@
 			juce::ApplicationCommandManager appCM;
 			cpl::SerializableStateObject<CodeEditorComponent> textEditorDSO;
 
-			fs::path fullPath;
 			std::shared_ptr<juce::CodeDocument> doc;
-			bool isSingleFile, isActualFile, enableScopePoints, shouldCheckContentsAgainstDisk;
+			SourceFile sourceFile;
+			bool enableScopePoints, shouldCheckContentsAgainstDisk;
 			std::optional<bool> lastDirtyState;
 
 			std::map<int, std::string> userHotKeys;

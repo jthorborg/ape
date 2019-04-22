@@ -157,7 +157,7 @@ namespace ape
 
 				const auto pieSize = bounds.expanded(-unit * 0.413);
 
-				p.addPieSegment(pieSize.getX(), pieSize.getY(), pieSize.getWidth(), pieSize.getHeight(), 0, 1.5 * M_PI, 1 - (width * 0.5));
+				p.addPieSegment(pieSize.getX(), pieSize.getY(), pieSize.getWidth(), pieSize.getHeight(), 0, static_cast<float>(1.5 * M_PI), 1 - (width * 0.5f));
 
 				auto topRight = bounds.getTopLeft().translated(bounds.getWidth() * 0.5f, 0);
 

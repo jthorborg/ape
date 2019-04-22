@@ -3104,6 +3104,9 @@
     <ClInclude Include="..\..\src\Plugin\PluginFFT.h">
       <Filter>Audio Programming Environment\Headers\Plugin</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\SourceFile.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">

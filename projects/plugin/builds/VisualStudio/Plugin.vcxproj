@@ -1738,6 +1738,7 @@
     <ClInclude Include="..\..\src\CodeEditor\CodeDocumentListener.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorComponent.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeTextEditor.h" />
+    <ClInclude Include="..\..\src\CodeEditor\SourceFile.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceManager.h" />
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
