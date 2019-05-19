@@ -36,7 +36,6 @@
 #include "../PluginState.h"
 #include "../Plugin/PluginSurface.h"
 #include "../SignalizerWindow.h"
-#include <dockable-windows\Source\MainComponent.h>
 #include "../UI/DockWindow.h"
 #include "../CodeEditor/SourceManager.h"
 

@@ -411,7 +411,7 @@ namespace ape::api
 		try
 		{
 			const auto& project = pstate.getProject();
-			juce::File workingDirectory = project.workingDirectory;
+            juce::File workingDirectory = juce::String(project.workingDirectory);
 
 			if (!workingDirectory.exists())
 			{

@@ -555,7 +555,7 @@ namespace ape
 			{
 				// always call this - changes in masks may trigger exceptions
 				std::feclearexcept(FE_ALL_EXCEPT);
-				threadData.fpuMask = _MM_GET_EXCEPTION_MASK();
+				fpuMask = _MM_GET_EXCEPTION_MASK();
 				
 				unsigned nfpcw = _MM_MASK_INVALID | _MM_MASK_DENORM | _MM_MASK_DIV_ZERO | _MM_MASK_OVERFLOW
 								| _MM_MASK_UNDERFLOW |_MM_MASK_INEXACT;

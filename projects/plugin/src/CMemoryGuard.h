@@ -44,9 +44,10 @@
 	#ifdef CPL_WINDOWS
 		#include <Windows.h>
 		typedef DWORD prot_t;
-	#elif defined(__MAC__)
+	#elif defined(CPL_MAC)
 		#include <unistd.h>
 		#include <sys/mman.h>
+        #include <errno.h>
 		typedef int prot_t;
 	#else
 		#error "Implement for your system."
@@ -70,7 +71,7 @@
 					SYSTEM_INFO info;
 					GetSystemInfo(&info);
 					pageSize = info.dwPageSize;
-				#elif defined (__MAC__)
+				#elif defined (CPL_MAC)
 					pageSize = getpagesize();
 				#endif
 			}
@@ -83,7 +84,7 @@
 					execute = PAGE_EXECUTE,
 					readwriteexecute = PAGE_EXECUTE_READWRITE,
 					none = PAGE_NOACCESS
-				#elif defined (__MAC__)
+				#elif defined (CPL_MAC)
 					readonly = PROT_READ,
 					readwrite = PROT_WRITE | readonly,
 					execute = PROT_EXEC,
@@ -114,7 +115,7 @@
 					#elif defined(CPL_WINDOWS)
 						if(!VirtualFree(regions[0], 0, MEM_RELEASE))
 							return false;
-					#elif defined(__MAC__)
+					#elif defined(CPL_MAC)
 						if(munmap(regions[0], totalAllocation))
 							return false;
 					#endif
@@ -132,7 +133,7 @@
 						#ifdef CPL_WINDOWS
 							prot_t dwOldProtect;
 							if(!VirtualProtect(regions[1], bankSize, dwProtection, &dwOldProtect)) {
-						#elif defined(__MAC__)
+						#elif defined(CPL_MAC)
 							if(mprotect(regions[1], bankSize, dwProtection)) {
 						#endif
 							reset();
@@ -172,7 +173,7 @@
 						VirtualAlloc(nullptr,
 						needed_memory, 
 						MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)
-					#elif defined(__MAC__)
+					#elif defined(CPL_MAC)
 						mmap(nullptr, needed_memory, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0)
 						//(std::malloc(needed_memory));
 					#endif
@@ -197,7 +198,7 @@
 						reset();
 						return false;
 					}
-				#elif defined(__MAC__)
+				#elif defined(CPL_MAC)
 					if(mprotect(regions[0], pageSize, none) ||
 					   mprotect(regions[1], bankSize, dwProtection) ||
 					   mprotect(regions[2], pageSize, none)

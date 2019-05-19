@@ -41,7 +41,7 @@
 	#include <libconfig.hh>
 	#include "Common.h"
 	#include <cpl/Core.h>
-	#include <filesystem>
+	#include <cpl/filesystem.h>
 	#include <optional>
 	#include <set>
 

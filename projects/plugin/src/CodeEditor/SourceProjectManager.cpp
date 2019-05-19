@@ -29,13 +29,13 @@
 
 
 #include "SourceProjectManager.h"
-#include <cpl/misc.h>
+#include <cpl/Misc.h>
 #include "../Engine.h"
 #include "../UIController.h"
 #include "../CConsole.h"
 #include <ctime>
 #include <sstream>
-#include <experimental/filesystem>
+#include <cpl/filesystem.h>
 #include <memory>
 #include "CodeEditorWindow.h"
 #include <fstream>
@@ -43,7 +43,7 @@
 
 namespace ape
 {
-	namespace fs = std::experimental::filesystem;
+    namespace fs = cpl::fs;
 
 	std::unique_ptr<SourceManager> MakeSourceManager(UIController& ui, const Settings& s, int instanceID)
 	{
@@ -179,7 +179,7 @@ namespace ape
 	void SourceProjectManager::checkDirtynessState()
 	{
 		bool status = doc->hasChangedSinceSavePoint();
-		bool trigger = !lastDirtyState || lastDirtyState.value() != status;
+		bool trigger = !lastDirtyState || *lastDirtyState != status;
 		
 		lastDirtyState = status;
 
@@ -626,7 +626,7 @@ namespace ape
 		{
 			try
 			{
-				cpl::Process::Builder command(editCommandLine.value());
+				cpl::Process::Builder command(*editCommandLine);
 				cpl::Args args;
 
 				args.arg(sourceFile.getPath().string(), cpl::Args::Flags::Escaped);
@@ -635,7 +635,7 @@ namespace ape
 			}
 			catch (const std::system_error& e)
 			{
-				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing externally: %s", editCommandLine.value.c_str(), e.what());
+				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing externally: %s", (*editCommandLine).c_str(), e.what());
 			}
 		}
 	}
