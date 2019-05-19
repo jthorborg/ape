@@ -66,6 +66,16 @@
 		FFB63D759F346C82EB70D5AF /* juce_AU_Wrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1B435651E32F65400A486B5 /* juce_AU_Wrapper.mm */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		16AE295A2291FEA900BFE932 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 16AE29562291FEA900BFE932 /* libconfig.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 16AE29392291FC1400BFE932;
+			remoteInfo = libconfig;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		07A843823B2A4FD6246B931B /* CAAUParameter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CAAUParameter.cpp; path = Extras/CoreAudio/PublicUtility/CAAUParameter.cpp; sourceTree = DEVELOPER_DIR; };
 		082F230E3CFC1DE46DC7BF0F /* CAAUParameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CAAUParameter.h; path = Extras/CoreAudio/PublicUtility/CAAUParameter.h; sourceTree = DEVELOPER_DIR; };
@@ -82,6 +92,7 @@
 		1633D4382291D31A00507E30 /* prepare.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = prepare.py; sourceTree = SOURCE_ROOT; };
 		1633D4402291DE3D00507E30 /* CPLSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPLSource.cpp; path = ../../../../external/cpl/CPLSource.cpp; sourceTree = "<group>"; };
 		1633D4422291DFD300507E30 /* MacSupport.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MacSupport.mm; path = ../../../../external/cpl/MacSupport.mm; sourceTree = "<group>"; };
+		16AE29562291FEA900BFE932 /* libconfig.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libconfig.xcodeproj; path = ../../../libconfig/builds/Xcode/libconfig/libconfig.xcodeproj; sourceTree = "<group>"; };
 		1723843F6C44F9A14E9C1F39 /* AUOutputBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AUOutputBase.cpp; path = Extras/CoreAudio/AudioUnits/AUPublic/OtherBases/AUOutputBase.cpp; sourceTree = DEVELOPER_DIR; };
 		1A3925AF96C452CE5E078DA2 /* juce_audio_devices.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = juce_audio_devices.mm; path = ../../../../external/JuceLibraryCode/modules/juce_audio_devices/juce_audio_devices.mm; sourceTree = SOURCE_ROOT; };
 		1A77D1EE7CC6AC9E2D02C287 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
@@ -200,6 +211,14 @@
 			name = External;
 			sourceTree = "<group>";
 		};
+		16AE29572291FEA900BFE932 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				16AE295B2291FEA900BFE932 /* liblibconfig.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		16C915502291FA0C0068B31E /* Other */ = {
 			isa = PBXGroup;
 			children = (
@@ -256,6 +275,7 @@
 		3128419AA1680CED8183207A /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				16AE29562291FEA900BFE932 /* libconfig.xcodeproj */,
 				16C915502291FA0C0068B31E /* Other */,
 				D3462C2061D37E0F6778C11F /* Audio Programming Environment */,
 				371F8BBF66AEE259DCCB4756 /* Juce Modules */,
@@ -408,12 +428,28 @@
 			);
 			mainGroup = 3128419AA1680CED8183207A /* Source */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 16AE29572291FEA900BFE932 /* Products */;
+					ProjectRef = 16AE29562291FEA900BFE932 /* libconfig.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				22BDE5B07006622DF4D1DED5 /* Audio Programming Environment */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		16AE295B2291FEA900BFE932 /* liblibconfig.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibconfig.a;
+			remoteRef = 16AE295A2291FEA900BFE932 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		6DAC440E4B87479EB257AC32 /* Resources */ = {

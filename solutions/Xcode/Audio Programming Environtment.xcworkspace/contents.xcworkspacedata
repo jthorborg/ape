@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:../../projects/libconfig/builds/Xcode/libconfig/libconfig.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:../../projects/plugin/builds/Xcode/Plugin.xcodeproj">
    </FileRef>
 </Workspace>
