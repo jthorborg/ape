@@ -3,6 +3,7 @@ import configparser
 from urllib.request import urlopen
 from shutil import copyfile
 import zipfile
+import sys
 
 print(">> Updating submodules...")
 os.system("git submodule update --init --recursive")
@@ -10,6 +11,13 @@ os.system("git submodule update")
 
 config = configparser.ConfigParser()
 
+# OS X specific
+
+if sys.platform == "darwin":
+    vsymlink = os.path.join("projects", "plugin", "JuceLibraryCode", "version.h")
+    vsymsource = os.path.join("projects", "plugin", "src", "version.h")
+    if not os.path.isfile(vsymlink):
+        os.symlink(os.path.abspath(vsymsource), os.path.abspath(vsymlink))
 
 if not os.path.isfile("make/config.ini"):
 	config.add_section("local")
@@ -30,7 +38,7 @@ def dirlink(source, dest):
 		os.system("mklink /J \"" + dest + "\" \"" + source + "\"")
 	else:
 		print("Creating symlink for: " + dest)
-		os.symlink(dest, source)
+		os.symlink(os.path.abspath(source), os.path.abspath(dest))
 
 for filename in os.listdir("projects"):
 	path = os.path.join("projects", filename)
