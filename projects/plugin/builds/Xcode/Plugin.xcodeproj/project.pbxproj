@@ -79,8 +79,7 @@
 		14D5A13DC45FEE23AC5073B0 /* AUDispatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AUDispatch.h; path = Extras/CoreAudio/AudioUnits/AUPublic/AUBase/AUDispatch.h; sourceTree = DEVELOPER_DIR; };
 		15357E036B99413A5ED88C58 /* juce_VST3_Wrapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_VST3_Wrapper.cpp; path = ../../../../external/JuceLibraryCode/modules/juce_audio_plugin_client/VST3/juce_VST3_Wrapper.cpp; sourceTree = SOURCE_ROOT; };
 		156DD2680F39D5059E9C4E3E /* CADebugMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CADebugMacros.h; path = Extras/CoreAudio/PublicUtility/CADebugMacros.h; sourceTree = DEVELOPER_DIR; };
-		1633D4382291D31A00507E30 /* prepare.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = prepare.py; path = ../../../prepare.py; sourceTree = "<group>"; };
-		1633D43A2291D78000507E30 /* cpl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = cpl; path = ../../external/cpl; sourceTree = "<group>"; };
+		1633D4382291D31A00507E30 /* prepare.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = prepare.py; sourceTree = SOURCE_ROOT; };
 		1633D4402291DE3D00507E30 /* CPLSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPLSource.cpp; path = ../../../../external/cpl/CPLSource.cpp; sourceTree = "<group>"; };
 		1633D4422291DFD300507E30 /* MacSupport.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MacSupport.mm; path = ../../../../external/cpl/MacSupport.mm; sourceTree = "<group>"; };
 		1723843F6C44F9A14E9C1F39 /* AUOutputBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AUOutputBase.cpp; path = Extras/CoreAudio/AudioUnits/AUPublic/OtherBases/AUOutputBase.cpp; sourceTree = DEVELOPER_DIR; };
@@ -184,14 +183,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1633D4372291D2E800507E30 /* Other */ = {
-			isa = PBXGroup;
-			children = (
-				1633D4382291D31A00507E30 /* prepare.py */,
-			);
-			path = Other;
-			sourceTree = "<group>";
-		};
 		1633D43B2291DDFE00507E30 /* cpl */ = {
 			isa = PBXGroup;
 			children = (
@@ -207,6 +198,14 @@
 				1633D43B2291DDFE00507E30 /* cpl */,
 			);
 			name = External;
+			sourceTree = "<group>";
+		};
+		16C915502291FA0C0068B31E /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				1633D4382291D31A00507E30 /* prepare.py */,
+			);
+			name = Other;
 			sourceTree = "<group>";
 		};
 		16CCABB018DE0E5E00966972 /* libconfig */ = {
@@ -257,8 +256,7 @@
 		3128419AA1680CED8183207A /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				1633D43A2291D78000507E30 /* cpl */,
-				1633D4372291D2E800507E30 /* Other */,
+				16C915502291FA0C0068B31E /* Other */,
 				D3462C2061D37E0F6778C11F /* Audio Programming Environment */,
 				371F8BBF66AEE259DCCB4756 /* Juce Modules */,
 				210C336E4E0B9725AF8D5E5B /* Juce Library Code */,
@@ -400,7 +398,7 @@
 			attributes = {
 				LastUpgradeCheck = 0440;
 			};
-			buildConfigurationList = 724252208A8015DAB1A70111 /* Build configuration list for PBXProject "Audio Programming Environment" */;
+			buildConfigurationList = 724252208A8015DAB1A70111 /* Build configuration list for PBXProject "Plugin" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -680,7 +678,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		724252208A8015DAB1A70111 /* Build configuration list for PBXProject "Audio Programming Environment" */ = {
+		724252208A8015DAB1A70111 /* Build configuration list for PBXProject "Plugin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8BC85E7A75ECAF4C70E153FD /* Debug */,
