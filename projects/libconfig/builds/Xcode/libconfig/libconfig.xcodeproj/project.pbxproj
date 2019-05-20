@@ -7,17 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		16AE294D2291FC8A00BFE932 /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29472291FC8A00BFE932 /* scanner.c */; };
-		16AE294E2291FC8A00BFE932 /* strbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29482291FC8A00BFE932 /* strbuf.c */; };
-		16AE294F2291FC8A00BFE932 /* libconfigcpp.cc in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29492291FC8A00BFE932 /* libconfigcpp.cc */; };
-		16AE29502291FC8A00BFE932 /* libconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294A2291FC8A00BFE932 /* libconfig.c */; };
-		16AE29512291FC8A00BFE932 /* grammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294B2291FC8A00BFE932 /* grammar.c */; };
-		16AE29522291FC8A00BFE932 /* scanctx.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294C2291FC8A00BFE932 /* scanctx.c */; };
+		1654985422922F650090DC6D /* libconfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 16AE29392291FC1400BFE932 /* libconfig.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		16AE29552291FE8600BFE932 /* libconfig.h++ in Headers */ = {isa = PBXBuildFile; fileRef = 16AE29542291FE8600BFE932 /* libconfig.h++ */; };
+		16FC1C7222923710003879C4 /* grammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294B2291FC8A00BFE932 /* grammar.c */; };
+		16FC1C7322923710003879C4 /* libconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294A2291FC8A00BFE932 /* libconfig.c */; };
+		16FC1C7422923710003879C4 /* libconfigcpp.cc in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29492291FC8A00BFE932 /* libconfigcpp.cc */; };
+		16FC1C7522923710003879C4 /* scanctx.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294C2291FC8A00BFE932 /* scanctx.c */; };
+		16FC1C7622923710003879C4 /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29472291FC8A00BFE932 /* scanner.c */; };
+		16FC1C7722923710003879C4 /* strbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29482291FC8A00BFE932 /* strbuf.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		16AE29392291FC1400BFE932 /* liblibconfig.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibconfig.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		16AE29392291FC1400BFE932 /* libconfig.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libconfig.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		16AE29472291FC8A00BFE932 /* scanner.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scanner.c; path = ../../../../../../external/libconfig/lib/scanner.c; sourceTree = "<group>"; };
 		16AE29482291FC8A00BFE932 /* strbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = strbuf.c; path = ../../../../../../external/libconfig/lib/strbuf.c; sourceTree = "<group>"; };
 		16AE29492291FC8A00BFE932 /* libconfigcpp.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = libconfigcpp.cc; path = ../../../../../../external/libconfig/lib/libconfigcpp.cc; sourceTree = "<group>"; };
@@ -32,25 +33,34 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1654985422922F650090DC6D /* libconfig.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1654985322922F650090DC6D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		16AE29302291FC1400BFE932 = {
 			isa = PBXGroup;
 			children = (
 				16AE29532291FE3D00BFE932 /* Headers */,
 				16AE293B2291FC1400BFE932 /* Source */,
 				16AE293A2291FC1400BFE932 /* Products */,
+				1654985322922F650090DC6D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		16AE293A2291FC1400BFE932 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				16AE29392291FC1400BFE932 /* liblibconfig.a */,
+				16AE29392291FC1400BFE932 /* libconfig.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,7 +114,7 @@
 			);
 			name = libconfig;
 			productName = libconfig;
-			productReference = 16AE29392291FC1400BFE932 /* liblibconfig.a */;
+			productReference = 16AE29392291FC1400BFE932 /* libconfig.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -143,12 +153,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16AE294F2291FC8A00BFE932 /* libconfigcpp.cc in Sources */,
-				16AE29512291FC8A00BFE932 /* grammar.c in Sources */,
-				16AE29502291FC8A00BFE932 /* libconfig.c in Sources */,
-				16AE294D2291FC8A00BFE932 /* scanner.c in Sources */,
-				16AE29522291FC8A00BFE932 /* scanctx.c in Sources */,
-				16AE294E2291FC8A00BFE932 /* strbuf.c in Sources */,
+				16FC1C7422923710003879C4 /* libconfigcpp.cc in Sources */,
+				16FC1C7222923710003879C4 /* grammar.c in Sources */,
+				16FC1C7622923710003879C4 /* scanner.c in Sources */,
+				16FC1C7522923710003879C4 /* scanctx.c in Sources */,
+				16FC1C7322923710003879C4 /* libconfig.c in Sources */,
+				16FC1C7722923710003879C4 /* strbuf.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,8 +286,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
 					HAVE_XLOCALE_H,
+					HAVE_USELOCALE,
+					HAVE_FREELOCALE,
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = config;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -289,8 +301,12 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_XLOCALE_H;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					HAVE_XLOCALE_H,
+					HAVE_USELOCALE,
+					HAVE_FREELOCALE,
+				);
+				PRODUCT_NAME = config;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;

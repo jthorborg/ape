@@ -14,6 +14,11 @@
 		1594F6928A527A05BF7BA1FD /* AUInputElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E5CB323B005745953C1F7238 /* AUInputElement.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		1633D4412291DF4B00507E30 /* CPLSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1633D4402291DE3D00507E30 /* CPLSource.cpp */; };
 		1633D4432291DFD300507E30 /* MacSupport.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1633D4422291DFD300507E30 /* MacSupport.mm */; };
+		1654984522921EBE0090DC6D /* SignalizerSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984422921EBE0090DC6D /* SignalizerSource.cpp */; };
+		1654984822922D410090DC6D /* JAdvancedDock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984722922D410090DC6D /* JAdvancedDock.cpp */; };
+		1654984A22922D590090DC6D /* JDockableWindows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984922922D590090DC6D /* JDockableWindows.cpp */; };
+		1654984E22922E130090DC6D /* FileSystemWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1654984C22922E130090DC6D /* FileSystemWatcher.mm */; };
+		1654984F22922E130090DC6D /* FileSystemWatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984D22922E130090DC6D /* FileSystemWatcher.cpp */; };
 		16BAAAEE229206B500407F7D /* PluginState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAA0229206B300407F7D /* PluginState.cpp */; };
 		16BAAAEF229206B500407F7D /* UICommands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAA2229206B300407F7D /* UICommands.cpp */; };
 		16BAAAF0229206B500407F7D /* LabelQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAA5229206B300407F7D /* LabelQueue.cpp */; };
@@ -122,6 +127,14 @@
 		156DD2680F39D5059E9C4E3E /* CADebugMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CADebugMacros.h; path = Extras/CoreAudio/PublicUtility/CADebugMacros.h; sourceTree = DEVELOPER_DIR; };
 		1633D4402291DE3D00507E30 /* CPLSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPLSource.cpp; path = ../../../../external/cpl/CPLSource.cpp; sourceTree = "<group>"; };
 		1633D4422291DFD300507E30 /* MacSupport.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MacSupport.mm; path = ../../../../external/cpl/MacSupport.mm; sourceTree = "<group>"; };
+		1654984422921EBE0090DC6D /* SignalizerSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SignalizerSource.cpp; path = ../../../../external/signalizer/Source/Unity/SignalizerSource.cpp; sourceTree = "<group>"; };
+		1654984722922D410090DC6D /* JAdvancedDock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JAdvancedDock.cpp; path = "../../../../external/dockable-windows/Source/JAdvancedDock.cpp"; sourceTree = "<group>"; };
+		1654984922922D590090DC6D /* JDockableWindows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JDockableWindows.cpp; path = "../../../../external/dockable-windows/Source/JDockableWindows.cpp"; sourceTree = "<group>"; };
+		1654984C22922E130090DC6D /* FileSystemWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileSystemWatcher.mm; path = ../../../../external/FileSystemWatcher/FileSystemWatcher.mm; sourceTree = "<group>"; };
+		1654984D22922E130090DC6D /* FileSystemWatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileSystemWatcher.cpp; path = ../../../../external/FileSystemWatcher/FileSystemWatcher.cpp; sourceTree = "<group>"; };
+		1654985022922E1A0090DC6D /* FileSystemWatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileSystemWatcher.h; path = ../../../../external/FileSystemWatcher/FileSystemWatcher.h; sourceTree = "<group>"; };
+		1654985122922E250090DC6D /* JDockableWindows.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JDockableWindows.h; path = "../../../../external/dockable-windows/Source/JDockableWindows.h"; sourceTree = "<group>"; };
+		1654985222922E250090DC6D /* JAdvancedDock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JAdvancedDock.h; path = "../../../../external/dockable-windows/Source/JAdvancedDock.h"; sourceTree = "<group>"; };
 		16AE29562291FEA900BFE932 /* libconfig.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libconfig.xcodeproj; path = ../../../libconfig/builds/Xcode/libconfig/libconfig.xcodeproj; sourceTree = "<group>"; };
 		16AE295C2291FF6200BFE932 /* libconfig.h++ */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "libconfig.h++"; path = "../../../../external/libconfig/lib/libconfig.h++"; sourceTree = "<group>"; };
 		16BAAA9F229206B300407F7D /* UIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIController.h; path = ../../src/UIController.h; sourceTree = "<group>"; };
@@ -321,9 +334,41 @@
 		1633D43C2291DE0E00507E30 /* External */ = {
 			isa = PBXGroup;
 			children = (
+				1654984B22922D740090DC6D /* FileSystemWatcher */,
+				1654984622922D300090DC6D /* DockableWindows */,
+				1654984222921E600090DC6D /* Signalizer */,
 				1633D43B2291DDFE00507E30 /* cpl */,
 			);
 			name = External;
+			sourceTree = "<group>";
+		};
+		1654984222921E600090DC6D /* Signalizer */ = {
+			isa = PBXGroup;
+			children = (
+				1654984422921EBE0090DC6D /* SignalizerSource.cpp */,
+			);
+			name = Signalizer;
+			sourceTree = "<group>";
+		};
+		1654984622922D300090DC6D /* DockableWindows */ = {
+			isa = PBXGroup;
+			children = (
+				1654984922922D590090DC6D /* JDockableWindows.cpp */,
+				1654985222922E250090DC6D /* JAdvancedDock.h */,
+				1654985122922E250090DC6D /* JDockableWindows.h */,
+				1654984722922D410090DC6D /* JAdvancedDock.cpp */,
+			);
+			name = DockableWindows;
+			sourceTree = "<group>";
+		};
+		1654984B22922D740090DC6D /* FileSystemWatcher */ = {
+			isa = PBXGroup;
+			children = (
+				1654984D22922E130090DC6D /* FileSystemWatcher.cpp */,
+				1654985022922E1A0090DC6D /* FileSystemWatcher.h */,
+				1654984C22922E130090DC6D /* FileSystemWatcher.mm */,
+			);
+			name = FileSystemWatcher;
 			sourceTree = "<group>";
 		};
 		16AE29572291FEA900BFE932 /* Products */ = {
@@ -779,6 +824,8 @@
 				16BAAAFF229206B500407F7D /* CLangCodeTokeniser.cpp in Sources */,
 				1FE73BEFD3AC411066F1E5E6 /* AUEffectBase.cpp in Sources */,
 				1594F6928A527A05BF7BA1FD /* AUInputElement.cpp in Sources */,
+				1654984522921EBE0090DC6D /* SignalizerSource.cpp in Sources */,
+				1654984E22922E130090DC6D /* FileSystemWatcher.mm in Sources */,
 				D2B2DD9886A311C348130CF1 /* AUMIDIBase.cpp in Sources */,
 				F04DD5DAB31758EA6DA3B5B9 /* AUMIDIEffectBase.cpp in Sources */,
 				16BAAB04229206B500407F7D /* SignalizerWindow.cpp in Sources */,
@@ -795,6 +842,7 @@
 				CAC973256840E835025027F4 /* CarbonEventHandler.cpp in Sources */,
 				16BAAB0B229206B500407F7D /* ParameterManager.cpp in Sources */,
 				93E71687BD3739DF4CD22F36 /* CAStreamBasicDescription.cpp in Sources */,
+				1654984822922D410090DC6D /* JAdvancedDock.cpp in Sources */,
 				16BAAB02229206B500407F7D /* ReferenceFormattedString.cpp in Sources */,
 				16BAAAF6229206B500407F7D /* CCodeGenerator.cpp in Sources */,
 				16BAAAF8229206B500407F7D /* UIController.cpp in Sources */,
@@ -813,6 +861,7 @@
 				9B1899545F5F54D4CEEB443C /* juce_audio_processors.mm in Sources */,
 				16BAAB07229206B500407F7D /* PluginFFT.cpp in Sources */,
 				3EC325382DC33426EAC45266 /* juce_core.mm in Sources */,
+				1654984F22922E130090DC6D /* FileSystemWatcher.cpp in Sources */,
 				16BAAAFB229206B500407F7D /* GraphicComponents.cpp in Sources */,
 				16BAAAF3229206B500407F7D /* CleanButton.cpp in Sources */,
 				9D1A3566095840F530B7DC02 /* juce_cryptography.mm in Sources */,
@@ -823,6 +872,7 @@
 				16BAAB0C229206B500407F7D /* ProjectEx.cpp in Sources */,
 				8320098923339435EB873C44 /* juce_events.mm in Sources */,
 				16BAAAF2229206B500407F7D /* DockWindow.cpp in Sources */,
+				1654984A22922D590090DC6D /* JDockableWindows.cpp in Sources */,
 				E704D4E1F4D6DC016FC532CE /* juce_graphics.mm in Sources */,
 				16BAAB0A229206B500407F7D /* PluginSurface.cpp in Sources */,
 				0DBD5F926A0DA3BCB64A7ADB /* juce_gui_basics.mm in Sources */,
