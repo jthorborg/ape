@@ -7,165 +7,143 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1654985422922F650090DC6D /* libconfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 16AE29392291FC1400BFE932 /* libconfig.a */; settings = {ATTRIBUTES = (Required, ); }; };
-		16AE29552291FE8600BFE932 /* libconfig.h++ in Headers */ = {isa = PBXBuildFile; fileRef = 16AE29542291FE8600BFE932 /* libconfig.h++ */; };
-		16FC1C7222923710003879C4 /* grammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294B2291FC8A00BFE932 /* grammar.c */; };
-		16FC1C7322923710003879C4 /* libconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294A2291FC8A00BFE932 /* libconfig.c */; };
-		16FC1C7422923710003879C4 /* libconfigcpp.cc in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29492291FC8A00BFE932 /* libconfigcpp.cc */; };
-		16FC1C7522923710003879C4 /* scanctx.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE294C2291FC8A00BFE932 /* scanctx.c */; };
-		16FC1C7622923710003879C4 /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29472291FC8A00BFE932 /* scanner.c */; };
-		16FC1C7722923710003879C4 /* strbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 16AE29482291FC8A00BFE932 /* strbuf.c */; };
+		167160E12293505A00BF444F /* grammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 167160E02293505A00BF444F /* grammar.c */; };
+		167160E32293508600BF444F /* libconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 167160E22293508600BF444F /* libconfig.c */; };
+		167160E52293509000BF444F /* libconfigcpp.cc in Sources */ = {isa = PBXBuildFile; fileRef = 167160E42293509000BF444F /* libconfigcpp.cc */; };
+		167160E72293509500BF444F /* scanctx.c in Sources */ = {isa = PBXBuildFile; fileRef = 167160E62293509500BF444F /* scanctx.c */; };
+		167160E92293509C00BF444F /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = 167160E82293509C00BF444F /* scanner.c */; };
+		167160EB229350A100BF444F /* strbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 167160EA229350A100BF444F /* strbuf.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		16AE29392291FC1400BFE932 /* libconfig.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libconfig.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		16AE29472291FC8A00BFE932 /* scanner.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scanner.c; path = ../../../../../../external/libconfig/lib/scanner.c; sourceTree = "<group>"; };
-		16AE29482291FC8A00BFE932 /* strbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = strbuf.c; path = ../../../../../../external/libconfig/lib/strbuf.c; sourceTree = "<group>"; };
-		16AE29492291FC8A00BFE932 /* libconfigcpp.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = libconfigcpp.cc; path = ../../../../../../external/libconfig/lib/libconfigcpp.cc; sourceTree = "<group>"; };
-		16AE294A2291FC8A00BFE932 /* libconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libconfig.c; path = ../../../../../../external/libconfig/lib/libconfig.c; sourceTree = "<group>"; };
-		16AE294B2291FC8A00BFE932 /* grammar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = grammar.c; path = ../../../../../../external/libconfig/lib/grammar.c; sourceTree = "<group>"; };
-		16AE294C2291FC8A00BFE932 /* scanctx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scanctx.c; path = ../../../../../../external/libconfig/lib/scanctx.c; sourceTree = "<group>"; };
-		16AE29542291FE8600BFE932 /* libconfig.h++ */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "libconfig.h++"; path = "../../../../../external/libconfig/lib/libconfig.h++"; sourceTree = "<group>"; };
+		167160D22293503500BF444F /* libconfig.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libconfig.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		167160E02293505A00BF444F /* grammar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = grammar.c; path = ../../../../external/libconfig/lib/grammar.c; sourceTree = "<group>"; };
+		167160E22293508600BF444F /* libconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libconfig.c; path = ../../../../external/libconfig/lib/libconfig.c; sourceTree = "<group>"; };
+		167160E42293509000BF444F /* libconfigcpp.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = libconfigcpp.cc; path = ../../../../external/libconfig/lib/libconfigcpp.cc; sourceTree = "<group>"; };
+		167160E62293509500BF444F /* scanctx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scanctx.c; path = ../../../../external/libconfig/lib/scanctx.c; sourceTree = "<group>"; };
+		167160E82293509C00BF444F /* scanner.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scanner.c; path = ../../../../external/libconfig/lib/scanner.c; sourceTree = "<group>"; };
+		167160EA229350A100BF444F /* strbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = strbuf.c; path = ../../../../external/libconfig/lib/strbuf.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		16AE29372291FC1400BFE932 /* Frameworks */ = {
+		167160D02293503500BF444F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1654985422922F650090DC6D /* libconfig.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1654985322922F650090DC6D /* Frameworks */ = {
+		167160C92293503500BF444F = {
 			isa = PBXGroup;
 			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		16AE29302291FC1400BFE932 = {
-			isa = PBXGroup;
-			children = (
-				16AE29532291FE3D00BFE932 /* Headers */,
-				16AE293B2291FC1400BFE932 /* Source */,
-				16AE293A2291FC1400BFE932 /* Products */,
-				1654985322922F650090DC6D /* Frameworks */,
+				167160D42293503500BF444F /* config */,
+				167160E02293505A00BF444F /* grammar.c */,
+				167160E22293508600BF444F /* libconfig.c */,
+				167160E62293509500BF444F /* scanctx.c */,
+				167160E82293509C00BF444F /* scanner.c */,
+				167160EA229350A100BF444F /* strbuf.c */,
+				167160E42293509000BF444F /* libconfigcpp.cc */,
+				167160D32293503500BF444F /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		16AE293A2291FC1400BFE932 /* Products */ = {
+		167160D32293503500BF444F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				16AE29392291FC1400BFE932 /* libconfig.a */,
+				167160D22293503500BF444F /* libconfig.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		16AE293B2291FC1400BFE932 /* Source */ = {
+		167160D42293503500BF444F /* config */ = {
 			isa = PBXGroup;
 			children = (
-				16AE294B2291FC8A00BFE932 /* grammar.c */,
-				16AE294A2291FC8A00BFE932 /* libconfig.c */,
-				16AE29492291FC8A00BFE932 /* libconfigcpp.cc */,
-				16AE294C2291FC8A00BFE932 /* scanctx.c */,
-				16AE29472291FC8A00BFE932 /* scanner.c */,
-				16AE29482291FC8A00BFE932 /* strbuf.c */,
 			);
-			path = Source;
-			sourceTree = "<group>";
-		};
-		16AE29532291FE3D00BFE932 /* Headers */ = {
-			isa = PBXGroup;
-			children = (
-				16AE29542291FE8600BFE932 /* libconfig.h++ */,
-			);
-			name = Headers;
+			path = config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		16AE29352291FC1400BFE932 /* Headers */ = {
+		167160CE2293503500BF444F /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16AE29552291FE8600BFE932 /* libconfig.h++ in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		16AE29382291FC1400BFE932 /* libconfig */ = {
+		167160D12293503500BF444F /* config */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 16AE29442291FC1400BFE932 /* Build configuration list for PBXNativeTarget "libconfig" */;
+			buildConfigurationList = 167160DD2293503500BF444F /* Build configuration list for PBXNativeTarget "config" */;
 			buildPhases = (
-				16AE29352291FC1400BFE932 /* Headers */,
-				16AE29362291FC1400BFE932 /* Sources */,
-				16AE29372291FC1400BFE932 /* Frameworks */,
+				167160CE2293503500BF444F /* Headers */,
+				167160CF2293503500BF444F /* Sources */,
+				167160D02293503500BF444F /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = libconfig;
-			productName = libconfig;
-			productReference = 16AE29392291FC1400BFE932 /* libconfig.a */;
+			name = config;
+			productName = config;
+			productReference = 167160D22293503500BF444F /* libconfig.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		16AE29312291FC1400BFE932 /* Project object */ = {
+		167160CA2293503500BF444F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = hyperrealm;
 				TargetAttributes = {
-					16AE29382291FC1400BFE932 = {
+					167160D12293503500BF444F = {
 						CreatedOnToolsVersion = 10.2.1;
 					};
 				};
 			};
-			buildConfigurationList = 16AE29342291FC1400BFE932 /* Build configuration list for PBXProject "libconfig" */;
+			buildConfigurationList = 167160CD2293503500BF444F /* Build configuration list for PBXProject "config" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 16AE29302291FC1400BFE932;
-			productRefGroup = 16AE293A2291FC1400BFE932 /* Products */;
+			mainGroup = 167160C92293503500BF444F;
+			productRefGroup = 167160D32293503500BF444F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				16AE29382291FC1400BFE932 /* libconfig */,
+				167160D12293503500BF444F /* config */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		16AE29362291FC1400BFE932 /* Sources */ = {
+		167160CF2293503500BF444F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16FC1C7422923710003879C4 /* libconfigcpp.cc in Sources */,
-				16FC1C7222923710003879C4 /* grammar.c in Sources */,
-				16FC1C7622923710003879C4 /* scanner.c in Sources */,
-				16FC1C7522923710003879C4 /* scanctx.c in Sources */,
-				16FC1C7322923710003879C4 /* libconfig.c in Sources */,
-				16FC1C7722923710003879C4 /* strbuf.c in Sources */,
+				167160E32293508600BF444F /* libconfig.c in Sources */,
+				167160E72293509500BF444F /* scanctx.c in Sources */,
+				167160EB229350A100BF444F /* strbuf.c in Sources */,
+				167160E12293505A00BF444F /* grammar.c in Sources */,
+				167160E92293509C00BF444F /* scanner.c in Sources */,
+				167160E52293509000BF444F /* libconfigcpp.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		16AE29422291FC1400BFE932 /* Debug */ = {
+		167160DB2293503500BF444F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -224,7 +202,7 @@
 			};
 			name = Debug;
 		};
-		16AE29432291FC1400BFE932 /* Release */ = {
+		167160DC2293503500BF444F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -276,7 +254,7 @@
 			};
 			name = Release;
 		};
-		16AE29452291FC1400BFE932 /* Debug */ = {
+		167160DE2293503500BF444F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -289,12 +267,12 @@
 					HAVE_USELOCALE,
 					HAVE_FREELOCALE,
 				);
-				PRODUCT_NAME = config;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
-		16AE29462291FC1400BFE932 /* Release */ = {
+		167160DF2293503500BF444F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -306,7 +284,7 @@
 					HAVE_USELOCALE,
 					HAVE_FREELOCALE,
 				);
-				PRODUCT_NAME = config;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -314,25 +292,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		16AE29342291FC1400BFE932 /* Build configuration list for PBXProject "libconfig" */ = {
+		167160CD2293503500BF444F /* Build configuration list for PBXProject "config" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				16AE29422291FC1400BFE932 /* Debug */,
-				16AE29432291FC1400BFE932 /* Release */,
+				167160DB2293503500BF444F /* Debug */,
+				167160DC2293503500BF444F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		16AE29442291FC1400BFE932 /* Build configuration list for PBXNativeTarget "libconfig" */ = {
+		167160DD2293503500BF444F /* Build configuration list for PBXNativeTarget "config" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				16AE29452291FC1400BFE932 /* Debug */,
-				16AE29462291FC1400BFE932 /* Release */,
+				167160DE2293503500BF444F /* Debug */,
+				167160DF2293503500BF444F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 16AE29312291FC1400BFE932 /* Project object */;
+	rootObject = 167160CA2293503500BF444F /* Project object */;
 }
