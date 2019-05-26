@@ -32,16 +32,15 @@
 #include <ape/ProtoCompiler.hpp>
 #include <string>
 #include <cpl/MacroConstants.h>
-#include <ape/TCCBindings.h>
 #include <cpl/Utility.h>
 #include <tcc4ape/ScriptBindings.h>
 #include <memory>
-#include <experimental/filesystem>
+#include <cpl/filesystem.h>
 #include "TranslationUnit.h"
 
 namespace CppAPE
 {
-	namespace fs = std::experimental::filesystem;
+	namespace fs = cpl::fs;
 
 	using namespace ape;
 

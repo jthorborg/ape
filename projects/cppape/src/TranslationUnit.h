@@ -30,7 +30,7 @@
 #define CPPAPE_TRANSLATIONUNIT_H
 #include <cpl/Misc.h>
 #include <cpl/Process.h>
-#include <experimental/filesystem>
+#include <cpl/filesystem.h>
 #include "libCppJit.h"
 #include <memory>
 
@@ -44,7 +44,7 @@ namespace CppAPE
 
 		jit_error_t error;
 
-		const char * what() const override
+		const char * what() const noexcept override
 		{
 			return jit_format_error(error);
 		}

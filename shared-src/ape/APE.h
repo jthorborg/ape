@@ -30,7 +30,7 @@
 #ifndef APE_APE_H
 	#define APE_APE_H
 
-	#include <cstddef>
+	#include <stddef.h>
 
 	#ifndef APE_MACROCONSTANTS_H
 		#ifdef _WIN32

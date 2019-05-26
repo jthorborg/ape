@@ -111,6 +111,13 @@
 			remoteGlobalIDString = 167160D22293503500BF444F;
 			remoteInfo = config;
 		};
+		16B0CA09229B48DD00A65CFB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 16B0CA04229B48DD00A65CFB /* CppAPE.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1694A324229B1CEC0014CF9E;
+			remoteInfo = CppAPE;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -143,6 +150,8 @@
 		167160FA2293658F00BF444F /* common.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = common.py; path = ../../../../make/common.py; sourceTree = "<group>"; };
 		167160FB2293672000BF444F /* config.ini */ = {isa = PBXFileReference; lastKnownFileType = text; name = config.ini; path = ../../../../make/config.ini; sourceTree = "<group>"; };
 		16AE295C2291FF6200BFE932 /* libconfig.h++ */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "libconfig.h++"; path = "../../../../external/libconfig/lib/libconfig.h++"; sourceTree = "<group>"; };
+		16B0CA04229B48DD00A65CFB /* CppAPE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CppAPE.xcodeproj; path = ../../../cppape/builds/Xcode/CppAPE.xcodeproj; sourceTree = "<group>"; };
+		16B0CA0B229B4A3E00A65CFB /* config.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = config.cfg; path = ../../../../make/skeleton/config.cfg; sourceTree = "<group>"; };
 		16BAAA9F229206B300407F7D /* UIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIController.h; path = ../../src/UIController.h; sourceTree = "<group>"; };
 		16BAAAA0229206B300407F7D /* PluginState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginState.cpp; path = ../../src/PluginState.cpp; sourceTree = "<group>"; };
 		16BAAAA2229206B300407F7D /* UICommands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UICommands.cpp; sourceTree = "<group>"; };
@@ -386,6 +395,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		16B0CA05229B48DD00A65CFB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				16B0CA0A229B48DD00A65CFB /* libCppAPE.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		16BAAA6B2292068A00407F7D /* Source */ = {
 			isa = PBXGroup;
 			children = (
@@ -551,6 +568,7 @@
 			children = (
 				16BAAB1C2292070700407F7D /* prepare.py */,
 				167160FB2293672000BF444F /* config.ini */,
+				16B0CA0B229B4A3E00A65CFB /* config.cfg */,
 				167160F92293653E00BF444F /* postprocess_osx.py */,
 				167160FA2293658F00BF444F /* common.py */,
 				167160F82293631E00BF444F /* cmd-postprocess-build.py */,
@@ -607,6 +625,7 @@
 		3128419AA1680CED8183207A /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				16B0CA04229B48DD00A65CFB /* CppAPE.xcodeproj */,
 				167160ED229354DE00BF444F /* config.xcodeproj */,
 				16C915502291FA0C0068B31E /* Other */,
 				D3462C2061D37E0F6778C11F /* Audio Programming Environment */,
@@ -768,6 +787,10 @@
 					ProductGroup = 167160EE229354DE00BF444F /* Products */;
 					ProjectRef = 167160ED229354DE00BF444F /* config.xcodeproj */;
 				},
+				{
+					ProductGroup = 16B0CA05229B48DD00A65CFB /* Products */;
+					ProjectRef = 16B0CA04229B48DD00A65CFB /* CppAPE.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -782,6 +805,13 @@
 			fileType = archive.ar;
 			path = libconfig.a;
 			remoteRef = 167160F1229354DF00BF444F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		16B0CA0A229B48DD00A65CFB /* libCppAPE.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libCppAPE.dylib;
+			remoteRef = 16B0CA09229B48DD00A65CFB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

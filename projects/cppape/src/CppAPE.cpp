@@ -28,7 +28,6 @@
 *************************************************************************************/
 
 #include "CppAPE.h"
-#include <libtcc.h>
 #include <string>
 #include <cpl/Misc.h>
 #include <cpl/Common.h>
@@ -140,7 +139,10 @@ namespace CppAPE
 		// TODO: Cache static
 		if (memoryEffectPCH.empty())
 		{
-			std::ifstream pchfile(dirRoot / "runtime" / "common.h.pch", std::ios::binary | std::ios::ate);
+			std::ifstream pchfile(
+                (dirRoot / "runtime" / "common.h.pch").string().c_str(),
+                std::ios::binary | std::ios::ate
+            );
 			std::streamsize size = pchfile.tellg();
 			pchfile.seekg(0, std::ios::beg);
 
