@@ -466,7 +466,7 @@ namespace ape
 				}
 				catch (const std::exception& e)
 				{
-					getConsole().printLine(CConsole::Error, "[GUI] : Error compiling project (%s: %s).", typeid(e).name(), e.what());
+                    getConsole().printLine(CConsole::Error, "[GUI] : Error compiling project (%s: %s).", cpl::Misc::DemangledTypeName(e).c_str(), e.what());
 					labelQueue.pushMessage("Error while compiling (see console)!", CColours::red, 5000);
 				}
 				

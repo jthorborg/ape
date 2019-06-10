@@ -36,119 +36,10 @@
 #include "Engine.h"
 #include "UIController.h"
 #include "CConsole.h"
+#include "CompilerBinding.h"
 
 namespace ape
 {
-	/*
-	The exported symbol names for external compilers
-	*/
-	static const char * g_sExports[] =
-	{
-		"CreateProject",
-		"CompileProject",
-		"InitProject",
-		"ActivateProject",
-		"DisableProject",
-		"ProcessReplacing",
-		"OnEvent",
-		"ReleaseProject",
-		"CleanCache"
-	};
-
-	/*
-		Inits all bindings in this CBinding from module.
-		If Setting is valid, it is expected to be of this format:
-			...
-			exports:
-			{
-				errorFunc = "_@4errorFunc";
-				...
-			}
-		And allows to specify different names/decorations than default.
-		If key and value is not found, it will default to the same value in
-		g_sExports.
-	*/
-	bool CCompiler::CBindings::loadBindings(cpl::CModule & module, const libconfig::Setting & exportSettings)
-	{
-		bool settingsIsValid = exportSettings.isGroup() && !strcmp(exportSettings.getName(), "exports");
-		const char * name;
-		valid = true;
-
-		cpl::foreach_uenum<ExportIndex>(
-			[&](auto i)
-			{
-				name = nullptr;
-				// see if we can get a valid name out of our settings
-				if (settingsIsValid && exportSettings.exists(g_sExports[i]))
-				{
-					name = exportSettings[g_sExports[i]].c_str();
-				}
-				// shortcircuiting avoids null-dereferencing
-				if (!name || (name && !name[0]))
-					name = g_sExports[i];
-				_table[i] = module.getFuncAddress(name);
-
-				if (!_table[i]) 
-				{
-					std::stringstream fmt;
-					fmt << "Error retrieving pointer for function " << g_sExports[i] << ". ";
-					fmt << "Specific name: " << name << ". Was settings valid? " << std::boolalpha << settingsIsValid << ".";
-					valid = false;
-					throw std::runtime_error(fmt.str());
-				}
-
-
-			}
-		);
-
-		return valid;
-	}
-	bool CCompiler::initialize(const libconfig::Setting& languageSettings)
-	{
-		if(!initialized)
-		{
-
-			compilerName = languageSettings["name"].c_str();
-			compilerPath = languageSettings["path"].c_str();
-			language = languageSettings.getParent().getName();
-			// loop over extensions and insert into this::extensions
-
-			// more checks on this.
-			const libconfig::Setting & settings = languageSettings["exports"];
-
-			if(!compilerPath.length()) 
-			{
-				std::stringstream fmt;
-				fmt << "Invalid (empty) path for compiler \'" << compilerName << "\' for language \'"
-					<<  language << "\'.";
-				throw std::runtime_error(fmt.str());
-			}
-			module.addSearchPath(cpl::fs::path(cpl::Misc::DirectoryPath() + compilerPath).parent_path());
-			auto error = module.load(cpl::Misc::DirectoryPath() + compilerPath);
-			if(error)
-			{
-				std::stringstream fmt;
-				fmt << "Error loading compiler module \'" << compilerName << "\' for language \'"
-					<<  language << "\' " << " at " << "\'" << cpl::Misc::DirectoryPath() + compilerPath << "\'. OS returns " << error << ".";
-				throw std::runtime_error(fmt.str());
-			}
-			// will throw its own exception
-			return initialized = bindings.loadBindings(module, settings);
-
-		}
-		return initialized;
-	}
-	CCompiler::CCompiler()
-		: initialized(false)
-	{
-
-	}
-	CCompiler::CBindings::CBindings() 
-		: valid(false) 
-	{
-		// zero-out pointers
-		std::memset(this, 0, sizeof(*this));
-	}
 
 	CCodeGenerator::CCodeGenerator(ape::Engine& engine)
 		: engine(engine)
@@ -156,6 +47,10 @@ namespace ape
 
 	}
 
+    CCodeGenerator::~CCodeGenerator()
+    {
+        
+    }
 
 	void CCodeGenerator::pluginDiagnostic(Project * project, Diagnostic diag, const char * text)
 	{
@@ -270,7 +165,7 @@ namespace ape
 		{
 			printError("Cannot create already created project.");
 		} 
-		else if (!project.compiler || !project.compiler->isInitialized())
+		else if (!project.compiler)
 		{
 			// set up compiler here.
 			if (!project.languageID || !project.languageID[0])
@@ -285,6 +180,7 @@ namespace ape
 			{
 				const libconfig::Setting& languages = engine.getSettings().root()["languages"];
 				std::string langID;
+                
 				for (auto && lang : languages)
 				{
 					if (!lang.isGroup())
@@ -309,24 +205,22 @@ namespace ape
 
 				// compiler is automatically constructed and loaded if it doesn't exist.
 				// if it does, we get a reference to it.
-				auto& compiler = compilers[langID];
-
-				// one could argue this should happen in compiler::compiler
-				// but std::map and copy constructors etc. etc. we do it  here.
-				if (!compiler.isInitialized()) 
-				{
-					if (!compiler.initialize(langstts)) 
-					{
-						printError("Unable to initialize compiler!");
-						return false;
-					}
-				}
+                
+                auto compiler = compilers.find(langID);
+                
+                if(compiler == compilers.end())
+                {
+                    auto binding = std::make_unique<CompilerBinding>(langstts);
+                    compilers[langID] = std::move(binding);
+                    compiler = compilers.find(langID);
+                }
+                
 				std::string const args = langstts["arguments"].c_str();
 				auto argString = new char[args.length() + 1];
 				std::copy(args.begin(), args.end(), argString);
 				argString[args.length()] = '\0';
 				project.arguments = argString;
-				project.compiler = &compiler;
+				project.compiler = compiler->second.get();
 			}
 			catch (libconfig::ParseException & e)
 			{
@@ -398,15 +292,8 @@ namespace ape
 			printError("Cleaning " + std::to_string(compilers.size()) + " loaded compiler(s)", APE_TextColour_Default);
 			for (auto& pairs : compilers)
 			{
-				if (pairs.second.isInitialized())
-				{
-					printError("Cleaning for " + pairs.first + ": " + pairs.second.name(), APE_TextColour_Default);
-					pairs.second.bindings.cleanCache();
-				}
-				else
-				{
-					printError("Non-initialized compiler for " + pairs.first + " couldn't be cleaned: " + pairs.second.name());
-				}
+                printError("Cleaning for " + pairs.first + ": " + pairs.second->name(), APE_TextColour_Default);
+                pairs.second->bindings.cleanCache();
 			}
 		}
 		catch (const std::exception& e)

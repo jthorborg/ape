@@ -50,7 +50,7 @@
 
 		class Engine;
 		class CConsole;
-		struct CCompiler;
+		struct CompilerBinding;
 		class SourceManager;
 		class CSerializer;
 		class PluginState;

@@ -46,79 +46,7 @@
 	namespace ape
 	{
 		class Engine;
-		class CCodeGenerator;
-
-		/*
-			indexer for g_sExports
-		*/
-		enum class ExportIndex
-		{
-			CreateProject,
-			CompileProject,
-			InitProject,
-			ActivateProject,
-			DisableProject,
-			ProcessReplacing,
-			OnEvent,
-			ReleaseProject,
-			CleanCache,
-			end
-		};
-
-		constexpr inline std::size_t MaxExports() { return static_cast<std::size_t>(ExportIndex::end); }
-
-		/*
-			A compiler instance.
-		*/
-		struct CCompiler
-		{
-			friend class CCodeGenerator;
-
-		public:
-
-			const std::string& name() const noexcept { return compilerName; }
-			bool isInitialized() { return initialized; }
-			bool compileProject(ProjectEx * project);
-			// calls loadBindings() with settings
-			bool initialize(const libconfig::Setting & languageSettings);
-			virtual ~CCompiler() {};
-			CCompiler();
-
-		private:
-
-			struct CBindings
-			{
-				bool valid;
-
-				union {
-					struct {
-						decltype(CreateProject) * createProject;
-						decltype(CompileProject) * compileProject;
-						decltype(InitProject) * initProject;
-						decltype(ActivateProject) * activateProject;
-						decltype(DisableProject) * disableProject;
-						decltype(ProcessReplacing) * processReplacing;
-						decltype(OnEvent) * onEvent;
-						decltype(ReleaseProject) * releaseProject;
-						decltype(CleanCache) * cleanCache;
-					};
-					/* sizeof(previous struct) / sizeof (void*) */
-					void * _table[MaxExports()];
-				};
-
-				bool loadBindings(cpl::CModule & module, const libconfig::Setting & exportSettings);
-
-				CBindings();
-			};
-
-			bool initialized;
-			cpl::CModule module;
-			CBindings bindings;
-			std::vector<std::string> extensions;
-			std::string language;
-			std::string compilerName;
-			std::string compilerPath;
-		};
+        class CompilerBinding;
 
 		/// <summary>
 		/// Class responsible for managing compilers opaquely and dispatching
@@ -129,7 +57,8 @@
 		public:
 
 			CCodeGenerator(ape::Engine& engine);
-
+            ~CCodeGenerator();
+            
 			/*
 				Important: Following functions must be RAII-free.
 				It should be considered that the system might throw
@@ -155,7 +84,7 @@
 
 			void printError(const cpl::string_ref message, APE_TextColour colour = APE_TextColour_Error);
 
-			std::map<std::string, CCompiler> compilers;
+            std::map<std::string, std::unique_ptr<CompilerBinding>> compilers;
 			ape::Engine& engine;
 
 		};
