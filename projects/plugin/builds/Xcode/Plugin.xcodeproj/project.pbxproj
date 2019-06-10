@@ -21,6 +21,7 @@
 		1654984F22922E130090DC6D /* FileSystemWatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984D22922E130090DC6D /* FileSystemWatcher.cpp */; };
 		167160F52293557800BF444F /* libconfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 167160F2229354DF00BF444F /* libconfig.a */; };
 		167160F72293597300BF444F /* config.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 167160F62293597300BF444F /* config.cfg */; };
+		16B0CA1322A2BB8400A65CFB /* CompilerBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16B0CA1222A2BB8400A65CFB /* CompilerBinding.cpp */; };
 		16BAAAEE229206B500407F7D /* PluginState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAA0229206B300407F7D /* PluginState.cpp */; };
 		16BAAAEF229206B500407F7D /* UICommands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAA2229206B300407F7D /* UICommands.cpp */; };
 		16BAAAF0229206B500407F7D /* LabelQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAA5229206B300407F7D /* LabelQueue.cpp */; };
@@ -152,6 +153,8 @@
 		16AE295C2291FF6200BFE932 /* libconfig.h++ */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "libconfig.h++"; path = "../../../../external/libconfig/lib/libconfig.h++"; sourceTree = "<group>"; };
 		16B0CA04229B48DD00A65CFB /* CppAPE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CppAPE.xcodeproj; path = ../../../cppape/builds/Xcode/CppAPE.xcodeproj; sourceTree = "<group>"; };
 		16B0CA0B229B4A3E00A65CFB /* config.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = config.cfg; path = ../../../../make/skeleton/config.cfg; sourceTree = "<group>"; };
+		16B0CA1122A2BB7D00A65CFB /* CompilerBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CompilerBinding.h; path = ../../src/CompilerBinding.h; sourceTree = "<group>"; };
+		16B0CA1222A2BB8400A65CFB /* CompilerBinding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CompilerBinding.cpp; path = ../../src/CompilerBinding.cpp; sourceTree = "<group>"; };
 		16BAAA9F229206B300407F7D /* UIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIController.h; path = ../../src/UIController.h; sourceTree = "<group>"; };
 		16BAAAA0229206B300407F7D /* PluginState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PluginState.cpp; path = ../../src/PluginState.cpp; sourceTree = "<group>"; };
 		16BAAAA2229206B300407F7D /* UICommands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UICommands.cpp; sourceTree = "<group>"; };
@@ -235,7 +238,7 @@
 		16BAAB16229206EA00407F7D /* ProtoCompiler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProtoCompiler.hpp; sourceTree = "<group>"; };
 		16BAAB17229206EA00407F7D /* TCCBindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCCBindings.h; sourceTree = "<group>"; };
 		16BAAB19229206EA00407F7D /* ScriptBindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptBindings.h; sourceTree = "<group>"; };
-		16BAAB1C2292070700407F7D /* prepare.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = prepare.py; path = ../../../../prepare.py; sourceTree = "<group>"; };
+		16BAAB1C2292070700407F7D /* prepare.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = prepare.py; path = ../../../../prepare.py; sourceTree = "<group>"; usesTabs = 1; };
 		1723843F6C44F9A14E9C1F39 /* AUOutputBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AUOutputBase.cpp; path = Extras/CoreAudio/AudioUnits/AUPublic/OtherBases/AUOutputBase.cpp; sourceTree = DEVELOPER_DIR; };
 		1A3925AF96C452CE5E078DA2 /* juce_audio_devices.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = juce_audio_devices.mm; path = ../../../../external/JuceLibraryCode/modules/juce_audio_devices/juce_audio_devices.mm; sourceTree = SOURCE_ROOT; };
 		1A77D1EE7CC6AC9E2D02C287 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
@@ -419,6 +422,8 @@
 				16BAAAB6229206B300407F7D /* CCodeGenerator.h */,
 				16BAAAD6229206B400407F7D /* CConsole.cpp */,
 				16BAAABE229206B400407F7D /* CConsole.h */,
+				16B0CA1222A2BB8400A65CFB /* CompilerBinding.cpp */,
+				16B0CA1122A2BB7D00A65CFB /* CompilerBinding.h */,
 				16BAAAD4229206B400407F7D /* CMemoryGuard.h */,
 				16BAAAB4229206B300407F7D /* Common.h */,
 				16BAAAB7229206B300407F7D /* CSerializer.h */,
@@ -844,6 +849,8 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "Post-build script";
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -928,6 +935,7 @@
 				4155AC149150006EA82D249E /* juce_PluginUtilities.cpp in Sources */,
 				B4B08AC42FD596FB3EB646EF /* juce_video.mm in Sources */,
 				16BAAAF4229206B500407F7D /* PlayStateButton.cpp in Sources */,
+				16B0CA1322A2BB8400A65CFB /* CompilerBinding.cpp in Sources */,
 				16BAAAEE229206B500407F7D /* PluginState.cpp in Sources */,
 				5C2B928D01A769C75C649955 /* juce_VST3_Wrapper.cpp in Sources */,
 				79BBF961A0FC4793147DB06F /* juce_VST3_Wrapper.mm in Sources */,
@@ -1018,7 +1026,7 @@
 				EXCLUDED_SOURCE_FILE_NAMES = "$(EXCLUDED_SOURCE_FILE_NAMES_$(CURRENT_ARCH))";
 				EXCLUDED_SOURCE_FILE_NAMES_x86_64 = "*Carbon*.cpp";
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"_DEBUG=1",

@@ -154,12 +154,13 @@ namespace CppAPE
 	{
 		typedef jit_context InternalContext;
 		typedef jit_shared_mcontext MemoryContext;
+        typedef jit_context_options JitOptions;
 
 	public:
 
 		typedef std::function<void(jit_error_t errorType, const char * msg)> ErrorCallback;
 
-		CxxJitContext()
+		CxxJitContext(int numThreads, bool lazy)
 		{
 			MemoryContext* localMemory;
 			if (auto ret = jit_create_mcontext(&localMemory); ret != jit_error_none)
@@ -169,8 +170,15 @@ namespace CppAPE
 
 			memory.reset(localMemory);
 
+            JitOptions options {};
+            options.memory_context = localMemory;
+            options.enable_symbol_lookup_in_process = true;
+            options.optimization_level = jit_optimization_level_2;
+            options.num_compile_threads = numThreads;
+            options.enable_lazy_compilation = lazy;
+            
 			InternalContext* localCtx;
-			if (auto ret = jit_create_context(&localCtx, localMemory); ret != jit_error_none)
+			if (auto ret = jit_create_context(&localCtx, &options); ret != jit_error_none)
 			{
 				throw LibCppJitExceptionBase{ ret };
 			}

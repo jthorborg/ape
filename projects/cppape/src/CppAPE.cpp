@@ -84,7 +84,8 @@ APE_Status CleanCompilerCache()
 namespace CppAPE
 {
 	const std::vector<const char*> ScriptCompiler::defines = {
-		"__cppape"
+		"__cppape",
+        "_LIBCPP_BUILDING_HAS_NO_ABI_LIBRARY"
 	};
 
 	APE_Diagnostic JitToDiagnostic(jit_error_t error)
@@ -124,9 +125,11 @@ namespace CppAPE
 
 		cpl::CExclusiveFile lockFile;
 
-		if (!lockFile.open((dirRoot / "lockfile.l").string()))
+        auto lockFilePath = (dirRoot / "lockfile.l").string();
+        
+		if (!lockFile.open(lockFilePath.c_str()))
 		{
-			print(APE_Diag_Error, "[CppAPE] : error: couldn't lock file");
+            print(APE_Diag_Error, cpl::format("[CppAPE] : error: couldn't lock file at: %s", lockFilePath.c_str()).c_str());
 			return Status::STATUS_ERROR;
 		}
 
@@ -226,7 +229,7 @@ namespace CppAPE
 
 			builder.addMemoryFile("common.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
-			state = std::make_unique<CxxJitContext>();
+			state = std::make_unique<CxxJitContext>(0, false);
 			state->setCallback(
 				[this](auto e, auto msg)
 				{

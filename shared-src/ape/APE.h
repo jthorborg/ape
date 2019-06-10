@@ -37,7 +37,7 @@
 			#define __WINDOWS__
 			#define EXPORTED __declspec(dllexport)
 		#elif (__MACH__) && (__APPLE__)
-			#define EXPORTED 
+			#define EXPORTED __attribute__ ((visibility ("default")))
 			#define __MAC__
 		#endif
 		#ifdef _MSC_VER

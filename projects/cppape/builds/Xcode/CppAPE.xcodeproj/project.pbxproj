@@ -176,6 +176,7 @@
 				1694A320229B1CEC0014CF9E /* Headers */,
 				1694A321229B1CEC0014CF9E /* Sources */,
 				1694A322229B1CEC0014CF9E /* Frameworks */,
+				16B0CA0E229C988900A65CFB /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -216,6 +217,26 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		16B0CA0E229C988900A65CFB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\noriginal=$CONFIGURATION_BUILD_DIR/$FULL_PRODUCT_NAME\n\ninstall_name_tool -change \"@rpath/libcppjit.dylib\" \"@loader_path/libcppjit.dylib\" \"$original\"\ninstall_name_tool -change \"@executable_path/libcppjit.dylib\" \"@loader_path/libcppjit.dylib\" \"$original\"\n\ncp \"$original\" \"$PWD/../../../../make/skeleton/compilers/cppape/$FULL_PRODUCT_NAME\"\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1694A321229B1CEC0014CF9E /* Sources */ = {
@@ -355,6 +376,11 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
 					"../../../../shared-src/",

@@ -65,6 +65,7 @@ namespace CppAPE
 				.arg("-v")
 				//.arg("fno-short-wchar")
 				.arg("-fexceptions")
+                //.arg("--stdlib=libc++")
 
 				.arg("-fms-extensions")
 				.arg("-fcxx-exceptions")
