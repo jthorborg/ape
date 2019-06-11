@@ -191,7 +191,7 @@
 		16BAAAC3229206B400407F7D /* BreakpointComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BreakpointComponent.h; sourceTree = "<group>"; };
 		16BAAAC4229206B400407F7D /* SourceProjectManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceProjectManager.h; sourceTree = "<group>"; };
 		16BAAAC5229206B400407F7D /* CodeEditorWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditorWindow.cpp; sourceTree = "<group>"; };
-		16BAAAC6229206B400407F7D /* SourceProjectManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourceProjectManager.cpp; sourceTree = "<group>"; };
+		16BAAAC6229206B400407F7D /* SourceProjectManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourceProjectManager.cpp; sourceTree = "<group>"; usesTabs = 1; };
 		16BAAAC7229206B400407F7D /* CodeDocumentListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeDocumentListener.h; sourceTree = "<group>"; };
 		16BAAAC8229206B400407F7D /* SourceFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourceFile.cpp; sourceTree = "<group>"; };
 		16BAAAC9229206B400407F7D /* AutosaveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutosaveManager.h; sourceTree = "<group>"; };

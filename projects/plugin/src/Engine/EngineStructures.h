@@ -258,6 +258,12 @@
 		{
 		public:
 
+            enum TransientPluginOptions
+            {
+                None = 0,
+                AlwaysTakeEngineValue = 1
+            };
+            
 			enum class Type
 			{
 				Transfer = 7
@@ -265,13 +271,14 @@
 
 			struct TransferPlugin
 			{
-				static EngineCommand Create(PluginState* state)
+                static EngineCommand Create(PluginState* state, TransientPluginOptions options = None)
 				{
 					EngineCommand ret;
 					ret.type = Type::Transfer;
 					ret.transfer.state = state;
 					ret.transfer.reason = PluginExchangeReason::Exchanged;
 					ret.transfer.tracer = new TracerState();
+                    ret.transfer.options = options;
 
 					return ret;
 				}
@@ -283,6 +290,7 @@
 					ret.transfer.state = state;
 					ret.transfer.tracer = tracer;
 					ret.transfer.reason = reason;
+                    ret.transfer.options = TransientPluginOptions::None;
 
 					return ret;
 				}
@@ -290,6 +298,7 @@
 				PluginState* state;
 				TracerState* tracer;
 				PluginExchangeReason reason;
+                TransientPluginOptions options;
 			};
 
 			Type type;

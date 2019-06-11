@@ -295,8 +295,6 @@ namespace ape
 		// Copy strings here. We have to do it this tedious way to stay c-compatible.
 		// only FreeProjectStruct is supposed to free this stuff.
 		// copy document text
-		;
-		auto len = text.length();
 
 		auto assignCStr = [] (const std::string & orig, auto & location)
 		{
@@ -546,37 +544,37 @@ namespace ape
 				// iterate over languages
 				for (int x = 0; x < elements; ++x)
 				{
-					if (langs[x].isGroup())
+					if (!langs[x].isGroup())
+                        continue;
+					
+					// look up list of extensions
+					try
 					{
-						// look up list of extensions
-						try
+						const auto& exts = langs[x]["extensions"];
+						if (!exts.isList())
 						{
-							const auto& exts = langs[x]["extensions"];
-							if (!exts.isList())
+							// this is not really ideal control transfer,
+							// but every lookup on libconfig::Setting might throw,
+							// so we use the same method here.. and only here.
+							throw std::runtime_error("Not a list");
+						}
+						else
+						{
+							// get number of extensions
+							int numExts = exts.getLength();
+							// iterate over these
+							for (int y = 0; y < numExts; ++y)
 							{
-								// this is not really ideal control transfer, 
-								// but every lookup on libconfig::Setting might throw,
-								// so we use the same method here.. and only here.
-								throw std::runtime_error("Not a list");
-							}
-							else
-							{
-								// get number of extensions
-								int numExts = exts.getLength();
-								// iterate over these
-								for (int y = 0; y < numExts; ++y)
-								{
-									validFileTypes.emplace_back(exts[y].c_str());
-								}
+								validFileTypes.emplace_back(exts[y].c_str());
 							}
 						}
-						catch (const std::exception & e)
-						{
-							controller.getConsole().printLine(CConsole::Warning,
-								"[Editor] Warning: language %s has no defined extensions in config. "
-								"Program will not be able to open any files for that language. (%s)",
-								langs[x].getName(), e.what());
-						}
+					}
+					catch (const std::exception & e)
+					{
+						controller.getConsole().printLine(CConsole::Warning,
+							"[Editor] Warning: language %s has no defined extensions in config. "
+							"Program will not be able to open any files for that language. (%s)",
+							langs[x].getName(), e.what());
 					}
 				}
 

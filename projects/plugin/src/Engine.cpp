@@ -146,7 +146,7 @@ namespace ape
 		};
 	}
 
-	void Engine::exchangePlugin(std::shared_ptr<PluginState> newPlugin)
+	void Engine::exchangePlugin(std::shared_ptr<PluginState> newPlugin, EngineCommand::TransientPluginOptions options)
 	{
 		auto plugin = newPlugin.get();
 
@@ -172,7 +172,7 @@ namespace ape
 			} 
 		}
 
-		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin));
+		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin, options));
 	}
 
 	void Engine::changeInitialDelay(long samples) noexcept
@@ -247,6 +247,7 @@ namespace ape
 
 		bool newPluginArrived = false;
 		bool hadOldPlugin = currentPlugin != nullptr;
+        bool forceTakeEngineValues = false;
 
 		EngineCommand command;
 
@@ -271,6 +272,7 @@ namespace ape
 				currentPlugin = command.transfer.state;
 				newPluginArrived = true;
 				currentTracer = command.transfer.tracer;
+                forceTakeEngineValues = command.transfer.options & EngineCommand::AlwaysTakeEngineValue;
 			}
 			}
 		}
@@ -281,7 +283,7 @@ namespace ape
 			{
 				// hot reloading, copy over parameters
 				// TODO: Only do this if hash of old and new parameters match up
-				currentPlugin->syncParametersToEngine(hadOldPlugin && preserveParameters);
+                currentPlugin->syncParametersToEngine(forceTakeEngineValues || (hadOldPlugin && preserveParameters));
 			}
 
 			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers(), &numTraces))
@@ -362,19 +364,20 @@ namespace ape
 	void Engine::setStateInformation(const void* data, int sizeInBytes)
 	{
 		bool ret = false;
+        
 		try
 		{
 			ret = CSerializer::restore(*this, data, sizeInBytes);
 		}
 		catch (std::exception & e)
 		{
-
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : Exception while serializing: %s", e.what());
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Exception while deserializing: %s", e.what());
 		}
+        
 		if (!ret)
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : Error serializing state!");
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Error deserializing state!");
 		else
-			controller->getConsole().printLine("[Engine] : Succesfully serialized state!");
+			controller->getConsole().printLine("[Engine] : Succesfully deserialized state!");
 	}
 
 	const juce::String Engine::getName() const

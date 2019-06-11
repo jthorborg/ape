@@ -50,6 +50,7 @@ namespace ape
 		: projectName(cpl::programInfo.programAbbr)
 		, engine(effect)
 		, console(std::make_unique<CConsole>())
+        , currentOptions(EngineCommand::None)
 	{
 
 		editorSSO = std::make_unique<cpl::SerializableStateObject<MainEditor>>(
@@ -109,7 +110,7 @@ namespace ape
 
 	}
 
-	void UIController::setPlugin(std::shared_ptr<PluginState> newPlugin)
+	void UIController::setPlugin(std::shared_ptr<PluginState> newPlugin, EngineCommand::TransientPluginOptions options)
 	{
 		if (currentPlugin)
 		{
@@ -118,6 +119,7 @@ namespace ape
 		}
 
 		currentPlugin = std::move(newPlugin);
+        currentOptions = options;
 	}
 	
 	void UIController::pulseUI()
@@ -305,7 +307,7 @@ namespace ape
 					editorSSO->getCached()->onPluginStateChanged(*currentPlugin, true);
 				}
 
-				engine.exchangePlugin(currentPlugin);
+				engine.exchangePlugin(currentPlugin, currentOptions);
 			};
 
 			if (sync)

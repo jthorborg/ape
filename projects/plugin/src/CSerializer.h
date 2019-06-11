@@ -163,7 +163,7 @@
 					return false;
 				}
 
-				controller.setPlugin(std::move(plugin));
+				controller.setPlugin(std::move(plugin), EngineCommand::AlwaysTakeEngineValue);
 
 				// project is now compiled, lets try to activate it
 				if (!controller.performCommand(UICommand::Activate))
