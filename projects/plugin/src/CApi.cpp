@@ -522,5 +522,22 @@ namespace ape::api
 		if(!done)
 			THROW("Request to release non-owned FFT");
 	}
+	
+	void APE_API setTriggeringChannel(APE_SharedInterface * iface, int triggerChannel)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_TRUE(triggerChannel > 0);
+		
+		auto& shared = IEx::downcast(*iface);
+
+		shared
+			.getEngine()
+			.getOscilloscopeData()
+			.getContent()
+			.triggeringChannel
+			.getParameterView()
+			.updateFromProcessorTransformed(triggerChannel);
+	}
+
 
 }

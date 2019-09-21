@@ -330,7 +330,9 @@ namespace ape
 		pluginOutputs.resize(newSettings.outputs);
 
 		config = newSettings;
-
+		
+		api::setTriggeringChannel(sharedObject.get(), config.inputs + 1);
+		
 		Event e;
 		e.eventType = IOChanged;
 		Events::IOChanged aevent{ config.inputs, config.outputs, config.blockSize, config.sampleRate };
