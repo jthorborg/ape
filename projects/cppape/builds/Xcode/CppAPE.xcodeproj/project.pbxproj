@@ -44,6 +44,25 @@
 		16B0C9FB229B3D4600A65CFB /* CppAPE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CppAPE.cpp; path = ../../src/CppAPE.cpp; sourceTree = "<group>"; };
 		16B0C9FC229B3D4600A65CFB /* CppAPE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CppAPE.h; path = ../../src/CppAPE.h; sourceTree = "<group>"; };
 		16B0C9FD229B3D4600A65CFB /* TranslationUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TranslationUnit.h; path = ../../src/TranslationUnit.h; sourceTree = "<group>"; };
+		16FA9E4F2337BB8A00FC0E43 /* plot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = plot.h; path = ../../../../make/skeleton/includes/plot.h; sourceTree = "<group>"; };
+		16FA9E502337BB8A00FC0E43 /* fft.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fft.h; path = ../../../../make/skeleton/includes/fft.h; sourceTree = "<group>"; };
+		16FA9E512337BB8A00FC0E43 /* fpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fpoint.h; path = ../../../../make/skeleton/includes/fpoint.h; sourceTree = "<group>"; };
+		16FA9E522337BB8A00FC0E43 /* CInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CInterface.h; path = ../../../../make/skeleton/includes/CInterface.h; sourceTree = "<group>"; };
+		16FA9E532337BB8A00FC0E43 /* dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = dsp.h; path = ../../../../make/skeleton/includes/dsp.h; sourceTree = "<group>"; };
+		16FA9E542337BB8A00FC0E43 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../../../../make/skeleton/includes/common.h; sourceTree = "<group>"; };
+		16FA9E552337BB8A00FC0E43 /* print.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = print.h; path = ../../../../make/skeleton/includes/print.h; sourceTree = "<group>"; };
+		16FA9E562337BB8A00FC0E43 /* resampling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resampling.h; path = ../../../../make/skeleton/includes/resampling.h; sourceTree = "<group>"; };
+		16FA9E572337BB8A00FC0E43 /* trace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trace.h; path = ../../../../make/skeleton/includes/trace.h; sourceTree = "<group>"; };
+		16FA9E582337BB8B00FC0E43 /* interpolation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = interpolation.h; path = ../../../../make/skeleton/includes/interpolation.h; sourceTree = "<group>"; };
+		16FA9E592337BB8B00FC0E43 /* parameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = parameter.h; path = ../../../../make/skeleton/includes/parameter.h; sourceTree = "<group>"; };
+		16FA9E5A2337BB8B00FC0E43 /* mathutil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mathutil.h; path = ../../../../make/skeleton/includes/mathutil.h; sourceTree = "<group>"; };
+		16FA9E5B2337BB8B00FC0E43 /* meter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = meter.h; path = ../../../../make/skeleton/includes/meter.h; sourceTree = "<group>"; };
+		16FA9E5C2337BB8B00FC0E43 /* baselib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = baselib.h; path = ../../../../make/skeleton/includes/baselib.h; sourceTree = "<group>"; };
+		16FA9E5D2337BB8B00FC0E43 /* label.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = label.h; path = ../../../../make/skeleton/includes/label.h; sourceTree = "<group>"; };
+		16FA9E5E2337BB8B00FC0E43 /* effect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = effect.h; path = ../../../../make/skeleton/includes/effect.h; sourceTree = "<group>"; };
+		16FA9E5F2337BB8B00FC0E43 /* misc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = misc.h; path = ../../../../make/skeleton/includes/misc.h; sourceTree = "<group>"; };
+		16FA9E602337BB8B00FC0E43 /* processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = processor.h; path = ../../../../make/skeleton/includes/processor.h; sourceTree = "<group>"; };
+		16FA9E612337BB8B00FC0E43 /* audiofile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audiofile.h; path = ../../../../make/skeleton/includes/audiofile.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +83,7 @@
 		1694A31B229B1CEC0014CF9E = {
 			isa = PBXGroup;
 			children = (
+				16FA9E4E2337BB6D00FC0E43 /* Includes */,
 				16B0C9F8229B3D3400A65CFB /* CppAPE */,
 				1694A363229B37DD0014CF9E /* External */,
 				1694A33D229B2E920014CF9E /* Shared */,
@@ -151,6 +171,32 @@
 				16B0C9FD229B3D4600A65CFB /* TranslationUnit.h */,
 			);
 			name = CppAPE;
+			sourceTree = "<group>";
+		};
+		16FA9E4E2337BB6D00FC0E43 /* Includes */ = {
+			isa = PBXGroup;
+			children = (
+				16FA9E612337BB8B00FC0E43 /* audiofile.h */,
+				16FA9E5C2337BB8B00FC0E43 /* baselib.h */,
+				16FA9E522337BB8A00FC0E43 /* CInterface.h */,
+				16FA9E542337BB8A00FC0E43 /* common.h */,
+				16FA9E532337BB8A00FC0E43 /* dsp.h */,
+				16FA9E5E2337BB8B00FC0E43 /* effect.h */,
+				16FA9E502337BB8A00FC0E43 /* fft.h */,
+				16FA9E512337BB8A00FC0E43 /* fpoint.h */,
+				16FA9E582337BB8B00FC0E43 /* interpolation.h */,
+				16FA9E5D2337BB8B00FC0E43 /* label.h */,
+				16FA9E5A2337BB8B00FC0E43 /* mathutil.h */,
+				16FA9E5B2337BB8B00FC0E43 /* meter.h */,
+				16FA9E5F2337BB8B00FC0E43 /* misc.h */,
+				16FA9E592337BB8B00FC0E43 /* parameter.h */,
+				16FA9E4F2337BB8A00FC0E43 /* plot.h */,
+				16FA9E552337BB8A00FC0E43 /* print.h */,
+				16FA9E602337BB8B00FC0E43 /* processor.h */,
+				16FA9E562337BB8A00FC0E43 /* resampling.h */,
+				16FA9E572337BB8A00FC0E43 /* trace.h */,
+			);
+			name = Includes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

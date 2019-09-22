@@ -325,6 +325,7 @@ namespace ape
 	{
 		processReturnQueue();
 		params->pulse();
+		scopeData.getContent().parameterSet.pulseUI();
 	}
 
 	void Engine::onInitialTracerChanges(TracerState& state)

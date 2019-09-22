@@ -73,7 +73,8 @@ namespace ape
 		juce::OpenGLPixelFormat format;
 		format.multisamplingLevel = 16;
 		context.setPixelFormat(format);
-
+        context.setContinuousRepainting(true);
+        context.setSwapInterval(1);
 	}
 
 	void SignalizerWindow::resized()
