@@ -529,14 +529,13 @@ namespace ape::api
 		REQUIRES_TRUE(triggerChannel > 0);
 		
 		auto& shared = IEx::downcast(*iface);
+		
+		shared.getCurrentPluginState().apiTriggerOverride();
 
 		shared
 			.getEngine()
 			.getOscilloscopeData()
-			.getContent()
-			.triggeringChannel
-			.getParameterView()
-			.updateFromProcessorTransformed(triggerChannel);
+			.setTriggeringChannel(triggerChannel);
 	}
 
 

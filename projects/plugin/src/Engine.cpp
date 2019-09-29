@@ -87,6 +87,7 @@ namespace ape
 #else
 			"release");
 #endif
+		
 	}
 
 	Engine::~Engine()
@@ -547,6 +548,9 @@ namespace ape
 
 		auxMatrix.resizeChannels(Signalizer::OscilloscopeContent::NumColourChannels);
 		tempBuffer.resizeChannels(ioConfig.outputs);
+		
+		getOscilloscopeData().setTriggeringChannel(ioConfig.inputs + 1);
+
 	}
 
 	void Engine::releaseResources()

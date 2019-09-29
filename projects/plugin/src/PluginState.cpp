@@ -69,6 +69,7 @@ namespace ape
 		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
 		, activating(false)
+		, triggerSetThroughAPI(false)
 		, pluginAllocator(32)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
@@ -161,6 +162,9 @@ namespace ape
 		}
 		else
 		{
+			if(!triggerSetThroughAPI)
+				api::setTriggeringChannel(sharedObject.get(), config.inputs + 1);
+
 			for (std::size_t i = 0; i < parameters.size(); ++i)
 			{
 				pManager.setParameter(static_cast<ParameterManager::IndexHandle>(i), parameters[i]->getValue());
@@ -240,6 +244,7 @@ namespace ape
 		CPL_RUNTIME_ASSERTION(!activating);
 
 		activating = true;
+		triggerSetThroughAPI = false;
 
 		commandQueue = std::make_unique<PluginCommandQueue>();
 
@@ -330,8 +335,6 @@ namespace ape
 		pluginOutputs.resize(newSettings.outputs);
 
 		config = newSettings;
-		
-		api::setTriggeringChannel(sharedObject.get(), config.inputs + 1);
 		
 		Event e;
 		e.eventType = IOChanged;
