@@ -207,7 +207,7 @@ namespace ape
 
 	bool Engine::processPlugin(PluginState& plugin, TracerState& tracer, const std::size_t numSamples, const float * const * inputs, std::size_t* numTraces)
 	{
-		const auto pole = std::pow(0.95, getSampleRate() / numSamples);
+		const auto pole = 1 - std::exp(-1.0 / (2 * getSampleRate() / numSamples));
 		std::size_t profiledClocks = 0;
 
 		if (useFPE)
