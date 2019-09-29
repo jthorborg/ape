@@ -216,6 +216,9 @@ namespace CppAPE
 				//.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
 				.arg("-fexceptions")
 				.arg("-fcxx-exceptions")
+#ifdef CPL_MAC
+				.arg("-fno-use-cxa-atexit")
+#endif
 				.argPair("-D__CPPAPE_PRECISION__=", std::to_string(getProject()->floatPrecision), cpl::Args::NoSpace)
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace)
@@ -238,10 +241,12 @@ namespace CppAPE
 			);
 
 			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
-#ifdef _DEBUG
-			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
-#endif
 			auto tasks = builder.fromFile((dirRoot / "runtime" / "misc_tasks.cpp").string());
+
+#if defined(_DEBUG) || defined(DEBUG)
+			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
+			tasks.save((dirRoot / "build" / "tasks.bc").string().c_str());
+#endif
 
 			state->addTranslationUnit(projectUnit);
 			state->addTranslationUnit(tasks);
