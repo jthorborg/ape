@@ -624,7 +624,14 @@ namespace ape
 		{
 			try
 			{
-				cpl::Process::Builder command(*editCommandLine);
+				std::string cmdLine = *editCommandLine;
+				
+#ifdef CPL_MAC
+				if(cmdLine.empty())
+					cmdLine = "open";
+#endif
+				
+				cpl::Process::Builder command(cmdLine);
 				cpl::Args args;
 
 				args.arg(sourceFile.getPath().string(), cpl::Args::Flags::Escaped);
@@ -633,7 +640,11 @@ namespace ape
 			}
 			catch (const std::system_error& e)
 			{
-				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing externally: %s", (*editCommandLine).c_str(), e.what());
+				controller.getConsole().printLine(CConsole::Error, "System exception launching \"%s\" for editing \"%s\" externally: %s", (*editCommandLine).c_str(), sourceFile.getPath().string().c_str(), e.what());
+			}
+			catch (const std::runtime_error& e)
+			{
+				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing \"%s\"  externally: %s", (*editCommandLine).c_str(), sourceFile.getPath().string().c_str(), e.what());
 			}
 		}
 	}
