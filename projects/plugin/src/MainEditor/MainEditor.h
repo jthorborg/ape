@@ -112,6 +112,7 @@
 			jcredland::TabDock tabs;
 
 			juce::ResizableCornerComponent rcc;
+			juce::ComponentBoundsConstrainer constrainer;
 		};
 
 	};
