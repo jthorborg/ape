@@ -63,6 +63,23 @@
 		16FA9E5F2337BB8B00FC0E43 /* misc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = misc.h; path = ../../../../make/skeleton/includes/misc.h; sourceTree = "<group>"; };
 		16FA9E602337BB8B00FC0E43 /* processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = processor.h; path = ../../../../make/skeleton/includes/processor.h; sourceTree = "<group>"; };
 		16FA9E612337BB8B00FC0E43 /* audiofile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audiofile.h; path = ../../../../make/skeleton/includes/audiofile.h; sourceTree = "<group>"; };
+		16FA9E63233FBB1A00FC0E43 /* stddef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stddef.h; path = ../../../../external/ccore/include/stddef.h; sourceTree = "<group>"; };
+		16FA9E64233FBB1A00FC0E43 /* stdint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdint.h; path = ../../../../external/ccore/include/stdint.h; sourceTree = "<group>"; };
+		16FA9E65233FBB1A00FC0E43 /* math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = math.h; path = ../../../../external/ccore/include/math.h; sourceTree = "<group>"; };
+		16FA9E66233FBB1A00FC0E43 /* string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = string.h; path = ../../../../external/ccore/include/string.h; sourceTree = "<group>"; };
+		16FA9E67233FBB1A00FC0E43 /* limits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = limits.h; path = ../../../../external/ccore/include/limits.h; sourceTree = "<group>"; };
+		16FA9E68233FBB1A00FC0E43 /* stdalign.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdalign.h; path = ../../../../external/ccore/include/stdalign.h; sourceTree = "<group>"; };
+		16FA9E69233FBB1A00FC0E43 /* vadefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = vadefs.h; path = ../../../../external/ccore/include/vadefs.h; sourceTree = "<group>"; };
+		16FA9E6A233FBB1A00FC0E43 /* _mingw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = _mingw.h; path = ../../../../external/ccore/include/_mingw.h; sourceTree = "<group>"; };
+		16FA9E6B233FBB1A00FC0E43 /* wchar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wchar.h; path = ../../../../external/ccore/include/wchar.h; sourceTree = "<group>"; };
+		16FA9E6C233FBB1B00FC0E43 /* stdatomic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdatomic.h; path = ../../../../external/ccore/include/stdatomic.h; sourceTree = "<group>"; };
+		16FA9E6D233FBB1B00FC0E43 /* stdarg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdarg.h; path = ../../../../external/ccore/include/stdarg.h; sourceTree = "<group>"; };
+		16FA9E6E233FBB1B00FC0E43 /* malloc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = malloc.h; path = ../../../../external/ccore/include/malloc.h; sourceTree = "<group>"; };
+		16FA9E6F233FBB1B00FC0E43 /* stdlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdlib.h; path = ../../../../external/ccore/include/stdlib.h; sourceTree = "<group>"; };
+		16FA9E70233FBB1B00FC0E43 /* errno.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = errno.h; path = ../../../../external/ccore/include/errno.h; sourceTree = "<group>"; };
+		16FA9E71233FBB1B00FC0E43 /* float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = float.h; path = ../../../../external/ccore/include/float.h; sourceTree = "<group>"; };
+		16FA9E72233FBB1B00FC0E43 /* __stddef_max_align_t.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = __stddef_max_align_t.h; path = ../../../../external/ccore/include/__stddef_max_align_t.h; sourceTree = "<group>"; };
+		16FA9E73233FBB1B00FC0E43 /* assert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = assert.h; path = ../../../../external/ccore/include/assert.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +100,7 @@
 		1694A31B229B1CEC0014CF9E = {
 			isa = PBXGroup;
 			children = (
+				16FA9E62233FBB0500FC0E43 /* ccore */,
 				16FA9E4E2337BB6D00FC0E43 /* Includes */,
 				16B0C9F8229B3D3400A65CFB /* CppAPE */,
 				1694A363229B37DD0014CF9E /* External */,
@@ -197,6 +215,30 @@
 				16FA9E572337BB8A00FC0E43 /* trace.h */,
 			);
 			name = Includes;
+			sourceTree = "<group>";
+		};
+		16FA9E62233FBB0500FC0E43 /* ccore */ = {
+			isa = PBXGroup;
+			children = (
+				16FA9E72233FBB1B00FC0E43 /* __stddef_max_align_t.h */,
+				16FA9E6A233FBB1A00FC0E43 /* _mingw.h */,
+				16FA9E73233FBB1B00FC0E43 /* assert.h */,
+				16FA9E70233FBB1B00FC0E43 /* errno.h */,
+				16FA9E71233FBB1B00FC0E43 /* float.h */,
+				16FA9E67233FBB1A00FC0E43 /* limits.h */,
+				16FA9E6E233FBB1B00FC0E43 /* malloc.h */,
+				16FA9E65233FBB1A00FC0E43 /* math.h */,
+				16FA9E68233FBB1A00FC0E43 /* stdalign.h */,
+				16FA9E6D233FBB1B00FC0E43 /* stdarg.h */,
+				16FA9E6C233FBB1B00FC0E43 /* stdatomic.h */,
+				16FA9E63233FBB1A00FC0E43 /* stddef.h */,
+				16FA9E64233FBB1A00FC0E43 /* stdint.h */,
+				16FA9E6F233FBB1B00FC0E43 /* stdlib.h */,
+				16FA9E66233FBB1A00FC0E43 /* string.h */,
+				16FA9E69233FBB1A00FC0E43 /* vadefs.h */,
+				16FA9E6B233FBB1A00FC0E43 /* wchar.h */,
+			);
+			name = ccore;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
