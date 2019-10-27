@@ -46,7 +46,7 @@
 	namespace ape
 	{
 		class Engine;
-        class CompilerBinding;
+        struct CompilerBinding;
 
 		/// <summary>
 		/// Class responsible for managing compilers opaquely and dispatching

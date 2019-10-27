@@ -213,7 +213,7 @@ namespace CppAPE
 				.arg("-fms-extensions")
 				.arg("-O2")
 				//.arg("--stdlib=libc++")
-				//.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
 				.arg("-fexceptions")
 				.arg("-fcxx-exceptions")
 #ifdef CPL_MAC
@@ -240,18 +240,29 @@ namespace CppAPE
 				}
 			);
 
+			state->injectSymbol("??_7type_info@@6B@", (*(void**)&typeid(*this)));
+			state->injectSymbol("snprintf", std::snprintf);
+
 			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
 			auto tasks = builder.fromFile((dirRoot / "runtime" / "misc_tasks.cpp").string());
+			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get());
+			auto libraryUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "libcxx.bc").string(), state.get());
 
 #if defined(_DEBUG) || defined(DEBUG)
 			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
 			tasks.save((dirRoot / "build" / "tasks.bc").string().c_str());
 #endif
+			tasks.addDependencyOn(runtimeUnit);
+			projectUnit.addDependencyOn(tasks);
+			projectUnit.addDependencyOn(libraryUnit);
+			projectUnit.addDependencyOn(runtimeUnit);
+			libraryUnit.addDependencyOn(runtimeUnit);
+			runtimeUnit.addDependencyOn(tasks);
 
 			state->addTranslationUnit(projectUnit);
 			state->addTranslationUnit(tasks);
-			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get()));
-			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "libcxx.bc").string(), state.get()));
+			state->addTranslationUnit(runtimeUnit);
+			state->addTranslationUnit(libraryUnit);
 		}
 		catch (const std::exception& e)
 		{

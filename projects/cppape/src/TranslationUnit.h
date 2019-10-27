@@ -128,6 +128,17 @@ namespace CppAPE
 			}
 #endif
 		}
+
+		void addDependencyOn(CxxTranslationUnit& other)
+		{
+			auto pother = other.unit.get();
+
+			if (auto ret = trs_unit_add_dependencies(unit.get(), 1, &pother); ret != jit_error_none)
+			{
+				throw LibCppJitExceptionBase{ ret };
+			}
+		}
+
 		
 	private:
 
@@ -326,9 +337,6 @@ namespace CppAPE
 		if (argc())
 			options.argv = argv();
 
-		if (name.size())
-			options.name = name.c_str();
-
 		options.opaque = this;
 		options.callback = onCompiler;
 		options.memory_context = optionalMemoryContext ? optionalMemoryContext->getMemoryContext() : nullptr;
@@ -338,7 +346,7 @@ namespace CppAPE
 
 		translation_unit* localUnit(nullptr);
 
-		auto ret = trs_unit_from_string(contents.c_str(), &options, &localUnit);
+		auto ret = trs_unit_from_string(name.c_str(), contents.c_str(), &options, &localUnit);
 
 		if (ret != jit_error_none)
 		{

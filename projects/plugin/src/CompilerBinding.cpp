@@ -103,10 +103,11 @@ namespace ape
         if(!compilerPath.length())
             throw std::runtime_error(cpl::format("Invalid or empty path for compiler \'%s\' for language \'%s\'.", compilerName.c_str(), language.c_str()));
         
-        const auto canon = cpl::fs::path(cpl::Misc::DirectoryPath() + compilerPath);
+        const auto canon = cpl::Misc::DirFSPath() / compilerPath;
         const auto stem = canon.stem().string();
         const auto dir = canon.parent_path();
         
+
         module.addSearchPath(dir);
         
         for (const auto& pre : {""s, "lib"s})

@@ -609,6 +609,7 @@
     <ClCompile Include="..\..\src\CodeEditor\SourceFile.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.CommandTarget.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
+    <ClCompile Include="..\..\src\CompilerBinding.cpp" />
     <ClCompile Include="..\..\src\Engine\ParameterManager.cpp" />
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp" />
     <ClCompile Include="..\..\src\PluginState.cpp" />
@@ -1746,6 +1747,7 @@
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
+    <ClInclude Include="..\..\src\CompilerBinding.h" />
     <ClInclude Include="..\..\src\Engine\EngineStructures.h" />
     <ClInclude Include="..\..\src\Engine\ParameterManager.h" />
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h" />
