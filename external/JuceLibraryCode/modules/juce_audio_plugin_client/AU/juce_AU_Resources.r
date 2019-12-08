@@ -23,7 +23,8 @@
 */
 
 #define UseExtendedThingResource 1
-#include <AudioUnit/AudioUnit.r>
+// Having Rez errors? include AudioUnit/AudioUnit.r instead.
+#include <AudioUnit.r>
 
 //==============================================================================
 /*  The AppConfig.h file should be a file in your project, containing info to describe the
