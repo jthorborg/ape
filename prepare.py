@@ -56,7 +56,7 @@ print(">> Setting up skeletons...")
 print(">> Downloading latest cpp-jit binaries...")
 
 if platform.system() == "Windows":
-	cppjit_url = "https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.3-windows.zip"
+	cppjit_url = "https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.5-windows.zip"
 elif platform.system() == "Darwin":
 	cppjit_url = "https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.5-macos.zip"
 
