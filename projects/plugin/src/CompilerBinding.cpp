@@ -119,14 +119,17 @@ namespace ape
                 if(!cpl::fs::exists(lib) || cpl::fs::is_directory(lib))
                     continue;
                 
-                if(auto error = module.load(lib.string()))
+				std::string errorMsg;
+				
+                if(auto error = module.load(lib.string(), errorMsg))
                 {
                     auto fmt = cpl::format(
-                        "Error loading compiler module \'%s\' for language \'%s\' at \'%s\'. OS returns %d.",
+                        "Error loading compiler module \'%s\' for language \'%s\' at \'%s\'. OS returns %d. System message:\n%s",
                         compilerName.c_str(),
                         language.c_str(),
                         lib.string().c_str(),
-                        (int)error
+                        (int)error,
+						errorMsg.c_str()
                     );
                     
                     throw std::runtime_error(std::move(fmt));

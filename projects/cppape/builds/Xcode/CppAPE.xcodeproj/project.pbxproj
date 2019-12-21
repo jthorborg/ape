@@ -475,13 +475,10 @@
 					../../../../external/,
 					/usr/local/Cellar/boost/1.69.0_2/include,
 				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/Cellar/boost/1.69.0_2/lib,
-					../../../../make/skeleton/compilers/cppape/,
-				);
+				LIBRARY_SEARCH_PATHS = ../../../../make/skeleton/compilers/cppape/;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-lboost_filesystem";
+				OTHER_LDFLAGS = /usr/local/Cellar/boost/1.69.0_2/lib/libboost_filesystem.a;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -504,13 +501,10 @@
 					../../../../external/,
 					/usr/local/Cellar/boost/1.69.0_2/include,
 				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/Cellar/boost/1.69.0_2/lib,
-					../../../../make/skeleton/compilers/cppape/,
-				);
+				LIBRARY_SEARCH_PATHS = ../../../../make/skeleton/compilers/cppape/;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-lboost_filesystem";
+				OTHER_LDFLAGS = /usr/local/Cellar/boost/1.69.0_2/lib/libboost_filesystem.a;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
