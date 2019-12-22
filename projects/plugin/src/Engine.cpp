@@ -40,6 +40,7 @@
 #include "Engine/ParameterManager.h"
 #include "UI/UICommands.h"
 #include <cpl/system/SysStats.h>
+#include "version.h"
 
 namespace cpl
 {

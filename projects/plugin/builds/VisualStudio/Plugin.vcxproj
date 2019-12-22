@@ -2221,6 +2221,7 @@
     <ClInclude Include="..\..\src\UI\UICommands.h" />
     <ClInclude Include="..\..\src\UI\UIValue.h" />
     <ClInclude Include="..\..\src\Settings.h" />
+    <ClInclude Include="..\..\src\version.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

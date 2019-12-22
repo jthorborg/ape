@@ -253,7 +253,7 @@
  #define JucePlugin_ManufacturerCode       'LbJt'
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             'ape'
+ #define JucePlugin_PluginCode             'apex'
 #endif
 #ifndef  JucePlugin_MaxNumInputChannels
  #define JucePlugin_MaxNumInputChannels    2
@@ -284,7 +284,6 @@
 #endif
 #ifndef  JucePlugin_VersionCode
  #define JucePlugin_VersionCode            APE_VST_VERSION_HEX
- //#define JucePlugin_VersionCode            0x000207
 #endif
 #ifndef  JucePlugin_VersionString
  #define JucePlugin_VersionString          APE_VERSION_STRING
