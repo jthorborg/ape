@@ -27,7 +27,7 @@
 
 *************************************************************************************/
 
-#include "ape.h"
+#include "APE.h"
 #include "Project.h"
 
 #ifdef __cplusplus

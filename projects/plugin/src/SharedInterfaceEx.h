@@ -70,6 +70,7 @@
 				APE_BIND(createFFT);
 				APE_BIND(performFFT);
 				APE_BIND(releaseFFT);
+				APE_BIND(setTriggeringChannel);
 
 #undef APE_BIND
 			}

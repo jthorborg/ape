@@ -73,6 +73,11 @@ namespace ape
 
 	protected:
 
+		void setTriggeringChannel(int channel)
+		{
+			getInterface().setTriggeringChannel(&getInterface(), channel);
+		}
+		
 		void defaultProcess(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			const auto shared = configuration.inputs > configuration.outputs ? configuration.outputs : configuration.inputs;

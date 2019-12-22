@@ -38,7 +38,7 @@
 	#include <cpl/gui/CViews.h>
 	#include <cpl/gui/controls/Controls.h>
 	#include <memory>
-	#include <dockable-windows\Source\JDockableWindows.h>
+	#include <dockable-windows/Source/JDockableWindows.h>
 	#include "../UI/PlayStateButton.h"
 	#include "../UI/StopButton.h"
 	#include "../UI/CleanButton.h"
@@ -48,7 +48,7 @@
 
 		class Engine;
 		class CConsole;
-		struct CCompiler;
+		struct CompilerBinding;
 		class SourceManager;
 		class CSerializer;
 		class LabelQueueDisplay;
@@ -57,6 +57,7 @@
 		class PluginSurface;
 		class SignalizerWindow;
 		class UICommandState;
+        class UIController;
 
 		class MainEditor final
 			: public juce::AudioProcessorEditor
@@ -111,6 +112,7 @@
 			jcredland::TabDock tabs;
 
 			juce::ResizableCornerComponent rcc;
+			juce::ComponentBoundsConstrainer constrainer;
 		};
 
 	};

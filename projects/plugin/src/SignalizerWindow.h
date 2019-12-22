@@ -61,6 +61,14 @@
 
 				initializeColours(Signalizer::OscilloscopeContent::NumColourChannels);
 			}
+			
+			void setTriggeringChannel(int index)
+			{
+				content
+					.triggeringChannel
+					.getParameterView()
+					.updateFromProcessorTransformed(index);
+			}
 
 			void initializeColours(std::size_t count)
 			{

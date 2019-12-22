@@ -120,7 +120,7 @@ local void fixedtables1 (struct inflate_state FAR *state)
         bits = state->bits; \
     } while (0)
 
-/* Set state from registers for inflate_fast() */
+/* Set state from s for inflate_fast() */
 #define RESTORE() \
     do { \
         strm->next_out = put; \

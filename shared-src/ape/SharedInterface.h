@@ -108,6 +108,7 @@
 		struct APE_FFT*	(APE_API * createFFT)			(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
 		void		(APE_API * performFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft, APE_FFT_Options options, const void* in, void* out);
 		void		(APE_API * releaseFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft);
+		void		(APE_API * setTriggeringChannel)	(struct APE_SharedInterface * iface, int channel);
 	};
 	
 #if defined(__cplusplus) && !defined(__cfront)

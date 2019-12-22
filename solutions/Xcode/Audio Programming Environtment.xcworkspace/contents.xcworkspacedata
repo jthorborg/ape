@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:../../projects/cppape/builds/Xcode/CppAPE.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../projects/libconfig/builds/Xcode/config.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../projects/plugin/builds/Xcode/Plugin.xcodeproj">
+   </FileRef>
+</Workspace>

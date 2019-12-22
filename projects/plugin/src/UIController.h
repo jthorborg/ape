@@ -50,7 +50,7 @@
 
 		class Engine;
 		class CConsole;
-		struct CCompiler;
+		struct CompilerBinding;
 		class SourceManager;
 		class CSerializer;
 		class PluginState;
@@ -76,7 +76,7 @@
 
 			void pulseUI();
 			MainEditor * create();
-			ape::CConsole& getConsole() noexcept { return *console.get();	};
+			ape::CConsole& getConsole() noexcept { return *console.get(); };
 			SourceManager& getSourceManager() noexcept { return *sourceManager; }
 			UICommandState& getUICommandState() noexcept { return *commandStates; }
 			LabelQueue& getLabelQueue() noexcept { return labelQueue; }
@@ -96,7 +96,7 @@
 			void deserialize(cpl::CSerializer::Builder & ar, cpl::Version version) override;
 			void externalDiagnostic(Diagnostic level, const cpl::string_ref text);
 
-			void setPlugin(std::shared_ptr<PluginState> newPlugin);
+            void setPlugin(std::shared_ptr<PluginState> newPlugin, EngineCommand::TransientPluginOptions options = EngineCommand::None);
 
 		private:
 
@@ -118,6 +118,7 @@
 
 			ape::Engine& engine;
 			std::shared_ptr<PluginState> currentPlugin;
+            EngineCommand::TransientPluginOptions currentOptions;
 			std::unique_ptr<cpl::SerializableStateObject<MainEditor>> editorSSO;
 			std::future<std::unique_ptr<PluginState>> compilerState;
 			std::future<bool> activationState;

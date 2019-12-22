@@ -36,7 +36,6 @@
 #include "../PluginState.h"
 #include "../Plugin/PluginSurface.h"
 #include "../SignalizerWindow.h"
-#include <dockable-windows\Source\MainComponent.h>
 #include "../UI/DockWindow.h"
 #include "../CodeEditor/SourceManager.h"
 
@@ -59,8 +58,10 @@ namespace ape
 		, tabs(dockManager)
 		, infoLabel(std::make_unique<CTextControl>())
 		, statusLabel(std::make_unique<LabelQueueDisplay>(p.getLabelQueue()))
-		, rcc(this, nullptr)
+		, rcc(this, &constrainer)
 	{
+		constrainer.setMinimumSize(150, 150);
+		
 		dockManager.setHeavyWeightGenerator(
 			[this](auto& c) 
 			{

@@ -3,6 +3,8 @@ import configparser
 from urllib.request import urlopen
 from shutil import copyfile
 import zipfile
+import sys
+import platform
 
 print(">> Updating submodules...")
 os.system("git submodule update --init --recursive")
@@ -10,6 +12,13 @@ os.system("git submodule update")
 
 config = configparser.ConfigParser()
 
+# OS X specific
+
+if sys.platform == "darwin":
+    vsymlink = os.path.join("projects", "plugin", "JuceLibraryCode", "version.h")
+    vsymsource = os.path.join("projects", "plugin", "src", "version.h")
+    if not os.path.isfile(vsymlink):
+        os.symlink(os.path.abspath(vsymsource), os.path.abspath(vsymlink))
 
 if not os.path.isfile("make/config.ini"):
 	config.add_section("local")
@@ -30,7 +39,7 @@ def dirlink(source, dest):
 		os.system("mklink /J \"" + dest + "\" \"" + source + "\"")
 	else:
 		print("Creating symlink for: " + dest)
-		os.symlink(dest, source)
+		os.symlink(os.path.abspath(source), os.path.abspath(dest))
 
 for filename in os.listdir("projects"):
 	path = os.path.join("projects", filename)
@@ -46,20 +55,34 @@ for filename in os.listdir("projects"):
 print(">> Setting up skeletons...")
 print(">> Downloading latest cpp-jit binaries...")
 
-latest_cppjit = urlopen("https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.3-windows.zip")
+if platform.system() == "Windows":
+	cppjit_url = "https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.5-windows.zip"
+elif platform.system() == "Darwin":
+	cppjit_url = "https://bitbucket.org/Mayae/cppjit/downloads/libCppJit-0.5-macos.zip"
+
+latest_cppjit = urlopen(cppjit_url)
 with open("temp.zip", "wb") as out:
 	out.write(latest_cppjit.read())
 
 print(">> Extracting cpp-jit...")
 
 with zipfile.ZipFile("temp.zip") as cppjit:
-	with cppjit.open("libCppJit.dll") as dll:
-		with open(os.path.join("make", "skeleton", "compilers", "CppAPE", "libCppJit.dll"), "wb") as outdll:
-			outdll.write(dll.read())
+    
+	if platform.system() == "Windows":
 
-	with cppjit.open("libCppJit.lib") as lib:
-		with open(os.path.join("projects", "cppape", "builds", "VisualStudio", "libCppJit.lib"), "wb") as outlib:
-			outlib.write(lib.read())
+		with cppjit.open("libCppJit.dll") as dll:
+			with open(os.path.join("make", "skeleton", "compilers", "CppAPE", "libCppJit.dll"), "wb") as outdll:
+				outdll.write(dll.read())
+
+		with cppjit.open("libCppJit.lib") as lib:
+			with open(os.path.join("projects", "cppape", "builds", "VisualStudio", "libCppJit.lib"), "wb") as outlib:
+				outlib.write(lib.read())
+
+	elif platform.system() == "Darwin":
+        
+		with cppjit.open("libcppjit.dylib") as dylib:
+			with open(os.path.join("make", "skeleton", "compilers", "CppAPE", "libcppjit.dylib"), "wb") as outdyld:
+				outdyld.write(dylib.read())
 
 	with cppjit.open("libCppJit.h") as header:
 		with open(os.path.join("projects", "cppape", "src", "libCppJit.h"), "wb") as outheader:

@@ -71,14 +71,14 @@ namespace ape
 		const char* val;
 	};
 
-	template<typename T>
-	static std::unique_ptr<ReferenceValue<T>> ValueFrom(va_list& args)
+	template<typename T, class VaList>
+    typename std::enable_if<!std::is_same<T, const char*>::value, std::unique_ptr<ReferenceValue<T>>>::type ValueFrom(VaList& args)
 	{
 		return std::make_unique<ReferenceValue<T>>(va_arg(args, const T *));
 	}
 
-	template<>
-	static std::unique_ptr<ReferenceValue<const char*>> ValueFrom(va_list& args)
+    template<typename T, class VaList>
+    typename std::enable_if<std::is_same<T, const char*>::value, std::unique_ptr<ReferenceValue<T>>>::type ValueFrom(VaList& args)
 	{
 		return std::make_unique<ReferenceValue<const char*>>(va_arg(args, const char*));
 	}

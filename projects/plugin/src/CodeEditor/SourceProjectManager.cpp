@@ -29,13 +29,13 @@
 
 
 #include "SourceProjectManager.h"
-#include <cpl/misc.h>
+#include <cpl/Misc.h>
 #include "../Engine.h"
 #include "../UIController.h"
 #include "../CConsole.h"
 #include <ctime>
 #include <sstream>
-#include <experimental/filesystem>
+#include <cpl/filesystem.h>
 #include <memory>
 #include "CodeEditorWindow.h"
 #include <fstream>
@@ -43,7 +43,7 @@
 
 namespace ape
 {
-	namespace fs = std::experimental::filesystem;
+    namespace fs = cpl::fs;
 
 	std::unique_ptr<SourceManager> MakeSourceManager(UIController& ui, const Settings& s, int instanceID)
 	{
@@ -179,7 +179,7 @@ namespace ape
 	void SourceProjectManager::checkDirtynessState()
 	{
 		bool status = doc->hasChangedSinceSavePoint();
-		bool trigger = !lastDirtyState || lastDirtyState.value() != status;
+		bool trigger = !lastDirtyState || *lastDirtyState != status;
 		
 		lastDirtyState = status;
 
@@ -295,8 +295,6 @@ namespace ape
 		// Copy strings here. We have to do it this tedious way to stay c-compatible.
 		// only FreeProjectStruct is supposed to free this stuff.
 		// copy document text
-		;
-		auto len = text.length();
 
 		auto assignCStr = [] (const std::string & orig, auto & location)
 		{
@@ -546,37 +544,37 @@ namespace ape
 				// iterate over languages
 				for (int x = 0; x < elements; ++x)
 				{
-					if (langs[x].isGroup())
+					if (!langs[x].isGroup())
+                        continue;
+					
+					// look up list of extensions
+					try
 					{
-						// look up list of extensions
-						try
+						const auto& exts = langs[x]["extensions"];
+						if (!exts.isList())
 						{
-							const auto& exts = langs[x]["extensions"];
-							if (!exts.isList())
+							// this is not really ideal control transfer,
+							// but every lookup on libconfig::Setting might throw,
+							// so we use the same method here.. and only here.
+							throw std::runtime_error("Not a list");
+						}
+						else
+						{
+							// get number of extensions
+							int numExts = exts.getLength();
+							// iterate over these
+							for (int y = 0; y < numExts; ++y)
 							{
-								// this is not really ideal control transfer, 
-								// but every lookup on libconfig::Setting might throw,
-								// so we use the same method here.. and only here.
-								throw std::runtime_error("Not a list");
-							}
-							else
-							{
-								// get number of extensions
-								int numExts = exts.getLength();
-								// iterate over these
-								for (int y = 0; y < numExts; ++y)
-								{
-									validFileTypes.emplace_back(exts[y].c_str());
-								}
+								validFileTypes.emplace_back(exts[y].c_str());
 							}
 						}
-						catch (const std::exception & e)
-						{
-							controller.getConsole().printLine(CConsole::Warning,
-								"[Editor] Warning: language %s has no defined extensions in config. "
-								"Program will not be able to open any files for that language. (%s)",
-								langs[x].getName(), e.what());
-						}
+					}
+					catch (const std::exception & e)
+					{
+						controller.getConsole().printLine(CConsole::Warning,
+							"[Editor] Warning: language %s has no defined extensions in config. "
+							"Program will not be able to open any files for that language. (%s)",
+							langs[x].getName(), e.what());
 					}
 				}
 
@@ -626,7 +624,14 @@ namespace ape
 		{
 			try
 			{
-				cpl::Process::Builder command(editCommandLine.value());
+				std::string cmdLine = *editCommandLine;
+				
+#ifdef CPL_MAC
+				if(cmdLine.empty())
+					cmdLine = "open";
+#endif
+				
+				cpl::Process::Builder command(cmdLine);
 				cpl::Args args;
 
 				args.arg(sourceFile.getPath().string(), cpl::Args::Flags::Escaped);
@@ -635,7 +640,11 @@ namespace ape
 			}
 			catch (const std::system_error& e)
 			{
-				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing externally: %s", editCommandLine.value.c_str(), e.what());
+				controller.getConsole().printLine(CConsole::Error, "System exception launching \"%s\" for editing \"%s\" externally: %s", (*editCommandLine).c_str(), sourceFile.getPath().string().c_str(), e.what());
+			}
+			catch (const std::runtime_error& e)
+			{
+				controller.getConsole().printLine(CConsole::Error, "Exception launching \"%s\" for editing \"%s\"  externally: %s", (*editCommandLine).c_str(), sourceFile.getPath().string().c_str(), e.what());
 			}
 		}
 	}

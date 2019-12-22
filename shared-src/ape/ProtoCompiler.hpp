@@ -32,7 +32,7 @@
 #ifndef APE_PROTOCOMPILER_H
 	#define APE_PROTOCOMPILER_H
 
-	#include "Ape.h"
+	#include "APE.h"
 	#include "Project.h"
 	#include "Events.h"
 	#include <utility>

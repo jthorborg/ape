@@ -411,7 +411,7 @@ namespace ape::api
 		try
 		{
 			const auto& project = pstate.getProject();
-			juce::File workingDirectory = project.workingDirectory;
+            juce::File workingDirectory = juce::String(project.workingDirectory);
 
 			if (!workingDirectory.exists())
 			{
@@ -522,5 +522,21 @@ namespace ape::api
 		if(!done)
 			THROW("Request to release non-owned FFT");
 	}
+	
+	void APE_API setTriggeringChannel(APE_SharedInterface * iface, int triggerChannel)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_TRUE(triggerChannel > 0);
+		
+		auto& shared = IEx::downcast(*iface);
+		
+		shared.getCurrentPluginState().apiTriggerOverride();
+
+		shared
+			.getEngine()
+			.getOscilloscopeData()
+			.setTriggeringChannel(triggerChannel);
+	}
+
 
 }

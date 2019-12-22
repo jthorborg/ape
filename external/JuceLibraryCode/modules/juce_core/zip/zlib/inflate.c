@@ -385,7 +385,7 @@ local int updatewindow (z_streamp strm, unsigned out)
     } while (0)
 #endif
 
-/* Load registers with state in inflate() for speed */
+/* Load s with state in inflate() for speed */
 #define LOAD() \
     do { \
         put = strm->next_out; \
@@ -396,7 +396,7 @@ local int updatewindow (z_streamp strm, unsigned out)
         bits = state->bits; \
     } while (0)
 
-/* Restore state from registers in inflate() */
+/* Restore state from s in inflate() */
 #define RESTORE() \
     do { \
         strm->next_out = put; \

@@ -109,6 +109,7 @@
 			bool isEnabled() const noexcept { return enabled; }
 			void setPlayState(bool isPlaying);
 			bool getPlayState() const noexcept { return playing; }
+			void apiTriggerOverride() noexcept { triggerSetThroughAPI = true; }
 
 			void syncParametersToEngine(bool takeEngineValues);
 
@@ -148,7 +149,8 @@
 			std::weak_ptr<PluginSurface> surface;
 
 			bool
-				playing;
+				playing,
+				triggerSetThroughAPI;
 
 			IOConfig config;
 			std::atomic<Status> state;

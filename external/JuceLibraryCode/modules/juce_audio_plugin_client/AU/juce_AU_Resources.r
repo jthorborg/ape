@@ -23,7 +23,8 @@
 */
 
 #define UseExtendedThingResource 1
-#include <AudioUnit/AudioUnit.r>
+// Having Rez errors? include AudioUnit/AudioUnit.r instead.
+#include <AudioUnit.r>
 
 //==============================================================================
 /*  The AppConfig.h file should be a file in your project, containing info to describe the
@@ -32,6 +33,8 @@
     You may need to adjust the include path of your project to make sure it can be 
     found by this include statement. (Don't hack this file to change the include path)
 */
+
+#define IS_UNDER_REZ
 #include "AppConfig.h"
 
 

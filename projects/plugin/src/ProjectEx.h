@@ -37,7 +37,7 @@
 
 	namespace ape
 	{
-		struct CCompiler;
+		struct CompilerBinding;
 		struct CSharedInterface;
 	
 		enum class CodeState
@@ -65,7 +65,7 @@
 			/// Associated compiler (see CodeGenerator::compileProject)
 			/// Not to be deleted!
 			/// </summary>
-			struct CCompiler * compiler;
+			struct CompilerBinding * compiler;
 			/// <summary>
 			/// See the definition. Defines state of project.
 			/// </summary>

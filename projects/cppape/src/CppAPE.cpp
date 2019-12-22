@@ -28,7 +28,6 @@
 *************************************************************************************/
 
 #include "CppAPE.h"
-#include <libtcc.h>
 #include <string>
 #include <cpl/Misc.h>
 #include <cpl/Common.h>
@@ -85,7 +84,8 @@ APE_Status CleanCompilerCache()
 namespace CppAPE
 {
 	const std::vector<const char*> ScriptCompiler::defines = {
-		"__cppape"
+		"__cppape",
+        "_LIBCPP_BUILDING_HAS_NO_ABI_LIBRARY"
 	};
 
 	APE_Diagnostic JitToDiagnostic(jit_error_t error)
@@ -125,9 +125,11 @@ namespace CppAPE
 
 		cpl::CExclusiveFile lockFile;
 
-		if (!lockFile.open((dirRoot / "lockfile.l").string()))
+        auto lockFilePath = (dirRoot / "lockfile.l").string();
+        
+		if (!lockFile.open(lockFilePath.c_str()))
 		{
-			print(APE_Diag_Error, "[CppAPE] : error: couldn't lock file");
+            print(APE_Diag_Error, cpl::format("[CppAPE] : error: couldn't lock file at: %s", lockFilePath.c_str()).c_str());
 			return Status::STATUS_ERROR;
 		}
 
@@ -140,7 +142,10 @@ namespace CppAPE
 		// TODO: Cache static
 		if (memoryEffectPCH.empty())
 		{
-			std::ifstream pchfile(dirRoot / "runtime" / "common.h.pch", std::ios::binary | std::ios::ate);
+			std::ifstream pchfile(
+                (dirRoot / "runtime" / "common.h.pch").string().c_str(),
+                std::ios::binary | std::ios::ate
+            );
 			std::streamsize size = pchfile.tellg();
 			pchfile.seekg(0, std::ios::beg);
 
@@ -208,9 +213,12 @@ namespace CppAPE
 				.arg("-fms-extensions")
 				.arg("-O2")
 				//.arg("--stdlib=libc++")
-				//.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
 				.arg("-fexceptions")
 				.arg("-fcxx-exceptions")
+#ifdef CPL_MAC
+				.arg("-fno-use-cxa-atexit")
+#endif
 				.argPair("-D__CPPAPE_PRECISION__=", std::to_string(getProject()->floatPrecision), cpl::Args::NoSpace)
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace)
@@ -224,7 +232,7 @@ namespace CppAPE
 
 			builder.addMemoryFile("common.h.pch", memoryEffectPCH.data(), memoryEffectPCH.size());
 
-			state = std::make_unique<CxxJitContext>();
+			state = std::make_unique<CxxJitContext>(0, false);
 			state->setCallback(
 				[this](auto e, auto msg)
 				{
@@ -232,16 +240,29 @@ namespace CppAPE
 				}
 			);
 
+			state->injectSymbol("??_7type_info@@6B@", (*(void**)&typeid(*this)));
+			state->injectSymbol("snprintf", std::snprintf);
+
 			auto projectUnit = builder.fromString(source, getProject()->projectName, state.get());
-#ifdef _DEBUG
-			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
-#endif
 			auto tasks = builder.fromFile((dirRoot / "runtime" / "misc_tasks.cpp").string());
+			auto runtimeUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get());
+			auto libraryUnit = CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "libcxx.bc").string(), state.get());
+
+#if defined(_DEBUG) || defined(DEBUG)
+			projectUnit.save((dirRoot / "build" / "compiled_source.bc").string().c_str());
+			tasks.save((dirRoot / "build" / "tasks.bc").string().c_str());
+#endif
+			tasks.addDependencyOn(runtimeUnit);
+			projectUnit.addDependencyOn(tasks);
+			projectUnit.addDependencyOn(libraryUnit);
+			projectUnit.addDependencyOn(runtimeUnit);
+			libraryUnit.addDependencyOn(runtimeUnit);
+			runtimeUnit.addDependencyOn(tasks);
 
 			state->addTranslationUnit(projectUnit);
 			state->addTranslationUnit(tasks);
-			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "runtime.bc").string(), state.get()));
-			state->addTranslationUnit(CxxTranslationUnit::loadSaved((dirRoot / "runtime" / "libcxx.bc").string(), state.get()));
+			state->addTranslationUnit(runtimeUnit);
+			state->addTranslationUnit(libraryUnit);
 		}
 		catch (const std::exception& e)
 		{

@@ -38,3 +38,7 @@ make/skeleton/compilers/CppAPE/build/szal.c
 projects/scripts/src/scripts/
 projects/scripts/builds/VisualStudio/x64/
 *.vcxproj.user
+make/skeleton/compilers/CppAPE/libCppAPE.dylib
+make/skeleton/compilers/CppAPE/libcppjit.dylib
+projects/cppape/builds/VisualStudio/libCppJit.lib
+doc/

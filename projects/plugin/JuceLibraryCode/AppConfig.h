@@ -17,13 +17,13 @@
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
 
-#ifdef __APPLE__
+#ifndef IS_UNDER_REZ // rez can't relative files even if it's life depended on it
 
-#include "../../src/version.h"
+#include "../src/version.h"
 
 #else
 
-#include "../src/version.h"
+#include "version.h"
 
 #endif
 

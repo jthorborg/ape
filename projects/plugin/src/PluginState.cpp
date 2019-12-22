@@ -69,6 +69,7 @@ namespace ape
 		, currentlyDisabling(false)
 		, abnormalBehaviour(false)
 		, activating(false)
+		, triggerSetThroughAPI(false)
 		, pluginAllocator(32)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
@@ -161,6 +162,9 @@ namespace ape
 		}
 		else
 		{
+			if(!triggerSetThroughAPI)
+				api::setTriggeringChannel(sharedObject.get(), config.inputs + 1);
+
 			for (std::size_t i = 0; i < parameters.size(); ++i)
 			{
 				pManager.setParameter(static_cast<ParameterManager::IndexHandle>(i), parameters[i]->getValue());
@@ -240,6 +244,7 @@ namespace ape
 		CPL_RUNTIME_ASSERTION(!activating);
 
 		activating = true;
+		triggerSetThroughAPI = false;
 
 		commandQueue = std::make_unique<PluginCommandQueue>();
 
@@ -330,7 +335,7 @@ namespace ape
 		pluginOutputs.resize(newSettings.outputs);
 
 		config = newSettings;
-
+		
 		Event e;
 		e.eventType = IOChanged;
 		Events::IOChanged aevent{ config.inputs, config.outputs, config.blockSize, config.sampleRate };
@@ -555,7 +560,7 @@ namespace ape
 			{
 				// always call this - changes in masks may trigger exceptions
 				std::feclearexcept(FE_ALL_EXCEPT);
-				threadData.fpuMask = _MM_GET_EXCEPTION_MASK();
+				fpuMask = _MM_GET_EXCEPTION_MASK();
 				
 				unsigned nfpcw = _MM_MASK_INVALID | _MM_MASK_DENORM | _MM_MASK_DIV_ZERO | _MM_MASK_OVERFLOW
 								| _MM_MASK_UNDERFLOW |_MM_MASK_INEXACT;

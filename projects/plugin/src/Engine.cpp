@@ -87,6 +87,7 @@ namespace ape
 #else
 			"release");
 #endif
+		
 	}
 
 	Engine::~Engine()
@@ -146,7 +147,7 @@ namespace ape
 		};
 	}
 
-	void Engine::exchangePlugin(std::shared_ptr<PluginState> newPlugin)
+	void Engine::exchangePlugin(std::shared_ptr<PluginState> newPlugin, EngineCommand::TransientPluginOptions options)
 	{
 		auto plugin = newPlugin.get();
 
@@ -172,7 +173,7 @@ namespace ape
 			} 
 		}
 
-		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin));
+		incoming.pushElement<true, true>(EngineCommand::TransferPlugin::Create(plugin, options));
 	}
 
 	void Engine::changeInitialDelay(long samples) noexcept
@@ -206,7 +207,7 @@ namespace ape
 
 	bool Engine::processPlugin(PluginState& plugin, TracerState& tracer, const std::size_t numSamples, const float * const * inputs, std::size_t* numTraces)
 	{
-		const auto pole = std::pow(0.95, getSampleRate() / numSamples);
+		const auto pole = 1 - std::exp(-1.0 / (2 * getSampleRate() / numSamples));
 		std::size_t profiledClocks = 0;
 
 		if (useFPE)
@@ -247,6 +248,7 @@ namespace ape
 
 		bool newPluginArrived = false;
 		bool hadOldPlugin = currentPlugin != nullptr;
+        bool forceTakeEngineValues = false;
 
 		EngineCommand command;
 
@@ -271,6 +273,7 @@ namespace ape
 				currentPlugin = command.transfer.state;
 				newPluginArrived = true;
 				currentTracer = command.transfer.tracer;
+                forceTakeEngineValues = command.transfer.options & EngineCommand::AlwaysTakeEngineValue;
 			}
 			}
 		}
@@ -281,7 +284,7 @@ namespace ape
 			{
 				// hot reloading, copy over parameters
 				// TODO: Only do this if hash of old and new parameters match up
-				currentPlugin->syncParametersToEngine(hadOldPlugin && preserveParameters);
+                currentPlugin->syncParametersToEngine(forceTakeEngineValues || (hadOldPlugin && preserveParameters));
 			}
 
 			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers(), &numTraces))
@@ -323,6 +326,7 @@ namespace ape
 	{
 		processReturnQueue();
 		params->pulse();
+		scopeData.getContent().parameterSet.pulseUI();
 	}
 
 	void Engine::onInitialTracerChanges(TracerState& state)
@@ -362,19 +366,20 @@ namespace ape
 	void Engine::setStateInformation(const void* data, int sizeInBytes)
 	{
 		bool ret = false;
+        
 		try
 		{
 			ret = CSerializer::restore(*this, data, sizeInBytes);
 		}
 		catch (std::exception & e)
 		{
-
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : Exception while serializing: %s", e.what());
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Exception while deserializing: %s", e.what());
 		}
+        
 		if (!ret)
-			controller->getConsole().printLine(CConsole::Error, "[Engine] : Error serializing state!");
+			controller->getConsole().printLine(CConsole::Error, "[Engine] : Error deserializing state!");
 		else
-			controller->getConsole().printLine("[Engine] : Succesfully serialized state!");
+			controller->getConsole().printLine("[Engine] : Succesfully deserialized state!");
 	}
 
 	const juce::String Engine::getName() const
@@ -541,10 +546,11 @@ namespace ape
 			scopeData.getStream().enqueueChannelName(counter, "output " + std::to_string(i));
 		}
 
-		scopeData.getContent().triggeringChannel = ioConfig.inputs;
-
 		auxMatrix.resizeChannels(Signalizer::OscilloscopeContent::NumColourChannels);
 		tempBuffer.resizeChannels(ioConfig.outputs);
+		
+		getOscilloscopeData().setTriggeringChannel(ioConfig.inputs + 1);
+
 	}
 
 	void Engine::releaseResources()

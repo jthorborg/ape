@@ -27,7 +27,7 @@
 
 *************************************************************************************/
 
-#include "ape.h"
+#include "APE.h"
 #include "ProtoCompiler.hpp"
 #include "Project.h"
 #include "CompilerBindings.h"

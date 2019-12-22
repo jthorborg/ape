@@ -37,7 +37,7 @@
 	#include <stdarg.h>
 	#include <cpl/CExclusiveFile.h>
 	#include <cpl/Core.h>
-	#include <filesystem>
+	#include <cpl/filesystem.h>
 	#include <mutex>
 	#include "GraphicComponents.h"
 	#include <cpl/Utility.h>

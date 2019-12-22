@@ -65,11 +65,15 @@ namespace CppAPE
 				.arg("-v")
 				//.arg("fno-short-wchar")
 				.arg("-fexceptions")
+				//.arg("--stdlib=libc++")
 
 				.arg("-fms-extensions")
 				.arg("-fcxx-exceptions")
 				.arg("-O2")
 				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
+				.arg("-D_LIBCPP_NO_VCRUNTIME")
+				//.arg("-D_LIBCPP_BUILDING_LIBRARY")
+
 
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace);
