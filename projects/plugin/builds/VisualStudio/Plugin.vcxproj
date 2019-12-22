@@ -259,8 +259,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; py -3.6 cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestsRelease|Win32'">
@@ -314,8 +313,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; py -3.6 cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -417,8 +415,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; py -3.6 cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestsRelease|x64'">
@@ -470,8 +467,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; py -3.6 cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -521,7 +517,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; py -3.6 cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -571,7 +567,7 @@
       <OutputFile>$(IntDir)\Audio Programming Environment.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>cd  $(SolutionDir)../../make &amp;&amp; python cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
+      <Command>cd  $(SolutionDir)../../make &amp;&amp; py -3.6 cmd-postprocess-build.py $(SolutionDir)$(Platform)\$(Configuration) $(Platform) $(SolutionDir)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
