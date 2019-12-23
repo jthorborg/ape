@@ -32,6 +32,8 @@ namespace ape
 		void processFrames(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			assert(configuration.sampleRate != 0);
+
+            processingHook();
 			process(inputs, outputs, frames);
 		}
 
@@ -73,6 +75,11 @@ namespace ape
 
 	protected:
 
+        /// <summary>
+        /// Internal use only
+        /// </summary>
+        virtual void processingHook() {}
+
 		void setTriggeringChannel(int channel)
 		{
 			getInterface().setTriggeringChannel(&getInterface(), channel);
@@ -106,6 +113,55 @@ namespace ape
 	private:
 		IOConfig configuration;
 	};
+
+    class TransportProcessor : public Processor
+    {
+    public:
+
+        Status onEvent(Event * e) override
+        {
+            if (e->eventType == PlayStateChanged && !e->event.ePlayStateChanged->isPlaying)
+            {
+                if (position.isPlaying)
+                {
+                    pause();
+                    position.isPlaying = false;
+                }
+            }
+
+            return Processor::onEvent(e);
+        }
+
+    protected:
+
+        virtual void play() {}
+        virtual void pause() {}
+
+        const APE_PlayHeadPosition& getPlayHeadPosition()
+        {
+            return position;
+        }
+
+    private:
+
+        void processingHook() override
+        {
+            bool wasTransportPlaying = position.isPlaying;
+            if (getInterface().getPlayHeadPosition(&getInterface(), &position) != 0)
+            {
+                if (wasTransportPlaying && !position.isPlaying)
+                {
+                    pause();
+                }
+                else if (!wasTransportPlaying && position.isPlaying)
+                {
+                    play();
+                }
+            }
+        }
+
+        APE_PlayHeadPosition position{};
+    };
 
 	class FactoryBase
 	{

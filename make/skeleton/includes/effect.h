@@ -21,6 +21,22 @@ namespace ape
 		}
 
 	};
+
+    class TransportEffect : public TransportProcessor
+    {
+    protected:
+
+        TransportEffect()
+        {
+
+        }
+
+        virtual ~TransportEffect()
+        {
+            getInterface().destroyResource(&getInterface(), 0, 0);
+        }
+
+    };
 }
 
 

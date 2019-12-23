@@ -81,6 +81,68 @@
 		int id, changeFlags;
 	};
 
+    /// <summary>
+    /// <see cref="juce::AudioPlayHead::CurrentPositionInfo"/>
+    /// </summary>
+    struct APE_PlayHeadPosition
+    {
+        /** The tempo in BPM */
+        double bpm;
+
+        /** Time signature numerator, e.g. the 3 of a 3/4 time sig */
+        int timeSigNumerator;
+        /** Time signature denominator, e.g. the 4 of a 3/4 time sig */
+        int timeSigDenominator;
+
+        /** The current play position, in samples from the start of the edit. */
+        long long timeInSamples;
+        /** The current play position, in seconds from the start of the edit. */
+        double timeInSeconds;
+
+        /** For timecode, the position of the start of the edit, in seconds from 00:00:00:00. */
+        double editOriginTime;
+
+        /** The current play position, in pulses-per-quarter-note. */
+        double ppqPosition;
+
+        /** The position of the start of the last bar, in pulses-per-quarter-note.
+
+            This is the time from the start of the edit to the start of the current
+            bar, in ppq units.
+
+            Note - this value may be unavailable on some hosts, e.g. Pro-Tools. If
+            it's not available, the value will be 0.
+        */
+        double ppqPositionOfLastBarStart;
+
+        /** The video frame rate, if applicable. */
+        int frameRate;
+
+        /** True if the transport is currently playing. */
+        bool isPlaying;
+
+        /** True if the transport is currently recording.
+
+            (When isRecording is true, then isPlaying will also be true).
+        */
+        bool isRecording;
+
+        /** The current cycle start position in pulses-per-quarter-note.
+            Note that not all hosts or plugin formats may provide this value.
+            @see isLooping
+        */
+        double ppqLoopStart;
+
+        /** The current cycle end position in pulses-per-quarter-note.
+            Note that not all hosts or plugin formats may provide this value.
+            @see isLooping
+        */
+        double ppqLoopEnd;
+
+        /** True if the transport is currently looping. */
+        bool isLooping;
+    };
+
 	struct APE_SharedInterface
 	{
 		void		(APE_API * abortPlugin)				(struct APE_SharedInterface * iface, const char * reason);
@@ -112,6 +174,7 @@
 		int			(APE_API * createAudioOutputFile)	(struct APE_SharedInterface * iface, const char* relativePath, double sampleRate, int channels, int bits, float quality);
 		void		(APE_API * writeAudioFile)			(struct APE_SharedInterface * iface, int file, unsigned int numSamples, const float* const* data);
 		void		(APE_API * closeAudioFile)			(struct APE_SharedInterface * iface, int file);
+        int         (APE_API * getPlayHeadPosition)     (struct APE_SharedInterface * iface, struct APE_PlayHeadPosition* result);
 	};
 	
 #if defined(__cplusplus) && !defined(__cfront)

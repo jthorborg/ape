@@ -653,5 +653,34 @@ namespace ape::api
 			.reset(nullptr);
 	}
 
+    int APE_API getPlayHeadPosition(APE_SharedInterface * iface, APE_PlayHeadPosition * result)
+    {
+        REQUIRES_NOTNULL(iface);
+        REQUIRES_NOTNULL(result);
+
+        auto& engine = IEx::downcast(*iface).getEngine();
+        auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
+
+        if (!pstate.isProcessing())
+            THROW("Can only be called from a processing callback");
+
+        if (auto ph = engine.getPlayHead())
+        {
+            const int sizea = sizeof(juce::AudioPlayHead::CurrentPositionInfo);
+            const int sizeb = sizeof(APE_PlayHeadPosition);
+            static_assert(sizeof(juce::AudioPlayHead::CurrentPositionInfo) == sizeof(APE_PlayHeadPosition));
+
+            juce::AudioPlayHead::CurrentPositionInfo cpi;
+            if (!ph->getCurrentPosition(cpi))
+                return 0;
+            
+            std::memcpy(result, &cpi, sizeof(*result));
+
+            return 1;
+        }
+
+        return 0;
+    }
+
 
 }

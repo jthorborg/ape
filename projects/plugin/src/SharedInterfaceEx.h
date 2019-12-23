@@ -74,7 +74,7 @@
 				APE_BIND(createAudioOutputFile);
 				APE_BIND(writeAudioFile);
 				APE_BIND(closeAudioFile);
-
+                APE_BIND(getPlayHeadPosition);
 #undef APE_BIND
 			}
 		};
