@@ -129,6 +129,6 @@
 		int			APE_API			createAudioOutputFile(APE_SharedInterface * iface, const char* relativePath, double sampleRate, int channels, int bits, float quality);
 		void		APE_API			writeAudioFile(APE_SharedInterface * iface, int file, unsigned int numSamples, const float* const* data);
 		void		APE_API			closeAudioFile(APE_SharedInterface * iface, int file);
-
+        int         APE_API         getPlayHeadPosition(APE_SharedInterface * iface, APE_PlayHeadPosition* result);
 	};
 #endif
