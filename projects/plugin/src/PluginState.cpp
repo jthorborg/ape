@@ -45,6 +45,7 @@
 #include "Plugin/PluginWidget.h"
 #include "Plugin/PluginAudioFile.h"
 #include "Plugin/PluginFFT.h"
+#include "Plugin/PluginAudioWriter.h"
 
 namespace ape
 {
@@ -85,6 +86,8 @@ namespace ape
 
 		if (!generator.initProject(*project))
 			throw InitException("Error initializing project...");
+
+		outputFiles.emplace_back(std::unique_ptr<PluginStreamProducer>());
 
 		scopedRelease.reset();
 	}

@@ -41,6 +41,7 @@
 #include "Plugin/PluginCommandQueue.h"
 #include "Plugin/PluginAudioFile.h"
 #include "Plugin/PluginFFT.h"
+#include "Plugin/PluginAudioWriter.h"
 
 namespace ape::api
 {
@@ -536,6 +537,120 @@ namespace ape::api
 			.getEngine()
 			.getOscilloscopeData()
 			.setTriggeringChannel(triggerChannel);
+	}
+
+	int APE_API createAudioOutputFile(APE_SharedInterface * iface, const char * relativePath, double sampleRate, int channels, int bits, float quality)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_NOTNULL(relativePath);
+		REQUIRES_TRUE(relativePath[0] != '\0');
+		REQUIRES_TRUE(sampleRate > 0);
+		REQUIRES_TRUE(channels > 0);
+		REQUIRES_TRUE(quality >= 0 && quality <= 1);
+
+		auto& shared = IEx::downcast(*iface);
+		auto& engine = shared.getEngine();
+		auto& pstate = shared.getCurrentPluginState();
+		auto& console = engine.getController().getConsole();
+
+		try
+		{
+			const auto& project = pstate.getProject();
+			juce::File workingDirectory = juce::String(project.workingDirectory);
+
+			if (!workingDirectory.exists())
+			{
+				console.printLine(CConsole::Error, "[Plugin] : Error creating audio file, working directory doesn't exist: %s", workingDirectory.getFullPathName().toStdString().c_str());
+				return 0;
+			}
+
+			auto originalPath = workingDirectory.getChildFile(relativePath);
+			auto path = originalPath;
+			int uniqueCounter = 0;
+
+			for (int i = 0; path.exists() && i < 100; ++i)
+			{
+				path = path.getParentDirectory().getChildFile(originalPath.getFileNameWithoutExtension() + std::to_string(i + 1) + path.getFileExtension());
+			}
+
+			if (path.exists())
+			{
+				console.printLine(CConsole::Error, "[Plugin] : Failed to create a unique name for audio file: %s", path.getFullPathName().toStdString().c_str());
+				return 0;
+			}
+
+			auto format = OutputFileManager::selectFormatFor(path);
+
+			if (!format)
+			{
+				console.printLine(CConsole::Error, "[Plugin] : Cannot understand audio format for : %s", path.getFileExtension().toStdString().c_str());
+				return 0;
+			}
+
+			auto extension = path.getFileExtension();
+
+			auto qualities = format->getQualityOptions();
+			int qualityIndex = 0;
+			bool hasQualities = qualities.size() > 0;
+
+			if (qualities.size() > 0)
+			{
+				qualityIndex = cpl::Math::round<int>(qualities.size() * quality);
+			}
+
+			auto producer = OutputFileManager::createProducer(path, *format, sampleRate, channels, bits, qualityIndex);
+
+			console.printLine(
+				"[Plugin] : Streaming to audio file %s in %s @ %d channels %fHz %d bit %s quality",
+				path.getFullPathName().toStdString().c_str(),
+				format->getFormatName().toStdString().c_str(),
+				channels,
+				sampleRate,
+				bits,
+				hasQualities ? qualities[qualityIndex] : "default"
+			);
+
+			pstate.getOutputFiles().emplace_back(std::move(producer));
+
+			return (int)(pstate.getOutputFiles().size() - 1);
+		}
+		catch (const std::exception& e)
+		{
+			console.printLine(CConsole::Error, "[Plugin] : Failed to create streamed output audio file: %s\n%s", relativePath, e.what());
+		}
+
+		return 0;
+	}
+
+	void APE_API writeAudioFile(APE_SharedInterface * iface, int file, unsigned int numSamples, const float * const * data)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_TRUE(file != 0);
+		REQUIRES_NOTNULL(data);
+		REQUIRES_TRUE(numSamples != 0);
+
+		auto& shared = IEx::downcast(*iface);
+		auto& stream = shared.getCurrentPluginState().getOutputFiles().at(file);
+
+		if (!stream)
+		{
+			THROW("Writing to released audio output file");
+		}
+
+		if (!stream->writeAsync(numSamples, data))
+			shared.getEngine().getController().getConsole().printLine("[Plugin] Buffer overrun writing to fd %d (produced %d)", file, (int)numSamples);
+	}
+
+	void APE_API closeAudioFile(APE_SharedInterface * iface, int file)
+	{
+		REQUIRES_NOTNULL(iface);
+		REQUIRES_TRUE(file != 0);
+
+		IEx::downcast(*iface)
+			.getCurrentPluginState()
+			.getOutputFiles()
+			.at(file)
+			.reset(nullptr);
 	}
 
 

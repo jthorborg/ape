@@ -405,6 +405,9 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\common.h">
       <Filter>Plugin\Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\outputfile.h">
+      <Filter>Plugin\Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

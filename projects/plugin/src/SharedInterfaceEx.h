@@ -71,6 +71,9 @@
 				APE_BIND(performFFT);
 				APE_BIND(releaseFFT);
 				APE_BIND(setTriggeringChannel);
+				APE_BIND(createAudioOutputFile);
+				APE_BIND(writeAudioFile);
+				APE_BIND(closeAudioFile);
 
 #undef APE_BIND
 			}
