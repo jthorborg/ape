@@ -1623,6 +1623,9 @@
     <ClCompile Include="..\..\src\CompilerBinding.cpp">
       <Filter>Audio Programming Environment\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Plugin\PluginAudioWriter.cpp">
+      <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -3127,6 +3130,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\version.h">
       <Filter>Audio Programming Environment\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Plugin\PluginAudioWriter.h">
+      <Filter>Audio Programming Environment\Headers\Plugin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

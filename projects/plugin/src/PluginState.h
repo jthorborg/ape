@@ -65,6 +65,7 @@
 		class PluginSurface;
 		class PluginWidget;
 		class PluginAudioFile;
+		class PluginStreamProducer;
 
 		class PluginState final
 			: private ParameterSet::RTListener
@@ -93,6 +94,7 @@
 			auto& getPluginFFTs() { return ffts; }
 			auto& getOriginalFiles() noexcept { return originalSampleRateFiles; }
 			auto& getPMemory() noexcept { return protectedMemory; }
+			auto& getOutputFiles() noexcept { return outputFiles; }
 			const ProjectEx& getProject() const noexcept { return *project; }
 
 			void setConfig(const IOConfig& o);
@@ -138,6 +140,7 @@
 			std::vector<std::unique_ptr<PluginWidget>> widgets;
 			std::vector<std::unique_ptr<PluginAudioFile>> audioFiles;
 			std::vector<std::unique_ptr<APE_FFT>> ffts;
+			std::vector<std::unique_ptr<PluginStreamProducer>> outputFiles;
 			std::map<std::string, PluginAudioFile*> originalSampleRateFiles;
 
 			CCodeGenerator& generator;

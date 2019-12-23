@@ -999,6 +999,7 @@
     <ClInclude Include="..\..\..\..\make\skeleton\includes\mathutil.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\meter.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\misc.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\outputfile.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\parameter.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\plot.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\print.h" />

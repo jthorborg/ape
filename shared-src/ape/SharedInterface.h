@@ -109,6 +109,9 @@
 		void		(APE_API * performFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft, APE_FFT_Options options, const void* in, void* out);
 		void		(APE_API * releaseFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft);
 		void		(APE_API * setTriggeringChannel)	(struct APE_SharedInterface * iface, int channel);
+		int			(APE_API * createAudioOutputFile)	(struct APE_SharedInterface * iface, const char* relativePath, double sampleRate, int channels, int bits, float quality);
+		void		(APE_API * writeAudioFile)			(struct APE_SharedInterface * iface, int file, unsigned int numSamples, const float* const* data);
+		void		(APE_API * closeAudioFile)			(struct APE_SharedInterface * iface, int file);
 	};
 	
 #if defined(__cplusplus) && !defined(__cfront)

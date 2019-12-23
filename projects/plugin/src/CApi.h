@@ -111,9 +111,6 @@
 		int			APE_API			createBooleanParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal);
 		int			APE_API			createListParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal, int numValues, const char* const* values);
 		int			APE_API			destroyResource(APE_SharedInterface * iface, int resource, int reserved);
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <param name="targetSampleRate">
 		/// Can either be:
 		/// 1) a specific sample rate,
@@ -126,5 +123,12 @@
 		void		APE_API			releaseFFT(struct APE_SharedInterface * iface, APE_FFT* fft);
 		
 		void		APE_API			setTriggeringChannel(APE_SharedInterface * iface, int triggerChannel);
+		/// <summary>
+		/// Create a streamed, audio file you can write to in an audio callback
+		/// </summary>
+		int			APE_API			createAudioOutputFile(APE_SharedInterface * iface, const char* relativePath, double sampleRate, int channels, int bits, float quality);
+		void		APE_API			writeAudioFile(APE_SharedInterface * iface, int file, unsigned int numSamples, const float* const* data);
+		void		APE_API			closeAudioFile(APE_SharedInterface * iface, int file);
+
 	};
 #endif

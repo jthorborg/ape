@@ -118,6 +118,8 @@ namespace ape
 	template<typename T>
 	struct const_umatrix
 	{
+		friend class OutputAudioFile;
+
 		struct const_iterator
 		{
 
