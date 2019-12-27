@@ -285,6 +285,15 @@ namespace ape
 		iterator begin() noexcept { return { *this }; }
 		iterator end() noexcept { return { *this, columns }; }
 
+
+        void clear(std::size_t offset)
+        {
+            for (std::size_t c = offset; c < columns; ++c)
+            {
+                for (std::size_t n = 0; n < rows; ++n)
+                    data[c][n] = T(0);
+            }
+        }
 	};
 
 	template<typename T>

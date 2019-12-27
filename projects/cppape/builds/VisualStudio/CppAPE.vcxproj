@@ -981,6 +981,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\common.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\consts.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\dsp.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\effect.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

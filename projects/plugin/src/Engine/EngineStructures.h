@@ -33,6 +33,7 @@
 	#include <vector>
 	#include <string>
 	#include <algorithm>
+    #include <cpl/dsp.h>
 
 	namespace ape 
 	{
@@ -110,15 +111,14 @@
 				if (numSamples == bufferLength)
 					return copy(&buffer, index, 1);
 				
-				if (numSamples > bufferLength)
-				{
+                auto ratio = (double)numSamples / bufferLength;
+                double x = 0;
 
-				}
-				else if (numSamples < bufferLength)
-				{
-
-				}
-				
+                for (std::size_t i = 0; i < bufferLength; ++i)
+                {
+                    auxBuffers[index][i] = cpl::dsp::linearFilter<float>(buffer, numSamples, x);
+                    x += ratio;
+                }				
 			}
 
 			float* operator [] (std::size_t index) const { return auxBuffers[index]; }

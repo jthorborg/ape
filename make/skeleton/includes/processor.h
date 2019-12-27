@@ -68,10 +68,15 @@ namespace ape
 
 		}
 
-		const IOConfig& config()
+		const IOConfig& config() const 
 		{
 			return configuration;
 		}
+
+        std::size_t sharedChannels() const noexcept
+        {
+            return config().inputs > config().outputs ? config().outputs : config().inputs;
+        }
 
 	protected:
 
@@ -87,7 +92,7 @@ namespace ape
 		
 		void defaultProcess(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
 		{
-			const auto shared = configuration.inputs > configuration.outputs ? configuration.outputs : configuration.inputs;
+			const auto shared = sharedChannels();
 
 			for (std::size_t c = 0; c < shared; ++c)
 			{
@@ -95,11 +100,7 @@ namespace ape
 					outputs[c][n] = inputs[c][n];
 			}
 
-			for (std::size_t c = shared; c < configuration.outputs; ++c)
-			{
-				for (std::size_t n = 0; n < frames; ++n)
-					outputs[c][n] = 0;
-			}
+            outputs.clear(shared);
 		}
 
 		virtual void process(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
