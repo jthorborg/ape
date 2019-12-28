@@ -6,9 +6,15 @@
 
 namespace ape
 {
-	inline std::size_t remainder(std::size_t where, std::size_t size, std::size_t input)
+    /// <summary>
+    /// Step N towards <paramref name="size"/> given <paramref name="available"/> "samples",
+    /// if at <paramref name="position"/> sample.
+    /// This is a useful utility to count towards a task to be done every <paramref name="size"/> samples,
+    /// given variably sized sample inputs.
+    /// </summary>
+	inline std::size_t clamp_available(std::size_t position, std::size_t size, std::size_t available)
 	{
-		return std::min(input, size - where);
+		return std::min(available, size - position);
 	}
 
 	inline size_t nextpow2(size_t current)
