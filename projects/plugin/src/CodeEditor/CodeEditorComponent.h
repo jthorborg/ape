@@ -41,6 +41,7 @@
 #include "CodeTextEditor.h"
 #include "BreakpointComponent.h"
 #include "CodeDocumentListener.h"
+#include "EditorMenuModel.h"
 
 namespace ape
 {
@@ -52,88 +53,17 @@ namespace ape
 	{
 	public:
 
-		CodeEditorComponent(const Settings& settings, std::shared_ptr<juce::CodeDocument> doc, CodeDocumentSource& documentSource)
-			: document(doc)
-			, tokeniser(settings)
-			, textEditor(settings, *document, &tokeniser)
-			, tracer(textEditor)
-			, scale(1.0f)
-			, dirty(false)
-			, source(documentSource)
-		{
-			wrapper.setVisible(true);
-			addChildComponent(wrapper);
-			wrapper.addChildComponent(textEditor);
-			wrapper.addChildComponent(tracer);
-			textEditor.setLineNumbersShown(true);
+        CodeEditorComponent(const Settings& settings, std::shared_ptr<juce::CodeDocument> doc, SourceProjectManager& manager);
+        ~CodeEditorComponent();
 
-			textEditor.setVisible(true);
-			tracer.setVisible(true);
-			tracer.setEditable(settings.lookUpValue(false, "editor", "enable_scopepoints"));
-
-			textEditor.addMouseListener(this, true);
-
-			scale = settings.lookUpValue(1.0f, "editor", "zoom");
-			rescale(scale);
-
-			source.addListener(*this);
-		}
-
-		~CodeEditorComponent()
-		{
-			source.removeListener(*this);
-			notifyDestruction();
-		}
-
-		void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override
-		{
-			if (e.mods.isCtrlDown())
-			{
-				rescale(scale * 1.0f + details.deltaY / 16.0f);
-			}
-		}
-
-		void rescale(float newScale)
-		{
-			scale = newScale;
-			wrapper.setTransform(juce::AffineTransform::identity.scaled(scale));
-			resized();
-		}
-
-		void resized() override
-		{
-			auto bounds = juce::Rectangle<float>(0, 0, getWidth() / scale, getHeight() / scale);
-			wrapper.setBounds(bounds.toType<int>());
-			tracer.setBounds(bounds.withRight(10).toType<int>());
-			textEditor.setBounds(bounds.withLeft(10).toType<int>());
-		}
-
-		BreakpointComponent& getLineTracer() noexcept { return tracer; }
-
-		void serialize(cpl::CSerializer::Archiver& ar, cpl::Version version) override
-		{
-			ar << scale;
-		}
-
-		void deserialize(cpl::CSerializer::Builder& builder, cpl::Version version) override
-		{
-			float newScale;
-			builder >> newScale;
-			if (newScale != scale)
-				rescale(newScale);
-		}
-
-		void documentChangedName(const cpl::string_ref newName) override
-		{
-			currentName = newName;
-			setName("edit " + ((dirty ? " * " : " - ") + currentName));
-		}
-
-		void documentDirtynessChanged(bool isDirty) override
-		{
-			dirty = isDirty;
-			setName("edit" + ((isDirty ? " * " : " - ") + currentName));
-		}
+        void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& details) override;
+        void rescale(float newScale);
+        void resized() override;
+        BreakpointComponent& getLineTracer() noexcept;
+        void serialize(cpl::CSerializer::Archiver& ar, cpl::Version version) override;
+        void deserialize(cpl::CSerializer::Builder& builder, cpl::Version version) override;
+        void documentChangedName(const cpl::string_ref newName) override;
+        void documentDirtynessChanged(bool isDirty) override;
 
 	private:
 
@@ -144,6 +74,8 @@ namespace ape
 		juce::Component wrapper;
 		CodeTextEditor textEditor;
 		BreakpointComponent tracer;
+        EditorMenuModel menuModel;
+        juce::MenuBarComponent menuComponent;
 		float scale;
 		bool dirty;
 	};

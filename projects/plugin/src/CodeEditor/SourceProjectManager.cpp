@@ -37,9 +37,9 @@
 #include <sstream>
 #include <cpl/filesystem.h>
 #include <memory>
-#include "CodeEditorWindow.h"
 #include <fstream>
 #include <cpl/Process.h>
+#include "RecentFilesManager.h"
 
 namespace ape
 {
@@ -197,7 +197,7 @@ namespace ape
 
 	std::unique_ptr<CodeEditorComponent> SourceProjectManager::createWindow()
 	{
-		auto textEditor = std::make_unique<CodeEditorComponent>(settings, doc, static_cast<CodeDocumentSource&>(*this));
+		auto textEditor = std::make_unique<CodeEditorComponent>(settings, doc, *this);
 		textEditor->getLineTracer().setBreakpoints(breakpoints);
 		textEditor->getLineTracer().addBreakpointListener(this);
 
@@ -229,15 +229,6 @@ namespace ape
 
 		return std::move(textEditor);
 	}
-
-	std::unique_ptr<DockWindow> SourceProjectManager::createSuitableCodeEditorWindow()
-	{
-		auto window = std::make_unique<CodeEditorWindow>(settings);
-		window->setAppCM(&appCM);
-
-		return std::move(window);
-	}
-
 
 	void SourceProjectManager::openAFile()
 	{
@@ -370,6 +361,11 @@ namespace ape
 		return sourceFile;
 	}
 
+    juce::ApplicationCommandManager & SourceProjectManager::getCommandManager()
+    {
+        return appCM;
+    }
+
 	void SourceProjectManager::fileChanged(const SourceFile& file)
 	{
 		auto stream = juce::FileInputStream(file.getJuceFile());
@@ -425,6 +421,7 @@ namespace ape
 			return false;
 		}
 
+        RecentFilesManager::get().addFile(f);
 		doc->loadFromStream(s);
 		doc->setSavePoint();
 		checkDirtynessState();

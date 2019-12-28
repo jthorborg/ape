@@ -2,7 +2,7 @@
  
 	 Audio Programming Environment - Audio Plugin - v. 0.3.0.
 	 
-	 Copyright (C) 2014 Janus Lynggaard Thorborg [LightBridge Studios]
+	 Copyright (C) 2018 Janus Lynggaard Thorborg [LightBridge Studios]
 	 
 	 This program is free software: you can redistribute it and/or modify
 	 it under the terms of the GNU General Public License as published by
@@ -21,44 +21,23 @@
  
  **************************************************************************************
 
-	file:CodeEditorWindow.h
+	file:RecentFilesManager.h
 		
-		The JUCE code editor editorWindow
+		Manages recently opened files
 
 *************************************************************************************/
 
-#ifndef APE_CODEEDITORWINDOW_H
-	#define APE_CODEEDITORWINDOW_H
+#ifndef APE_RECENTFILESMANAGER_H
+	#define APE_RECENTFILESMANAGER_H
 
-	#include "../Common.h"
-	#include <string>
-	#include "../Settings.h"
-	#include "SourceManager.h"
-	#include "../UI/DockWindow.h"
-	
+	#include <cpl/Common.h>
+
 	namespace ape
 	{
-		extern const MenuEntry CommandTable[];
-
-		class CodeEditorWindow 
-			: public DockWindow
-			, private juce::MenuBarModel
-		{
-		public:
-
-			CodeEditorWindow(const Settings& settings);
-			virtual ~CodeEditorWindow();
-			void setAppCM(juce::ApplicationCommandManager* acm);
-
-		private:
-
-			juce::StringArray getMenuBarNames() override;
-			juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String& menuName) override;
-			void menuItemSelected(int menuItemID, int topLevelMenuIndex) override;
-
-			// instance data
-			juce::ApplicationCommandManager* appCM;
-		};
-
-	}
+        class RecentFilesManager
+        {
+        public:
+            static juce::RecentlyOpenedFilesList& get();
+        };
+    }
 #endif

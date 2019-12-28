@@ -1542,9 +1542,6 @@
     <ClCompile Include="..\..\src\MainEditor\MainEditor.cpp">
       <Filter>Audio Programming Environment\Source\MainEditor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp">
-      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\CodeEditor\CLangCodeTokeniser.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
@@ -1625,6 +1622,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Plugin\PluginAudioWriter.cpp">
       <Filter>Audio Programming Environment\Source\Plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\RecentFilesManager.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\EditorMenuModel.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CodeEditor\CodeEditorComponent.cpp">
+      <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3035,9 +3041,6 @@
     <ClInclude Include="..\..\src\MainEditor\MainEditor.h">
       <Filter>Audio Programming Environment\Headers\MainEditor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h">
-      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
@@ -3133,6 +3136,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\Plugin\PluginAudioWriter.h">
       <Filter>Audio Programming Environment\Headers\Plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\RecentFilesManager.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CodeEditor\EditorMenuModel.h">
+      <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

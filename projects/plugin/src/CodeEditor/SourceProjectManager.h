@@ -41,7 +41,6 @@
 
 	#include "SourceManager.h"
 	#include "../ProjectEx.h"
-	#include "CodeEditorWindow.h"
 	#include "CodeEditorComponent.h"
 	#include "BreakpointComponent.h"
 	#include "CodeDocumentListener.h"
@@ -58,7 +57,7 @@
 			, public juce::ApplicationCommandTarget
 			, private BreakpointComponent::Listener
 			, private juce::CodeDocument::Listener
-			, private CodeDocumentSource
+			, public CodeDocumentSource
 			, private SourceFile::Listener
 		{
 
@@ -68,7 +67,6 @@
 			virtual ~SourceProjectManager();
 
 			std::unique_ptr<juce::Component> createCodeEditorComponent() override;
-			std::unique_ptr<DockWindow> createSuitableCodeEditorWindow() override;
 			std::unique_ptr<ProjectEx> createProject() override;
 
 			// SourceManager overrides
@@ -77,7 +75,7 @@
 			bool openFile(const fs::path& fileName) override;
 			bool isDirty() override;
 			const SourceFile& getSourceFile() override;
-
+            juce::ApplicationCommandManager& getCommandManager();
 			void serialize(cpl::CSerializer::Archiver & ar, cpl::Version version) override;
 			void deserialize(cpl::CSerializer::Builder & builder, cpl::Version version) override;
 

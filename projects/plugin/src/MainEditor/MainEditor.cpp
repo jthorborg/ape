@@ -65,7 +65,7 @@ namespace ape
 		dockManager.setHeavyWeightGenerator(
 			[this](auto& c) 
 			{
-				auto window = &c == codeWindow.get() ? parent.getSourceManager().createSuitableCodeEditorWindow() : std::make_unique<DockWindow>();
+				auto window = std::make_unique<DockWindow>();
 				window->setPrefix("APE " + std::to_string(parent.engine.instanceCounter()));
 				window->injectDependencies(*this, c);
 				return std::unique_ptr<juce::ResizableWindow>(window.release());

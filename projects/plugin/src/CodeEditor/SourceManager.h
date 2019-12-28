@@ -58,6 +58,7 @@
 			FileNew = Start,
 			FileNewFromTemplate,
 			FileOpen,
+            FileOpenRecent,
 			FileSave,
 			FileSaveAs,
 			FileOpenScriptsHome,
@@ -129,7 +130,6 @@
 
 			virtual std::unique_ptr<ProjectEx> createProject() = 0;
 			virtual std::unique_ptr<juce::Component> createCodeEditorComponent() = 0;
-			virtual std::unique_ptr<DockWindow> createSuitableCodeEditorWindow() = 0;
 
 			virtual ~SourceManager() {};
 			virtual void setErrorLine(int nLine) = 0;

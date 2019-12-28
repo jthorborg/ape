@@ -114,9 +114,11 @@
                 auto ratio = (double)numSamples / bufferLength;
                 double x = 0;
 
+                cpl::Types::fsint_t samples = static_cast<cpl::Types::fsint_t>(numSamples);
+
                 for (std::size_t i = 0; i < bufferLength; ++i)
                 {
-                    auxBuffers[index][i] = cpl::dsp::linearFilter<float>(buffer, numSamples, x);
+                    auxBuffers[index][i] = cpl::dsp::linearFilter<float>(buffer, samples, x);
                     x += ratio;
                 }				
 			}

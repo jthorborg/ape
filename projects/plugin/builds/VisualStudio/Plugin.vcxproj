@@ -601,7 +601,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\CodeEditor\AutosaveManager.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\CLangCodeTokeniser.cpp" />
-    <ClCompile Include="..\..\src\CodeEditor\CodeEditorWindow.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\CodeEditorComponent.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\EditorMenuModel.cpp" />
+    <ClCompile Include="..\..\src\CodeEditor\RecentFilesManager.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceFile.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.CommandTarget.cpp" />
     <ClCompile Include="..\..\src\CodeEditor\SourceProjectManager.cpp" />
@@ -1739,10 +1741,11 @@
     <ClInclude Include="..\..\src\CodeEditor\CodeDocumentListener.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeEditorComponent.h" />
     <ClInclude Include="..\..\src\CodeEditor\CodeTextEditor.h" />
+    <ClInclude Include="..\..\src\CodeEditor\EditorMenuModel.h" />
+    <ClInclude Include="..\..\src\CodeEditor\RecentFilesManager.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceFile.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceManager.h" />
     <ClInclude Include="..\..\src\CodeEditor\CLangCodeTokeniser.h" />
-    <ClInclude Include="..\..\src\CodeEditor\CodeEditorWindow.h" />
     <ClInclude Include="..\..\src\CodeEditor\SourceProjectManager.h" />
     <ClInclude Include="..\..\src\CompilerBinding.h" />
     <ClInclude Include="..\..\src\Engine\EngineStructures.h" />

@@ -34,6 +34,35 @@
 
 namespace ape
 {
+    #ifdef __MAC__
+		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::commandModifier
+	#else
+		#define CTRLCOMMANDKEY juce::ModifierKeys::Flags::ctrlModifier
+	#endif
+
+	const MenuEntry CommandTable[] =
+	{
+		// File
+		{"",					0,		0,				SourceManagerCommand::InvalidCommand}, // dummy element - commands are 1-based index cause of juce
+		{ "New File",			'n',	CTRLCOMMANDKEY, SourceManagerCommand::FileNew },
+		{ "New from Template",	0,		0,				SourceManagerCommand::FileNewFromTemplate },
+		{ "Open...",			'o',	CTRLCOMMANDKEY, SourceManagerCommand::FileOpen },
+        { "Open recent...",		0,	    0,              SourceManagerCommand::FileOpenRecent },
+		{ "Save",				's',	CTRLCOMMANDKEY,	SourceManagerCommand::FileSave },
+		{ "Save As...",			0,		0,				SourceManagerCommand::FileSaveAs },
+		{ "Open home...",		0,		0,				SourceManagerCommand::FileOpenScriptsHome },
+
+		{ "Edit externally",	juce::KeyPress::F10Key,	0, SourceManagerCommand::EditExternally },
+
+		// Edit
+		// Build
+		{ "Compile",			juce::KeyPress::F7Key,	0, SourceManagerCommand::BuildCompile },
+		{ "Compile and Run",	juce::KeyPress::F5Key,	0, SourceManagerCommand::BuildCompileAndActivate },
+		{ "Activate",			juce::KeyPress::F3Key,	0, SourceManagerCommand::BuildActivate },
+		{ "Deactivate",			juce::KeyPress::F4Key,	0, SourceManagerCommand::BuildDeactivate },
+		{ "Clean",				juce::KeyPress::F8Key,	0,	SourceManagerCommand::BuildClean },
+	};
+
 
 	void SourceProjectManager::getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo & result)
 	{
@@ -61,7 +90,6 @@ namespace ape
 
 	bool SourceProjectManager::perform(const InvocationInfo & info)
 	{
-		
 		switch (info.commandID)
 		{
 		case SourceManagerCommand::FileNew:
@@ -77,6 +105,10 @@ namespace ape
 				openAFile();
 			}
 			break;
+
+        case SourceManagerCommand::FileOpenRecent:
+            CPL_RUNTIME_EXCEPTION("unreachable");
+            break;
 
 		case SourceManagerCommand::FileSave:
 			saveCurrentFile();
