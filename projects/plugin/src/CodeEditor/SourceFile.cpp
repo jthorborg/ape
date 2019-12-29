@@ -44,6 +44,8 @@ namespace ape
 		{
 			auto folder = parent.path.parent_path();
 
+            lastCheckSum = juce::MD5(parent.getJuceFile());
+
 			CPL_RUNTIME_ASSERTION(fs::exists(folder));
 			watcher.addFolder(juce::File(folder.string()));
 			watcher.addListener(this);
@@ -51,13 +53,19 @@ namespace ape
 
 		std::set<SourceFile::Listener*> listeners;
 
-		virtual void folderChanged(const juce::File)
+		virtual void folderChanged(const juce::File f)
 		{
-			parent.onFileChanged();
+            auto newCheckSum = juce::MD5(f);
+
+            if(newCheckSum != lastCheckSum)
+			    parent.onFileChanged();
+
+            lastCheckSum = newCheckSum;
 		}
 
 	private:
 
+        juce::MD5 lastCheckSum;
 		SourceFile& parent;
 		FileSystemWatcher watcher;
 	};
