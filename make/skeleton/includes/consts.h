@@ -4,7 +4,7 @@
 
 namespace ape
 {
-    template<typename V>
+    template<typename V = double>
     struct consts
     {
         // standard constants

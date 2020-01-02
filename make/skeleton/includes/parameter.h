@@ -155,7 +155,7 @@ namespace ape
 		template<typename Index>
 		Type at(Index idx) const noexcept
 		{
-			return convert(range(static_cast<Type>(param.old + param.step * idx)));
+			return convert(range(param.old + param.step * idx));
 		}
 
 		Derived& operator = (Type t) noexcept
@@ -215,7 +215,7 @@ namespace ape
 	public:
 		typedef ParameterBase<T, Param<T>> Base;
 		typedef T ParameterType;
-
+		typedef std::initializer_list<const char*> Names;
 		using Base::operator =;
 
 		Param(const std::string_view paramName, const std::initializer_list<const char*> values)

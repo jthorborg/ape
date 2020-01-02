@@ -103,13 +103,14 @@ namespace ape
             outputs.clear(shared);
 		}
 
+
+		virtual void start(const IOConfig& config) { }
+		virtual void stop() { }
+
 		virtual void process(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			defaultProcess(inputs, outputs, frames);
 		}
-
-		virtual void start(const IOConfig& config) { }
-		virtual void stop() { }
 
 	private:
 		IOConfig configuration;

@@ -305,10 +305,15 @@ namespace ape
 			buffer.resize(channelCount * samples);
 
 			for (std::size_t c = 0; c < channelCount; ++c)
-				channels[c] = buffer.data() + c * samples * channelCount;
+				channels[c] = buffer.data() + c * samples;
 		}
 
-		operator const umatrix<T>() noexcept
+		operator umatrix<T>() noexcept
+		{
+			return umatrix<T> { channels.data(), buffer.size() / channels.size(), channels.size() };
+		}
+
+		umatrix<T> asMatrix() noexcept
 		{
 			return umatrix<T> { channels.data(), buffer.size() / channels.size(), channels.size() };
 		}
