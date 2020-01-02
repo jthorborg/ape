@@ -51,6 +51,43 @@ namespace ape
 			return b + std::sprintf(b, "(%f, %fi)", val.real(), val.imag());
 		}
 
+		inline char* format(const long double& val, char* b, char* e)
+		{
+			return b + std::sprintf(b, "%f", (double)val);
+		}
+
+		inline char* format(const double& val, char* b, char* e)
+		{
+			return b + std::sprintf(b, "%f", val);
+		}
+
+		inline char* format(const float& val, char* b, char* e)
+		{
+			return b + std::sprintf(b, "%f", val);
+		}
+
+		inline char* format(const void* val, char* b, char* e)
+		{
+			return b + std::sprintf(b, "0x%p", val);
+		}
+
+		inline char* format(std::string_view val, char* b, char* e)
+		{
+			assert(e > (b + val.size()));
+			std::memcpy(b, val.data(), val.size());
+			return b + val.size();
+		}
+
+		inline char* format(const char* val, char* b, char* e)
+		{
+			return format(std::string_view(val), b, e);
+		}
+
+		inline char* format(const std::string& val, char* b, char* e)
+		{
+			return format(std::string_view(val), b, e);
+		}
+
 		struct print_buffer
 		{
 			static constexpr std::size_t size = 4096;
