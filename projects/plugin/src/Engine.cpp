@@ -304,6 +304,11 @@ namespace ape
 				auxMatrix.copy(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs);
 			}
 		}
+		else
+		{
+			// Complete bypass
+			auxMatrix.copy(buffer.getArrayOfReadPointers(), ioConfig.inputs, ioConfig.outputs);
+		}
 
 		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + numTraces, numSamples, *getPlayHead());
 
