@@ -59,7 +59,7 @@ namespace ape
 			return *this;
 		}
 
-		void write(const const_umatrix<float>& matrix)
+		void write(umatrix<const float>& matrix)
 		{
 			if (!fd)
 				abort("Audio file not initialized");
@@ -67,7 +67,7 @@ namespace ape
 			if (channels != matrix.channels())
 				abort("Mismatched channel count");
 
-			write(matrix.samples(), matrix.data);
+			write(matrix.samples(), matrix.pointers());
 		}
 
 		template<typename Container>

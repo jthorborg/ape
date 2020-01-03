@@ -61,7 +61,7 @@ namespace ape
 			}
 
 			double position;
-			const const_umatrix<const float> source;
+			umatrix<const float> source;
 		};
 
 	public:
@@ -73,7 +73,7 @@ namespace ape
 		}
 
 
-		const umatrix<T> produce(std::size_t frames, double factor = 1)
+		umatrix<const T> produce(std::size_t frames, double factor = 1)
 		{
 			buffer.resize(channels, frames);
 			impl->produce(buffer, frames, factor);

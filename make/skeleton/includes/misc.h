@@ -4,16 +4,24 @@
 #include <cstdint>
 #include <vector>
 #include <assert.h>
+#include <type_traits>
+
 #include "interpolation.h"
 
 namespace ape
 {
+	/// <summary>
+	/// An unowned array wrapper
+	/// </summary>
 	template<typename T>
 	struct uarray
 	{
 	public:
 
+		typedef T value_type;
+
 		uarray(std::vector<T>& source) : uarray(source.data(), source.size()) {}
+		uarray(const std::vector<typename std::remove_const_t<T>>& source) : uarray(source.data(), source.size()) {}
 
 		uarray(T* buffer, std::size_t length)
 			: buffer(buffer), length(length)
@@ -58,159 +66,21 @@ namespace ape
 		const T* data() const noexcept { return buffer; }
 
 		std::size_t size() const noexcept { return length; }
-
-		void clear() noexcept
+		
+		operator uarray<const T>() const noexcept
 		{
-			std::fill(begin(), end(), T());
+			return { begin(), end() };
 		}
 
 	private:
 
-		T* buffer;
-		std::size_t length;
+		T* const buffer;
+		const std::size_t length;
 	};
 
 	template<typename T>
-	struct const_uarray
+	struct umatrix
 	{
-	public:
-
-		const_uarray(const std::vector<T>& source) : const_uarray(source.data(), source.size()) {}
-
-
-		const_uarray(const T* buffer, std::size_t length)
-			: buffer(buffer), length(length)
-		{
-#ifndef CPPAPE_RELEASE
-			assert(buffer);
-#endif
-		}
-
-		const_uarray(T* begin, T* end)
-			: buffer(begin), length(end - begin)
-		{
-#ifndef CPPAPE_RELEASE
-			assert(begin);
-			assert(end);
-#endif
-		}
-
-		const T& operator [] (std::size_t index) const
-		{
-#ifndef CPPAPE_RELEASE
-			assert(index < length);
-#endif
-			return buffer[index];
-		}
-
-		const T* begin() const noexcept { return buffer; }
-		const T* end() const noexcept { return buffer + length; }
-		const T* data() const noexcept { return buffer; }
-
-		std::size_t size() const noexcept { return length; }
-
-	private:
-
-		const T* buffer;
-		std::size_t length;
-	};
-
-	template<typename T>
-	struct const_umatrix
-	{
-		friend class OutputAudioFile;
-
-		struct const_iterator
-		{
-
-			const_iterator(const_umatrix<T> matrix, std::size_t column = 0)
-				: source(matrix), column(column)
-			{
-
-			}
-
-			const_iterator& operator ++()
-			{
-				column++;
-				return *this;
-			}
-
-			const_iterator& operator --()
-			{
-				column--;
-				return *this;
-			}
-
-			const_iterator operator ++(int)
-			{
-				const_iterator copy{ this };
-				column++;
-				return copy;
-			}
-
-			const_iterator operator --(int)
-			{
-				const_iterator copy{ this };
-				column--;
-				return copy;
-			}
-
-			const uarray<T> operator *()
-			{
-				return source[column];
-			}
-
-			bool operator == (const const_iterator& right) const noexcept
-			{
-				return column == right.column && source.data == right.source.data;
-			}
-
-			bool operator != (const const_iterator& right) const noexcept
-			{
-				return !(*this == right);
-			}
-
-		private:
-			const_umatrix<T> source;
-			std::size_t column;
-		};
-
-		const_umatrix(T* const * data, std::size_t samples, std::size_t channels)
-			: data(data), rows(samples), columns(channels)
-		{
-
-		}
-
-		const_uarray<T> operator [] (std::size_t channel) const CPPAPE_NOEXCEPT_IF_RELEASE
-		{
-#ifndef CPPAPE_RELEASE
-			assert(channel < columns);
-#endif
-
-			return { data[channel], rows };
-		}
-
-		const_iterator begin() const noexcept { return { *this }; }
-		const_iterator end() const noexcept { return { *this, columns }; }
-
-		std::size_t samples() const noexcept { return rows; }
-		std::size_t channels() const noexcept { return columns; }
-
-	protected:
-
-		T* const * data;
-		std::size_t rows, columns;
-	};
-
-	template<typename T>
-	struct umatrix : public const_umatrix<T>
-	{
-	private:
-
-		using const_umatrix<T>::data;
-		using const_umatrix<T>::rows;
-		using const_umatrix<T>::columns;
-
 	public:
 		struct iterator
 		{
@@ -267,13 +137,15 @@ namespace ape
 			std::size_t column;
 		};
 
-		umatrix(T** data, std::size_t samples, std::size_t channels)
-			: const_umatrix<T>(data, samples, channels)
+		umatrix(T * const * data, std::size_t samples, std::size_t channels)
+			: data(data)
+			, rows(samples)
+			, columns(channels)
 		{
 
 		}
 
-		uarray<T> operator [] (std::size_t channel) CPPAPE_NOEXCEPT_IF_RELEASE
+		uarray<T> operator [] (std::size_t channel) const CPPAPE_NOEXCEPT_IF_RELEASE
 		{
 #ifndef CPPAPE_RELEASE
 			assert(channel < columns);
@@ -282,18 +154,22 @@ namespace ape
 			return { data[channel], rows };
 		}
 
-		iterator begin() noexcept { return { *this }; }
-		iterator end() noexcept { return { *this, columns }; }
+		iterator begin() const noexcept { return { *this }; }
+		iterator end() const noexcept { return { *this, columns }; }
 
+		std::size_t samples() const noexcept { return rows; }
+		std::size_t channels() const noexcept { return columns; }
 
-        void clear(std::size_t offset)
-        {
-            for (std::size_t c = offset; c < columns; ++c)
-            {
-                for (std::size_t n = 0; n < rows; ++n)
-                    data[c][n] = T(0);
-            }
-        }
+		auto pointers() { return data; }
+
+		operator umatrix<const T> () const noexcept 
+		{
+			return { data, rows, columns };
+		}
+
+	protected:
+		T* const * data;
+		std::size_t rows, columns;
 	};
 
 	template<typename T>
@@ -313,6 +189,11 @@ namespace ape
 			return umatrix<T> { channels.data(), buffer.size() / channels.size(), channels.size() };
 		}
 
+		operator umatrix<const T>() const noexcept
+		{
+			return umatrix<const T> { channels.data(), buffer.size() / channels.size(), channels.size() };
+		}
+
 		umatrix<T> asMatrix() noexcept
 		{
 			return umatrix<T> { channels.data(), buffer.size() / channels.size(), channels.size() };
@@ -328,7 +209,7 @@ namespace ape
 	{
 	public:
 
-		circular_signal(const_uarray<T> source) : source(source) {}
+		circular_signal(uarray<const T> source) : source(source) {}
 
 		T operator()(std::int64_t x) const noexcept
 		{
@@ -361,7 +242,7 @@ namespace ape
 
 	private:
 
-		const_uarray<T> source;
+		uarray<const T> source;
 	};
 
 	template<typename T>
@@ -369,7 +250,7 @@ namespace ape
 	{
 	public:
 
-		windowed_signal(const_uarray<T> source) : source(source) {}
+		windowed_signal(uarray<const T> source) : source(source) {}
 
 		T operator()(std::int64_t x) const noexcept
 		{
@@ -410,7 +291,7 @@ namespace ape
 
 	private:
 
-		const_uarray<T> source;
+		uarray<const T> source;
 	};
 
 
@@ -523,6 +404,23 @@ namespace ape
 		ret.bounds = c.size();
 
 		return ret;
+	}
+
+	template<typename T>
+	typename std::enable_if<!std::is_const_v<T>>::type 
+		clear(uarray<T> arr) noexcept
+	{
+		std::fill(arr.begin(), arr.end(), T());
+	}
+
+	template<typename T>
+	typename std::enable_if<!std::is_const_v<T>>::type
+		clear(umatrix<T> mat, std::size_t offset = 0) noexcept
+	{
+		for (std::size_t c = offset; c < mat.channels(); ++c)
+		{
+			clear(mat[c]);
+		}
 	}
 }
 

@@ -6,12 +6,12 @@
 
 namespace ape
 {
-	class AudioFile : public const_umatrix<const float>
+	class AudioFile : public umatrix<const float>
 	{
 	public:
 
-		using const_umatrix<const float>::data;
-		using const_umatrix<const float>::samples;
+		using umatrix<const float>::data;
+		using umatrix<const float>::samples;
 
 		AudioFile(const char* relativePath) : AudioFile(loadFile(relativePath))	{ }
 
@@ -32,7 +32,7 @@ namespace ape
 		}
 
 		AudioFile(const APE_AudioFile& audioFile)
-			: const_umatrix<const float>{audioFile.data, audioFile.samples, audioFile.channels}
+			: umatrix<const float>{audioFile.data, audioFile.samples, audioFile.channels}
 			, fileLoadedOk(audioFile.name)
 			, fileSampleRate(audioFile.sampleRate)
 			, fileName(audioFile.name)

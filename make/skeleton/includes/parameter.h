@@ -109,10 +109,14 @@ namespace ape
 			return !quantized ? (mapping == Lin ? invScaleLin : invScaleExp) : (mapping == Lin ? invScaleLinQ : invScaleExpQ);
 		}
 
+		auto getMapping() const noexcept { return mapping; }
+		auto getMin() const noexcept { return min; }
+		auto getMax() const noexcept { return max; }
+
 	private:
 
-		PFloat min, max;
-		Mapping mapping;
+		const PFloat min, max;
+		const Mapping mapping;
 	};
 
 	template<class Type, class Derived>
@@ -169,10 +173,12 @@ namespace ape
 			getInterface().destroyResource(&getInterface(), param.id, -1);
 		}
 
+		auto getRange() const noexcept { return range; }
+
 	protected:
 
 		APE_Parameter param;
-		Range range;
+		const Range range;
 		std::string name;
 	};
 

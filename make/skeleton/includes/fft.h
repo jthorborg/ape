@@ -22,7 +22,7 @@ namespace ape
 			perform(APE_FFT_Forward, inout.data(), inout.data());
 		}
 
-		void forward(const_uarray<std::complex<T>> in, uarray<std::complex<T>> out)
+		void forward(uarray<const std::complex<T>> in, uarray<std::complex<T>> out)
 		{
 			assert(in.size() == size);
 			assert(out.size() == size);
@@ -30,7 +30,7 @@ namespace ape
 			perform(APE_FFT_Forward, in.data(), out.data());
 		}
 
-		void forwardReal(const_uarray<T> in, uarray<std::complex<T>> out)
+		void forwardReal(uarray<const T> in, uarray<std::complex<T>> out)
 		{
 			assert(in.size() == size);
 			assert(out.size() == size);
@@ -45,7 +45,7 @@ namespace ape
 			perform(APE_FFT_Inverse, inout.data(), inout.data());
 		}
 
-		void inverse(const_uarray<std::complex<T>> in, uarray<std::complex<T>> out)
+		void inverse(uarray<const std::complex<T>> in, uarray<std::complex<T>> out)
 		{
 			assert(in.size() == size);
 			assert(out.size() == size);
@@ -60,7 +60,7 @@ namespace ape
 			perform(APE_FFT_Inverse | APE_FFT_NonScaled, inout.data(), inout.data());
 		}
 
-		void inverseNonScaled(const_uarray<std::complex<T>> in, uarray<std::complex<T>> out)
+		void inverseNonScaled(uarray<const std::complex<T>> in, uarray<std::complex<T>> out)
 		{
 			assert(in.size() == size);
 			assert(out.size() == size);

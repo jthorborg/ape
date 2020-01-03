@@ -29,7 +29,7 @@ namespace ape
 		void init() {}
 		void close() {}
 
-		void processFrames(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
+		void processFrames(umatrix<const float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			assert(configuration.sampleRate != 0);
 
@@ -90,7 +90,7 @@ namespace ape
 			getInterface().setTriggeringChannel(&getInterface(), channel);
 		}
 		
-		void defaultProcess(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
+		void defaultProcess(umatrix<const float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			const auto shared = sharedChannels();
 
@@ -100,14 +100,14 @@ namespace ape
 					outputs[c][n] = inputs[c][n];
 			}
 
-            outputs.clear(shared);
+			clear(outputs, shared);
 		}
 
 
 		virtual void start(const IOConfig& config) { }
 		virtual void stop() { }
 
-		virtual void process(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
+		virtual void process(umatrix<const float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			defaultProcess(inputs, outputs, frames);
 		}

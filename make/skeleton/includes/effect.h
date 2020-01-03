@@ -55,7 +55,7 @@ namespace ape
 			effect.close();
 		}
 
-		void process(const_umatrix<float> inputs, umatrix<float> outputs, size_t frames)
+		void process(umatrix<const float> inputs, umatrix<float> outputs, size_t frames)
 		{
 			effect.processFrames(inputs, outputs, frames);
 		}
