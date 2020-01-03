@@ -113,6 +113,7 @@ namespace ape
 		}
 
 	private:
+		detail::PluginResource resource;
 		IOConfig configuration;
 	};
 
@@ -164,6 +165,69 @@ namespace ape
 
         APE_PlayHeadPosition position{};
     };
+
+	template<class TProcessor>
+	class EmbeddedProcessor
+	{
+	public:
+
+		static_assert(std::is_base_of<Processor, TProcessor>::value, "Embedded processors must derive from Processor");
+
+		EmbeddedProcessor()
+		{
+			processor.init();
+		}
+
+		~EmbeddedProcessor()
+		{
+			processor.close();
+		}
+
+		void start(const IOConfig& cfg)
+		{
+			APE_Event_IOChanged ioEvent;
+			ioEvent.inputs = cfg.inputs;
+			ioEvent.outputs = cfg.outputs;
+			ioEvent.blockSize = cfg.maxBlockSize;
+			ioEvent.sampleRate = cfg.sampleRate;
+
+			APE_Event e;
+			e.eventType = IOChanged;
+			e.event.eIOChanged = &ioEvent;
+
+			processor.onEvent(&e);
+
+			APE_Event_PlayStateChanged playState;
+			playState.isPlaying = true;
+
+			e.eventType = PlayStateChanged;
+			e.event.ePlayStateChanged = &playState;
+
+			processor.onEvent(&e);
+		}
+
+		void stop()
+		{
+			APE_Event e;
+
+			APE_Event_PlayStateChanged playState;
+			playState.isPlaying = false;
+
+			e.eventType = PlayStateChanged;
+			e.event.ePlayStateChanged = &playState;
+
+			processor.onEvent(&e);
+		}
+
+		TProcessor* operator ->()
+		{
+			return &processor;
+		}
+
+	protected:
+
+		TProcessor processor;
+	};
 
 	class FactoryBase
 	{

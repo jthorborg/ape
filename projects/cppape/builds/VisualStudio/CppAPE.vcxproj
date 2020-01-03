@@ -995,6 +995,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\fft.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\fpoint.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\generator.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\interpolation.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\label.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\mathutil.h" />

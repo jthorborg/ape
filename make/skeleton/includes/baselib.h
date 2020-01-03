@@ -49,6 +49,17 @@ namespace ape
 			NotImplemented = STATUS_NOT_IMPLEMENTED;
 
 	};
+
+	namespace detail
+	{
+		struct PluginResource
+		{
+			~PluginResource()
+			{
+				getInterface().destroyResource(&getInterface(), 0, 0);
+			}
+		};
+	}
 }
 
 
