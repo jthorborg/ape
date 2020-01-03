@@ -55,7 +55,7 @@ namespace ape
 
 		virtual void folderChanged(const juce::File f)
 		{
-            auto newCheckSum = juce::MD5(f);
+            auto newCheckSum = juce::MD5(parent.getJuceFile());
 
             if(newCheckSum != lastCheckSum)
 			    parent.onFileChanged();
