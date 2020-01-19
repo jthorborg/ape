@@ -4,12 +4,15 @@
 
 namespace ape
 {
+	/// <summary>
+	/// Contains natural / math / utility constants typed as the template parameter
+	/// </summary>
     template<typename V = double>
     struct consts
     {
         // standard constants
         static constexpr V pi = static_cast<V>(3.141592653589793238462643383279502884L);
-        static constexpr V e = static_cast<V>(2.71828182845904523536);
+        static constexpr V e = static_cast<V>(2.718281828459045235360287471352662498L);
         static constexpr V tau = static_cast<V>(pi * 2);
         static constexpr V pi_half = static_cast<V>(pi / 2);
         static constexpr V pi_quarter = static_cast<V>(pi / 4);

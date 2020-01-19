@@ -51,12 +51,19 @@ namespace ape::api
 
 #define THROW(msg) \
 	do { \
+		IEx::downcast(*__interfaceV).getCurrentPluginState().setIsAborting(); \
 		if(FaultLevel) cpl::LogException("Double fault, level: " + std::to_string(FaultLevel)); \
 		FaultLevel++; cpl::CProtected::instance().throwException<std::runtime_error>(std::string(__FUNCTION__) + ": " + (msg)); \
 	} while(0)
 
 	// TODO: Better exception type
 #define APE_STRINGIFY(p) #p
+
+#define VALIDATE_IFACE(iface) \
+	auto __interfaceV = iface; \
+	if (__interfaceV == nullptr) \
+		THROW("shared interface cannot be null");
+
 #define REQUIRES_NOTNULL(param) \
 	if(param == nullptr) \
 		THROW(APE_STRINGIFY(param) " cannot be null");
@@ -76,20 +83,21 @@ namespace ape::api
 
 	void APE_API abortPlugin(APE_SharedInterface * iface, const char * reason)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
+		IEx::downcast(*iface).getCurrentPluginState().setIsAborting();
 		cpl::CProtected::instance().throwException<PluginState::AbortException>(reason);
 	}
 
 	float APE_API getSampleRate(APE_SharedInterface * iface)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
 		return static_cast<float>(engine.getSampleRate());
 	}
 
 	int APE_API_VARI printLine(APE_SharedInterface * iface, unsigned nColor, const char * fmt, ... ) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(fmt);
 
 		auto& engine = IEx::downcast(*iface).getEngine();
@@ -108,7 +116,7 @@ namespace ape::api
 
 	int APE_API_VARI printThemedLine(APE_SharedInterface * iface, APE_TextColour color, const char * fmt, ...)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(fmt);
 
 		auto& engine = IEx::downcast(*iface).getEngine();
@@ -126,7 +134,7 @@ namespace ape::api
 
 	int APE_API msgBox(APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(text);
 		REQUIRES_NOTNULL(title);
 
@@ -137,7 +145,7 @@ namespace ape::api
 
 	int APE_API createMeter(APE_SharedInterface * iface, const char * name, const double* extVal, const double* peakVal)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
@@ -152,7 +160,7 @@ namespace ape::api
 	
 	int APE_API_VARI createLabel(APE_SharedInterface * iface, const char * name, const char * fmt, ...)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(fmt);
 
@@ -174,7 +182,7 @@ namespace ape::api
 
 	long long APE_API timerGet(APE_SharedInterface * iface) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		long long t = 0;
 
 		#ifdef _WINDOWS_
@@ -193,7 +201,7 @@ namespace ape::api
 
 	double APE_API timerDiff(APE_SharedInterface * iface, long long time) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 
 		double ret = 0.f;
 
@@ -231,20 +239,20 @@ namespace ape::api
 
 	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		return IEx::downcast(*iface).getCurrentPluginState().getPluginAllocator().alloc(label, size);
 	}
 
 	void APE_API free(APE_SharedInterface * iface, void * ptr) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 
 		IEx::downcast(*iface).getCurrentPluginState().getPluginAllocator().free(ptr);
 	}
 
 	void APE_API setInitialDelay(APE_SharedInterface * iface, int samples) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
 
 		engine.changeInitialDelay(samples);
@@ -252,7 +260,7 @@ namespace ape::api
 
 	int APE_API getNumInputs(APE_SharedInterface * iface) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
 
 		return engine.getNumInputChannels();
@@ -260,7 +268,7 @@ namespace ape::api
 
 	int APE_API getNumOutputs(APE_SharedInterface * iface) 
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
 
 		return engine.getNumOutputChannels();
@@ -268,7 +276,7 @@ namespace ape::api
 	
 	double APE_API getBPM(APE_SharedInterface * iface)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		auto& engine = IEx::downcast(*iface).getEngine();
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
 
@@ -300,7 +308,7 @@ namespace ape::api
 	int	APE_API	createPlot(APE_SharedInterface * iface, const char * name, 
 		const double * const vals, const unsigned int numVals)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(vals);
 
@@ -315,7 +323,7 @@ namespace ape::api
 
 	int	APE_API	presentTrace(APE_SharedInterface* iface, const char** nameTuple, size_t numNames, const float* const values, size_t numValues)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(nameTuple);
 		REQUIRES_NOTNULL(values);
 		REQUIRES_NOTZERO(numNames);
@@ -334,7 +342,7 @@ namespace ape::api
 
 	int	APE_API	createNormalParameter(APE_SharedInterface * iface, const char * name, const char * unit, APE_Parameter* extVal, Transformer transformer, Normalizer normalizer, PFloat min, PFloat max)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(unit);
 		REQUIRES_NOTNULL(extVal);
@@ -350,7 +358,7 @@ namespace ape::api
 
 	int APE_API createBooleanParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 
@@ -365,7 +373,7 @@ namespace ape::api
 
 	int APE_API createListParameter(APE_SharedInterface * iface, const char * name, APE_Parameter* extVal, int numNames, const char* const* names)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(name);
 		REQUIRES_NOTNULL(extVal);
 		REQUIRES_NOTZERO(numNames);
@@ -389,9 +397,9 @@ namespace ape::api
 		if (FaultLevel > 0)
 			return 0;
 
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		auto& pstate = IEx::downcast(*iface).getCurrentPluginState();
-		if (!pstate.isDisabling())
+		if (!pstate.isDisabling() && !pstate.isAborting())
 			THROW("Cannot release resources at this point in time!");
 
 		return 0;
@@ -399,7 +407,7 @@ namespace ape::api
 
 	int APE_API loadAudioFile(APE_SharedInterface * iface, const char * path, double sampleRate, APE_AudioFile * result)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(path);
 		REQUIRES_NOTNULL(result);
 
@@ -480,7 +488,7 @@ namespace ape::api
 
 	APE_FFT *APE_API createFFT(APE_SharedInterface * iface, APE_DataType type, size_t size)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_TRUE(type == APE_DataType_Single || type == APE_DataType_Double);
 		REQUIRES_TRUE(size > 0);
 		REQUIRES_TRUE((size & (size - 1)) == 0);
@@ -493,7 +501,7 @@ namespace ape::api
 
 	void APE_API performFFT(APE_SharedInterface * iface, APE_FFT * fft, APE_FFT_Options options, const void * in, void * out)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(in);
 		REQUIRES_NOTNULL(out);
 		REQUIRES_NOTNULL(fft);
@@ -503,7 +511,7 @@ namespace ape::api
 
 	void APE_API releaseFFT(APE_SharedInterface * iface, APE_FFT * fft)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(fft);
 
 		auto& ffts = IEx::downcast(*iface).getCurrentPluginState().getPluginFFTs();
@@ -526,7 +534,7 @@ namespace ape::api
 	
 	void APE_API setTriggeringChannel(APE_SharedInterface * iface, int triggerChannel)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_TRUE(triggerChannel > 0);
 		
 		auto& shared = IEx::downcast(*iface);
@@ -541,7 +549,7 @@ namespace ape::api
 
 	int APE_API createAudioOutputFile(APE_SharedInterface * iface, const char * relativePath, double sampleRate, int channels, int bits, float quality)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(relativePath);
 		REQUIRES_TRUE(relativePath[0] != '\0');
 		REQUIRES_TRUE(sampleRate > 0);
@@ -568,7 +576,7 @@ namespace ape::api
 			auto path = originalPath;
 			int uniqueCounter = 0;
 
-			for (int i = 0; path.exists() && i < 100; ++i)
+			for (int i = 0; path.exists() && i < 1000; ++i)
 			{
 				path = path.getParentDirectory().getChildFile(originalPath.getFileNameWithoutExtension() + std::to_string(i + 1) + path.getFileExtension());
 			}
@@ -624,7 +632,7 @@ namespace ape::api
 
 	void APE_API writeAudioFile(APE_SharedInterface * iface, int file, unsigned int numSamples, const float * const * data)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_TRUE(file != 0);
 		REQUIRES_NOTNULL(data);
 		REQUIRES_TRUE(numSamples != 0);
@@ -643,7 +651,7 @@ namespace ape::api
 
 	void APE_API closeAudioFile(APE_SharedInterface * iface, int file)
 	{
-		REQUIRES_NOTNULL(iface);
+		VALIDATE_IFACE(iface);
 		REQUIRES_TRUE(file != 0);
 
 		IEx::downcast(*iface)
@@ -655,8 +663,8 @@ namespace ape::api
 
     int APE_API getPlayHeadPosition(APE_SharedInterface * iface, APE_PlayHeadPosition * result)
     {
-        REQUIRES_NOTNULL(iface);
-        REQUIRES_NOTNULL(result);
+		VALIDATE_IFACE(iface);
+		REQUIRES_NOTNULL(result);
 
         auto& engine = IEx::downcast(*iface).getEngine();
         auto& pstate = IEx::downcast(*iface).getCurrentPluginState();

@@ -108,8 +108,10 @@
 			bool processReplacing(const float * const * in, float * const * out, std::size_t sampleFrames, std::size_t * profiledCycles = nullptr) noexcept;
 			bool isProcessing() const noexcept { return processing.load(std::memory_order_acquire); }
 			bool isDisabling() const noexcept { return currentlyDisabling.load(std::memory_order_acquire); }
+			bool isAborting() const noexcept { return currentlyAborting.load(std::memory_order_acquire); }
 			bool isEnabled() const noexcept { return enabled; }
 			void setPlayState(bool isPlaying);
+			void setIsAborting() noexcept { currentlyAborting.store(true, std::memory_order_release); }
 			bool getPlayState() const noexcept { return playing; }
 			void apiTriggerOverride() noexcept { triggerSetThroughAPI = true; }
 
@@ -160,6 +162,7 @@
 			std::atomic<bool>
 				abnormalBehaviour,
 				currentlyDisabling,
+				currentlyAborting,
 				processing,
 				enabled,
 				activating;

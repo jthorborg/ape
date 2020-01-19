@@ -14,13 +14,6 @@
 #include <SharedInterface.h>
 #endif
 
-#ifdef NULL
-#undef NULL
-#endif
-
-#define NULL 0
-
-
 // #define CPPAPE_RELEASE
 
 #ifdef CPPAPE_RELEASE
@@ -29,23 +22,61 @@
 #define CPPAPE_NOEXCEPT_IF_RELEASE
 #endif
 
-
+/// <summary>
+/// Terminate the script (not the host application!) safely,
+/// with a reason. All resources will automatically be cleaned up.
+/// </summary>
 [[noreturn]] void abort(const char* reason);
 
 namespace ape
 {
+	/// <summary>
+	/// Base traits class for all classes that are displayed in the GUI.
+	/// </summary>
+	class UIObject {};
+
+	/// <summary>
+	/// Acquire the low-level C API.
+	/// </summary>
 	APE_SharedInterface& getInterface();
 
+	/// <summary>
+	/// Low level error code used in certian comms APIs.
+	/// </summary>
 	struct StatusCode
 	{
 		static constexpr APE_Status
+			/// <summary>
+			/// Operation succeeded.
+			/// </summary>
 			Ok = STATUS_OK,
+			/// <summary>
+			/// Error at operation, state inconsistent.
+			/// </summary>
 			Error = STATUS_ERROR,
-			Wait = STATUS_WAIT,
-			Silent = STATUS_SILENT,
-			Ready = STATUS_READY,
-			Disabled = STATUS_DISABLED,
+			/// <summary>
+			/// Not ready yet. Deprecated.
+			/// </summary>
+			Wait [[deprecated]] = STATUS_WAIT,
+			/// <summary>
+			/// Silent. Deprecated.
+			/// </summary>
+			Silent [[deprecated]] = STATUS_SILENT,
+			/// <summary>
+			/// Ready.
+			/// </summary>
+			Ready  = STATUS_READY,
+			/// <summary>
+			/// Disabled. Deprecated.
+			/// </summary>
+			Disabled [[deprecated]] = STATUS_DISABLED,
+			/// <summary>
+			/// Operation handled.
+			/// </summary>
 			Handled = STATUS_HANDLED,
+			/// <summary>
+			/// No support for operation.
+			/// </summary>
 			NotImplemented = STATUS_NOT_IMPLEMENTED;
 
 	};

@@ -68,6 +68,7 @@ namespace ape
 		, playing(false)
 		, enabled(false)
 		, currentlyDisabling(false)
+		, currentlyAborting(false)
 		, abnormalBehaviour(false)
 		, activating(false)
 		, triggerSetThroughAPI(false)
@@ -248,6 +249,7 @@ namespace ape
 
 		activating = true;
 		triggerSetThroughAPI = false;
+		currentlyAborting = false;
 
 		commandQueue = std::make_unique<PluginCommandQueue>();
 

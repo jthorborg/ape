@@ -8,6 +8,11 @@
 
 namespace ape
 {
+	/// <summary>
+	/// A real-time variably resampled view on a buffer, that wraps around.
+	/// Capable of producing a batched, resampled slice of audio.
+	/// <seealso cref="AudioFile"/>
+	/// </summary>
 	template<typename T>
 	class RealSourceResampler
 	{
@@ -20,12 +25,12 @@ namespace ape
 			virtual ~Impl() {}
 		};
 
-		class AFImpl : public Impl
+		class MatrixImpl : public Impl
 		{
 		public:
 
-			AFImpl(const AudioFile& file)
-				: source(file)
+			MatrixImpl(umatrix<const T> matrix)
+				: source(matrix), position{}
 			{
 
 			}
@@ -66,13 +71,24 @@ namespace ape
 
 	public:
 
-		RealSourceResampler(const AudioFile& file)
-			: channels(file.channels())
+		/// <summary>
+		/// Construct the resampler from a <see cref="umatrix"/>
+		/// </summary>
+		RealSourceResampler(umatrix<const T> data)
+			: channels(data.channels())
 		{
-			impl = std::make_unique<AFImpl>(file);
+			impl = std::make_unique<MatrixImpl>(data);
 		}
 
-
+		/// <summary>
+		/// Produce the next buffer of samples.
+		/// </summary>
+		/// <param name="frames">
+		/// How many samples to produce
+		/// </param>
+		/// <param name="factor">
+		/// The resampling factor
+		/// </param>
 		umatrix<const T> produce(std::size_t frames, double factor = 1)
 		{
 			buffer.resize(channels, frames);
@@ -80,17 +96,21 @@ namespace ape
 			return buffer;
 		}
 
+		/// <summary>
+		/// Produce a buffer with a inlined callback for each frame with the following signature:
+		/// void(size_t frameNumber, const std::vector<T>& channelValues);
+		/// </summary>
 		template<typename Func>
-		auto produce(std::size_t frames, Func && f)
+		auto produce(std::size_t frames, Func && f, double factor = 1)
 		{
-			const auto matrix = produce(frames);
+			const auto matrix = produce(frames, factor);
 
 			for (std::size_t frame = 0; frame < frames; ++frame)
 			{
 				for (std::size_t c = 0; c < channelBuffer.size(); ++c)
 					channelBuffer[c] = matrix[c][frame];
 
-				f(frame, channels, channelBuffer);
+				f(frame, channelBuffer);
 			}
 		}
 		

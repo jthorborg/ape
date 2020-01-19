@@ -3,6 +3,11 @@
 
 #ifndef CPPAPE_TRACING_ENABLED
 
+/// <summary>
+/// Trace an expression (only!) in the oscilloscope.
+/// Expression is only evaluated once and always done.
+/// If the user hasn't enabled tracing or the oscilloscope, there's no overhead in calling this.
+/// </summary>
 #define TRC(...) __VA_ARGS__
 
 #else

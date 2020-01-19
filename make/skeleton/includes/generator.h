@@ -6,12 +6,21 @@
 
 namespace ape
 {
+	/// <summary>
+	/// A generator is a processor that only creates sounds (so it has no inputs).
+	/// <seealso cref="GlobalData"/>
+	/// <seealso cref="Effect"/>
+	/// </summary>
 	class Generator : public Processor
 	{
 	protected:
 
 		Generator() {}
 
+		/// <summary>
+		/// Override this to emit sound.
+		/// </summary>
+		/// <param name="frames">The number of sample frames to be processed.</param>
 		virtual void process(umatrix<float> buffer, size_t frames) {}
 
 	private:
@@ -22,12 +31,21 @@ namespace ape
 		}
 	};
 
+	/// <summary>
+	/// A generator is a processor that only creates sounds (so it has no inputs).
+	/// <seealso cref="GlobalData"/>
+	/// <seealso cref="Effect"/>
+	/// </summary>
 	class TransportGenerator : public TransportProcessor
 	{
 	protected:
 
 		TransportGenerator() {}
 
+		/// <summary>
+		/// Override this to emit sound.
+		/// </summary>
+		/// <param name="frames">The number of sample frames to be processed.</param>
 		virtual void process(umatrix<float> buffer, size_t frames) {}
 
 	private:
@@ -38,6 +56,14 @@ namespace ape
 		}
 	};
 
+	/// <summary>
+	/// A utility class to embed another <see cref="Generator"/> inside your own.
+	/// It takes care of initialization.
+	/// <seealso cref="ape::EmbeddedEffect"/>
+	/// </summary>
+	/// <remarks>
+	/// Take care to call <see cref="EmbeddedProcessor{TEffect}::start()"/> on any embedded plugins.
+	/// </remarks>
 	template<class TGenerator>
 	class EmbeddedGenerator final : public EmbeddedProcessor<TGenerator>
 	{

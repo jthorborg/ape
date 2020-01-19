@@ -7,7 +7,17 @@
 #include <charconv>
 #include <complex>
 
+/// <summary>
+/// Print to the console attached to this plugin.
+/// This function is inherently unsafe, but may prove useful for particular formatting.
+/// <a href="https://en.cppreference.com/w/cpp/io/c/fprintf">cppreference.</a>
+/// </summary>
 int printf(const char * fmt, ...);
+/// <summary>
+/// Print to a string buffer.
+/// This function is inherently unsafe, but may prove useful for particular formatting.
+/// <a href="https://en.cppreference.com/w/cpp/io/c/fprintf">cppreference.</a>
+/// </summary>
 extern "C" int sprintf(char* buffer, const char* fmt, ...);
 
 namespace std
@@ -170,6 +180,22 @@ namespace ape
 		}
 	}
 
+	/// <summary>
+	/// Helper type to automatically support formatted printing for user defined types through <see cref="print()"/>
+	/// </summary>
+	/// <example>
+	/// <code>
+	///class MyCustomType : PrintFormatter<MyCustomType>
+	///{
+	///public:
+	///    bool format(char* begin, char* end, char** newBegin) const
+	///    {
+	///        *newBegin = begin + std::sprintf(begin, "MyCustomType");
+	///        return true;
+	///    }
+	///};
+	/// </code>
+	/// </example>
 	template<typename Derived>
 	struct PrintFormatter
 	{
@@ -184,6 +210,30 @@ namespace ape
 
 }
 
+/// <summary>
+/// Safely print a string replacing the nth "%" character with the nth variadic argument.
+/// Similar format system as <see cref="printf()"/>, except no format specifiers are required.
+/// They are instead derived from the individual types of the ordered argument list <paramref name="args"/>.
+/// </summary>
+/// <remarks>
+/// Supported types are: 
+/// - built-in primitive scalar and pointer types
+/// - std::string_view
+/// - (const) char*
+/// - std::string
+/// - std::complex{T}
+/// - anything supported by std::to_chars
+/// - any custom implementation of <see cref="PrintFormatter"/>
+/// </remarks>
+/// <typeparam name="Args">
+/// Variadic list of arguments
+/// </typeparam>
+/// <param name="fmt">
+/// A string containing N "%" characters. Double "%%" prints a single "%".
+/// </param>
+/// <param name="args">
+/// Variadic list of values to replace positionally matching "%" in <paramref name="fmt"/>.
+/// </param>
 template<typename... Args>
 inline void print(std::string_view fmt, Args&&... args)
 {
@@ -195,7 +245,26 @@ inline void print(std::string_view fmt, Args&&... args)
 	printf("%s", stackBuffer.buffer);
 }
 
-#define __cppape_printf_once(cname, ...) \
+/// <summary>
+/// Safely format the arguments.
+/// <seealso cref="print()"/>
+/// </summary>
+/// <returns>
+/// The formatted result.
+/// </returns>
+template<typename... Args>
+inline std::string sprint(std::string_view fmt, Args&&... args)
+{
+	ape::detail::print_buffer stackBuffer;
+	ape::detail::safe_printf(stackBuffer, fmt, std::forward<Args>(args)...);
+
+	stackBuffer.seal();
+
+	return { stackBuffer.begin(), stackBuffer.end() };
+}
+
+
+#define __CPPAPE_PRINTF_ONCE(cname, ...) \
 	static bool cname = false; \
 	if (!cname) \
 	{	\
@@ -203,9 +272,12 @@ inline void print(std::string_view fmt, Args&&... args)
 		printf(__VA_ARGS__); \
 	}
 
-#define printf_once(...) __cppape_printf_once(CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__), __VA_ARGS__)
+/// <summary>
+/// Execute a <see cref="printf()"/> expression once, over the lifetime of the program.
+/// </summary>
+#define printf_once(...) __CPPAPE_PRINTF_ONCE(CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__), __VA_ARGS__)
 
-#define __cppape_print_once(cname, ...) \
+#define __CPPAPE_PRINT_ONCE(cname, ...) \
 	static bool cname = false; \
 	if (!cname) \
 	{	\
@@ -213,6 +285,9 @@ inline void print(std::string_view fmt, Args&&... args)
 		print(__VA_ARGS__); \
 	}
 
-#define print_once(...) __cppape_print_once(CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__), __VA_ARGS__)
+/// <summary>
+/// Execute a <see cref="print()"/> expression once, over the lifetime of the program.
+/// </summary>
+#define print_once(...) __CPPAPE_PRINT_ONCE(CPPAPE_MACRO_CONCAT(__once_flag, __COUNTER__), __VA_ARGS__)
 
 #endif
