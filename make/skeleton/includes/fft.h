@@ -109,14 +109,14 @@ namespace ape
 		FFTBase(FFTBase&& other)
 			: size(other.size), fft(other.fft)
 		{
-			other.fft = nullptr;
+			other.fft = 0;
 		}
 
 		FFTBase& operator = (FFTBase&& other)
 		{
 			size = other.size;
 			fft = other.fft;
-			other.fft = nullptr;
+			other.fft = 0;
 
 			return *this;
 		}
@@ -126,13 +126,13 @@ namespace ape
 
 		~FFTBase()
 		{
-			if(fft != nullptr)
+			if(fft != 0)
 				getInterface().releaseFFT(&getInterface(), fft);
 		}
 
 	protected:
 
-		FFTBase(std::size_t N, APE_FFT* fft)
+		FFTBase(std::size_t N, int fft)
 			: size(N), fft(fft)
 		{
 		}
@@ -141,14 +141,14 @@ namespace ape
 
 		void perform(APE_FFT_Options options, const void* in, void* out)
 		{
-			assert(fft != nullptr);
+			assert(fft != 0);
 			assert(size != 0);
 
 			getInterface().performFFT(&getInterface(), fft, options, in, out);
 		}
 
 		std::size_t size;
-		APE_FFT* fft;
+		int fft;
 	};
 
 	/// <summary>
@@ -171,9 +171,9 @@ namespace ape
 		}
 
 		/// <summary>
-	/// Default-initialized, invalid fft.
-	/// </summary>
-		FFT() : FFTBase(0, nullptr) {}
+		/// Default-initialized, invalid fft.
+		/// </summary>
+		FFT() : FFTBase(0, 0) {}
 	};
 
 	/// <summary>
@@ -198,7 +198,7 @@ namespace ape
 		/// <summary>
 		/// Default-initialized, invalid fft.
 		/// </summary>
-		FFT() : FFTBase(0, nullptr) {}
+		FFT() : FFTBase(0, 0) {}
 
 	};
 

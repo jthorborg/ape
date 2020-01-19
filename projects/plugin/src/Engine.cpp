@@ -555,7 +555,7 @@ namespace ape
 		auxMatrix.resizeChannels(Signalizer::OscilloscopeContent::NumColourChannels);
 		tempBuffer.resizeChannels(ioConfig.outputs);
 		
-		getOscilloscopeData().setTriggeringChannel(ioConfig.inputs + 1);
+		getOscilloscopeData().setTriggeringChannel(static_cast<int>(ioConfig.inputs + 1));
 
 	}
 

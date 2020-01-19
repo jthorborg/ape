@@ -73,8 +73,6 @@
 		const float* const* data;
 	};
 
-	struct APE_FFT;
-
 	struct APE_Parameter
 	{
 		PFloat old, next, step;
@@ -167,9 +165,9 @@
 		int			(APE_API * createListParameter)		(struct APE_SharedInterface * iface, const char * name, APE_Parameter* extVal, int numValues, const char* const* values);
 		int			(APE_API * destroyResource)			(struct APE_SharedInterface * iface, int resourceID, int reserved);
 		int			(APE_API * loadAudioFile)			(struct APE_SharedInterface * iface, const char* path, double sampleRate, APE_AudioFile* result);
-		struct APE_FFT*	(APE_API * createFFT)			(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
-		void		(APE_API * performFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft, APE_FFT_Options options, const void* in, void* out);
-		void		(APE_API * releaseFFT)				(struct APE_SharedInterface * iface, APE_FFT* fft);
+		int			(APE_API * createFFT)				(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
+		void		(APE_API * performFFT)				(struct APE_SharedInterface * iface, int fftID, APE_FFT_Options options, const void* in, void* out);
+		void		(APE_API * releaseFFT)				(struct APE_SharedInterface * iface, int fftID);
 		void		(APE_API * setTriggeringChannel)	(struct APE_SharedInterface * iface, int channel);
 		int			(APE_API * createAudioOutputFile)	(struct APE_SharedInterface * iface, const char* relativePath, double sampleRate, int channels, int bits, float quality);
 		void		(APE_API * writeAudioFile)			(struct APE_SharedInterface * iface, int file, unsigned int numSamples, const float* const* data);

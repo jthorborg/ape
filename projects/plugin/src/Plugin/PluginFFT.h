@@ -34,10 +34,15 @@
 	#include <cstddef>
 	#include <memory>
 	
-	struct APE_FFT
+	namespace ape
 	{
-		static std::unique_ptr<APE_FFT> factory(std::size_t size, APE_DataType type);
-		virtual void transform(const void* in, void* out, APE_FFT_Options options) = 0;
-		virtual ~APE_FFT() { }
-	};
+		class PluginFFT
+		{
+		public:
+			static std::unique_ptr<PluginFFT> factory(std::size_t size, APE_DataType type);
+			virtual void transform(const void* in, void* out, APE_FFT_Options options) = 0;
+			virtual ~PluginFFT() { }
+		};
+	}
+
 #endif
