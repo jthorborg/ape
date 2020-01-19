@@ -7,6 +7,20 @@
 
 namespace ape
 {
+	/// <summary>
+	/// Do lanczos interpolation at a specific point in a signal.
+	/// </summary>
+	/// <param name="wsize">
+	/// The kernel size of the lanczos function.
+	/// </param>
+	/// <param name="x">
+	/// A fractional point in the <paramref name="s"/> to compute.
+	/// </param>
+	/// <typeparam name="Signal">
+	/// A functor object supporting operator().
+	/// <seealso cref="circular_signal{T}"/>
+	/// <seealso cref="windowed_signal{T}"/>
+	/// </typeparam>
 	template<typename T, typename Signal>
 	inline T lanczosFilter(const Signal& s, double x, long long wsize)
 	{
@@ -21,6 +35,20 @@ namespace ape
 		return resonance;
 	}
 
+	/// <summary>
+	/// Do sinc interpolation at a specific point in a signal.
+	/// </summary>
+	/// <param name="wsize">
+	/// The kernel size of the sinc function.
+	/// </param>
+	/// <param name="x">
+	/// A fractional point in the <paramref name="s"/> to compute.
+	/// </param>
+	/// <typeparam name="Signal">
+	/// A functor object supporting operator().
+	/// <seealso cref="circular_signal{T}"/>
+	/// <seealso cref="windowed_signal{T}"/>
+	/// </typeparam>
 	template<typename T, typename Signal>
 	inline T sincFilter(const Signal& s, double x, long long wsize)
 	{
@@ -35,7 +63,15 @@ namespace ape
 		return resonance;
 	}
 
-	// laurent de soras
+	/// <summary>
+	/// Do hermite 4 interpolation given the four y-coordinates
+	/// </summary>
+	/// <param name="offset">
+	/// Fractional offset to evaluate
+	/// </param>
+	/// <remarks>
+	/// This is Laurent de Soras' algorithm
+	/// </remarks>
 	template<typename T>
 	inline const T hermite4(const T offset, const T ym1, const T y0, const T y1, const T y2)
 	{
@@ -48,19 +84,41 @@ namespace ape
 		return ((((a * offset) - b_neg) * offset + c) * offset + y0);
 	}
 
+	/// <summary>
+	/// Do hermite 4 interpolation at a specific point in a signal.
+	/// </summary>
+	/// <typeparam name="Signal">
+	/// A functor object supporting operator().
+	/// <seealso cref="circular_signal{T}"/>
+	/// <seealso cref="windowed_signal{T}"/>
+	/// </typeparam>
 	template<typename T, typename Signal>
 	inline const T hermite4(const Signal& s, const T x)
 	{
 		long long x0 = std::floor<long long>(x);
-		return hermite(x - x0, s(x0 - 1), s(x0), s(x0 + 1), s(x0 + 2));
+		return hermite4(x - x0, s(x0 - 1), s(x0), s(x0 + 1), s(x0 + 2));
 	}
 
+	/// <summary>
+	/// Do simple linear interpolation between two points.
+	/// </summary>
+	/// <param name="offset">
+	/// Fractional offset to evaluate between <paramref name="y0"/> and <paramref name="y1"/>
+	/// </param>
 	template<typename T>
 	inline const T linear(const T offset, const T y0, const T y1)
 	{
 		return y0 * (1 - offset) + y1 * offset;
 	}
 
+	/// <summary>
+	/// Do simple linear interpolation at a specific point in a signal.
+	/// </summary>
+	/// <typeparam name="Signal">
+	/// A functor object supporting operator().
+	/// <seealso cref="circular_signal{T}"/>
+	/// <seealso cref="windowed_signal{T}"/>
+	/// </typeparam>
 	template<typename T, typename Signal>
 	inline const T linear(const Signal& s, const T x)
 	{
@@ -70,7 +128,7 @@ namespace ape
 
 	namespace detail
 	{
-		// Following code is a generalization of JUCE's lagrange interpolator class, which is this case is GPL v3 
+		// Code is a generalization of JUCE's lagrange interpolator class, which is this case is GPL v3 
 		template <typename T, int k>
 		struct lagrange_basis
 		{
@@ -99,7 +157,15 @@ namespace ape
 		}
 	}
 
-
+	/// <summary>
+	/// Do lagrange interpolation at a specific point in a signal, of <typeparamref name="Order"/> order.
+	/// <seealso cref="lagrange5"/>
+	/// </summary>
+	/// <typeparam name="Signal">
+	/// A functor object supporting operator().
+	/// <seealso cref="circular_signal{T}"/>
+	/// <seealso cref="windowed_signal{T}"/>
+	/// </typeparam>
 	template<typename T, std::size_t Order, typename Signal>
 	inline const T lagrange(const Signal& s, const T position) noexcept
 	{
@@ -108,6 +174,12 @@ namespace ape
 		return lagrange_unpack<T, Order>(s, start, position - start, std::make_index_sequence<Order>());
 	}
 
+	/// <summary>
+	/// Do lagrange interpolation between the y parameters, with 5 terms.
+	/// </summary>
+	/// <param name="offset">
+	/// Fractional offset to evaluate.
+	/// </param>
 	template<typename T>
 	inline const T lagrange5(const T offset, const T ym2, const T ym1, const T y0, const T y1, const T y2)
 	{

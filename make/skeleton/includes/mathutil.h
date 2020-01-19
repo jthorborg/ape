@@ -17,10 +17,24 @@ namespace ape
 		return std::min(available, size - position);
 	}
 
+	/// <summary>
+	/// Returns the next power of two, or equivalent to <paramref name="current"/>
+	/// </summary>
 	inline size_t nextpow2(size_t current)
 	{
 		size_t p = 1;
 		while (p < current)
+			p <<= 1;
+		return p;
+	}
+
+	/// <summary>
+	/// Returns the next power of two, above <paramref name="current"/>
+	/// </summary>
+	inline size_t nextpow2above(size_t current)
+	{
+		size_t p = 1;
+		while (p <= current)
 			p <<= 1;
 		return p;
 	}

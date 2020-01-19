@@ -568,7 +568,7 @@ namespace ape::api
 			auto path = originalPath;
 			int uniqueCounter = 0;
 
-			for (int i = 0; path.exists() && i < 100; ++i)
+			for (int i = 0; path.exists() && i < 1000; ++i)
 			{
 				path = path.getParentDirectory().getChildFile(originalPath.getFileNameWithoutExtension() + std::to_string(i + 1) + path.getFileExtension());
 			}

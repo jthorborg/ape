@@ -171,6 +171,13 @@ namespace ape
 
 	}
 
+	/// <summary>
+	/// An assignable (from <typeparamref name="T"/>) value to be used as arguments for a <see cref="Label"/>.
+	/// You should store these separately, and when you assign to them the linked <see cref="Label"/> will get updated.
+	/// </summary>
+	/// <typeparam name="T">
+	/// A primitive, scalar type (integers, floating point types or pointer).
+	/// </typeparam>
 	template<typename T>
 	class SharedValue
 	{
@@ -183,27 +190,45 @@ namespace ape
 
 		}
 
+		/// <summary>
+		/// Write to the value contained.
+		/// </summary>
 		SharedValue<T>& operator = (const T& value)
 		{
 			*getPtr() = value;
 			return *this;
 		}
 
+		/// <summary>
+		/// Read the value contained.
+		/// </summary>
 		operator T ()
 		{
 			return *getPtr();
 		}
 
+		/// <summary>
+		/// Create a handle to this value.
+		/// The value will be kept alive until all the handles go out of scope.
+		/// </summary>
+		/// <returns></returns>
 		detail::ControlBlockBase::Handle createHandle()
 		{
 			return memory->handle();
 		}
 
+		/// <summary>
+		/// Retrieve a pointer to the shared value.
+		/// Used internally.
+		/// </summary>
 		T* getPtr()
 		{
 			return &memory->value;
 		}
 
+		/// <summary>
+		/// Used internally.
+		/// </summary>
 		const char* getTypeDesignator()
 		{
 			return detail::fmt_type_traits<T>::designator();
@@ -221,10 +246,30 @@ namespace ape
 		detail::ControlBlockBase::Handle handle;
 	};
 
-	class Label
+	/// <summary>
+	/// A <see cref="Label"/> is a printf-like format string displayed to the user, that is automatically 
+	/// updated in the GUI.
+	/// <seealso cref="print()"/>
+	/// <seealso cref="SharedValue"/>
+	/// </summary>
+	class Label : public UIObject
 	{
 	public:
 
+		/// <summary>
+		/// Construct a label.
+		/// </summary>
+		/// <param name="name">
+		/// The title of the label.
+		/// </param>
+		/// <param name="fmt">
+		/// A format string where the nth % char is substituded for the nth <see cref="SharedValue"/> in the following
+		/// <paramref name="args"/>. Use two %% to display a single %.
+		/// <seealso cref="print()"/>
+		/// </param>
+		/// <param name="args">
+		/// A list of <see cref="SharedValue"/> to be displayed in the <paramref name="fmt"/>
+		/// </param>
 		template<typename... Args>
 		Label(const std::string& name, const std::string_view fmt, Args&... args)
 		{

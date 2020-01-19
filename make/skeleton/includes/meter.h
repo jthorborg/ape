@@ -7,15 +7,19 @@
 
 namespace ape
 {
-	class MeteredValue
+	/// <summary>
+	/// A value you can continously assign to (at audio rate), 
+	/// and a meter with a decay in the GUI will display this value.
+	/// </summary>
+	class MeteredValue : public UIObject
 	{
 	public:
-
-		enum UpdateMode
-		{
-
-		};
-
+		/// <summary>
+		/// Create a new metered value.
+		/// </summary>
+		/// <param name="name">
+		/// Title of this value
+		/// </param>
 		MeteredValue(std::string name)
 			: peak(), value(), peakTimer() /* , name(std::move(name)) */
 		{
@@ -31,6 +35,9 @@ namespace ape
 			getInterface().destroyResource(&getInterface(), id, 0);
 		}
 
+		/// <summary>
+		/// Alias for <see cref="pushValue"/>
+		/// </summary>
 		template<typename T>
 		T operator = (T input) noexcept
 		{
@@ -38,6 +45,10 @@ namespace ape
 			return input;
 		}
 
+		/// <summary>
+		/// Update the meter with the <paramref name="input"/> value.
+		/// This will also calculate peak hold positions and decay envelope.
+		/// </summary>
 		void pushValue(double input) noexcept
 		{
 			input = std::abs(input);

@@ -8,12 +8,17 @@
 namespace ape
 {
 	APE_SharedInterface * lastIFace;
-	FactoryBase::ProcessorCreater pluginCreater;
 
-	void FactoryBase::SetCreater(ProcessorCreater factory)
+	namespace detail
 	{
-		pluginCreater = factory;
+		FactoryBase::ProcessorCreater pluginCreater;
+
+		void FactoryBase::SetCreater(ProcessorCreater factory)
+		{
+			pluginCreater = factory;
+		}
 	}
+
 
 	APE_SharedInterface& getInterface()
 	{
@@ -69,13 +74,13 @@ extern "C"
 	void * SCRIPT_API PluginCreate(APE_SharedInterface * iface)
 	{
 		lastIFace = iface;
-		if (!pluginCreater)
+		if (!detail::pluginCreater)
 		{
 			iface->printThemedLine(iface, APE_TextColour_Error, "Error: No plugin to run, did you forget GlobalData(YourEffect, \"\")? This can also indicate no global constructors were run.");
 			return NULL;
 		}
 
-		Processor * p = pluginCreater();
+		Processor * p = detail::pluginCreater();
 		return p;
 	}
 
@@ -122,8 +127,8 @@ extern "C"
 		auto configuration = p->config();
 
 		p->processFrames(
-			{ inputs, frames, configuration.inputs },
-			{ outputs, frames, configuration.outputs },
+			{ inputs, configuration.inputs, frames },
+			{ outputs,  configuration.outputs, frames },
 			frames
 		);
 

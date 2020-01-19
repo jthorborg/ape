@@ -25,15 +25,24 @@ namespace ape
 
 #endif
 
+	/// <summary>
+	/// Provides methods for converting back and forth from decibels
+	/// </summary>
 	class dB
 	{
 	public:
+		/// <summary>
+		/// Converts <paramref name="arg"/> as decibels to a scalar value
+		/// </summary>
 		template<typename T>
 		static inline T from(T arg)
 		{
 			return std::pow(10, arg / 20);
 		}
 
+		/// <summary>
+		/// Converts <paramref name="arg"/> to decibels
+		/// </summary>
 		template<typename T>
 		static inline T to(T arg)
 		{
@@ -41,6 +50,10 @@ namespace ape
 		}
 	};
 
+	/// <summary>
+	/// Evaluates a lanczos kernel of size <paramref name="size"/> at <paramref name="x"/>
+	/// </summary>
+	/// <remarks>If <paramref name="x"/> is 0, the function returns 1.</remarks>
 	template<typename T>
 	T lanczos(T x, int size)
 	{
@@ -48,6 +61,10 @@ namespace ape
 		return x ? (size * std::sin(pi * x) * std::sin(pi * x / size)) / (pi * pi * x * x) : 1;
 	}
 
+	/// <summary>
+	/// Evaluates the sinc() function at x at <paramref name="x"/>
+	/// </summary>
+	/// <remarks>If <paramref name="x"/> is 0, the function returns 1.</remarks>
 	template<typename T>
 	T sinc(T x)
 	{
@@ -55,12 +72,18 @@ namespace ape
 		return x ? (std::sin(pi * x)) / (pi * x) : 1;
 	}
 
+	/// <summary>
+	/// Converts the entire container <paramref name="c"/> to a vector of complex numbers
+	/// </summary>
 	template<typename T, typename Container>
 	auto to_complex(const Container& c) -> decltype(std::begin(c), std::end(c), std::vector<std::complex<T>>())
 	{
 		return to_complex(c, std::distance(std::begin(c), std::end(c)));
 	}
 
+	/// <summary>
+	/// Converts <paramref name="size"/> elements from the <paramref name="c"/> to a vector of complex numbers
+	/// </summary>
 	template<typename T, typename Container>
 	auto to_complex(const Container& c, std::size_t size) -> decltype(std::begin(c), std::end(c), std::vector<std::complex<T>>())
 	{
