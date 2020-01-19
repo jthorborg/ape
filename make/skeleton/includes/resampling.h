@@ -77,7 +77,7 @@ namespace ape
 		RealSourceResampler(umatrix<const T> data)
 			: channels(data.channels())
 		{
-			impl = std::make_unique<MatrixImpl>(file);
+			impl = std::make_unique<MatrixImpl>(data);
 		}
 
 		/// <summary>

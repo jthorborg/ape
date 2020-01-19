@@ -271,6 +271,7 @@ namespace ape
 		/// Returns a possibly cv-qualified <typeparamref name="T"/>* const*
 		/// </summary>
 		auto pointers() { return data; }
+		const auto pointers() const noexcept { return data; }
 
 		/// <summary>
 		/// Implicit conversion operator to a constant read-only version of this <see cref="umatrix"/>

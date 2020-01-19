@@ -8,7 +8,7 @@ namespace ape
 		template<class ProcessorType>
 		int registerClass(ProcessorType *)
 		{
-			ape::FactoryBase::SetCreater(&ape::ProcessorFactory<ProcessorType>::create);
+			FactoryBase::SetCreater(&ProcessorFactory<ProcessorType>::create);
 			return 0;
 		}
 	}

@@ -115,8 +115,11 @@ namespace ape
 		Range(PFloat minValue, PFloat maxValue, Mapping parameterMapping = Lin)
 			: min(minValue), max(maxValue), mapping(parameterMapping)
 		{
-			assert(parameterMapping != Exp && minValue != 0 && "Exponential mapping cannot have a minimum of 0");
-			assert(parameterMapping != Exp && maxValue != 0 && "Exponential mapping cannot have a maximum of 0");
+			if (parameterMapping == Exp)
+			{
+				assert(minValue != 0 && "Exponential mapping cannot have a minimum of 0");
+				assert(maxValue != 0 && "Exponential mapping cannot have a maximum of 0");
+			}
 		}
 
 		/// <summary>

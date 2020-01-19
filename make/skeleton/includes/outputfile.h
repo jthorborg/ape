@@ -142,7 +142,7 @@ namespace ape
 		/// <summary>
 		/// Stream the matrix to the file.
 		/// </summary>
-		void write(umatrix<const float>& matrix)
+		void write(const umatrix<const float>& matrix)
 		{
 			if (!fd)
 				abort("Audio file not initialized");
