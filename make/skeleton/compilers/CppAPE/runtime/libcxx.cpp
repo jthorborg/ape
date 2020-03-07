@@ -1,8 +1,32 @@
 #include <cstdarg>
 #include <cstddef>
+#include <new>
 
-void *operator new(std::size_t am);
-void operator delete(void * loc);
+namespace ape
+{
+	void* memoryAlloc(std::size_t am, std::size_t align);
+	void memoryFree(void* loc);
+}
+
+void *operator new(std::size_t am)
+{
+	return ape::memoryAlloc(am, 64);
+}
+
+void *operator new(std::size_t am, std::align_val_t align)
+{
+	return ape::memoryAlloc(am, static_cast<std::size_t>(align));
+}
+
+void operator delete(void * loc) noexcept
+{
+	return ape::memoryFree(loc);
+}
+
+void operator delete(void * loc, std::align_val_t align) noexcept
+{
+	return ape::memoryFree(loc);
+}
 
 extern "C"
 {

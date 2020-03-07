@@ -150,7 +150,7 @@
 		int			(APE_API * msgBox)					(struct APE_SharedInterface * iface, const char * text, const char * title, int nStyle, int nBlocking);
 		long long	(APE_API * timerGet)				(struct APE_SharedInterface * iface);
 		double		(APE_API * timerDiff)				(struct APE_SharedInterface * iface, long long time);
-		void *		(APE_API * alloc)					(struct APE_SharedInterface * iface, APE_AllocationLabel label, size_t size);
+		void *		(APE_API * alloc)					(struct APE_SharedInterface * iface, APE_AllocationLabel label, size_t size, size_t align);
 		void		(APE_API * free)					(struct APE_SharedInterface * iface, void * ptr);
 		void		(APE_API * setInitialDelay)			(struct APE_SharedInterface * iface, int samples);
 		int			(APE_API_VARI * createLabel)		(struct APE_SharedInterface * iface, const char * name, const char * fmt, ...);
