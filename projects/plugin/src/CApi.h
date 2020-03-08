@@ -72,7 +72,7 @@
 		/// The memory allocation routine used by the hosted code. It's wrapped here so we can change
 		/// the routine at will.At some point, register all allocations in a list for free'ing at exit.
 		/// </summary>
-		void *		APE_API			alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size);
+		void *		APE_API			alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size, size_t align);
 		/// <summary>
 		/// Frees a pointer to an earlier call to alloc. Do not mix new/delete/malloc/free with these 
 		/// functions!!
@@ -118,9 +118,9 @@
 		/// 3) -1 for adopting current sample rate 
 		/// </param>
 		int			APE_API			loadAudioFile(APE_SharedInterface * iface, const char* path, double targetSampleRate, APE_AudioFile* result);
-		struct APE_FFT*	APE_API		createFFT(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
-		void		APE_API			performFFT(struct APE_SharedInterface * iface, APE_FFT* fft, APE_FFT_Options options, const void* in, void* out);
-		void		APE_API			releaseFFT(struct APE_SharedInterface * iface, APE_FFT* fft);
+		int			APE_API			createFFT(struct APE_SharedInterface * iface, APE_DataType type, size_t size);
+		void		APE_API			performFFT(struct APE_SharedInterface * iface, int fftID, APE_FFT_Options options, const void* in, void* out);
+		void		APE_API			releaseFFT(struct APE_SharedInterface * iface, int fftID);
 		
 		void		APE_API			setTriggeringChannel(APE_SharedInterface * iface, int triggerChannel);
 		/// <summary>

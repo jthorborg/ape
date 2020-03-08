@@ -72,7 +72,7 @@ namespace ape
 		, abnormalBehaviour(false)
 		, activating(false)
 		, triggerSetThroughAPI(false)
-		, pluginAllocator(32)
+		, pluginAllocator(64)
 	{
 		sharedObject = std::make_unique<SharedInterfaceEx>(engine, *this);
 		project->iface = sharedObject.get();
@@ -167,7 +167,7 @@ namespace ape
 		else
 		{
 			if(!triggerSetThroughAPI)
-				api::setTriggeringChannel(sharedObject.get(), config.inputs + 1);
+				api::setTriggeringChannel(sharedObject.get(), static_cast<int>(config.inputs + 1));
 
 			for (std::size_t i = 0; i < parameters.size(); ++i)
 			{

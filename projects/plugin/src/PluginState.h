@@ -66,6 +66,7 @@
 		class PluginWidget;
 		class PluginAudioFile;
 		class PluginStreamProducer;
+		class PluginFFT;
 
 		class PluginState final
 			: private ParameterSet::RTListener
@@ -141,7 +142,7 @@
 			std::vector<std::unique_ptr<PluginParameter>> parameters;
 			std::vector<std::unique_ptr<PluginWidget>> widgets;
 			std::vector<std::unique_ptr<PluginAudioFile>> audioFiles;
-			std::vector<std::unique_ptr<APE_FFT>> ffts;
+			std::vector<std::unique_ptr<PluginFFT>> ffts;
 			std::vector<std::unique_ptr<PluginStreamProducer>> outputFiles;
 			std::map<std::string, PluginAudioFile*> originalSampleRateFiles;
 

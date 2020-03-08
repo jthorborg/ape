@@ -1016,6 +1016,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\..\..\make\skeleton\includes\resampling.h" />
+    <ClInclude Include="..\..\..\..\make\skeleton\includes\simd.h" />
     <ClInclude Include="..\..\..\..\make\skeleton\includes\trace.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h" />

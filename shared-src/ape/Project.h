@@ -104,6 +104,17 @@
 		/// Suggestion to carry out floating-point operations with approximately this amount of bits.
 		/// </summary>
 		int floatPrecision;
+
+		/// <summary>
+		/// Suggested "optimization" level.
+		/// </summary>
+		APE_Optimization_Level optimizationLevel;
+
+		/// <summary>
+		/// The amount of bits in the native SIMD CPU registers with a complete arithmetic instruction set.
+		/// Measured in terms of floats.
+		/// </summary>
+		int nativeVectorBitWidth;
 	};
 	
 	#ifdef __cplusplus

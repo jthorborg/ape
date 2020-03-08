@@ -25,6 +25,17 @@ namespace ape
 		// TODO: thread_local
 		return *lastIFace;
 	}
+
+	
+	void* memoryAlloc(std::size_t am, std::size_t align)
+	{
+		return lastIFace->alloc(lastIFace, APE_Alloc_Tiny, am, align);
+	}
+
+	void memoryFree(void* loc)
+	{
+		lastIFace->free(lastIFace, loc);
+	} 
 }
 
 using namespace ape;
@@ -98,19 +109,6 @@ extern "C"
 		PluginDelete //void * (SCRIPT_API * PluginFree)(ScriptInstance *);
 	};
 };
-
-
-
-
-void *operator new(std::size_t am)
-{
-	return lastIFace->alloc(lastIFace, APE_Alloc_Tiny, am);
-}
-
-void operator delete(void * loc) noexcept
-{
-	lastIFace->free(lastIFace, loc);
-}
 
 extern "C"
 {

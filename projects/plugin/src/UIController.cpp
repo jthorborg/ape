@@ -41,6 +41,7 @@
 #include "MainEditor/MainEditor.h"
 #include "CodeEditor/AutosaveManager.h"
 #include "UI/UICommands.h"
+#include <cpl/simd.h>
 
 namespace ape 
 {
@@ -498,6 +499,9 @@ namespace ape
 		case FPrecision::FP64: project.floatPrecision = 64; break;
 		case FPrecision::FP80: project.floatPrecision = 80; break;
 		}
+
+		project.nativeVectorBitWidth = cpl::simd::max_vector_capacity<float>() * sizeof(float) * CHAR_BIT;
+		project.optimizationLevel = APE_Optimization_Debug;
 	}
 
 	void UIController::setProjectName(std::string name) 

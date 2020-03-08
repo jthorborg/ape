@@ -237,7 +237,7 @@ namespace ape::api
 		return ret;
 	}
 
-	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size) 
+	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size, size_t align) 
 	{
 		VALIDATE_IFACE(iface);
 		return IEx::downcast(*iface).getCurrentPluginState().getPluginAllocator().alloc(label, size);
@@ -486,7 +486,7 @@ namespace ape::api
 		}
 	}
 
-	APE_FFT *APE_API createFFT(APE_SharedInterface * iface, APE_DataType type, size_t size)
+	int APE_API createFFT(APE_SharedInterface * iface, APE_DataType type, size_t size)
 	{
 		VALIDATE_IFACE(iface);
 		REQUIRES_TRUE(type == APE_DataType_Single || type == APE_DataType_Double);
@@ -496,40 +496,54 @@ namespace ape::api
 		auto& shared = IEx::downcast(*iface);
 		auto& pstate = shared.getCurrentPluginState();
 
-		return pstate.getPluginFFTs().emplace_back(APE_FFT::factory(size, type)).get();
+		auto& ffts = pstate.getPluginFFTs();
+
+		auto id = ffts.size();
+		ffts.emplace_back(PluginFFT::factory(size, type));
+
+		return static_cast<int>(id + 1);
 	}
 
-	void APE_API performFFT(APE_SharedInterface * iface, APE_FFT * fft, APE_FFT_Options options, const void * in, void * out)
+	void APE_API performFFT(APE_SharedInterface * iface, int fftID, APE_FFT_Options options, const void * in, void * out)
 	{
 		VALIDATE_IFACE(iface);
 		REQUIRES_NOTNULL(in);
 		REQUIRES_NOTNULL(out);
-		REQUIRES_NOTNULL(fft);
+		REQUIRES_NOTZERO(fftID);
 
-		return fft->transform(in, out, options);
+		auto& shared = IEx::downcast(*iface);
+		auto& pstate = shared.getCurrentPluginState();
+
+		auto& ffts = pstate.getPluginFFTs();
+
+		if (ffts.at(fftID - 1))
+		{
+			ffts[fftID - 1]->transform(in, out, options);
+		}
+		else
+		{
+			THROW("Invalid/free'd fft ID");
+		}
 	}
 
-	void APE_API releaseFFT(APE_SharedInterface * iface, APE_FFT * fft)
+	void APE_API releaseFFT(APE_SharedInterface * iface, int fftID)
 	{
 		VALIDATE_IFACE(iface);
-		REQUIRES_NOTNULL(fft);
+		REQUIRES_NOTZERO(fftID);
 
-		auto& ffts = IEx::downcast(*iface).getCurrentPluginState().getPluginFFTs();
+		auto& shared = IEx::downcast(*iface);
+		auto& pstate = shared.getCurrentPluginState();
 
-		bool done = false;
+		auto& ffts = pstate.getPluginFFTs();
 
-		for (std::size_t i = 0; i < ffts.size(); ++i)
+		if (ffts.at(fftID - 1))
 		{
-			if (fft == ffts[i].get())
-			{
-				ffts.erase(ffts.begin() + i);
-				done = true;
-				break;
-			}
+			ffts[fftID - 1] = nullptr;
 		}
-
-		if(!done)
+		else
+		{
 			THROW("Request to release non-owned FFT");
+		}
 	}
 	
 	void APE_API setTriggeringChannel(APE_SharedInterface * iface, int triggerChannel)

@@ -1,11 +1,37 @@
 #ifndef CPPAPE_RUNTIME_H
 #define CPPAPE_RUNTIME_H
-
 #ifndef __cplusplus
 #error baselib.h can only be used with a C++ compiler
 #endif
 
 #include <cstddef>
+#include <new>
+
+namespace ape
+{
+	void* memoryAlloc(std::size_t am, std::size_t align);
+	void memoryFree(void* loc);
+}
+
+void *operator new(std::size_t am)
+{
+	return ape::memoryAlloc(am, 64);
+}
+
+void *operator new(std::size_t am, std::align_val_t align)
+{
+	return ape::memoryAlloc(am, static_cast<std::size_t>(align));
+}
+
+void operator delete(void * loc) noexcept
+{
+	return ape::memoryFree(loc);
+}
+
+void operator delete(void * loc, std::align_val_t align) noexcept
+{
+	return ape::memoryFree(loc);
+}
 
 #ifdef __cppape
 #include "shared-src/ape/SharedInterface.h"

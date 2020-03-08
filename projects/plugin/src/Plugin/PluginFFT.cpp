@@ -36,7 +36,6 @@
 
 namespace ape
 {
-
 	static void Transform(std::complex<double>* signal, std::size_t N, APE_FFT_Options options)
 	{
 		double* buffer = reinterpret_cast<double*>(signal);
@@ -57,7 +56,7 @@ namespace ape
 		}
 	}
 
-	class PluginFFTSingle : public APE_FFT
+	class PluginFFTSingle : public PluginFFT
 	{
 	public:
 
@@ -91,11 +90,11 @@ namespace ape
 			Transform(buffer.data(), N, options);
 
 
-			const std::complex<float>* source = static_cast<const std::complex<float>*>(out);
+			std::complex<float>* dest = static_cast<std::complex<float>*>(out);
 
 			for (std::size_t i = 0; i < N; ++i)
 			{
-				buffer[i] = source[i];
+				dest[i] = buffer[i];
 			}
 		}
 
@@ -103,7 +102,7 @@ namespace ape
 		cpl::aligned_vector<std::complex<double>, 32> buffer;
 	};
 
-	class PluginFFTDouble : public APE_FFT
+	class PluginFFTDouble : public PluginFFT
 	{
 	public:
 
@@ -153,15 +152,16 @@ namespace ape
 	private:
 		cpl::aligned_vector<std::complex<double>, 32> buffer;
 	};
-}
 
-std::unique_ptr<APE_FFT> APE_FFT::factory(std::size_t size, APE_DataType type)
-{
-	switch (type)
+	std::unique_ptr<PluginFFT> PluginFFT::factory(std::size_t size, APE_DataType type)
 	{
-	case APE_DataType_Single: return std::unique_ptr<APE_FFT> { new ape::PluginFFTSingle(size) };
-	case APE_DataType_Double: return std::unique_ptr<APE_FFT> { new ape::PluginFFTDouble(size) };
+		switch (type)
+		{
+		case APE_DataType_Single: return std::unique_ptr<PluginFFT> { new ape::PluginFFTSingle(size) };
+		case APE_DataType_Double: return std::unique_ptr<PluginFFT> { new ape::PluginFFTDouble(size) };
+		}
+
+		CPL_RUNTIME_EXCEPTION("Trying to create an unsupported FFT");
 	}
 
-	CPL_RUNTIME_EXCEPTION("Trying to create an unsupported FFT");
 }

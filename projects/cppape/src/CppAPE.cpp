@@ -219,7 +219,9 @@ namespace CppAPE
 #ifdef CPL_MAC
 				.arg("-fno-use-cxa-atexit")
 #endif
+				.argPair("-D_LIBCPP_DEBUG=", "0", cpl::Args::NoSpace)
 				.argPair("-D__CPPAPE_PRECISION__=", std::to_string(getProject()->floatPrecision), cpl::Args::NoSpace)
+				.argPair("-D__CPPAPE_NATIVE_VECTOR_BIT_WIDTH__=", std::to_string(getProject()->nativeVectorBitWidth), cpl::Args::NoSpace)
 				.argPair("-D__STDC_VERSION__=", "199901L", cpl::Args::NoSpace)
 				.argPair("-std=", "c++17", cpl::Args::NoSpace)
 				.argPair("-include-pch", (dirRoot / "runtime" / "common.h.pch").string());
