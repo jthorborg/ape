@@ -72,6 +72,8 @@ namespace CppAPE
 				.arg("-O2")
 				.arg("-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS")
 				.arg("-D_LIBCPP_NO_VCRUNTIME")
+				.argPair("-D_LIBCPP_DEBUG=", "0", cpl::Args::NoSpace)
+
 				//.arg("-D_LIBCPP_BUILDING_LIBRARY")
 
 

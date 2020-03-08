@@ -237,7 +237,7 @@ namespace ape::api
 		return ret;
 	}
 
-	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size) 
+	void * APE_API alloc(APE_SharedInterface * iface, APE_AllocationLabel label, size_t size, size_t align) 
 	{
 		VALIDATE_IFACE(iface);
 		return IEx::downcast(*iface).getCurrentPluginState().getPluginAllocator().alloc(label, size);

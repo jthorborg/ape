@@ -113,6 +113,74 @@ namespace ape
 		std::size_t size() const noexcept { return length; }
 		
 		/// <summary>
+		/// Returns a new, constant uarray formed from a slice of the original.
+		/// </summary>
+		/// <param name="offset">
+		/// How much to skip from the start
+		/// </param>
+		/// <param name="newLength">
+		/// The length of the slice, starting from <paramref name="offset"/>.
+		/// The default value adopts the current length, and substract the offset
+		/// (ie. the remaining). 
+		/// </param>
+		uarray<T> slice(std::size_t offset, std::size_t newLength = -1) noexcept
+		{
+			assert(offset <= length);
+			if (newLength == -1)
+				newLength = length - offset;
+
+			assert((offset + newLength) <= length);
+			return { buffer + offset, newLength };
+		}
+
+		template<typename Other>
+		typename std::enable_if<std::is_standard_layout<Other>::value && !std::is_const<T>::value, uarray<Other>>::type
+			reinterpret() noexcept
+		{
+			static_assert((sizeof(T) / sizeof(Other)) * sizeof(Other) == sizeof(T), "Other is not divisble by T");
+			static_assert(alignof(T) <= alignof(Other), "Other is less aligned than T");
+
+			constexpr auto ratio = sizeof(T) / sizeof(Other);
+
+			return { reinterpret_cast<Other*>(buffer), length * ratio };
+		} 
+
+		template<typename Other>
+		typename std::enable_if<std::is_standard_layout<Other>::value && std::is_const<T>::value, uarray<const Other>>::type
+			reinterpret() const noexcept
+		{
+			static_assert((sizeof(T) / sizeof(Other)) * sizeof(Other) == sizeof(T), "Other is not divisble by T");
+			static_assert(alignof(T) <= alignof(Other), "Other is less aligned than T");
+
+			constexpr auto ratio = sizeof(T) / sizeof(Other);
+
+			return { reinterpret_cast<const Other*>(buffer), length * ratio };
+		}
+
+		/// <summary>
+		/// Returns a new, constant uarray formed from a slice of the original.
+		/// </summary>
+		/// <param name="offset">
+		/// How much to skip from the start
+		/// </param>
+		/// <param name="newLength">
+		/// The length of the slice, starting from <paramref name="offset"/>.
+		/// The default value adopts the current length, and substract the offset
+		/// (ie. the remaining). 
+		/// </param>
+		uarray<const T> slice(std::size_t offset, std::size_t newLength = -1) const noexcept
+		{
+			assert(offset <= length);
+
+			if (newLength == -1)
+				newLength = length - offset;
+
+			assert((offset + newLength) <= length);
+			return { buffer + offset, newLength };
+		}
+
+
+		/// <summary>
 		/// Implicit conversion operator to a const / read-only version of this <see cref="uarray"/>
 		/// </summary>
 		operator uarray<const T>() const noexcept
@@ -543,7 +611,7 @@ namespace ape
 	/// Where to start in <paramref name="c"/>.
 	/// </param>
 	template<typename Container>
-	auto cyclic_begin(Container& c, std::size_t offset)
+	inline auto cyclic_begin(Container& c, std::size_t offset)
 	{
 		circular_iterator<typename Container::value_type> ret;
 		ret.base = c.data();
@@ -566,7 +634,7 @@ namespace ape
 	/// How many iterations to be performed before the pair compares equal.
 	/// </param>
 	template<typename Container>
-	auto cyclic_end(Container& c, std::size_t offset, std::size_t length)
+	inline auto cyclic_end(Container& c, std::size_t offset, std::size_t length)
 	{
 		circular_iterator<typename Container::value_type> ret;
 		ret.base = c.data();
@@ -581,7 +649,16 @@ namespace ape
 	/// Clear a <see cref="uarray"/> of non-const qualified <typeparamref name="T"/> elements to a default-initialized value. 
 	/// </summary>
 	template<typename T>
-	typename std::enable_if<!std::is_const_v<T>>::type 
+	inline void clear(std::vector<T>& arr) noexcept
+	{
+		std::fill(arr.begin(), arr.end(), T());
+	}
+
+	/// <summary>
+	/// Clear a <see cref="uarray"/> of non-const qualified <typeparamref name="T"/> elements to a default-initialized value. 
+	/// </summary>
+	template<typename T>
+	inline typename std::enable_if<!std::is_const_v<T>>::type 
 		clear(uarray<T> arr) noexcept
 	{
 		std::fill(arr.begin(), arr.end(), T());
@@ -591,13 +668,37 @@ namespace ape
 	/// Clear a <see cref="umatrix"/> of non-const qualified <typeparamref name="T"/> elements to a default-initialized value. 
 	/// </summary>
 	template<typename T>
-	typename std::enable_if<!std::is_const_v<T>>::type
+	inline typename std::enable_if<!std::is_const_v<T>>::type
 		clear(umatrix<T> mat, std::size_t offset = 0) noexcept
 	{
 		for (std::size_t c = offset; c < mat.channels(); ++c)
 		{
 			clear(mat[c]);
 		}
+	}
+
+	template<typename T>
+	inline uarray<T> as_uarray(std::vector<T>& vec)
+	{
+		return { vec };
+	}
+
+	template<typename T>
+	inline uarray<const T> as_uarray(const std::vector<T>& vec)
+	{
+		return { vec };
+	}
+
+	template<typename T>
+	inline uarray<T> as_uarray(T* data, std::size_t size)
+	{
+		return { data, size };
+	}
+
+	template<typename T>
+	inline uarray<const T> as_uarray(const T* data, std::size_t size)
+	{
+		return { data, size };
 	}
 }
 

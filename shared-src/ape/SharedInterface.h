@@ -61,6 +61,22 @@
 		APE_FFT_NonScaled	= 1 << 2
 	} APE_FFT_Options;
 
+	typedef enum
+	{
+		/// <summary>
+		/// For checked builds, can include extra guards
+		/// </summary>
+		APE_Optimization_Debug,
+		/// <summary>
+		/// Whatever settings are the fastest to compile
+		/// </summary>
+		APE_Optimization_Fast,
+		/// <summary>
+		/// Whatever settings produce the fastest code
+		/// </summary>
+		APE_Optimization_Best
+	} APE_Optimization_Level;
+
 	struct APE_SharedInterface;
 
 	struct APE_AudioFile
