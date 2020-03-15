@@ -14,6 +14,10 @@
 		1594F6928A527A05BF7BA1FD /* AUInputElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E5CB323B005745953C1F7238 /* AUInputElement.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		1633D4412291DF4B00507E30 /* CPLSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1633D4402291DE3D00507E30 /* CPLSource.cpp */; };
 		1633D4432291DFD300507E30 /* MacSupport.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1633D4422291DFD300507E30 /* MacSupport.mm */; };
+		1633DB64241D512B00519B5C /* CodeEditorComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1633DB63241D512B00519B5C /* CodeEditorComponent.cpp */; };
+		1633DB67241D513C00519B5C /* RecentFilesManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1633DB66241D513C00519B5C /* RecentFilesManager.cpp */; };
+		1633DB6A241D515400519B5C /* EditorMenuModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1633DB69241D515400519B5C /* EditorMenuModel.cpp */; };
+		1633DB70241D520400519B5C /* PluginAudioWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1633DB6F241D520300519B5C /* PluginAudioWriter.cpp */; };
 		1654984522921EBE0090DC6D /* SignalizerSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984422921EBE0090DC6D /* SignalizerSource.cpp */; };
 		1654984822922D410090DC6D /* JAdvancedDock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984722922D410090DC6D /* JAdvancedDock.cpp */; };
 		1654984A22922D590090DC6D /* JDockableWindows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1654984922922D590090DC6D /* JDockableWindows.cpp */; };
@@ -36,7 +40,6 @@
 		16BAAAF9229206B500407F7D /* MainEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAABA229206B400407F7D /* MainEditor.cpp */; };
 		16BAAAFA229206B500407F7D /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAABC229206B400407F7D /* Engine.cpp */; };
 		16BAAAFB229206B500407F7D /* GraphicComponents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAABD229206B400407F7D /* GraphicComponents.cpp */; };
-		16BAAAFC229206B500407F7D /* CodeEditorWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAC5229206B400407F7D /* CodeEditorWindow.cpp */; };
 		16BAAAFD229206B500407F7D /* SourceProjectManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAC6229206B400407F7D /* SourceProjectManager.cpp */; };
 		16BAAAFE229206B500407F7D /* SourceFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAAC8229206B400407F7D /* SourceFile.cpp */; };
 		16BAAAFF229206B500407F7D /* CLangCodeTokeniser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16BAAACD229206B400407F7D /* CLangCodeTokeniser.cpp */; };
@@ -136,6 +139,14 @@
 		156DD2680F39D5059E9C4E3E /* CADebugMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CADebugMacros.h; path = Extras/CoreAudio/PublicUtility/CADebugMacros.h; sourceTree = DEVELOPER_DIR; };
 		1633D4402291DE3D00507E30 /* CPLSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPLSource.cpp; path = ../../../../external/cpl/CPLSource.cpp; sourceTree = "<group>"; };
 		1633D4422291DFD300507E30 /* MacSupport.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MacSupport.mm; path = ../../../../external/cpl/MacSupport.mm; sourceTree = "<group>"; };
+		1633DB63241D512B00519B5C /* CodeEditorComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditorComponent.cpp; sourceTree = "<group>"; };
+		1633DB65241D513500519B5C /* RecentFilesManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecentFilesManager.h; sourceTree = "<group>"; };
+		1633DB66241D513C00519B5C /* RecentFilesManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecentFilesManager.cpp; sourceTree = "<group>"; };
+		1633DB68241D514A00519B5C /* EditorMenuModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditorMenuModel.h; sourceTree = "<group>"; };
+		1633DB69241D515400519B5C /* EditorMenuModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorMenuModel.cpp; sourceTree = "<group>"; };
+		1633DB6B241D51D900519B5C /* PluginAudioFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PluginAudioFile.h; sourceTree = "<group>"; };
+		1633DB6E241D51FE00519B5C /* PluginAudioWriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PluginAudioWriter.h; sourceTree = "<group>"; };
+		1633DB6F241D520300519B5C /* PluginAudioWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginAudioWriter.cpp; sourceTree = "<group>"; };
 		1654984422921EBE0090DC6D /* SignalizerSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SignalizerSource.cpp; path = ../../../../external/signalizer/Source/Unity/SignalizerSource.cpp; sourceTree = "<group>"; };
 		1654984722922D410090DC6D /* JAdvancedDock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JAdvancedDock.cpp; path = "../../../../external/dockable-windows/Source/JAdvancedDock.cpp"; sourceTree = "<group>"; };
 		1654984922922D590090DC6D /* JDockableWindows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JDockableWindows.cpp; path = "../../../../external/dockable-windows/Source/JDockableWindows.cpp"; sourceTree = "<group>"; };
@@ -190,7 +201,6 @@
 		16BAAAC2229206B400407F7D /* SourceFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceFile.h; sourceTree = "<group>"; };
 		16BAAAC3229206B400407F7D /* BreakpointComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BreakpointComponent.h; sourceTree = "<group>"; };
 		16BAAAC4229206B400407F7D /* SourceProjectManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceProjectManager.h; sourceTree = "<group>"; };
-		16BAAAC5229206B400407F7D /* CodeEditorWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeEditorWindow.cpp; sourceTree = "<group>"; };
 		16BAAAC6229206B400407F7D /* SourceProjectManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourceProjectManager.cpp; sourceTree = "<group>"; usesTabs = 1; };
 		16BAAAC7229206B400407F7D /* CodeDocumentListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeDocumentListener.h; sourceTree = "<group>"; };
 		16BAAAC8229206B400407F7D /* SourceFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourceFile.cpp; sourceTree = "<group>"; };
@@ -487,10 +497,14 @@
 				16BAAAC2229206B400407F7D /* SourceFile.h */,
 				16BAAAC3229206B400407F7D /* BreakpointComponent.h */,
 				16BAAAC4229206B400407F7D /* SourceProjectManager.h */,
-				16BAAAC5229206B400407F7D /* CodeEditorWindow.cpp */,
 				16BAAAC6229206B400407F7D /* SourceProjectManager.cpp */,
 				16BAAAC7229206B400407F7D /* CodeDocumentListener.h */,
+				1633DB63241D512B00519B5C /* CodeEditorComponent.cpp */,
+				1633DB66241D513C00519B5C /* RecentFilesManager.cpp */,
 				16BAAAC8229206B400407F7D /* SourceFile.cpp */,
+				1633DB69241D515400519B5C /* EditorMenuModel.cpp */,
+				1633DB65241D513500519B5C /* RecentFilesManager.h */,
+				1633DB68241D514A00519B5C /* EditorMenuModel.h */,
 				16BAAAC9229206B400407F7D /* AutosaveManager.h */,
 				16BAAACA229206B400407F7D /* SourceManager.h */,
 				16BAAACB229206B400407F7D /* CodeEditorWindow.h */,
@@ -512,6 +526,9 @@
 				16BAAADF229206B500407F7D /* PluginFFT.cpp */,
 				16BAAAE0229206B500407F7D /* PluginAudioFile.cpp */,
 				16BAAAE1229206B500407F7D /* PluginCommandQueue.h */,
+				1633DB6E241D51FE00519B5C /* PluginAudioWriter.h */,
+				1633DB6B241D51D900519B5C /* PluginAudioFile.h */,
+				1633DB6F241D520300519B5C /* PluginAudioWriter.cpp */,
 				16BAAAE2229206B500407F7D /* PluginFFT.h */,
 				16BAAAE3229206B500407F7D /* PluginSurface.h */,
 				16BAAAE4229206B500407F7D /* PluginParameter.cpp */,
@@ -879,6 +896,7 @@
 				F04DD5DAB31758EA6DA3B5B9 /* AUMIDIEffectBase.cpp in Sources */,
 				16BAAB04229206B500407F7D /* SignalizerWindow.cpp in Sources */,
 				5FA7C6A798A0AB608879AD24 /* AUOutputBase.cpp in Sources */,
+				1633DB67241D513C00519B5C /* RecentFilesManager.cpp in Sources */,
 				FD0BB40E10EB1CD54DD0DFEA /* AUOutputElement.cpp in Sources */,
 				4B1C59256C13D33C979949D3 /* AUScopeElement.cpp in Sources */,
 				9D454DB0DB8AB802437C9D2F /* CAAudioChannelLayout.cpp in Sources */,
@@ -895,12 +913,12 @@
 				16BAAB02229206B500407F7D /* ReferenceFormattedString.cpp in Sources */,
 				16BAAAF6229206B500407F7D /* CCodeGenerator.cpp in Sources */,
 				16BAAAF8229206B500407F7D /* UIController.cpp in Sources */,
+				1633DB70241D520400519B5C /* PluginAudioWriter.cpp in Sources */,
 				C5D6BF31AE47E7BFE976C465 /* CAVectorUnit.cpp in Sources */,
 				16BAAAEF229206B500407F7D /* UICommands.cpp in Sources */,
 				16BAAAFE229206B500407F7D /* SourceFile.cpp in Sources */,
 				6B271497F4E0AA74CFDD42D0 /* ComponentBase.cpp in Sources */,
 				92F63859F1BFB57FC4FC4F90 /* MusicDeviceBase.cpp in Sources */,
-				16BAAAFC229206B500407F7D /* CodeEditorWindow.cpp in Sources */,
 				FFB63D759F346C82EB70D5AF /* juce_AU_Wrapper.mm in Sources */,
 				CF800B68C2EE79D155206E61 /* juce_audio_basics.mm in Sources */,
 				8F2F364D226892342D3B1122 /* juce_audio_devices.mm in Sources */,
@@ -928,6 +946,7 @@
 				15864BF0C6CA68EB08F77EF5 /* juce_gui_extra.mm in Sources */,
 				16BAAAFA229206B500407F7D /* Engine.cpp in Sources */,
 				F3CDADC57CD0C1F70D793AC1 /* juce_opengl.mm in Sources */,
+				1633DB6A241D515400519B5C /* EditorMenuModel.cpp in Sources */,
 				16BAAAFD229206B500407F7D /* SourceProjectManager.cpp in Sources */,
 				16BAAB06229206B500407F7D /* PluginWidget.cpp in Sources */,
 				16BAAB09229206B500407F7D /* PluginParameter.cpp in Sources */,
@@ -937,6 +956,7 @@
 				16BAAAF4229206B500407F7D /* PlayStateButton.cpp in Sources */,
 				16B0CA1322A2BB8400A65CFB /* CompilerBinding.cpp in Sources */,
 				16BAAAEE229206B500407F7D /* PluginState.cpp in Sources */,
+				1633DB64241D512B00519B5C /* CodeEditorComponent.cpp in Sources */,
 				5C2B928D01A769C75C649955 /* juce_VST3_Wrapper.cpp in Sources */,
 				79BBF961A0FC4793147DB06F /* juce_VST3_Wrapper.mm in Sources */,
 				B6D8286E09EA6948DCE902E7 /* juce_VST_Wrapper.cpp in Sources */,

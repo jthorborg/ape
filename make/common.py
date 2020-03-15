@@ -39,6 +39,11 @@ def external_to_skeleton(where, release):
     mergefolders("../shared-src", os.path.join(where, "includes", "shared-src"))
 
     examples_output = "examples" if release else "examples-release"
+    final_examples = os.path.join(where, examples_output)
+    
+    if os.path.isdir(final_examples):
+        os.path.rmtree(final_examples);
+		
     sh.copytree("../external/ape-snippets", os.path.join(where, examples_output), ignore = sh.ignore_patterns("*.md", "*.git"))
 
 def symlink_snippets(where):

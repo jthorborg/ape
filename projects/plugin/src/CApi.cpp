@@ -629,7 +629,7 @@ namespace ape::api
 				channels,
 				sampleRate,
 				bits,
-				hasQualities ? qualities[qualityIndex] : "default"
+				hasQualities ? qualities[qualityIndex].toStdString().c_str() : "default"
 			);
 
 			pstate.getOutputFiles().emplace_back(std::move(producer));
