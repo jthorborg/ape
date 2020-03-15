@@ -55,7 +55,7 @@ namespace ape
 			setColour(lineNumberBackgroundId, setting.lookUpValue(juce::Colour{ 0x1E, 0x1E, 0x1E }, "editor", "colours", "line_number", "background"));
 			setColour(lineNumberTextId, setting.lookUpValue(juce::Colour{ 0x7E, 0x7E, 0xAE }, "editor", "colours", "line_number", "text"));
 			setColour(juce::CaretComponent::caretColourId, setting.lookUpValue(juce::Colours::white, "editor", "colours", "caret"));
-
+			
 			autoIndent = setting.lookUpValue(true, "editor", "auto_indent");
 		}
 

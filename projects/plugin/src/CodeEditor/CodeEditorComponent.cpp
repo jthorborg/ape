@@ -82,7 +82,8 @@ namespace ape
     inline void CodeEditorComponent::rescale(float newScale)
     {
         scale = newScale;
-        wrapper.setTransform(juce::AffineTransform::identity.scaled(scale));
+        
+		textEditor.setFont(textEditor.getFont().withHeight(12 * scale));
         resized();
     }
 
@@ -92,8 +93,9 @@ namespace ape
 
         menuComponent.setBounds(getLocalBounds().withHeight(kMenuHeight));
 
-        auto bounds = juce::Rectangle<float>(0, kMenuHeight - 9, getWidth() / scale, getHeight() / scale);
+        auto bounds = juce::Rectangle<float>(0, kMenuHeight, getWidth(), getHeight() - kMenuHeight);
         wrapper.setBounds(bounds.toType<int>());
+		// local space
         tracer.setBounds(bounds.withRight(10).withTop(0).toType<int>());
         textEditor.setBounds(bounds.withTop(0).withLeft(10).toType<int>());
     }
