@@ -1731,6 +1731,7 @@
     <ClInclude Include="..\..\..\..\external\FileSystemWatcher\FileSystemWatcher.h" />
     <ClInclude Include="..\..\..\..\external\libconfig\lib\libconfig.hh" />
     <ClInclude Include="..\..\..\..\shared-src\ape\APE.h" />
+    <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\Events.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\Project.h" />
     <ClInclude Include="..\..\..\..\shared-src\ape\ProtoCompiler.hpp" />

@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "fpoint.h"
+#include "simd.h"
 
 namespace ape
 {

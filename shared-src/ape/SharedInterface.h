@@ -28,8 +28,8 @@
 
 *************************************************************************************/
 
-#ifndef APE_CSHAREDINTERFACE_H
-	#define APE_CSHAREDINTERFACE_H
+#ifndef APE_SHAREDINTERFACE_H
+	#define APE_SHAREDINTERFACE_H
 
 	#include "APE.h"
 

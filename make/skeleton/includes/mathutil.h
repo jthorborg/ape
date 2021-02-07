@@ -38,6 +38,15 @@ namespace ape
 			p <<= 1;
 		return p;
 	}
+
+	/// <summary>
+	/// Tests whether <paramref name="t"/> is a power of two.
+	/// </summary>
+	template<typename UIntType>
+	inline typename std::enable_if<std::is_unsigned<UIntType>::value, bool>::type ispow2(UIntType t)
+	{
+		return (t & (t - 1)) == 0;
+	}
 }
 
 #endif

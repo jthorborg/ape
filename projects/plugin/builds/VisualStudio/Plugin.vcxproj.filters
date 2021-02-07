@@ -3143,6 +3143,9 @@
     <ClInclude Include="..\..\src\CodeEditor\EditorMenuModel.h">
       <Filter>Audio Programming Environment\Headers\CodeEditor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h">
+      <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_module_info">
