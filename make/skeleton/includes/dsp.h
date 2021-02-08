@@ -102,6 +102,51 @@ namespace ape
 
 		return std::move(ret);
 	}
+
+	/// <summary>
+	/// Normalize each element in <paramref name="c"/> by the reciprocal square root of <paramref name="scale"/>
+	/// </summary>
+	template<typename T, typename Container>
+	auto normalize(Container& c, T scale, double threshold = 1e-8f) -> decltype(std::begin(c), std::end(c), void())
+	{
+		if (scale < threshold)
+			return;
+
+		const T normalization = T(1) / std::sqrt(scale);
+
+		for (auto it = std::begin(c); it != std::end(c); it++)
+			*it *= normalization;
+	}
+
+	/// <summary>
+	/// Returns an accumulation of the norm (square) of each element in the <paramref name="c"/>
+	/// </summary>
+	template<typename Container>
+	auto accumulate_norm(const Container& c) -> decltype(std::begin(c), std::end(c), std::norm(c[0]))
+	{
+		using namespace std;
+
+		using T = decltype(norm(c[0]));
+
+		T acc{};
+
+		for (auto it = begin(c); it != end(c); it++)
+		{
+			acc += norm(*it);
+		}
+
+		return acc;
+	}
+
+	/// <summary>
+	/// Multiplies each element in <paramref name="c"/> by <paramref name="scale"/>
+	/// </summary>
+	template<typename T, typename Container>
+	auto multiply(Container& c, T scale) -> decltype(std::begin(c), std::end(c), void())
+	{
+		for (auto it = std::begin(c); it != std::end(c); it++)
+			*it *= scale;
+	}
 }
 
 #endif
