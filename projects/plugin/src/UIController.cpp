@@ -239,6 +239,7 @@ namespace ape
 		if (plugin->disableProject())
 		{
 			if (!currentPlugin)
+			if (!currentPlugin || currentPlugin == plugin)
 			{
 				getLabelQueue().setDefaultMessage("Plugin disabled", CColours::lightgoldenrodyellow);
 				getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
