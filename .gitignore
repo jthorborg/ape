@@ -42,3 +42,4 @@ make/skeleton/compilers/CppAPE/libCppAPE.dylib
 make/skeleton/compilers/CppAPE/libcppjit.dylib
 projects/cppape/builds/VisualStudio/libCppJit.lib
 doc/
+projects/cppape/src/libCppJit.h
