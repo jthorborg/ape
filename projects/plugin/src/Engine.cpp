@@ -41,6 +41,7 @@
 #include "UI/UICommands.h"
 #include <cpl/system/SysStats.h>
 #include "version.h"
+#include <cpl/dsp/SignalSanitizer.h>
 
 namespace cpl
 {
@@ -66,8 +67,8 @@ namespace ape
 		, averageClocks(0)
 		, codeGenerator(*this)
 		, settings(true, cpl::Misc::DirFSPath() / "config.cfg")
-		, incoming(0xF, 0xF)
-		, outgoing(0xF, 0xF)
+		, incoming(0x2F, 0x2F)
+		, outgoing(0x2F, 0x2F)
 		, currentPlugin(nullptr)
 		, currentTracer(nullptr)
 	{
@@ -124,6 +125,10 @@ namespace ape
 	void Engine::loadSettings()
 	{
 		useFPE = settings.lookUpValue(false, "application", "use_fpe");
+		haltOnNans = settings.lookUpValue(false, "application", "halt_on_nans");
+		sanitizeNans = settings.lookUpValue(false, "application", "sanitize_output");
+		denormalsAreZero = settings.lookUpValue(false, "application", "ftz_daz");
+
 		preserveParameters = settings.lookUpValue(true, "application", "preserve_parameters");
 	}
 
@@ -239,6 +244,15 @@ namespace ape
 
 	void Engine::processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midiMessages)
 	{
+		std::uint32_t sanitizerFlags{};
+
+		if (denormalsAreZero)
+			sanitizerFlags |= cpl::dsp::SignalSanitizer::Denormal;
+		if(sanitizeNans)
+			sanitizerFlags |= cpl::dsp::SignalSanitizer::NaN;
+
+		cpl::dsp::SignalSanitizer sanitizer(sanitizerFlags);
+
 		const std::size_t numSamples = buffer.getNumSamples();
 		std::size_t numTraces = 0;
 		auxMatrix.softBufferResize(numSamples);
@@ -269,7 +283,7 @@ namespace ape
 					auxMatrix.accumulate(tempBuffer.data(), ioConfig.inputs, ioConfig.outputs, 1.0f, 0.0f);
 				}
 
-				outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, reason));
+				outgoing.pushElement<true, false>(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, reason));
 
 				currentPlugin = command.transfer.state;
 				newPluginArrived = true;
@@ -290,7 +304,7 @@ namespace ape
 
 			if (!processPlugin(*currentPlugin, *currentTracer, numSamples, buffer.getArrayOfReadPointers(), &numTraces))
 			{
-				outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, PluginExchangeReason::Crash));
+				outgoing.pushElement<true, false>(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, PluginExchangeReason::Crash));
 				currentPlugin = nullptr;
 				currentTracer = nullptr;
 
@@ -312,12 +326,23 @@ namespace ape
 
 		scopeData.getStream().processIncomingRTAudio(auxMatrix.data(), ioConfig.inputs + ioConfig.outputs + numTraces, numSamples, *getPlayHead());
 
+		// Output stage.
 		for (int i = 0; i < getNumOutputChannels(); ++i)
 		{
-			buffer.copyFrom(i, 0, auxMatrix[ioConfig.inputs + i], static_cast<int>(numSamples));
+			float* output = buffer.getWritePointer(i);
+			const auto sanitization = sanitizer.process(static_cast<int>(numSamples), auxMatrix[ioConfig.inputs + i], output, 0.0f);
+
+			if (sanitization.hasNaN || sanitization.hasDenormal)
+			{
+				if (haltOnNans && currentPlugin && sanitization.hasNaN)
+				{
+					outgoing.pushElement(EngineCommand::TransferPlugin::Return(currentPlugin, currentTracer, PluginExchangeReason::NanOutput));
+					currentPlugin = nullptr;
+					currentTracer = nullptr;
+				}
+			}
 		}
-
-
+		
 		// In case we have more outputs than inputs, we'll clear any output
 		// channels that didn't contain input data, (because these aren't
 		// guaranteed to be empty - they may contain garbage).
@@ -569,7 +594,7 @@ namespace ape
 		}
 	}
 
-	}
+}
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

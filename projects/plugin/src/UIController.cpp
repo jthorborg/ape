@@ -236,22 +236,48 @@ namespace ape
 
 	void UIController::pluginExchanged(std::shared_ptr<PluginState> plugin, PluginExchangeReason reason)
 	{
+		const char* stringReason;
+
+		juce::Colour colour;
+
+		switch (reason)
+		{
+		case PluginExchangeReason::Crash:
+			stringReason = "crashed";
+			colour = CColours::red;
+			break;
+
+		case PluginExchangeReason::NanOutput:
+
+			stringReason = "produced bad output";
+			colour = CColours::orangered;
+
+			break;
+
+		case PluginExchangeReason::Exchanged:
+		default:
+			colour = CColours::lightgoldenrodyellow;
+
+			stringReason = "exchanged";
+		}
+
 		if (plugin->disableProject())
 		{
-			if (!currentPlugin)
 			if (!currentPlugin || currentPlugin == plugin)
 			{
-				getLabelQueue().setDefaultMessage("Plugin disabled", CColours::lightgoldenrodyellow);
+				getLabelQueue().setDefaultMessage(stringReason, colour);
 				getUICommandState().changeValueExternally(getUICommandState().activationState, 0);
 			}
 			else
-				getLabelQueue().pushMessage("Previous plugin disabled", CColours::lightgoldenrodyellow, 2000);
+				getLabelQueue().pushMessage("Previous plugin disabled", colour, 2000);
 
-			getConsole().printLine("[Engine] : Plugin disabled without error." );
+			auto consoleColour = ((reason & PluginExchangeReason::IssueMask) != PluginExchangeReason::Zero) ? APE_TextColour_Error : APE_TextColour_Default;
+
+			getConsole().printLine(consoleColour, "[Engine] : Plugin disabled without error, reason: %s", stringReason);
 		}
 		else
 		{
-			getConsole().printLine("[Engine] : Unexpected return value from disabling plugin, plugin disposed");
+			getConsole().printLine(APE_TextColour_Error, "[Engine] : Unexpected return value from disabling plugin, plugin disposed");
 			if (plugin == currentPlugin)
 				plugin = currentPlugin = nullptr;
 		}

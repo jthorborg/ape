@@ -45,6 +45,7 @@
 	// TODO: remove
 	#include "SignalizerWindow.h"
 	#include <cpl/lib/LockFreeQueue.h>
+	#include <cpl/dsp/SignalSanitizer.h>
 	
 	namespace ape 
 	{
@@ -152,7 +153,10 @@
 			bool 
 				isPlaying = false, 
 				fadePlugins = true, 
-				useFPE = false, 
+				useFPE = false,
+				sanitizeNans = true,
+				denormalsAreZero = false,
+				haltOnNans = false, 
 				preserveParameters = true;
 
 

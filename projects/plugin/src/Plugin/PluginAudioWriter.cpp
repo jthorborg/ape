@@ -43,7 +43,7 @@ namespace ape
 		{
 			if (auto writer = format.createWriterFor(stream, sampleRate, channels, bits, juce::StringPairArray(), quality))
 			{
-				return std::make_unique<PluginStreamProducer>(writer, static_cast<juce::TimeSliceThread&>(instance), PluginStreamProducer::kBufferSize);
+				return std::make_unique<PluginStreamProducer>(writer, static_cast<juce::TimeSliceThread&>(instance), static_cast<int>(PluginStreamProducer::kBufferSize));
 			}
 			else
 			{

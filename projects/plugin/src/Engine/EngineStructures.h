@@ -42,7 +42,10 @@
 		enum class PluginExchangeReason
 		{
 			Exchanged = 1 << 0,
-			Crash = 1 << 1
+			Crash = 1 << 1,
+			NanOutput = 1 << 2,
+			IssueMask = Crash | NanOutput,
+			Zero = 0
 		};
 
 		inline PluginExchangeReason operator | (PluginExchangeReason a, PluginExchangeReason b)
@@ -268,7 +271,8 @@
             
 			enum class Type
 			{
-				Transfer = 7
+				Transfer = 7,
+				Diagnostic
 			};
 
 			struct TransferPlugin
@@ -303,9 +307,22 @@
                 TransientPluginOptions options;
 			};
 
+			struct ChannelDiagnostic
+			{
+				PluginState* state;
+				std::uint8_t channel;
+				bool subnormal;
+				bool hot;
+				bool nans;
+			};
+
 			Type type;
 
-			TransferPlugin transfer;
+			union
+			{
+				ChannelDiagnostic diagnostic;
+				TransferPlugin transfer;
+			};
 		};
 	}
 #endif
