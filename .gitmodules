@@ -7,21 +7,21 @@
 	branch = mob
 [submodule "external/cpl"]
 	path = external/cpl
-	url = https://bitbucket.org/Mayae/cpl.git
+	url = https://github.com/jthorborg/cpl.git
 	branch = dev/stable
 [submodule "external/ape-snippets"]
 	path = external/ape-snippets
-	url = https://bitbucket.org/Mayae/ape-snippets.git
+	url = https://github.com/jthorborg/ape-snippets.git
 [submodule "external/signalizer"]
 	path = external/signalizer
-	url = https://bitbucket.org/Mayae/signalizer.git
+	url = https://github.com/jthorborg/signalizer.git
 [submodule "external/libcxx"]
 	path = external/libcxx
 	url = git://github.com/jthorborg/libcxx.git
 	branch = embedded/minimal-jit
 [submodule "external/ccore"]
 	path = external/ccore
-	url = https://bitbucket.org/Mayae/ccore.git
+	url = https://github.com/jthorborg/ccore.git
 [submodule "external/dockable-windows"]
 	path = external/dockable-windows
 	url = https://github.com/jthorborg/dockable-windows.git
