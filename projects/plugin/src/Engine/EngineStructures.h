@@ -309,6 +309,18 @@
 
 			struct ChannelDiagnostic
 			{
+				static EngineCommand Create(PluginState* state, std::uint8_t channel, bool anyDenormals, bool signalWasHot, bool nansWereDetected)
+				{
+					EngineCommand ret;
+					ret.type = Type::Diagnostic;
+					ret.diagnostic.state = state;
+					ret.diagnostic.channel = channel;
+					ret.diagnostic.subnormal = anyDenormals;
+					ret.diagnostic.nans = nansWereDetected;
+
+					return ret;
+				}
+
 				PluginState* state;
 				std::uint8_t channel;
 				bool subnormal;

@@ -1632,6 +1632,9 @@
     <ClCompile Include="..\..\src\CodeEditor\CodeEditorComponent.cpp">
       <Filter>Audio Programming Environment\Source\CodeEditor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\UI\ChannelDiagnosticVisualizer.cpp">
+      <Filter>Audio Programming Environment\Source\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h">
@@ -3145,6 +3148,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\shared-src\ape\CompilerBindings.h">
       <Filter>Audio Programming Environment\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\UI\ChannelDiagnosticVisualizer.h">
+      <Filter>Audio Programming Environment\Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

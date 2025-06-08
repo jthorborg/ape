@@ -67,7 +67,7 @@ namespace ape
 		, averageClocks(0)
 		, codeGenerator(*this)
 		, settings(true, cpl::Misc::DirFSPath() / "config.cfg")
-		, incoming(0x2F, 0x2F)
+		, incoming(0xF, 0xF)
 		, outgoing(0x2F, 0x2F)
 		, currentPlugin(nullptr)
 		, currentTracer(nullptr)
@@ -206,7 +206,14 @@ namespace ape
 						pluginStates.erase(pluginStates.begin() + i);
 					}
 				}
+				break;
+			case EngineCommand::Type::Diagnostic:
+				controller->getConsole().printLine(APE_TextColour_Warning, "Diagnostic: %d %d %d", (int)command.diagnostic.channel, (int)command.diagnostic.nans, (int)command.diagnostic.subnormal);
 
+				break;
+			default:
+				controller->getConsole().printLine(APE_TextColour_Error, "Unknown command in return queue %d", static_cast<int>(command.type));
+				break;
 			}
 		}
 	}
@@ -340,6 +347,8 @@ namespace ape
 					currentPlugin = nullptr;
 					currentTracer = nullptr;
 				}
+
+				outgoing.pushElement(EngineCommand::ChannelDiagnostic::Create(currentPlugin, static_cast<std::uint8_t>(i), sanitization.hasDenormal, false, sanitization.hasNaN));
 			}
 		}
 		
@@ -598,6 +607,7 @@ namespace ape
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
+	// TODO: not legal to return a null ptr?
 	ape::Engine * effect = nullptr;
 	try
 	{

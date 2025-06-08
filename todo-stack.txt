@@ -1,0 +1,4 @@
+defaults (language, working directory) for projects that don't exist as a file 
+sound lookup location (built in files?)
+Hot reloading erases parameter traits (because after disabling?)
+no plugin loading doesn't bypass.
